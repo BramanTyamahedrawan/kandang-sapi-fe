@@ -6,6 +6,7 @@ import { UploadOutlined } from "@ant-design/icons";
 import { v4 as uuidv4 } from "uuid";
 import { addPetugasBulk } from "@/api/petugas";
 import { addPeternakBulk } from "@/api/peternak";
+import { addKandangBulk } from "@/api/kandang";
 
 export const sendPetugasBulkData = async (data, batchSize = 100) => {
   const totalBatches = Math.ceil(data.length / batchSize);
@@ -39,6 +40,29 @@ export const sendPeternakBulkData = async (data, batchSize = 100) => {
     try {
       console.log(`Data Peternak (Batch ${i + 1}):`, batchData); // Log data yang dikirim
       const response = await addPeternakBulk(batchData);
+      console.log(
+        `Batch ${i + 1}/${totalBatches} berhasil dikirim`,
+        response.data
+      );
+    } catch (error) {
+      console.error(
+        `Batch ${i + 1}/${totalBatches} gagal dikirim`,
+        error.response?.data || error.message
+      );
+      throw error; // Hentikan proses jika batch gagal
+    }
+  }
+};
+
+const sendKandangBulkData = async (data, batchSize = 100) => {
+  const totalBatches = Math.ceil(data.length / batchSize);
+
+  for (let i = 0; i < totalBatches; i++) {
+    const batchData = data.slice(i * batchSize, (i + 1) * batchSize);
+
+    try {
+      console.log(`Data Kandang (Batch ${i + 1}):`, batchData); // Log data yang dikirim
+      const response = await addKandangBulk(batchData);
       console.log(
         `Batch ${i + 1}/${totalBatches} berhasil dikirim`,
         response.data
@@ -156,6 +180,7 @@ export default class ImportAllData extends Component {
         const generateIdKandang = uuidv4();
         const generateIdHewan = uuidv4();
         const generateIdVaksin = uuidv4();
+
         const nikPeternak = cleanNik(
           row[columnMapping["NIK Pemilik Ternak*)"]]
         );
@@ -182,6 +207,10 @@ export default class ImportAllData extends Component {
             Math.floor(Math.random() * 28)
           );
           return randomDate.toISOString().split("T")[0];
+        };
+
+        const generateJenisKandang = (jenisKandang) => {
+          return jenisKandang || "Permanen";
         };
 
         console.log("Row Data:", row);
@@ -240,6 +269,36 @@ export default class ImportAllData extends Component {
 
         console.log("Peternak Bulk api:", peternakBulk);
 
+        const dataKandang = {
+          idKandang: generateIdKandang,
+          peternak_id: generateIdPeternak,
+          nikPeternak: cleanNik(row[columnMapping["NIK Pemilik Ternak*)"]]),
+          namaKandang: `kandang ${row[columnMapping["Nama Pemilik Ternak*)"]]}`,
+          alamat: row[columnMapping["Alamat Kandang**)"]],
+          luas: row[columnMapping["Luas Kandang*)"]] || "-",
+          nilaiBangunan: row[columnMapping["Nilai Bangunan*)"]] || "-",
+          jenisKandang: generateJenisKandang(
+            row[columnMapping["Jenis Kandang*)"]]
+          ),
+          latitude: row[columnMapping["latitude"]],
+          longitude: row[columnMapping["longitude"]],
+        };
+
+        // const dataKandang = {
+        //   idKandang: generateIdKandang,
+        //   peternak_id: generateIdPeternak,
+        //   nikPeternak: cleanNik(row[columnMapping["NIK Pemilik Ternak*)"]]),
+        //   namaKandang: `kandang ${row[columnMapping["Nama Pemilik Ternak*)"]]}`,
+        //   alamat: getValidData(row, columnMapping, "Alamat Kandang**)"),
+        //   luas: getValidData(row, columnMapping, "Luas Kandang*)"),
+        //   nilaiBangunan: getValidData(row, columnMapping, "Nilai Bangunan*)"),
+        //   jenisKandang: generateJenisKandang(
+        //     row[columnMapping["Jenis Kandang*)"]]
+        //   ),
+        //   latitude: getValidData(row, columnMapping, "latitude"),
+        //   longitude: getValidData(row, columnMapping, "longitude"),
+        // };
+
         const dataJenisHewan = {
           idJenisHewan: generateIdJenisHewan,
           jenis: getValidData(row, columnMapping, "Jenis Ternak*)"),
@@ -252,13 +311,6 @@ export default class ImportAllData extends Component {
           rumpun: getValidData(row, columnMapping, "Rumpun Ternak*)"),
           deskripsi:
             "Deskripsi " + getValidData(row, columnMapping, "Rumpun Ternak*)"),
-        };
-
-        const dataKandang = {
-          idKandang: generateIdKandang,
-          peternak_id: generateIdPeternak,
-          jenisHewanId: generateIdJenisHewan,
-          alamat: getValidData(row, columnMapping, "Alamat Kandang*)"),
         };
 
         const dataTernak = {
@@ -305,9 +357,12 @@ export default class ImportAllData extends Component {
       try {
         console.log("Petugas Pendataan Bulk api: ", petugasPendataanBulk);
         console.log("Peternak Bulk api :", peternakBulk);
+        console.log("Kandang Bulk api :", kandangBulk);
         // await sendPetugasBulkData(petugasVaksinasiBulk);
         await sendPetugasBulkData(petugasPendataanBulk);
         await sendPeternakBulkData(peternakBulk);
+        await sendKandangBulkData(kandangBulk);
+        // await sendJenisHewanBulkData(jenisHewanBulk);
 
         // await sendPeternakImport(peternakBulk)
         // await sendJenisHewanImport(jenisHewanBulk)
