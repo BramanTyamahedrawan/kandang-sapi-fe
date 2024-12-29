@@ -7,6 +7,7 @@ import { v4 as uuidv4 } from "uuid";
 import { addPetugasBulk } from "@/api/petugas";
 import { addPeternakBulk } from "@/api/peternak";
 import { addKandangBulk } from "@/api/kandang";
+import { addJenisHewanBulk } from "@/api/jenisHewan";
 
 export const sendPetugasBulkData = async (data, batchSize = 100) => {
   const totalBatches = Math.ceil(data.length / batchSize);
@@ -16,11 +17,11 @@ export const sendPetugasBulkData = async (data, batchSize = 100) => {
 
     try {
       console.log(`Data Petugas (Batch ${i + 1}):`, batchData); // Log data yang dikirim
-      const response = await addPetugasBulk(batchData);
-      console.log(
-        `Batch ${i + 1}/${totalBatches} berhasil dikirim`,
-        response.data
-      );
+      // const response = await addPetugasBulk(batchData);
+      // console.log(
+      //   `Batch ${i + 1}/${totalBatches} berhasil dikirim`,
+      //   response.data
+      // );
     } catch (error) {
       console.error(
         `Batch ${i + 1}/${totalBatches} gagal dikirim`,
@@ -39,11 +40,11 @@ export const sendPeternakBulkData = async (data, batchSize = 100) => {
 
     try {
       console.log(`Data Peternak (Batch ${i + 1}):`, batchData); // Log data yang dikirim
-      const response = await addPeternakBulk(batchData);
-      console.log(
-        `Batch ${i + 1}/${totalBatches} berhasil dikirim`,
-        response.data
-      );
+      // const response = await addPeternakBulk(batchData);
+      // console.log(
+      //   `Batch ${i + 1}/${totalBatches} berhasil dikirim`,
+      //   response.data
+      // );
     } catch (error) {
       console.error(
         `Batch ${i + 1}/${totalBatches} gagal dikirim`,
@@ -62,7 +63,30 @@ const sendKandangBulkData = async (data, batchSize = 100) => {
 
     try {
       console.log(`Data Kandang (Batch ${i + 1}):`, batchData); // Log data yang dikirim
-      const response = await addKandangBulk(batchData);
+      // const response = await addKandangBulk(batchData);
+      // console.log(
+      //   `Batch ${i + 1}/${totalBatches} berhasil dikirim`,
+      //   response.data
+      // );
+    } catch (error) {
+      console.error(
+        `Batch ${i + 1}/${totalBatches} gagal dikirim`,
+        error.response?.data || error.message
+      );
+      throw error; // Hentikan proses jika batch gagal
+    }
+  }
+};
+
+const sendJenisHewanBulkData = async (data, batchSize = 100) => {
+  const totalBatches = Math.ceil(data.length / batchSize);
+
+  for (let i = 0; i < totalBatches; i++) {
+    const batchData = data.slice(i * batchSize, (i + 1) * batchSize);
+
+    try {
+      console.log(`Data Jenis Hewan (Batch ${i + 1}):`, batchData); // Log data yang dikirim
+      const response = await addJenisHewanBulk(batchData);
       console.log(
         `Batch ${i + 1}/${totalBatches} berhasil dikirim`,
         response.data
@@ -284,24 +308,9 @@ export default class ImportAllData extends Component {
           longitude: row[columnMapping["longitude"]],
         };
 
-        // const dataKandang = {
-        //   idKandang: generateIdKandang,
-        //   peternak_id: generateIdPeternak,
-        //   nikPeternak: cleanNik(row[columnMapping["NIK Pemilik Ternak*)"]]),
-        //   namaKandang: `kandang ${row[columnMapping["Nama Pemilik Ternak*)"]]}`,
-        //   alamat: getValidData(row, columnMapping, "Alamat Kandang**)"),
-        //   luas: getValidData(row, columnMapping, "Luas Kandang*)"),
-        //   nilaiBangunan: getValidData(row, columnMapping, "Nilai Bangunan*)"),
-        //   jenisKandang: generateJenisKandang(
-        //     row[columnMapping["Jenis Kandang*)"]]
-        //   ),
-        //   latitude: getValidData(row, columnMapping, "latitude"),
-        //   longitude: getValidData(row, columnMapping, "longitude"),
-        // };
-
         const dataJenisHewan = {
           idJenisHewan: generateIdJenisHewan,
-          jenis: getValidData(row, columnMapping, "Jenis Ternak*)"),
+          jenis: getValidData(row, columnMapping, "Jenis Ternak**)"),
           deskripsi:
             "Deskripsi " + getValidData(row, columnMapping, "Jenis Ternak*)"),
         };
@@ -362,7 +371,7 @@ export default class ImportAllData extends Component {
         await sendPetugasBulkData(petugasPendataanBulk);
         await sendPeternakBulkData(peternakBulk);
         await sendKandangBulkData(kandangBulk);
-        // await sendJenisHewanBulkData(jenisHewanBulk);
+        await sendJenisHewanBulkData(jenisHewanBulk);
 
         // await sendPeternakImport(peternakBulk)
         // await sendJenisHewanImport(jenisHewanBulk)
