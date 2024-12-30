@@ -1,4 +1,5 @@
 /* eslint-disable no-unused-vars */
+import { addKandangBulk } from "@/api/kandang";
 import { addPeternakBulk } from "@/api/peternak";
 import { addPetugasBulk } from "@/api/petugas";
 import { UploadOutlined } from "@ant-design/icons";
@@ -63,11 +64,11 @@ const sendKandangBulkData = async (data, batchSize = 100) => {
 
     try {
       console.log(`Data Kandang (Batch ${i + 1}):`, batchData); // Log data yang dikirim
-      // const response = await addKandangBulk(batchData);
-      // console.log(
-      //   `Batch ${i + 1}/${totalBatches} berhasil dikirim`,
-      //   response.data
-      // );
+      const response = await addKandangBulk(batchData);
+      console.log(
+        `Batch ${i + 1}/${totalBatches} berhasil dikirim`,
+        response.data
+      );
     } catch (error) {
       console.error(
         `Batch ${i + 1}/${totalBatches} gagal dikirim`,
@@ -169,15 +170,7 @@ function parseAddress(address) {
 }
 
 // set email "-" jika tidak ada @
-function validateEmail(email) {
-  // Cek apakah email mengandung karakter '@'
-  if (!email.includes("@")) {
-    // Ganti '@' yang hilang dengan '-'
-    return email.replace(/ /g, "-") + "-";
-  }
-  // Jika sudah ada '@', kembalikan email apa adanya
-  return email;
-}
+
 const getValidData = (row, columnMapping, columnKey) => {
   return row[columnMapping[columnKey]] == null
     ? "-"
@@ -292,6 +285,15 @@ export default class ImportAllData extends Component {
           return name.toLowerCase().replace(/\s+/g, "") + "@gmail.com";
         };
 
+        const validateEmail  = (email) => {
+          // Cek apakah email mengandung karakter '@'
+          if (!email.includes('@')) {
+            return generateEmailFromName(); // Jika nama tidak ada, beri default
+          }
+          // Jika ada '@', kembalikan email apa adanya
+          return email;
+        }
+
         const generateDefaultPhoneNumber = () => {
           const randomNumber = Math.floor(
             1000000000 + Math.random() * 9000000000
@@ -315,6 +317,10 @@ export default class ImportAllData extends Component {
         const pecahAlamat = parseAddress(
           row[columnMapping["Alamat Pemilik Ternak*)"]]
         );
+
+        // const setEmail =;
+
+
 
         console.log("Row Data:", row);
 
@@ -348,7 +354,9 @@ export default class ImportAllData extends Component {
             noTelepon:
               row[columnMapping["No. Telp Pemilik Ternak*)"]] ||
               generateDefaultPhoneNumber(),
-            email: validateEmail(row[columnMapping["Email Pemilik Ternak*)"]]),
+            email:  validateEmail(
+                row[columnMapping["Email Pemilik Ternak"]]
+              ),
             nikPetugas: cleanNik(row[columnMapping["NIK Petugas Pendataan*)"]]),
             alamat: row[columnMapping["Alamat Pemilik Ternak*)"]] || "-",
             dusun: pecahAlamat.dusun,
@@ -383,6 +391,7 @@ export default class ImportAllData extends Component {
           ),
           latitude: row[columnMapping["latitude"]],
           longitude: row[columnMapping["longitude"]],
+          
         };
 
         const dataJenisHewan = {
@@ -449,7 +458,7 @@ export default class ImportAllData extends Component {
         // await sendPetugasBulkData(petugasVaksinasiBulk);
         await sendPetugasBulkData(petugasPendataanBulk);
         await sendPeternakBulkData(peternakBulk);
-        // await sendKandangBulkData(kandangBulk);
+        await sendKandangBulkData(kandangBulk);
         // await sendJenisHewanBulkData(jenisHewanBulk);
         // await sendRumpunHewanBulkData(rumpunHewanBulk);
         // await sendTernakHewanBulkData(ternakHewanBulk);
