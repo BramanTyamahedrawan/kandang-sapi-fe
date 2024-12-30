@@ -9,7 +9,7 @@ import { addPeternakBulk } from "@/api/peternak";
 import { addKandangBulk } from "@/api/kandang";
 import { addJenisHewanBulk } from "@/api/jenisHewan";
 import { addRumpunHewanBulk } from "@/api/rumpunhewan";
-import { addTernakHewanBulk } from "@/api/hewan";
+import { addTernakBulk } from "@/api/hewan";
 
 export const sendPetugasBulkData = async (data, batchSize = 100) => {
   const totalBatches = Math.ceil(data.length / batchSize);
@@ -18,12 +18,12 @@ export const sendPetugasBulkData = async (data, batchSize = 100) => {
     const batchData = data.slice(i * batchSize, (i + 1) * batchSize);
 
     try {
-      // console.log(`Data Petugas (Batch ${i + 1}):`, batchData); // Log data yang dikirim
-      // const response = await addPetugasBulk(batchData);
-      // console.log(
-      //   `Batch ${i + 1}/${totalBatches} berhasil dikirim`,
-      //   response.data
-      // );
+      console.log(`Data Petugas (Batch ${i + 1}):`, batchData); // Log data yang dikirim
+      const response = await addPetugasBulk(batchData);
+      console.log(
+        `Batch ${i + 1}/${totalBatches} berhasil dikirim`,
+        response.data
+      );
     } catch (error) {
       console.error(
         `Batch ${i + 1}/${totalBatches} gagal dikirim`,
@@ -41,12 +41,12 @@ export const sendPeternakBulkData = async (data, batchSize = 100) => {
     const batchData = data.slice(i * batchSize, (i + 1) * batchSize);
 
     try {
-      // console.log(`Data Peternak (Batch ${i + 1}):`, batchData); // Log data yang dikirim
-      // const response = await addPeternakBulk(batchData);
-      // console.log(
-      //   `Batch ${i + 1}/${totalBatches} berhasil dikirim`,
-      //   response.data
-      // );
+      console.log(`Data Peternak (Batch ${i + 1}):`, batchData); // Log data yang dikirim
+      const response = await addPeternakBulk(batchData);
+      console.log(
+        `Batch ${i + 1}/${totalBatches} berhasil dikirim`,
+        response.data
+      );
     } catch (error) {
       console.error(
         `Batch ${i + 1}/${totalBatches} gagal dikirim`,
@@ -64,12 +64,12 @@ const sendKandangBulkData = async (data, batchSize = 100) => {
     const batchData = data.slice(i * batchSize, (i + 1) * batchSize);
 
     try {
-      // console.log(`Data Kandang (Batch ${i + 1}):`, batchData); // Log data yang dikirim
-      // const response = await addKandangBulk(batchData);
-      // console.log(
-      //   `Batch ${i + 1}/${totalBatches} berhasil dikirim`,
-      //   response.data
-      // );
+      console.log(`Data Kandang (Batch ${i + 1}):`, batchData); // Log data yang dikirim
+      const response = await addKandangBulk(batchData);
+      console.log(
+        `Batch ${i + 1}/${totalBatches} berhasil dikirim`,
+        response.data
+      );
     } catch (error) {
       console.error(
         `Batch ${i + 1}/${totalBatches} gagal dikirim`,
@@ -87,12 +87,12 @@ const sendJenisHewanBulkData = async (data, batchSize = 100) => {
     const batchData = data.slice(i * batchSize, (i + 1) * batchSize);
 
     try {
-      // console.log(`Data Jenis Hewan (Batch ${i + 1}):`, batchData); // Log data yang dikirim
-      // const response = await addJenisHewanBulk(batchData);
-      // console.log(
-      //   `Batch ${i + 1}/${totalBatches} berhasil dikirim`,
-      //   response.data
-      // );
+      console.log(`Data Jenis Hewan (Batch ${i + 1}):`, batchData); // Log data yang dikirim
+      const response = await addJenisHewanBulk(batchData);
+      console.log(
+        `Batch ${i + 1}/${totalBatches} berhasil dikirim`,
+        response.data
+      );
     } catch (error) {
       console.error(
         `Batch ${i + 1}/${totalBatches} gagal dikirim`,
@@ -110,12 +110,12 @@ const sendRumpunHewanBulkData = async (data, batchSize = 100) => {
     const batchData = data.slice(i * batchSize, (i + 1) * batchSize);
 
     try {
-      // console.log(`Data Rumpun Hewan (Batch ${i + 1}):`, batchData); // Log data yang dikirim
-      // const response = await addRumpunHewanBulk(batchData);
-      // console.log(
-      //   `Batch ${i + 1}/${totalBatches} berhasil dikirim`,
-      //   response.data
-      // );
+      console.log(`Data Rumpun Hewan (Batch ${i + 1}):`, batchData); // Log data yang dikirim
+      const response = await addRumpunHewanBulk(batchData);
+      console.log(
+        `Batch ${i + 1}/${totalBatches} berhasil dikirim`,
+        response.data
+      );
     } catch (error) {
       console.error(
         `Batch ${i + 1}/${totalBatches} gagal dikirim`,
@@ -134,11 +134,11 @@ const sendTernakHewanBulkData = async (data, batchSize = 100) => {
 
     try {
       console.log(`Data Ternak Hewan (Batch ${i + 1}):`, batchData); // Log data yang dikirim
-      // const response = await addPeternakBulk(batchData);
-      // console.log(
-      //   `Batch ${i + 1}/${totalBatches} berhasil dikirim`,
-      //   response.data
-      // );
+      const response = await addTernakBulk(batchData);
+      console.log(
+        `Batch ${i + 1}/${totalBatches} berhasil dikirim`,
+        response.data
+      );
     } catch (error) {
       console.error(
         `Batch ${i + 1}/${totalBatches} gagal dikirim`,
@@ -377,11 +377,10 @@ export default class ImportAllData extends Component {
             columnMapping,
             "No. Eartag***)"
           ),
-          petugas_id: getValidData(
-            row,
-            columnMapping,
-            "NIK Petugas Pendataan*)"
-          ),
+          petugas_id: row[columnMapping["NIK Petugas Pendataan*)"]],
+          tanggalLahir: row[columnMapping["Tanggal Lahir Ternak**)"]],
+          sex: row[columnMapping["Jenis Kelamin**)"]],
+          tempatLahir: row[columnMapping["Tempat Lahir Ternak"]],
           peternak_id: generateIdPeternak,
           kandang_id: generateIdKandang,
           jenisHewanId: generateIdJenisHewan,

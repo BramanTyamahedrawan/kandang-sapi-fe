@@ -147,7 +147,7 @@ export function addHewanImport(data) {
   });
 }
 
-export function addTernakHewanBulk(data) {
+export function addTernakBulk(data) {
   return request({
     url: "/hewan/bulk",
     method: "post",
