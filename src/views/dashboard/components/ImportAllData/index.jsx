@@ -1,4 +1,5 @@
 /* eslint-disable no-unused-vars */
+import { addJenisHewanBulk } from "@/api/jenisHewan";
 import { addKandangBulk } from "@/api/kandang";
 import { addPeternakBulk } from "@/api/peternak";
 import { addPetugasBulk } from "@/api/petugas";
@@ -87,11 +88,11 @@ const sendJenisHewanBulkData = async (data, batchSize = 100) => {
 
     try {
       console.log(`Data Jenis Hewan (Batch ${i + 1}):`, batchData); // Log data yang dikirim
-      // const response = await addJenisHewanBulk(batchData);
-      // console.log(
-      //   `Batch ${i + 1}/${totalBatches} berhasil dikirim`,
-      //   response.data
-      // );
+      const response = await addJenisHewanBulk(batchData);
+      console.log(
+        `Batch ${i + 1}/${totalBatches} berhasil dikirim`,
+        response.data
+      );
     } catch (error) {
       console.error(
         `Batch ${i + 1}/${totalBatches} gagal dikirim`,
@@ -153,7 +154,7 @@ const cleanNik = (nik) => (nik ? nik.replace(/'/g, "").trim() : "-");
 // function untuk parse address
 function parseAddress(address) {
   // Pecah alamat berdasarkan koma
-  const parts = address.split(",");
+  const parts = address.split(","); 
 
   // Trim setiap bagian untuk menghapus spasi di awal/akhir
   const trimmedParts = parts.map((part) => part.trim());
@@ -315,7 +316,7 @@ export default class ImportAllData extends Component {
         };
 
         const pecahAlamat = parseAddress(
-          row[columnMapping["Alamat Pemilik Ternak*)"]]
+          row[columnMapping["Alamat Pemilik Ternak**)"]]
         );
 
         // const setEmail =;
@@ -349,8 +350,8 @@ export default class ImportAllData extends Component {
         if (!uniqueData.has(nikPeternak)) {
           const dataPeternak = {
             idPeternak: generateIdPeternak,
-            nikPeternak: cleanNik(row[columnMapping["NIK Pemilik Ternak*)"]]),
-            namaPeternak: row[columnMapping["Nama Pemilik Ternak*)"]] || "-",
+            nikPeternak: cleanNik(row[columnMapping["NIK Pemilik Ternak**)"]]),
+            namaPeternak: row[columnMapping["Nama Pemilik Ternak**)"]] || "-",
             noTelepon:
               row[columnMapping["No. Telp Pemilik Ternak*)"]] ||
               generateDefaultPhoneNumber(),
@@ -358,7 +359,7 @@ export default class ImportAllData extends Component {
                 row[columnMapping["Email Pemilik Ternak"]]
               ),
             nikPetugas: cleanNik(row[columnMapping["NIK Petugas Pendataan*)"]]),
-            alamat: row[columnMapping["Alamat Pemilik Ternak*)"]] || "-",
+            alamat: row[columnMapping["Alamat Pemilik Ternak**)"]] || "-",
             dusun: pecahAlamat.dusun,
             desa: pecahAlamat.desa,
             kecamatan: pecahAlamat.kecamatan,
@@ -373,7 +374,7 @@ export default class ImportAllData extends Component {
           };
           console.log("data ternak = ", dataPeternak);
           peternakBulk.push(dataPeternak);
-          uniqueData.set(nikPeternak, true);
+          // uniqueData.set(nikPeternak, true);
         }
 
         console.log("Peternak Bulk api:", peternakBulk);
@@ -381,8 +382,9 @@ export default class ImportAllData extends Component {
         const dataKandang = {
           idKandang: generateIdKandang,
           peternak_id: generateIdPeternak,
-          nikPeternak: cleanNik(row[columnMapping["NIK Pemilik Ternak*)"]]),
-          namaKandang: `kandang ${row[columnMapping["Nama Pemilik Ternak*)"]]}`,
+          idJenisHewan: generateIdJenisHewan,
+          nikPeternak: cleanNik(row[columnMapping["NIK Pemilik Ternak**)"]]),
+          namaKandang: `kandang ${row[columnMapping["Nama Pemilik Ternak**)"]]}`,
           alamat: row[columnMapping["Alamat Kandang**)"]],
           luas: row[columnMapping["Luas Kandang*)"]] || "-",
           nilaiBangunan: row[columnMapping["Nilai Bangunan*)"]] || "-",
@@ -396,7 +398,7 @@ export default class ImportAllData extends Component {
 
         const dataJenisHewan = {
           idJenisHewan: generateIdJenisHewan,
-          jenis: getValidData(row, columnMapping, "Jenis Ternak**)"),
+          jenis: row [columnMapping[ "Jenis Ternak**)"]],
           deskripsi:
             "Deskripsi " + getValidData(row, columnMapping, "Jenis Ternak*)"),
         };
@@ -458,8 +460,8 @@ export default class ImportAllData extends Component {
         // await sendPetugasBulkData(petugasVaksinasiBulk);
         await sendPetugasBulkData(petugasPendataanBulk);
         await sendPeternakBulkData(peternakBulk);
+        await sendJenisHewanBulkData(jenisHewanBulk);
         await sendKandangBulkData(kandangBulk);
-        // await sendJenisHewanBulkData(jenisHewanBulk);
         // await sendRumpunHewanBulkData(rumpunHewanBulk);
         // await sendTernakHewanBulkData(ternakHewanBulk);
 

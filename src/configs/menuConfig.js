@@ -39,17 +39,18 @@ const menuList = [
     roles: ['ROLE_ADMINISTRATOR', 'ROLE_PETUGAS'],
   },
   {
-    title: 'Data Kandang',
-    path: '/kandang',
-    icon: BuildOutlined,
-    roles: ['ROLE_ADMINISTRATOR', 'ROLE_PETUGAS', 'ROLE_PETERNAK'],
-  },
-  {
     title: 'Jenis Hewan',
     path: '/jenis-hewan',
     icon: EyeOutlined,
     roles: ['ROLE_ADMINISTRATOR', 'ROLE_PETUGAS', 'ROLE_PETERNAK'],
   },
+  {
+    title: 'Data Kandang',
+    path: '/kandang',
+    icon: BuildOutlined,
+    roles: ['ROLE_ADMINISTRATOR', 'ROLE_PETUGAS', 'ROLE_PETERNAK'],
+  },
+ 
   {
     title: 'Rumpun Hewan',
     path: '/rumpun-hewan',

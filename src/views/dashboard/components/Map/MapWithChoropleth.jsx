@@ -1,35 +1,34 @@
 /* eslint-disable no-unused-vars */
 /* eslint-disable react/prop-types */
 // MapWithChoropleth.js
-import React, { useEffect, useState } from 'react'
-import {
-  MapContainer,
-  TileLayer,
-  GeoJSON,
-  LayersControl,
-  Pane,
-  Marker,
-} from 'react-leaflet'
-import 'leaflet/dist/leaflet.css'
-import assets from '@/assets'
-import { frontendUrl } from '@/configs/global'
-import L from 'leaflet'
-import {
-  Checkbox,
-  Radio,
-  Row,
-  Col,
-  Card,
-  Typography,
-  Descriptions,
-  Image,
-  Spin,
-  Alert,
-  Drawer,
-} from 'antd'
-import { UploadOutlined } from '@ant-design/icons'
 import { getKandang } from '@/api/kandang'
 import { getPeternaks } from '@/api/peternak'
+import assets from '@/assets'
+import { frontendUrl } from '@/configs/global'
+import {
+  Alert,
+  Card,
+  Checkbox,
+  Col,
+  Descriptions,
+  Drawer,
+  Image,
+  Radio,
+  Row,
+  Spin,
+  Typography,
+} from 'antd'
+import L from 'leaflet'
+import 'leaflet/dist/leaflet.css'
+import React, { useEffect, useState } from 'react'
+import {
+  GeoJSON,
+  LayersControl,
+  MapContainer,
+  Marker,
+  Pane,
+  TileLayer,
+} from 'react-leaflet'
 import imgUrl from '../../../../utils/imageURL'
 
 const { Title } = Typography
@@ -76,14 +75,14 @@ const MapWithChoropleth = () => {
 
   const customMarkerIcon = new L.Icon({
     iconUrl: assets.images.marker,
-    iconSize: [25, 25],
+    iconSize: [50, 50],
     iconAnchor: [12, 25],
     popupAnchor: [0, -25],
   })
 
   const customPeternakIcon = new L.Icon({
     iconUrl: assets.images.peternakMarker, // Pastikan Anda memiliki ikon khusus untuk Peternak
-    iconSize: [25, 25],
+    iconSize: [50, 50],
     iconAnchor: [12, 25],
     popupAnchor: [0, -25],
   })
@@ -521,7 +520,7 @@ const MapWithChoropleth = () => {
                 ))}
 
               {/* Peternak Markers */}
-              {showPeternak &&
+              {/* {showPeternak &&
                 layerVisibilityP.Peternak &&
                 peternaksValid.length > 0 &&
                 peternaksValid.map((item, index) => (
@@ -534,7 +533,7 @@ const MapWithChoropleth = () => {
                       click: () => handlePeternakClick(item),
                     }}
                   />
-                ))}
+                ))} */}
             </LayersControl>
           </MapContainer>
 
