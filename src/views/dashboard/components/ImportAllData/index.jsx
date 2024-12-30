@@ -1,16 +1,14 @@
 /* eslint-disable no-unused-vars */
-import React, { Component } from "react";
-import { Button, message, Upload, Modal } from "antd";
-import { read, utils } from "xlsx";
-import { UploadOutlined } from "@ant-design/icons";
-import { v4 as uuidv4 } from "uuid";
-import { addPetugasBulk } from "@/api/petugas";
 import { addPeternakBulk } from "@/api/peternak";
-import { addKandangBulk } from "@/api/kandang";
-import { addJenisHewanBulk } from "@/api/jenisHewan";
-import { addRumpunHewanBulk } from "@/api/rumpunhewan";
-import { addTernakBulk } from "@/api/hewan";
+import { addPetugasBulk } from "@/api/petugas";
+import { UploadOutlined } from "@ant-design/icons";
+import { Button, message, Modal, Upload } from "antd";
+import React, { Component } from "react";
+import { v4 as uuidv4 } from "uuid";
+import { read, utils } from "xlsx";
 
+// import { addPeternakBulk } from "@/api/peternak";
+// import { addPetugasBulk } from "@/api/petugas";
 export const sendPetugasBulkData = async (data, batchSize = 100) => {
   const totalBatches = Math.ceil(data.length / batchSize);
 
@@ -65,11 +63,11 @@ const sendKandangBulkData = async (data, batchSize = 100) => {
 
     try {
       console.log(`Data Kandang (Batch ${i + 1}):`, batchData); // Log data yang dikirim
-      const response = await addKandangBulk(batchData);
-      console.log(
-        `Batch ${i + 1}/${totalBatches} berhasil dikirim`,
-        response.data
-      );
+      // const response = await addKandangBulk(batchData);
+      // console.log(
+      //   `Batch ${i + 1}/${totalBatches} berhasil dikirim`,
+      //   response.data
+      // );
     } catch (error) {
       console.error(
         `Batch ${i + 1}/${totalBatches} gagal dikirim`,
@@ -88,11 +86,11 @@ const sendJenisHewanBulkData = async (data, batchSize = 100) => {
 
     try {
       console.log(`Data Jenis Hewan (Batch ${i + 1}):`, batchData); // Log data yang dikirim
-      const response = await addJenisHewanBulk(batchData);
-      console.log(
-        `Batch ${i + 1}/${totalBatches} berhasil dikirim`,
-        response.data
-      );
+      // const response = await addJenisHewanBulk(batchData);
+      // console.log(
+      //   `Batch ${i + 1}/${totalBatches} berhasil dikirim`,
+      //   response.data
+      // );
     } catch (error) {
       console.error(
         `Batch ${i + 1}/${totalBatches} gagal dikirim`,
@@ -111,11 +109,11 @@ const sendRumpunHewanBulkData = async (data, batchSize = 100) => {
 
     try {
       console.log(`Data Rumpun Hewan (Batch ${i + 1}):`, batchData); // Log data yang dikirim
-      const response = await addRumpunHewanBulk(batchData);
-      console.log(
-        `Batch ${i + 1}/${totalBatches} berhasil dikirim`,
-        response.data
-      );
+      // const response = await addRumpunHewanBulk(batchData);
+      // console.log(
+      //   `Batch ${i + 1}/${totalBatches} berhasil dikirim`,
+      //   response.data
+      // );
     } catch (error) {
       console.error(
         `Batch ${i + 1}/${totalBatches} gagal dikirim`,
@@ -134,11 +132,11 @@ const sendTernakHewanBulkData = async (data, batchSize = 100) => {
 
     try {
       console.log(`Data Ternak Hewan (Batch ${i + 1}):`, batchData); // Log data yang dikirim
-      const response = await addTernakBulk(batchData);
-      console.log(
-        `Batch ${i + 1}/${totalBatches} berhasil dikirim`,
-        response.data
-      );
+      // const response = await addTernakBulk(batchData);
+      // console.log(
+      //   `Batch ${i + 1}/${totalBatches} berhasil dikirim`,
+      //   response.data
+      // );
     } catch (error) {
       console.error(
         `Batch ${i + 1}/${totalBatches} gagal dikirim`,
@@ -151,6 +149,35 @@ const sendTernakHewanBulkData = async (data, batchSize = 100) => {
 
 const cleanNik = (nik) => (nik ? nik.replace(/'/g, "").trim() : "-");
 
+// function untuk parse address
+function parseAddress(address) {
+  // Pecah alamat berdasarkan koma
+  const parts = address.split(",");
+
+  // Trim setiap bagian untuk menghapus spasi di awal/akhir
+  const trimmedParts = parts.map((part) => part.trim());
+
+  // Ambil masing-masing bagian sesuai urutan
+  const dusun = trimmedParts[0] || "";
+  const desa = trimmedParts[1] || "";
+  const kecamatan = trimmedParts[2] || "";
+  const kabupaten = trimmedParts[3]?.replace(/KAB\. /i, "") || ""; // Hapus "KAB." jika ada
+  const provinsi = trimmedParts[4] || "";
+
+  // Return dalam bentuk object atau array
+  return { dusun, desa, kecamatan, kabupaten, provinsi };
+}
+
+// set email "-" jika tidak ada @
+function validateEmail(email) {
+  // Cek apakah email mengandung karakter '@'
+  if (!email.includes("@")) {
+    // Ganti '@' yang hilang dengan '-'
+    return email.replace(/ /g, "-") + "-";
+  }
+  // Jika sudah ada '@', kembalikan email apa adanya
+  return email;
+}
 const getValidData = (row, columnMapping, columnKey) => {
   return row[columnMapping[columnKey]] == null
     ? "-"
@@ -285,20 +312,18 @@ export default class ImportAllData extends Component {
           return jenisKandang || "Permanen";
         };
 
+        const pecahAlamat = parseAddress(
+          row[columnMapping["Alamat Pemilik Ternak*)"]]
+        );
+
         console.log("Row Data:", row);
 
         if (!uniqueData.has(nikPetugasPendataan)) {
           const dataPetugasPendataan = {
             nikPetugas: cleanNik(row[columnMapping["NIK Petugas Pendataan*)"]]),
             namaPetugas: row[columnMapping["Nama Petugas Pendataan*)"]],
-            noTelp:
-              row[columnMapping["No. Telp Petugas Pendataan*)"]] ||
-              generateDefaultPhoneNumber(),
-            email:
-              row[columnMapping["Email Petugas Pendataan*)"]] ||
-              generateEmailFromName(
-                row[columnMapping["Nama Petugas Pendataan*)"]]
-              ),
+            noTelp: row[columnMapping["No. Telp Petugas Pendataan*)"]],
+            email: row[columnMapping["Email Petugas Pendataan"]],
             job: "Pendataan",
           };
           petugasPendataanBulk.push(dataPetugasPendataan);
@@ -323,18 +348,22 @@ export default class ImportAllData extends Component {
             noTelepon:
               row[columnMapping["No. Telp Pemilik Ternak*)"]] ||
               generateDefaultPhoneNumber(),
-            email:
-              row[columnMapping["Email Pemilik Ternak*)"]] ||
-              generateEmailFromName(
-                row[columnMapping["Nama Pemilik Ternak*)"]]
-              ),
+            email: validateEmail(row[columnMapping["Email Pemilik Ternak*)"]]),
             nikPetugas: cleanNik(row[columnMapping["NIK Petugas Pendataan*)"]]),
             alamat: row[columnMapping["Alamat Pemilik Ternak*)"]] || "-",
+            dusun: pecahAlamat.dusun,
+            desa: pecahAlamat.desa,
+            kecamatan: pecahAlamat.kecamatan,
+            kabupaten: pecahAlamat.kabupaten,
             tanggalLahir:
               row[columnMapping["Tanggal Lahir Pemilik*)"]] ||
               generateDefaultTanggalLahir(),
             idIsikhnas: row[columnMapping["ID Isikhnas*)"]] || "-",
+            latitude: row[columnMapping["latitude"]],
+            longitude: row[columnMapping["longitude"]],
+            jenisKelamin: row[columnMapping["Jenis Kelamin Pemilik Ternak"]],
           };
+          console.log("data ternak = ", dataPeternak);
           peternakBulk.push(dataPeternak);
           uniqueData.set(nikPeternak, true);
         }
@@ -420,10 +449,10 @@ export default class ImportAllData extends Component {
         // await sendPetugasBulkData(petugasVaksinasiBulk);
         await sendPetugasBulkData(petugasPendataanBulk);
         await sendPeternakBulkData(peternakBulk);
-        await sendKandangBulkData(kandangBulk);
-        await sendJenisHewanBulkData(jenisHewanBulk);
-        await sendRumpunHewanBulkData(rumpunHewanBulk);
-        await sendTernakHewanBulkData(ternakHewanBulk);
+        // await sendKandangBulkData(kandangBulk);
+        // await sendJenisHewanBulkData(jenisHewanBulk);
+        // await sendRumpunHewanBulkData(rumpunHewanBulk);
+        // await sendTernakHewanBulkData(ternakHewanBulk);
 
         // await sendPeternakImport(peternakBulk)
         // await sendJenisHewanImport(jenisHewanBulk)

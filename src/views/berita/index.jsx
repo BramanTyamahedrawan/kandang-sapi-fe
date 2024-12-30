@@ -1,11 +1,17 @@
 import React, { Component } from "react";
-import { Card, Button, Table, message, Upload, Row, Col, Divider, Modal, Input } from "antd";
 import {
-  getBerita,
-  deleteBerita,
-  editBerita,
-  addBerita
-} from "@/api/berita";
+  Card,
+  Button,
+  Table,
+  message,
+  Upload,
+  Row,
+  Col,
+  Divider,
+  Modal,
+  Input,
+} from "antd";
+import { getBerita, deleteBerita, editBerita, addBerita } from "@/api/berita";
 import TypingCard from "@/components/TypingCard";
 import EditBeritaForm from "./forms/edit-berita-form";
 import AddBeritaForm from "./forms/add-berita-form";
@@ -30,18 +36,18 @@ class Berita extends Component {
 
     if (statusCode === 200) {
       const filteredBerita = content.filter((berita) => {
-        const { judul, pembuat} = berita;
+        const { judul, pembuat } = berita;
         const keyword = this.state.searchKeyword.toLowerCase();
-        
-        const isJudulBeritaValid = typeof judul === 'string';
-        const isPembuatValid = typeof pembuat === 'string';
-      
+
+        const isJudulBeritaValid = typeof judul === "string";
+        const isPembuatValid = typeof pembuat === "string";
+
         return (
           (isJudulBeritaValid && judul.toLowerCase().includes(keyword)) ||
           (isPembuatValid && pembuat.toLowerCase().includes(keyword))
         );
       });
-  
+
       this.setState({
         berita: filteredBerita,
       });
@@ -49,11 +55,14 @@ class Berita extends Component {
   };
 
   handleSearch = (keyword) => {
-    this.setState({
-      searchKeyword: keyword,
-    }, () => {
-      this.getBerita(); 
-    });
+    this.setState(
+      {
+        searchKeyword: keyword,
+      },
+      () => {
+        this.getBerita();
+      }
+    );
   };
 
   handleEditBerita = (row) => {
@@ -140,7 +149,7 @@ class Berita extends Component {
   };
   componentDidMount() {
     this.getBerita();
-    
+
     reqUserInfo()
       .then((response) => {
         this.setState({ user: response.data });
@@ -150,10 +159,14 @@ class Berita extends Component {
       });
   }
   render() {
-    const { berita,  searchKeyword, user } = this.state;
+    const { berita, searchKeyword, user } = this.state;
     const columns = [
       { title: "Judul Berita", dataIndex: "judul", key: "judul" },
-      { title: "Tanggal Pembuatan", dataIndex: "tglPembuatan", key: "tglPembuatan" },
+      {
+        title: "Tanggal Pembuatan",
+        dataIndex: "tglPembuatan",
+        key: "tglPembuatan",
+      },
       {
         title: "Isi Berita",
         dataIndex: "isiBerita",
@@ -161,30 +174,39 @@ class Berita extends Component {
         render: (text) => <div dangerouslySetInnerHTML={{ __html: text }} />,
       },
       { title: "Creator", dataIndex: "pembuat", key: "pembuat" },
-      { title: "Foto Berita", dataIndex: "file_path", key: "file_path",  render: (text, row) => (
-        <img
-          src={`${imgUrl}${row.file_path}`}
-          width={200}
-          height={150}
-        />
-      ),},
+      {
+        title: "Foto Berita",
+        dataIndex: "file_path",
+        key: "file_path",
+        render: (text, row) => (
+          <img src={`${imgUrl}${row.file_path}`} width={200} height={150} />
+        ),
+      },
     ];
 
     const renderTable = () => {
-      if (user &&  user.role === 'ROLE_PETERNAK') {
+      if (user && user.role === "ROLE_PETERNAK") {
         return <Table dataSource={berita} bordered columns={columns} />;
-      } else if (user && user.role === 'ROLE_ADMINISTRATOR' || 'ROLE_PETUGAS') {
-        return <Table dataSource={berita} bordered columns={(columns && renderColumns())}/>
-      }
-      else {
+      } else if (
+        (user && user.role === "ROLE_ADMINISTRATOR") ||
+        "ROLE_PETUGAS"
+      ) {
+        return (
+          <Table
+            dataSource={berita}
+            bordered
+            columns={columns && renderColumns()}
+          />
+        );
+      } else {
         return null;
       }
     };
-  
+
     const renderButtons = () => {
-      if (user && user.role === 'ROLE_ADMINISTRATOR') {
+      if (user && user.role === "ROLE_ADMINISTRATOR") {
         return (
-          <Row gutter={[16, 16]} justify="start" style={{paddingLeft: 9}}>
+          <Row gutter={[16, 16]} justify="start" style={{ paddingLeft: 9 }}>
             <Col xs={24} sm={12} md={8} lg={6} xl={6}>
               <Button type="primary" onClick={this.handleAddBerita}>
                 Tambah Berita
@@ -196,9 +218,9 @@ class Berita extends Component {
         return null;
       }
     };
-  
+
     const renderColumns = () => {
-      if (user && user.role === 'ROLE_ADMINISTRATOR') {
+      if (user && user.role === "ROLE_ADMINISTRATOR") {
         columns.push({
           title: "Operasi",
           key: "action",
@@ -227,11 +249,11 @@ class Berita extends Component {
       }
       return columns;
     };
-  
+
     const title = (
-      <Row gutter={[16, 16]} justify="start" style={{paddingTop: 15}}>
+      <Row gutter={[16, 16]} justify="start" style={{ paddingTop: 15 }}>
         {renderButtons()}
-        <Row gutter={[16, 16]} justify="start" style={{paddingLeft: 9}}>
+        <Row gutter={[16, 16]} justify="start" style={{ paddingLeft: 9 }}>
           <Col xs={24} sm={12} md={8} lg={6} xl={6}>
             <Input
               placeholder="Cari data"
@@ -243,31 +265,27 @@ class Berita extends Component {
         </Row>
       </Row>
     );
-  
-    const { role } = user ? user.role : '';
-    console.log("peran pengguna:",role);
+
+    const { role } = user ? user.role : "";
+    console.log("peran pengguna:", role);
     const cardContent = `Di sini, Anda dapat mengelola daftar berita di sistem.`;
     return (
       <div className="app-container">
         <TypingCard title="Manajemen Data Berita" source={cardContent} />
         <br />
         <Card title={title} style={{ overflowX: "scroll" }}>
-        {renderTable()}
+          {renderTable()}
         </Card>
         <EditBeritaForm
           currentRowData={this.state.currentRowData}
-          wrappedComponentRef={(formRef) =>
-            (this.editBeritaFormRef = formRef)
-          }
+          wrappedComponentRef={(formRef) => (this.editBeritaFormRef = formRef)}
           visible={this.state.editBeritaModalVisible}
           confirmLoading={this.state.editBeritaModalLoading}
           onCancel={this.handleCancel}
           onOk={this.handleEditBeritaOk}
         />
         <AddBeritaForm
-          wrappedComponentRef={(formRef) =>
-            (this.addBeritaFormRef = formRef)
-          }
+          wrappedComponentRef={(formRef) => (this.addBeritaFormRef = formRef)}
           visible={this.state.addBeritaModalVisible}
           confirmLoading={this.state.addBeritaModalLoading}
           onCancel={this.handleCancel}
