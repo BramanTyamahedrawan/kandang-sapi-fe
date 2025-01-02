@@ -642,6 +642,12 @@ const MapWithChoropleth = () => {
                   <Descriptions.Item label="Alamat">
                     {selectedKandang.alamat || "-"}
                   </Descriptions.Item>
+                  <Descriptions.Item label="Latitude">
+                    {selectedKandang.latitude || "-"}
+                  </Descriptions.Item>
+                  <Descriptions.Item label="Longitude">
+                    {selectedKandang.longitude || "-"}
+                  </Descriptions.Item>
                   <Descriptions.Item label="Peternak">
                     {selectedKandang.peternak?.namaPeternak || "-"}
                   </Descriptions.Item>
