@@ -153,20 +153,36 @@ const cleanNik = (nik) => (nik ? nik.replace(/'/g, "").trim() : "-");
 
 // function untuk parse address
 function parseAddress(address) {
+  // Pastikan alamat berupa string, jika tidak kembalikan "alamat tidak valid"
+  if (typeof address !== "string" || !address) {
+    console.warn(`Alamat tidak valid: ${address}`);
+    return "alamat tidak valid";
+  }
+
   // Pecah alamat berdasarkan koma
-  const parts = address.split(","); 
+  const parts = address.split(",").map((part) => part.trim());
 
-  // Trim setiap bagian untuk menghapus spasi di awal/akhir
-  const trimmedParts = parts.map((part) => part.trim());
+  // Ambil masing-masing bagian sesuai urutan, isi dengan "-" jika tidak ada
+  const dusun = parts[0] || "-";
+  const desa = parts[1] || "-";
+  const kecamatan = parts[2] || "-";
+  const kabupaten = parts[3]?.replace(/KAB\. /i, "") || "-"; // Hapus "KAB." jika ada
+  const provinsi = parts[4] || "-";
 
-  // Ambil masing-masing bagian sesuai urutan
-  const dusun = trimmedParts[0] || "";
-  const desa = trimmedParts[1] || "";
-  const kecamatan = trimmedParts[2] || "";
-  const kabupaten = trimmedParts[3]?.replace(/KAB\. /i, "") || ""; // Hapus "KAB." jika ada
-  const provinsi = trimmedParts[4] || "";
+  // Validasi bahwa setidaknya satu bagian selain "-" harus terisi
+  const isValid =
+    dusun !== "-" ||
+    desa !== "-" ||
+    kecamatan !== "-" ||
+    kabupaten !== "-" ||
+    provinsi !== "-";
 
-  // Return dalam bentuk object atau array
+  if (!isValid) {
+    console.warn(`Alamat tidak valid: ${address}`);
+    return "alamat tidak valid";
+  }
+
+  // Return dalam bentuk object
   return { dusun, desa, kecamatan, kabupaten, provinsi };
 }
 
@@ -286,14 +302,17 @@ export default class ImportAllData extends Component {
           return name.toLowerCase().replace(/\s+/g, "") + "@gmail.com";
         };
 
-        const validateEmail  = (email) => {
-          // Cek apakah email mengandung karakter '@'
-          if (!email.includes('@')) {
-            return generateEmailFromName(); // Jika nama tidak ada, beri default
+        const validateEmail = (email) => {
+          // Jika email tidak valid (null, undefined, atau bukan string), gunakan default
+          if (typeof email !== "string" || !email.includes("@")) {
+            console.warn(
+              `Email tidak valid: ${email}. Menggunakan email default.`
+            );
+            return "default@gmail.com"; // Email default
           }
-          // Jika ada '@', kembalikan email apa adanya
+          // Jika valid, kembalikan email
           return email;
-        }
+        };
 
         const generateDefaultPhoneNumber = () => {
           const randomNumber = Math.floor(
@@ -321,8 +340,6 @@ export default class ImportAllData extends Component {
 
         // const setEmail =;
 
-
-
         console.log("Row Data:", row);
 
         if (!uniqueData.has(nikPetugasPendataan)) {
@@ -330,7 +347,7 @@ export default class ImportAllData extends Component {
             nikPetugas: cleanNik(row[columnMapping["NIK Petugas Pendataan*)"]]),
             namaPetugas: row[columnMapping["Nama Petugas Pendataan*)"]],
             noTelp: row[columnMapping["No. Telp Petugas Pendataan*)"]],
-            email: row[columnMapping["Email Petugas Pendataan"]],
+            email: validateEmail(row[columnMapping["Email Petugas Pendataan"]]),
             job: "Pendataan",
           };
           petugasPendataanBulk.push(dataPetugasPendataan);
@@ -355,9 +372,7 @@ export default class ImportAllData extends Component {
             noTelepon:
               row[columnMapping["No. Telp Pemilik Ternak*)"]] ||
               generateDefaultPhoneNumber(),
-            email:  validateEmail(
-                row[columnMapping["Email Pemilik Ternak"]]
-              ),
+            email: validateEmail(row[columnMapping["Email Pemilik Ternak"]]),
             nikPetugas: cleanNik(row[columnMapping["NIK Petugas Pendataan*)"]]),
             alamat: row[columnMapping["Alamat Pemilik Ternak**)"]] || "-",
             dusun: pecahAlamat.dusun,
@@ -384,7 +399,9 @@ export default class ImportAllData extends Component {
           peternak_id: generateIdPeternak,
           idJenisHewan: generateIdJenisHewan,
           nikPeternak: cleanNik(row[columnMapping["NIK Pemilik Ternak**)"]]),
-          namaKandang: `kandang ${row[columnMapping["Nama Pemilik Ternak**)"]]}`,
+          namaKandang: `kandang ${
+            row[columnMapping["Nama Pemilik Ternak**)"]]
+          }`,
           alamat: row[columnMapping["Alamat Kandang**)"]],
           luas: row[columnMapping["Luas Kandang*)"]] || "-",
           nilaiBangunan: row[columnMapping["Nilai Bangunan*)"]] || "-",
@@ -393,14 +410,12 @@ export default class ImportAllData extends Component {
           ),
           latitude: row[columnMapping["latitude"]],
           longitude: row[columnMapping["longitude"]],
-          
         };
 
         const dataJenisHewan = {
           idJenisHewan: generateIdJenisHewan,
-          jenis: row [columnMapping[ "Jenis Ternak**)"]],
-          deskripsi:
-            "Deskripsi " + getValidData(row, columnMapping, "Jenis Ternak*)"),
+          jenis: row[columnMapping["Jenis Ternak**)"]],
+          deskripsi: "Deskripsi " + row[columnMapping["Jenis Ternak*)"]],
         };
 
         const dataRumpunHewan = {

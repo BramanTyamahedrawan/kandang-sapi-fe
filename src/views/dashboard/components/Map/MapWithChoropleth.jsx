@@ -1,10 +1,10 @@
 /* eslint-disable no-unused-vars */
 /* eslint-disable react/prop-types */
 // MapWithChoropleth.js
-import { getKandang } from '@/api/kandang'
-import { getPeternaks } from '@/api/peternak'
-import assets from '@/assets'
-import { frontendUrl } from '@/configs/global'
+import { getKandang } from "@/api/kandang";
+import { getPeternaks } from "@/api/peternak";
+import assets from "@/assets";
+import { frontendUrl } from "@/configs/global";
 import {
   Alert,
   Card,
@@ -17,10 +17,10 @@ import {
   Row,
   Spin,
   Typography,
-} from 'antd'
-import L from 'leaflet'
-import 'leaflet/dist/leaflet.css'
-import React, { useEffect, useState } from 'react'
+} from "antd";
+import L from "leaflet";
+import "leaflet/dist/leaflet.css";
+import React, { useEffect, useState } from "react";
 import {
   GeoJSON,
   LayersControl,
@@ -28,22 +28,22 @@ import {
   Marker,
   Pane,
   TileLayer,
-} from 'react-leaflet'
-import imgUrl from '../../../../utils/imageURL'
+} from "react-leaflet";
+import imgUrl from "../../../../utils/imageURL";
 
-const { Title } = Typography
+const { Title } = Typography;
 
 const MapWithChoropleth = () => {
-  const [BatasAdmLmj, setBatasAdmLmj] = useState(null)
-  const [KRB1, setKRB1] = useState(null)
-  const [KRB2, setKRB2] = useState(null)
-  const [KRB3, setKRB3] = useState(null)
-  const [Radius8Km, setRadius8Km] = useState(null)
-  const [Radius5Km, setRadius5Km] = useState(null)
-  const [kandang, setKandang] = useState([])
-  const [peternaks, setPeternaks] = useState([])
+  const [BatasAdmLmj, setBatasAdmLmj] = useState(null);
+  const [KRB1, setKRB1] = useState(null);
+  const [KRB2, setKRB2] = useState(null);
+  const [KRB3, setKRB3] = useState(null);
+  const [Radius8Km, setRadius8Km] = useState(null);
+  const [Radius5Km, setRadius5Km] = useState(null);
+  const [kandang, setKandang] = useState([]);
+  const [peternaks, setPeternaks] = useState([]);
 
-  const [showGunungSemeru, setShowGunungSemeru] = useState(true)
+  const [showGunungSemeru, setShowGunungSemeru] = useState(true);
   const [layerVisibilityGS, setLayerVisibilityGS] = useState({
     BatasAdmLmj: true,
     Radius8Km: true,
@@ -51,41 +51,41 @@ const MapWithChoropleth = () => {
     KRB1: true,
     KRB2: true,
     KRB3: true,
-  })
+  });
 
-  const [showKandang, setShowKandang] = useState(true)
+  const [showKandang, setShowKandang] = useState(true);
   const [layerVisibilityK, setLayerVisibilityK] = useState({
     Kandang: true,
-  })
+  });
 
-  const [showPeternak, setShowPeternak] = useState(true)
+  const [showPeternak, setShowPeternak] = useState(true);
   const [layerVisibilityP, setLayerVisibilityP] = useState({
     Peternak: true,
-  })
+  });
 
-  const [selectedTileLayer, setSelectedTileLayer] = useState('osm')
+  const [selectedTileLayer, setSelectedTileLayer] = useState("osm");
 
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState(null)
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   // State untuk Drawer (Sidebar)
-  const [selectedKandang, setSelectedKandang] = useState(null)
-  const [selectedPeternak, setSelectedPeternak] = useState(null)
-  const [drawerVisible, setDrawerVisible] = useState(false)
+  const [selectedKandang, setSelectedKandang] = useState(null);
+  const [selectedPeternak, setSelectedPeternak] = useState(null);
+  const [drawerVisible, setDrawerVisible] = useState(false);
 
   const customMarkerIcon = new L.Icon({
     iconUrl: assets.images.marker,
-    iconSize: [50, 50],
+    iconSize: [25, 25],
     iconAnchor: [12, 25],
     popupAnchor: [0, -25],
-  })
+  });
 
   const customPeternakIcon = new L.Icon({
     iconUrl: assets.images.peternakMarker, // Pastikan Anda memiliki ikon khusus untuk Peternak
     iconSize: [50, 50],
     iconAnchor: [12, 25],
     popupAnchor: [0, -25],
-  })
+  });
 
   useEffect(() => {
     const fetchData = async () => {
@@ -105,60 +105,60 @@ const MapWithChoropleth = () => {
           fetch(`${frontendUrl}/data/KRB_1_FeaturesToJSON.geojson`),
           fetch(`${frontendUrl}/data/KRB_2_FeaturesToJSON.geojson`),
           fetch(`${frontendUrl}/data/KRB_3_FeaturesToJSON.geojson`),
-        ])
+        ]);
 
-        const batasAdmLmjData = await batasAdmLmjResponse.json()
-        setBatasAdmLmj(batasAdmLmjData)
+        const batasAdmLmjData = await batasAdmLmjResponse.json();
+        setBatasAdmLmj(batasAdmLmjData);
 
-        const radius8KmData = await radius8KmResponse.json()
-        setRadius8Km(radius8KmData)
+        const radius8KmData = await radius8KmResponse.json();
+        setRadius8Km(radius8KmData);
 
-        const radius5KmData = await radius5KmResponse.json()
-        setRadius5Km(radius5KmData)
+        const radius5KmData = await radius5KmResponse.json();
+        setRadius5Km(radius5KmData);
 
-        const krb1Data = await krb1Response.json()
-        setKRB1(krb1Data)
+        const krb1Data = await krb1Response.json();
+        setKRB1(krb1Data);
 
-        const krb2Data = await krb2Response.json()
-        setKRB2(krb2Data)
+        const krb2Data = await krb2Response.json();
+        setKRB2(krb2Data);
 
-        const krb3Data = await krb3Response.json()
-        setKRB3(krb3Data)
+        const krb3Data = await krb3Response.json();
+        setKRB3(krb3Data);
 
         // Fetch Kandang data
-        const kandangData = await getKandang()
+        const kandangData = await getKandang();
         if (kandangData.data.statusCode === 200) {
-          console.log('Kandang Data:', kandangData.data.content)
-          setKandang(kandangData.data.content)
+          console.log("Kandang Data:", kandangData.data.content);
+          setKandang(kandangData.data.content);
         } else {
           console.warn(
-            'Gagal mengambil data kandang:',
+            "Gagal mengambil data kandang:",
             kandangData.data.message
-          )
+          );
         }
 
         // Fetch Peternak data
-        const peternakData = await getPeternaks()
+        const peternakData = await getPeternaks();
         if (peternakData.data.statusCode === 200) {
-          console.log('Peternak Data:', peternakData.data.content)
-          setPeternaks(peternakData.data.content)
+          console.log("Peternak Data:", peternakData.data.content);
+          setPeternaks(peternakData.data.content);
         } else {
           console.warn(
-            'Gagal mengambil data peternak:',
+            "Gagal mengambil data peternak:",
             peternakData.data.message
-          )
+          );
         }
 
-        setLoading(false)
+        setLoading(false);
       } catch (error) {
-        console.error('Error fetching data:', error)
-        setError('Gagal mengambil data. Silakan coba lagi nanti.')
-        setLoading(false)
+        console.error("Error fetching data:", error);
+        setError("Gagal mengambil data. Silakan coba lagi nanti.");
+        setLoading(false);
       }
-    }
+    };
 
-    fetchData()
-  }, [])
+    fetchData();
+  }, []);
 
   const HatchPattern = ({ id, color }) => (
     <svg width="0" height="0">
@@ -180,52 +180,118 @@ const MapWithChoropleth = () => {
         </pattern>
       </defs>
     </svg>
-  )
+  );
 
   const handleToggleLayerGS = (checkedValues) => {
-    const updatedVisibility = { ...layerVisibilityGS }
+    const updatedVisibility = { ...layerVisibilityGS };
     Object.keys(updatedVisibility).forEach((layer) => {
-      updatedVisibility[layer] = checkedValues.includes(layer)
-    })
-    setLayerVisibilityGS(updatedVisibility)
-  }
+      updatedVisibility[layer] = checkedValues.includes(layer);
+    });
+    setLayerVisibilityGS(updatedVisibility);
+  };
 
   const handleToggleLayerK = (checkedValues) => {
-    const updatedVisibility = { ...layerVisibilityK }
+    const updatedVisibility = { ...layerVisibilityK };
     Object.keys(updatedVisibility).forEach((layer) => {
-      updatedVisibility[layer] = checkedValues.includes(layer)
-    })
-    setLayerVisibilityK(updatedVisibility)
-  }
+      updatedVisibility[layer] = checkedValues.includes(layer);
+    });
+    setLayerVisibilityK(updatedVisibility);
+  };
 
   const handleToggleLayerP = (checkedValues) => {
-    const updatedVisibility = { ...layerVisibilityP }
+    const updatedVisibility = { ...layerVisibilityP };
     Object.keys(updatedVisibility).forEach((layer) => {
-      updatedVisibility[layer] = checkedValues.includes(layer)
-    })
-    setLayerVisibilityP(updatedVisibility)
-  }
+      updatedVisibility[layer] = checkedValues.includes(layer);
+    });
+    setLayerVisibilityP(updatedVisibility);
+  };
 
   const handleTileLayerChange = (e) => {
-    setSelectedTileLayer(e.target.value)
-  }
+    setSelectedTileLayer(e.target.value);
+  };
 
   // Membuat mapping dari peternak_id ke data peternak
   const peternakMap = peternaks.reduce((acc, peternak) => {
-    acc[peternak.idPeternak] = peternak
-    return acc
-  }, {})
+    acc[peternak.idPeternak] = peternak;
+    return acc;
+  }, {});
 
-  // Filter kandang yang memiliki latitude dan longitude valid dan merupakan angka
-  const kandangValid = kandang.filter(
-    (item) =>
-      item.latitude !== null &&
-      item.latitude !== undefined &&
-      item.longitude !== null &&
-      item.longitude !== undefined &&
-      !isNaN(item.latitude) &&
-      !isNaN(item.longitude)
-  )
+  // Filter dan validasi data kandang
+  // const kandangValid = kandang.filter((item) => {
+  //   // Normalisasi latitude dan longitude menjadi angka
+  //   const latitude = parseFloat(item.latitude?.toString().replace(",", "."));
+  //   const longitude = parseFloat(item.longitude?.toString().replace(",", "."));
+
+  //   // Validasi data
+  //   const isValid =
+  //     latitude !== null &&
+  //     longitude !== null &&
+  //     !isNaN(latitude) &&
+  //     !isNaN(longitude) &&
+  //     latitude >= -90 &&
+  //     latitude <= 90 &&
+  //     longitude >= -180 &&
+  //     longitude <= 180;
+
+  //   // Log data tidak valid
+  //   if (!isValid) {
+  //     console.warn(
+  //       `Data tidak valid ditemukan: id=${
+  //         item.idKandang || "unknown"
+  //       }, latitude=${item.latitude}, longitude=${item.longitude}`
+  //     );
+  //   }
+
+  //   // Simpan data valid dengan nilai normalisasi
+  //   if (isValid) {
+  //     item.latitude = latitude;
+  //     item.longitude = longitude;
+  //   }
+
+  //   return isValid;
+  // });
+
+  const kandangValid = kandang.filter((item) => {
+    // Normalisasi latitude dan longitude menjadi angka
+    const latitude = item.latitude
+      ? parseFloat(item.latitude?.toString().replace(",", "."))
+      : null; // Tetapkan null jika latitude kosong
+    const longitude = item.longitude
+      ? parseFloat(item.longitude?.toString().replace(",", "."))
+      : null; // Tetapkan null jika longitude kosong
+
+    // Validasi data
+    const isValid =
+      latitude !== null &&
+      longitude !== null &&
+      !isNaN(latitude) &&
+      !isNaN(longitude) &&
+      latitude >= -90 &&
+      latitude <= 90 &&
+      longitude >= -180 &&
+      longitude <= 180;
+
+    // Log data tidak valid
+    if (!isValid) {
+      console.warn(
+        `Data tidak valid ditemukan: id=${
+          item.idKandang || "unknown"
+        }, latitude=${item.latitude}, longitude=${item.longitude}`
+      );
+    }
+
+    // Simpan data valid dengan nilai normalisasi
+    if (isValid) {
+      item.latitude = latitude;
+      item.longitude = longitude;
+    } else {
+      // Tetapkan nilai default jika diperlukan
+      item.latitude = item.latitude || 0;
+      item.longitude = item.longitude || 0;
+    }
+
+    return isValid;
+  });
 
   // Filter peternak yang memiliki latitude dan longitude valid dan merupakan angka
   const peternaksValid = peternaks.filter(
@@ -236,34 +302,34 @@ const MapWithChoropleth = () => {
       item.longitude !== undefined &&
       !isNaN(item.latitude) &&
       !isNaN(item.longitude)
-  )
+  );
 
   // Handler untuk klik marker Kandang
   const handleKandangClick = (item) => {
-    setSelectedKandang(item)
-    setSelectedPeternak(null) // Reset Peternak yang dipilih
-    setDrawerVisible(true)
-  }
+    setSelectedKandang(item);
+    setSelectedPeternak(null); // Reset Peternak yang dipilih
+    setDrawerVisible(true);
+  };
 
   // Handler untuk klik marker Peternak
   const handlePeternakClick = (item) => {
-    setSelectedPeternak(item)
-    setSelectedKandang(null) // Reset Kandang yang dipilih
-    setDrawerVisible(true)
-  }
+    setSelectedPeternak(item);
+    setSelectedKandang(null); // Reset Kandang yang dipilih
+    setDrawerVisible(true);
+  };
 
   // Handler untuk menutup drawer
   const handleCloseDrawer = () => {
-    setDrawerVisible(false)
-    setSelectedKandang(null)
-    setSelectedPeternak(null)
-  }
+    setDrawerVisible(false);
+    setSelectedKandang(null);
+    setSelectedPeternak(null);
+  };
 
   return (
-    <div className="app-container" style={{ display: 'flex' }}>
+    <div className="app-container" style={{ display: "flex" }}>
       {/* Menampilkan Loading Spinner */}
       {loading && (
-        <div style={{ textAlign: 'center', padding: '50px', width: '100%' }}>
+        <div style={{ textAlign: "center", padding: "50px", width: "100%" }}>
           <Spin size="large" tip="Memuat data..." />
         </div>
       )}
@@ -275,7 +341,7 @@ const MapWithChoropleth = () => {
           description={error}
           type="error"
           showIcon
-          style={{ margin: '20px', width: '100%' }}
+          style={{ margin: "20px", width: "100%" }}
         />
       )}
 
@@ -283,7 +349,7 @@ const MapWithChoropleth = () => {
       {!loading && !error && (
         <>
           {/* Kontrol Lapisan */}
-          <Row gutter={[16, 16]} style={{ padding: '20px', width: '100%' }}>
+          <Row gutter={[16, 16]} style={{ padding: "20px", width: "100%" }}>
             <Col xs={24} md={8}>
               <Card title="Kontrol Lapisan Gunung Semeru">
                 <Checkbox
@@ -295,9 +361,9 @@ const MapWithChoropleth = () => {
                 {showGunungSemeru && (
                   <Checkbox.Group
                     style={{
-                      display: 'flex',
-                      flexDirection: 'column',
-                      marginTop: '10px',
+                      display: "flex",
+                      flexDirection: "column",
+                      marginTop: "10px",
                     }}
                     value={Object.keys(layerVisibilityGS).filter(
                       (layer) => layerVisibilityGS[layer]
@@ -325,9 +391,9 @@ const MapWithChoropleth = () => {
                 {showKandang && (
                   <Checkbox.Group
                     style={{
-                      display: 'flex',
-                      flexDirection: 'column',
-                      marginTop: '10px',
+                      display: "flex",
+                      flexDirection: "column",
+                      marginTop: "10px",
                     }}
                     value={Object.keys(layerVisibilityK).filter(
                       (layer) => layerVisibilityK[layer]
@@ -350,9 +416,9 @@ const MapWithChoropleth = () => {
                 {showPeternak && (
                   <Checkbox.Group
                     style={{
-                      display: 'flex',
-                      flexDirection: 'column',
-                      marginTop: '10px',
+                      display: "flex",
+                      flexDirection: "column",
+                      marginTop: "10px",
                     }}
                     value={Object.keys(layerVisibilityP).filter(
                       (layer) => layerVisibilityP[layer]
@@ -382,7 +448,7 @@ const MapWithChoropleth = () => {
           <MapContainer
             center={[-8.15976, 112.92566]}
             zoom={13}
-            style={{ height: '600px', width: '100%' }}
+            style={{ height: "600px", width: "100%" }}
           >
             <Pane name="radiusPane" style={{ zIndex: 650 }} />
             <Pane name="krbPane" style={{ zIndex: 600 }} />
@@ -394,7 +460,7 @@ const MapWithChoropleth = () => {
 
             <LayersControl position="topright">
               {/* Tile Layers */}
-              {selectedTileLayer === 'osm' && (
+              {selectedTileLayer === "osm" && (
                 <LayersControl.BaseLayer checked name="OpenStreetMap">
                   <TileLayer
                     url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
@@ -403,7 +469,7 @@ const MapWithChoropleth = () => {
                 </LayersControl.BaseLayer>
               )}
 
-              {selectedTileLayer === 'osm-hot' && (
+              {selectedTileLayer === "osm-hot" && (
                 <LayersControl.BaseLayer name="OpenStreetMap HOT">
                   <TileLayer
                     url="https://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png"
@@ -412,7 +478,7 @@ const MapWithChoropleth = () => {
                 </LayersControl.BaseLayer>
               )}
 
-              {selectedTileLayer === 'opentopomap' && (
+              {selectedTileLayer === "opentopomap" && (
                 <LayersControl.BaseLayer name="OpenTopoMap">
                   <TileLayer
                     url="https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png"
@@ -428,7 +494,7 @@ const MapWithChoropleth = () => {
                   <LayersControl.Overlay checked name="Batas Adm Lmj">
                     <GeoJSON
                       data={BatasAdmLmj}
-                      style={{ color: 'black', weight: 0.5 }}
+                      style={{ color: "black", weight: 0.5 }}
                     />
                   </LayersControl.Overlay>
                 )}
@@ -438,9 +504,9 @@ const MapWithChoropleth = () => {
                     data={Radius8Km}
                     pane="radiusPane"
                     style={{
-                      color: 'black',
+                      color: "black",
                       weight: 2,
-                      fillColor: 'url(#diagonalHatchOrange)',
+                      fillColor: "url(#diagonalHatchOrange)",
                       fillOpacity: 1,
                     }}
                   />
@@ -452,9 +518,9 @@ const MapWithChoropleth = () => {
                     data={Radius5Km}
                     pane="radiusPane"
                     style={{
-                      color: 'black',
+                      color: "black",
                       weight: 2,
-                      fillColor: 'url(#diagonalHatchRed)',
+                      fillColor: "url(#diagonalHatchRed)",
                       fillOpacity: 1,
                     }}
                   />
@@ -466,9 +532,9 @@ const MapWithChoropleth = () => {
                     data={KRB1}
                     pane="krbPane"
                     style={{
-                      color: 'red',
+                      color: "red",
                       weight: 2,
-                      fillColor: 'red',
+                      fillColor: "red",
                       fillOpacity: 1,
                     }}
                   />
@@ -480,9 +546,9 @@ const MapWithChoropleth = () => {
                     data={KRB2}
                     pane="krbPane"
                     style={{
-                      color: 'orange',
+                      color: "orange",
                       weight: 2,
-                      fillColor: 'orange',
+                      fillColor: "orange",
                       fillOpacity: 1,
                     }}
                   />
@@ -494,9 +560,9 @@ const MapWithChoropleth = () => {
                     data={KRB3}
                     pane="krbPane"
                     style={{
-                      color: 'yellow',
+                      color: "yellow",
                       weight: 2,
-                      fillColor: 'yellow',
+                      fillColor: "yellow",
                       fillOpacity: 1,
                     }}
                   />
@@ -510,7 +576,7 @@ const MapWithChoropleth = () => {
                 kandangValid.map((item, index) => (
                   <Marker
                     key={item.idKandang || index}
-                    position={[item.latitude, item.longitude]}
+                    position={[item.latitude, item.longitude]} // Menggunakan nilai yang telah dinormalisasi
                     pane="kandangPane"
                     icon={customMarkerIcon}
                     eventHandlers={{
@@ -518,7 +584,6 @@ const MapWithChoropleth = () => {
                     }}
                   />
                 ))}
-
               {/* Peternak Markers */}
               {/* {showPeternak &&
                 layerVisibilityP.Peternak &&
@@ -544,12 +609,12 @@ const MapWithChoropleth = () => {
                 ? selectedKandang.namaKandang
                 : selectedPeternak
                 ? selectedPeternak.namaPeternak
-                : 'Detail'
+                : "Detail"
             }
             placement="right"
             width={400}
             onClose={handleCloseDrawer}
-            visible={drawerVisible}
+            open={drawerVisible}
             destroyOnClose
           >
             {selectedKandang && (
@@ -557,28 +622,28 @@ const MapWithChoropleth = () => {
                 <Title level={5}>Detail Kandang</Title>
                 <Descriptions bordered column={1} size="small">
                   <Descriptions.Item label="ID Kandang">
-                    {selectedKandang.idKandang}
+                    {selectedKandang.idKandang || "-"}
                   </Descriptions.Item>
                   <Descriptions.Item label="Nama Kandang">
-                    {selectedKandang.namaKandang}
+                    {selectedKandang.namaKandang || "-"}
                   </Descriptions.Item>
                   <Descriptions.Item label="Jenis Kandang">
-                    {selectedKandang.jenisKandang}
+                    {selectedKandang.jenisKandang || "-"}
                   </Descriptions.Item>
                   <Descriptions.Item label="Luas">
-                    {selectedKandang.luas}
+                    {selectedKandang.luas || "-"}
                   </Descriptions.Item>
                   <Descriptions.Item label="Kapasitas">
-                    {selectedKandang.kapasitas}
+                    {selectedKandang.kapasitas || "-"}
                   </Descriptions.Item>
                   <Descriptions.Item label="Nilai Bangunan">
-                    {selectedKandang.nilaiBangunan}
+                    {selectedKandang.nilaiBangunan || "-"}
                   </Descriptions.Item>
                   <Descriptions.Item label="Alamat">
-                    {selectedKandang.alamat}
+                    {selectedKandang.alamat || "-"}
                   </Descriptions.Item>
                   <Descriptions.Item label="Peternak">
-                    {selectedKandang.peternak.namaPeternak}
+                    {selectedKandang.peternak?.namaPeternak || "-"}
                   </Descriptions.Item>
                   {selectedKandang.file_path && (
                     <Descriptions.Item label="Foto Kandang">
@@ -636,7 +701,7 @@ const MapWithChoropleth = () => {
         </>
       )}
     </div>
-  )
-}
+  );
+};
 
-export default MapWithChoropleth
+export default MapWithChoropleth;
