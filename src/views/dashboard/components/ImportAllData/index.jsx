@@ -1,16 +1,25 @@
 /* eslint-disable no-unused-vars */
-import { addJenisHewanBulk } from "@/api/jenisHewan";
-import { addKandangBulk } from "@/api/kandang";
-import { addPeternakBulk } from "@/api/peternak";
-import { addPetugasBulk } from "@/api/petugas";
 import { UploadOutlined } from "@ant-design/icons";
 import { Button, message, Modal, Upload } from "antd";
 import React, { Component } from "react";
 import { v4 as uuidv4 } from "uuid";
 import { read, utils } from "xlsx";
 
+import { addTernakBulk } from "@/api/hewan";
+import { addJenisHewanBulk } from "@/api/jenishewan";
+import { addKandangBulk } from "@/api/kandang";
+import { addPeternakBulk } from "@/api/peternak";
+import { addPetugasBulk } from "@/api/petugas";
+import { addRumpunHewanBulk } from "@/api/rumpunhewan";
+import { addTujuanPemeliharaanBulk } from "@/api/tujuan-pemeliharaan";
+// import { addTernakBulk } from "@/api/hewan";
+// import { addJenisHewanBulk } from "@/api/jenishewan";
+// import { addKandangBulk } from "@/api/kandang";
 // import { addPeternakBulk } from "@/api/peternak";
 // import { addPetugasBulk } from "@/api/petugas";
+// import { addRumpunHewanBulk } from "@/api/rumpunhewan";
+// import { addTujuanPemeliharaanBulk } from "@/api/tujuan-pemeliharaan";
+
 export const sendPetugasBulkData = async (data, batchSize = 7000) => {
   const totalBatches = Math.ceil(data.length / batchSize);
 
@@ -103,6 +112,29 @@ const sendJenisHewanBulkData = async (data, batchSize = 7000) => {
   }
 };
 
+const sendTujuanPemeliharaanBulkData = async (data, batchSize = 7000) => {
+  const totalBatches = Math.ceil(data.length / batchSize);
+
+  for (let i = 0; i < totalBatches; i++) {
+    const batchData = data.slice(i * batchSize, (i + 1) * batchSize);
+
+    try {
+      console.log(`Data Tujuan Pemeliharaan (Batch ${i + 1}):`, batchData); // Log data yang dikirim
+      const response = await addTujuanPemeliharaanBulk(batchData);
+      console.log(
+        `Batch ${i + 1}/${totalBatches} berhasil dikirim`,
+        response.data
+      );
+    } catch (error) {
+      console.error(
+        `Batch ${i + 1}/${totalBatches} gagal dikirim`,
+        error.response?.data || error.message
+      );
+      throw error; // Hentikan proses jika batch gagal
+    }
+  }
+};
+
 const sendRumpunHewanBulkData = async (data, batchSize = 7000) => {
   const totalBatches = Math.ceil(data.length / batchSize);
 
@@ -111,11 +143,11 @@ const sendRumpunHewanBulkData = async (data, batchSize = 7000) => {
 
     try {
       console.log(`Data Rumpun Hewan (Batch ${i + 1}):`, batchData); // Log data yang dikirim
-      // const response = await addRumpunHewanBulk(batchData);
-      // console.log(
-      //   `Batch ${i + 1}/${totalBatches} berhasil dikirim`,
-      //   response.data
-      // );
+      const response = await addRumpunHewanBulk(batchData);
+      console.log(
+        `Batch ${i + 1}/${totalBatches} berhasil dikirim`,
+        response.data
+      );
     } catch (error) {
       console.error(
         `Batch ${i + 1}/${totalBatches} gagal dikirim`,
@@ -134,11 +166,11 @@ const sendTernakHewanBulkData = async (data, batchSize = 7000) => {
 
     try {
       console.log(`Data Ternak Hewan (Batch ${i + 1}):`, batchData); // Log data yang dikirim
-      // const response = await addTernakBulk(batchData);
-      // console.log(
-      //   `Batch ${i + 1}/${totalBatches} berhasil dikirim`,
-      //   response.data
-      // );
+      const response = await addTernakBulk(batchData);
+      console.log(
+        `Batch ${i + 1}/${totalBatches} berhasil dikirim`,
+        response.data
+      );
     } catch (error) {
       console.error(
         `Batch ${i + 1}/${totalBatches} gagal dikirim`,
@@ -281,6 +313,7 @@ export default class ImportAllData extends Component {
       const kandangBulk = [];
       const ternakHewanBulk = [];
       const vaksinBulk = [];
+      const tujuanPemeliharaanBulk = [];
 
       for (const row of importedData) {
         const generateIdPeternak = uuidv4();
@@ -289,6 +322,7 @@ export default class ImportAllData extends Component {
         const generateIdKandang = uuidv4();
         const generateIdHewan = uuidv4();
         const generateIdVaksin = uuidv4();
+        const generateIdTujuanPemeliharaan = uuidv4();
 
         const nikPeternak = cleanNik(
           row[columnMapping["NIK Pemilik Ternak*)"]]
@@ -356,6 +390,7 @@ export default class ImportAllData extends Component {
 
         console.log("Petugas Pendataan Bulk api:", petugasPendataanBulk);
 
+        // data petugas
         const dataPetugasVaksinasi = {
           nikPetugas: row[columnMapping["NIK Petugas Vaksinasi*)"]],
           namaPetugas: row[columnMapping["Nama Petugas Vaksinasi*)"]],
@@ -364,6 +399,7 @@ export default class ImportAllData extends Component {
           job: "Vaksinasi",
         };
 
+        // data peternak
         const dataPeternak = {
           idPeternak: generateIdPeternak,
           nikPeternak: cleanNik(row[columnMapping["NIK Pemilik Ternak**)"]]),
@@ -401,8 +437,19 @@ export default class ImportAllData extends Component {
           uniqueData.set(row[columnMapping["Jenis Ternak**)"]], true);
         }
 
+        // data tujuan pemeliharaan
+        const dataTujuanPemeliharaan = {
+          idTujuanPemeliharaan: generateIdTujuanPemeliharaan,
+          tujuanPemeliharaan:
+            row[columnMapping["Tujuan Pemeliharaan Ternak**)"]],
+          deskripsi:
+            "Deskripsi " +
+            getValidData(row, columnMapping, "Tujuan Pemeliharaan Ternak**)"),
+        };
+
         console.log("Peternak Bulk api:", peternakBulk);
 
+        // data kandang
         const dataKandang = {
           idKandang: generateIdKandang,
           peternak_id: dataPeternak.idPeternak,
@@ -422,6 +469,7 @@ export default class ImportAllData extends Component {
 
         console.log("Data Kandang:", dataKandang);
 
+        // data rumpun hewan
         const dataRumpunHewan = {
           idRumpunHewan: generateIdRumpunHewan,
           rumpun: getValidData(row, columnMapping, "Rumpun Ternak"),
@@ -429,6 +477,7 @@ export default class ImportAllData extends Component {
             "Deskripsi " + getValidData(row, columnMapping, "Rumpun Ternak"),
         };
 
+        // data ternak hewan
         const dataTernakHewan = {
           idHewan: generateIdHewan,
           kodeEartagNasional: getValidData(
@@ -446,6 +495,7 @@ export default class ImportAllData extends Component {
           rumpunHewanId: generateIdRumpunHewan,
         };
 
+        // data vaksin
         const dataVaksin = {
           idVaksin: generateIdVaksin,
           peternak_id: generateIdPeternak,
@@ -470,6 +520,7 @@ export default class ImportAllData extends Component {
         rumpunHewanBulk.push(dataRumpunHewan);
         ternakHewanBulk.push(dataTernakHewan);
         vaksinBulk.push(dataVaksin);
+        tujuanPemeliharaanBulk.push(dataTujuanPemeliharaan);
       }
 
       // Send bulk data to server
@@ -477,14 +528,17 @@ export default class ImportAllData extends Component {
         console.log("Petugas Pendataan Bulk api: ", petugasPendataanBulk);
         console.log("Peternak Bulk api :", peternakBulk);
         console.log("Kandang Bulk api :", kandangBulk);
+        console.log("Rumpun Hewan Bulk api :", rumpunHewanBulk);
+        console.log("Ternak Hewan Bulk api :", ternakHewanBulk);
+        console.log("Tujuan Pemeliharaan : ", tujuanPemeliharaanBulk);
         // await sendPetugasBulkData(petugasVaksinasiBulk);
         await sendPetugasBulkData(petugasPendataanBulk);
         await sendJenisHewanBulkData(jenisHewanBulk);
         await sendPeternakBulkData(peternakBulk);
         await sendKandangBulkData(kandangBulk);
-        // await sendRumpunHewanBulkData(rumpunHewanBulk);
-        // await sendTernakHewanBulkData(ternakHewanBulk);
-
+        await sendRumpunHewanBulkData(rumpunHewanBulk);
+        await sendTernakHewanBulkData(ternakHewanBulk);
+        await sendTujuanPemeliharaanBulkData(tujuanPemeliharaanBulk);
         // await sendPeternakImport(peternakBulk)
         // await sendJenisHewanImport(jenisHewanBulk)
         // await sendRumpunHewanImport(rumpunHewanBulk)
