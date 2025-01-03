@@ -389,19 +389,24 @@ export default class ImportAllData extends Component {
         console.log("data peternak = ", dataPeternak);
         // uniqueData.set(nikPeternak, true);
 
-        const dataJenisHewan = {
-          idJenisHewan: generateIdJenisHewan,
-          jenis: row[columnMapping["Jenis Ternak**)"]],
-          deskripsi:
-            "Deskripsi " + getValidData(row, columnMapping, "Jenis Ternak*)"),
-        };
+        // if jenis hewan berulang kali dengan nama yang sama, maka hanya akan disimpan satu kali
+        if (!uniqueData.has(row[columnMapping["Jenis Ternak**)"]])) {
+          const dataJenisHewan = {
+            idJenisHewan: generateIdJenisHewan,
+            jenis: row[columnMapping["Jenis Ternak**)"]],
+            deskripsi:
+              "Deskripsi " + getValidData(row, columnMapping, "Jenis Ternak*)"),
+          };
+          jenisHewanBulk.push(dataJenisHewan);
+          uniqueData.set(row[columnMapping["Jenis Ternak**)"]], true);
+        }
 
         console.log("Peternak Bulk api:", peternakBulk);
 
         const dataKandang = {
           idKandang: generateIdKandang,
           peternak_id: dataPeternak.idPeternak,
-          idJenisHewan: dataJenisHewan.idJenisHewan,
+          idJenisHewan: uniqueData.idJenisHewan,
           nikPeternak: dataPeternak.nikPeternak,
           namaKandang: `Kandang ${dataPeternak.namaPeternak}`,
           alamat:
@@ -459,7 +464,7 @@ export default class ImportAllData extends Component {
         // petugasPendataanBulk.push(dataPetugasPendataan);
         petugasVaksinasiBulk.push(dataPetugasVaksinasi);
         // peternakBulk.push(dataPeternak);
-        jenisHewanBulk.push(dataJenisHewan);
+        // jenisHewanBulk.push(dataJenisHewan);
         peternakBulk.push(dataPeternak);
         kandangBulk.push(dataKandang);
         rumpunHewanBulk.push(dataRumpunHewan);

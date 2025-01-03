@@ -141,7 +141,7 @@ export function deleteHewan(data) {
 
 export function addHewanImport(data) {
   return request({
-    url: "/hewan",
+    url: "/hewan/import",
     method: "post",
     data: data, // Mengirim FormData dengan file
   });
