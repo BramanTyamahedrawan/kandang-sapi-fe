@@ -14,6 +14,7 @@ const PKB = React.lazy(() => import('@/views/pkb'))
 const Monitoring = React.lazy(() => import('@/views/monitoring'))
 const JenisHewan = React.lazy(() => import('@/views/jenis-hewan'))
 const RumpunHewan = React.lazy(() => import('@/views/rumpun-hewan'))
+const TujuanPemeliharaan = React.lazy(() => import('@/views/tujuan-pemeliharaan'))
 
 export default [
   {
@@ -30,6 +31,11 @@ export default [
     path: '/peternak',
     component: Peternak,
     roles: ['ROLE_ADMINISTRATOR', 'ROLE_PETUGAS'],
+  },
+  {
+    path: '/tujuan-pemeliharaan',
+    component: TujuanPemeliharaan,
+    roles: ['ROLE_ADMINISTRATOR', 'ROLE_PETUGAS','ROLE_PETERNAK'],
   },
   {
     path: '/kandang',

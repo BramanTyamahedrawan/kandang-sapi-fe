@@ -1,11 +1,11 @@
 /* eslint-disable no-unused-vars */
 /* eslint-disable react/prop-types */
-import { useState, useEffect } from 'react'
-import { Modal, Form, Input, Select, Upload, Row, Col } from 'antd'
-import { InboxOutlined } from '@ant-design/icons'
-import { getPetugas } from '@/api/petugas'
-import { getPeternaks } from '@/api/peternak'
 import { getKandang } from '@/api/kandang'
+import { getPeternaks } from '@/api/peternak'
+import { getPetugas } from '@/api/petugas'
+import { InboxOutlined } from '@ant-design/icons'
+import { Col, Form, Input, Modal, Row, Select, Upload } from 'antd'
+import { useEffect, useState } from 'react'
 import { getJenisHewan } from '../../../api/jenishewan'
 import { getRumpunHewan } from '../../../api/rumpunhewan'
 
@@ -43,6 +43,7 @@ const AddHewanForm = ({ visible, onCancel, onOk, confirmLoading }) => {
       const result = await getJenisHewan()
       const { content, statusCode } = result.data
       if (statusCode === 200) {
+        console.log(content);
         const jenisHewan = content.map(({ idJenisHewan, jenis }) => ({
           idJenisHewan,
           jenis,

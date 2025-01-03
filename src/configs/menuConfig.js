@@ -7,10 +7,11 @@ import {
   FileSearchOutlined,
   HomeOutlined,
   ProjectOutlined,
+  RocketOutlined,
   TableOutlined,
   TagOutlined,
   UsergroupAddOutlined,
-  UserOutlined,
+  UserOutlined
 } from '@ant-design/icons'
 
 const menuList = [
@@ -37,6 +38,12 @@ const menuList = [
     path: '/peternak',
     icon: UsergroupAddOutlined,
     roles: ['ROLE_ADMINISTRATOR', 'ROLE_PETUGAS'],
+  },
+  {
+    title: 'Tujuan Pemeliharaan',
+    path: '/tujuan-pemeliharaan',
+    icon: RocketOutlined,
+    roles: ['ROLE_ADMINISTRATOR', 'ROLE_PETUGAS','ROLE_PETERNAK'],
   },
   {
     title: 'Jenis Hewan',
