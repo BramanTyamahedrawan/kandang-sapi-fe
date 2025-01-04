@@ -396,6 +396,7 @@ const Hewan = () => {
           kabupaten: row[mapping["Kabupaten"]] || "-",
           provinsi: row[mapping["Provinsi"]] || "-",
           alamat: validAddress || "-",
+          namaPetugas: row[mapping["Petugas Pendaftar"]] || "-",
           identifikasiHewan:
             row[mapping["Identifikasi Hewan*"]] ||
             row[mapping["Identifikasi Hewan"]] ||
