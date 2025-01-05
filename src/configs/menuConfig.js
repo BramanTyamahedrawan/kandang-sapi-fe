@@ -11,15 +11,15 @@ import {
   TableOutlined,
   TagOutlined,
   UsergroupAddOutlined,
-  UserOutlined
-} from '@ant-design/icons'
+  UserOutlined,
+} from "@ant-design/icons";
 
 const menuList = [
   {
-    title: 'Beranda',
-    path: '/dashboard',
+    title: "Beranda",
+    path: "/dashboard",
     icon: HomeOutlined,
-    roles: ['ROLE_ADMINISTRATOR', 'ROLE_PETUGAS', 'ROLE_PETERNAK'],
+    roles: ["ROLE_ADMINISTRATOR", "ROLE_PETUGAS", "ROLE_PETERNAK"],
   },
   // {
   //   title: "Berita",
@@ -28,83 +28,95 @@ const menuList = [
   //   roles:["ROLE_ADMINISTRATOR"]
   // },
   {
-    title: 'Data Petugas',
-    path: '/petugas',
+    title: "Data Petugas",
+    path: "/petugas",
     icon: UserOutlined,
-    roles: ['ROLE_ADMINISTRATOR'],
+    roles: ["ROLE_ADMINISTRATOR"],
   },
   {
-    title: 'Data Peternak',
-    path: '/peternak',
+    title: "Data Peternak",
+    path: "/peternak",
     icon: UsergroupAddOutlined,
-    roles: ['ROLE_ADMINISTRATOR', 'ROLE_PETUGAS'],
+    roles: ["ROLE_ADMINISTRATOR", "ROLE_PETUGAS"],
   },
   {
-    title: 'Tujuan Pemeliharaan',
-    path: '/tujuan-pemeliharaan',
+    title: "Tujuan Pemeliharaan",
+    path: "/tujuan-pemeliharaan",
     icon: RocketOutlined,
-    roles: ['ROLE_ADMINISTRATOR', 'ROLE_PETUGAS','ROLE_PETERNAK'],
+    roles: ["ROLE_ADMINISTRATOR", "ROLE_PETUGAS", "ROLE_PETERNAK"],
   },
   {
-    title: 'Jenis Hewan',
-    path: '/jenis-hewan',
+    title: "Jenis Hewan",
+    path: "/jenis-hewan",
     icon: EyeOutlined,
-    roles: ['ROLE_ADMINISTRATOR', 'ROLE_PETUGAS', 'ROLE_PETERNAK'],
+    roles: ["ROLE_ADMINISTRATOR", "ROLE_PETUGAS", "ROLE_PETERNAK"],
   },
   {
-    title: 'Data Kandang',
-    path: '/kandang',
+    title: "Data Kandang",
+    path: "/kandang",
     icon: BuildOutlined,
-    roles: ['ROLE_ADMINISTRATOR', 'ROLE_PETUGAS', 'ROLE_PETERNAK'],
+    roles: ["ROLE_ADMINISTRATOR", "ROLE_PETUGAS", "ROLE_PETERNAK"],
   },
- 
+
   {
-    title: 'Rumpun Hewan',
-    path: '/rumpun-hewan',
+    title: "Rumpun Hewan",
+    path: "/rumpun-hewan",
     icon: EyeOutlined,
-    roles: ['ROLE_ADMINISTRATOR', 'ROLE_PETUGAS', 'ROLE_PETERNAK'],
+    roles: ["ROLE_ADMINISTRATOR", "ROLE_PETUGAS", "ROLE_PETERNAK"],
   },
   {
-    title: 'Daftar Hewan',
-    path: '/hewan',
+    title: "Daftar Hewan",
+    path: "/hewan",
     icon: TagOutlined,
-    roles: ['ROLE_ADMINISTRATOR', 'ROLE_PETUGAS', 'ROLE_PETERNAK'],
+    roles: ["ROLE_ADMINISTRATOR", "ROLE_PETUGAS", "ROLE_PETERNAK"],
   },
   {
-    title: 'Daftar Vaksin',
-    path: '/vaksin',
+    title: "Jenis Vaksin",
+    path: "/jenis-vaksin",
     icon: ProjectOutlined,
-    roles: ['ROLE_ADMINISTRATOR', 'ROLE_PETUGAS', 'ROLE_PETERNAK'],
+    roles: ["ROLE_ADMINISTRATOR", "ROLE_PETUGAS", "ROLE_PETERNAK"],
   },
   {
-    title: 'Inseminasi Buatan',
-    path: '/inseminasi-buatan',
+    title: "Nama Vaksin",
+    path: "/nama-vaksin",
+    icon: ProjectOutlined,
+    roles: ["ROLE_ADMINISTRATOR", "ROLE_PETUGAS", "ROLE_PETERNAK"],
+  },
+  {
+    title: "Daftar Vaksin",
+    path: "/vaksin",
+    icon: ProjectOutlined,
+    roles: ["ROLE_ADMINISTRATOR", "ROLE_PETUGAS", "ROLE_PETERNAK"],
+  },
+  {
+    title: "Inseminasi Buatan",
+    path: "/inseminasi-buatan",
     icon: TableOutlined,
-    roles: ['ROLE_ADMINISTRATOR', 'ROLE_PETUGAS', 'ROLE_PETERNAK'],
+    roles: ["ROLE_ADMINISTRATOR", "ROLE_PETUGAS", "ROLE_PETERNAK"],
   },
   {
-    title: 'Kelahiran',
-    path: '/kelahiran',
+    title: "Kelahiran",
+    path: "/kelahiran",
     icon: FileSearchOutlined,
-    roles: ['ROLE_ADMINISTRATOR', 'ROLE_PETUGAS', 'ROLE_PETERNAK'],
+    roles: ["ROLE_ADMINISTRATOR", "ROLE_PETUGAS", "ROLE_PETERNAK"],
   },
   {
-    title: 'Pengobatan',
-    path: '/pengobatan',
+    title: "Pengobatan",
+    path: "/pengobatan",
     icon: ExperimentOutlined,
-    roles: ['ROLE_ADMINISTRATOR', 'ROLE_PETUGAS'],
+    roles: ["ROLE_ADMINISTRATOR", "ROLE_PETUGAS"],
   },
   {
-    title: 'PKB',
-    path: '/pkb',
+    title: "PKB",
+    path: "/pkb",
     icon: CopyOutlined,
-    roles: ['ROLE_ADMINISTRATOR', 'ROLE_PETUGAS', 'ROLE_PETERNAK'],
+    roles: ["ROLE_ADMINISTRATOR", "ROLE_PETUGAS", "ROLE_PETERNAK"],
   },
   {
-    title: 'Monitoring',
-    path: '/monitoring',
+    title: "Monitoring",
+    path: "/monitoring",
     icon: CameraOutlined,
-    roles: ['ROLE_ADMINISTRATOR', 'ROLE_PETUGAS', 'ROLE_PETERNAK'],
+    roles: ["ROLE_ADMINISTRATOR", "ROLE_PETUGAS", "ROLE_PETERNAK"],
   },
-]
-export default menuList
+];
+export default menuList;

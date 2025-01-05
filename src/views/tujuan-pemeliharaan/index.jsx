@@ -1,92 +1,77 @@
 /* eslint-disable no-constant-condition */
 /* eslint-disable no-unused-vars */
-import { UploadOutlined } from '@ant-design/icons'
-import {
-  Button,
-  Card,
-  Col,
-  Divider,
-  Input,
-  message,
-  Modal,
-  Row,
-  Table,
-  Upload,
-} from 'antd'
-import React, { useEffect, useState } from 'react'
-// import AddHewanForm from './forms/add-jenishewan-form'
-// import EditHewanForm from './forms/edit-jenishewan-form'
-import {
-  getTujuanPemeliharaan
-} from '@/api/tujuan-pemeliharaan'
-import TypingCard from '@/components/TypingCard'
-import { reqUserInfo } from '../../api/user'
-
+import React, { useEffect, useState, useRef } from "react";
+import { UploadOutlined } from "@ant-design/icons";
+import { Button, Card, Col, Divider, Input, message, Modal, Row, Table, Upload } from "antd";
+import AddTujuanPemeliharaanForm from "./forms/add-tujuanpemeliharaan-form";
+import EditTujuanPemeliharaanForm from "./forms/edit-tujuanpemeliharaan-form";
+import { getTujuanPemeliharaan, addTujuanPemeliharaan, editTujuanPemeliharaan, deleteTujuanPemeliharaan } from "@/api/tujuan-pemeliharaan";
+import TypingCard from "@/components/TypingCard";
+import { reqUserInfo } from "../../api/user";
 
 const TujuanPemeliharaan = () => {
   // State Variables
-  // const [petugas, setPetugas] = useState([])
-  const [tujuanPemeliharaans, setTujuanPemeliharaans] = useState([])
-  // const [editHewanModalVisible, setEditHewanModalVisible] = useState(false)
-  // const [editHewanModalLoading, setEditHewanModalLoading] = useState(false)
-  const [currentRowData, setCurrentRowData] = useState({})
-  // const [addHewanModalVisible, setAddHewanModalVisible] = useState(false)
-  // const [addHewanModalLoading, setAddHewanModalLoading] = useState(false)
-  const [importModalVisible, setImportModalVisible] = useState(false)
-  const [importedData, setImportedData] = useState([])
-  const [searchKeyword, setSearchKeyword] = useState('')
-  const [user, setUser] = useState(null)
-  const [uploading, setUploading] = useState(false)
-  const [columnTitles, setColumnTitles] = useState([])
-  const [fileName, setFileName] = useState('')
-  const [columnMapping, setColumnMapping] = useState({})
+  // const [petugas, setPetugas] = useState([]
+  const [tujuanPemeliharaans, setTujuanPemeliharaans] = useState([]);
+  const [editTujuanModalVisible, setEditTujuanModalVisible] = useState(false);
+  const [editTujuanModalLoading, setEditTujuanModalLoading] = useState(false);
+  const [currentRowData, setCurrentRowData] = useState({});
+  const [addTujuanModalVisible, setAddTujuanModalVisible] = useState(false);
+  const [addTujuanModalLoading, setAddTujuanModalLoading] = useState(false);
+  const [importModalVisible, setImportModalVisible] = useState(false);
+  const [importedData, setImportedData] = useState([]);
+  const [searchKeyword, setSearchKeyword] = useState("");
+  const [user, setUser] = useState(null);
+  const [uploading, setUploading] = useState(false);
+  const [columnTitles, setColumnTitles] = useState([]);
+  const [fileName, setFileName] = useState("");
+  const [columnMapping, setColumnMapping] = useState({});
 
   // Form References
-  // const editHewanFormRef = useRef(null)
-  // const addHewanFormRef = useRef(null)
+  const editTujuanFormRef = useRef(null);
+  const addTujuanFormRef = useRef(null);
 
   // Fetch Initial Data on Component Mount
   useEffect(() => {
-    getTujuanPemeliharaanData()
+    getTujuanPemeliharaanData();
     reqUserInfo()
       .then((response) => {
-        setUser(response.data)
+        setUser(response.data);
       })
       .catch((error) => {
-        console.error('Terjadi kesalahan saat mengambil data user:', error)
-      })
-  }, [])
+        console.error("Terjadi kesalahan saat mengambil data user:", error);
+      });
+  }, []);
 
   // Fetch All Jenis Hewan with Optional Filtering
   const getTujuanPemeliharaanData = async () => {
     try {
-      const result = await getTujuanPemeliharaan()
-      const { content, statusCode } = result.data
+      const result = await getTujuanPemeliharaan();
+      const { content, statusCode } = result.data;
 
       if (statusCode === 200) {
         const filteredTujuanPemeliharaan = content.filter((tujuan) => {
-          const { idTujuanPemeliharaan, tujuanPemeliharaan,  deskripsi } = tujuan
-          const keyword = searchKeyword.toLowerCase()
+          const { idTujuanPemeliharaan, tujuanPemeliharaan, deskripsi } = tujuan;
+          const keyword = searchKeyword.toLowerCase();
 
-          const isIdTujuanPemeliharaanValid = typeof idTujuanPemeliharaan === 'string'
-          const isTujuanPemeliharaanValid = typeof tujuanPemeliharaan === 'string'
-          const isDeskripsiValid = typeof deskripsi === 'string'
+          const isIdTujuanPemeliharaanValid = typeof idTujuanPemeliharaan === "string";
+          const isTujuanPemeliharaanValid = typeof tujuanPemeliharaan === "string";
+          const isDeskripsiValid = typeof deskripsi === "string";
 
           return (
-            (isIdTujuanPemeliharaanValid &&
-              idTujuanPemeliharaan.toLowerCase().includes(keyword)) ||
+            (isIdTujuanPemeliharaanValid && idTujuanPemeliharaan.toLowerCase().includes(keyword)) ||
             (isTujuanPemeliharaanValid && tujuanPemeliharaan.toLowerCase().includes(keyword)) ||
             (isDeskripsiValid && deskripsi.toLowerCase().includes(keyword))
-          )
-        })
+          );
+        });
 
-        setTujuanPemeliharaans(filteredTujuanPemeliharaan)
+        setTujuanPemeliharaans(filteredTujuanPemeliharaan);
       }
     } catch (error) {
-      console.error('Failed to fetch tujuan pemeliharaan:', error)
-      message.error('Gagal mengambil data tujuan pemeliharaan, harap coba lagi!')
+      console.error("Failed to fetch tujuan pemeliharaan:", error);
+      message.error("Gagal mengambil data tujuan pemeliharaan, harap coba lagi!");
     }
-  }
+  };
 
   // // Fetch Jenis Hewan by Peternak ID (for ROLE_PETERNAK)
   // const getHewanByPeternak = async (peternakID) => {
@@ -128,112 +113,108 @@ const TujuanPemeliharaan = () => {
 
   // Handle Opening the Import Modal
   const handleImportModalOpen = () => {
-    setImportModalVisible(true)
-  }
+    setImportModalVisible(true);
+  };
 
   // Handle Closing the Import Modal
   const handleImportModalClose = () => {
-    setImportModalVisible(false)
-  }
+    setImportModalVisible(false);
+  };
 
-  // Handle Adding a Jenis Hewan
-  // const handleAddHewan = () => {
-  //   setAddHewanModalVisible(true)
-  // }
+  // Handle Adding a Tujuan Pemeliharaan
+  const handleAddTujuan = () => {
+    setAddTujuanModalVisible(true);
+  };
 
-  // Handle Confirming the Add Jenis Hewan Modal
-  // const handleAddHewanOk = async (values, form) => {
-  //   setAddHewanModalLoading(true)
-  //   const hewanData = {
-  //     jenis: values.jenis,
-  //     deskripsi: values.deskripsi,
-  //   }
-  //   try {
-  //     await addJenisHewan(hewanData)
-  //     form.resetFields()
-  //     setAddHewanModalVisible(false)
-  //     setAddHewanModalLoading(false)
-  //     message.success('Berhasil menambahkan!')
-  //     getJenisHewanData()
-  //   } catch (e) {
-  //     setAddHewanModalLoading(false)
-  //     console.error('Failed to add jenis hewan:', e)
-  //     message.error('Gagal menambahkan, harap coba lagi!')
-  //   }
-  // }
+  // Handle Confirming the Add Tujuan Pemeliharaan Modal
+  const handleAddTujuanOk = async (values, form) => {
+    setAddTujuanModalLoading(true);
+    const tujuanData = {
+      jenis: values.tujuan,
+      deskripsi: values.deskripsi,
+    };
+    try {
+      await addTujuanPemeliharaan(tujuanData);
+      form.resetFields();
+      setAddTujuanModalVisible(false);
+      setAddTujuanModalLoading(false);
+      message.success("Berhasil menambahkan!");
+      getTujuanPemeliharaanData();
+    } catch (e) {
+      setAddTujuanModalLoading(false);
+      console.error("Failed to add tujuan pemeliharaan:", e);
+      message.error("Gagal menambahkan, harap coba lagi!");
+    }
+  };
 
   // Handle Editing a Jenis Hewan
-  // const handleEditHewan = (row) => {
-  //   setCurrentRowData({ ...row })
-  //   setEditHewanModalVisible(true)
-  // }
+  const handleEditTujuan = (row) => {
+    setCurrentRowData({ ...row });
+    setEditTujuanModalVisible(true);
+  };
 
   // Handle Confirming the Edit Jenis Hewan Modal
-  // const handleEditHewanOk = async (values, form) => {
-  //   setEditHewanModalLoading(true)
-  //   try {
-  //     await editJenisHewan(values, values.idJenisHewan)
-  //     form.resetFields()
-  //     setEditHewanModalVisible(false)
-  //     setEditHewanModalLoading(false)
-  //     message.success('Berhasil diedit!')
-  //     getJenisHewanData()
-  //   } catch (e) {
-  //     setEditHewanModalLoading(false)
-  //     console.error('Failed to edit jenis hewan:', e)
-  //     message.error('Pengeditan gagal, harap coba lagi!')
-  //   }
-  // }
+  const handleEditTujuanOk = async (values, form) => {
+    setEditTujuanModalLoading(true);
+    try {
+      await editTujuanPemeliharaan(values, values.idTujuanPemeliharaan);
+      form.resetFields();
+      setEditTujuanModalVisible(false);
+      setEditTujuanModalLoading(false);
+      message.success("Berhasil diedit!");
+      getTujuanPemeliharaanData();
+    } catch (e) {
+      setEditTujuanModalLoading(false);
+      console.error("Failed to edit Tujuan pemeliharaan:", e);
+      message.error("Pengeditan gagal, harap coba lagi!");
+    }
+  };
 
   // Handle Deleting a Jenis Hewan
-  // const handleDeleteHewan = (row) => {
-  //   const { idJenisHewan } = row
+  const handleDeleteTujuan = (row) => {
+    const { idTujuanPemeliharaan } = row;
 
-  //   Modal.confirm({
-  //     title: 'Konfirmasi',
-  //     content: 'Apakah Anda yakin ingin menghapus data ini?',
-  //     okText: 'Ya',
-  //     okType: 'danger',
-  //     cancelText: 'Tidak',
-  //     onOk: async () => {
-  //       try {
-  //         await deleteJenisHewan({ idJenisHewan })
-  //         message.success('Berhasil dihapus')
-  //         getJenisHewanData()
-  //       } catch (error) {
-  //         console.error('Failed to delete jenis hewan:', error)
-  //         message.error('Gagal menghapus data, harap coba lagi!')
-  //       }
-  //     },
-  //   })
-  // }
+    Modal.confirm({
+      title: "Konfirmasi",
+      content: "Apakah Anda yakin ingin menghapus data ini?",
+      okText: "Ya",
+      okType: "danger",
+      cancelText: "Tidak",
+      onOk: async () => {
+        try {
+          await deleteTujuanPemeliharaan({ idTujuanPemeliharaan });
+          message.success("Berhasil dihapus");
+          getTujuanPemeliharaanData();
+        } catch (error) {
+          console.error("Failed to delete Tujuan:", error);
+          message.error("Gagal menghapus data, harap coba lagi!");
+        }
+      },
+    });
+  };
 
   // // Handle Canceling Any Modal
-  // const handleCancel = () => {
-  //   setEditHewanModalVisible(false)
-  //   setAddHewanModalVisible(false)
-  //   setImportModalVisible(false)
-  // }
+  const handleCancel = () => {
+    setEditTujuanModalVisible(false);
+    setAddTujuanModalVisible(false);
+    setImportModalVisible(false);
+  };
 
   // Convert Excel Date Format to JavaScript Date
   const convertToJSDate = (input) => {
-    let date
-    if (typeof input === 'number') {
-      const utcDays = Math.floor(input - 25569)
-      const utcValue = utcDays * 86400
-      const dateInfo = new Date(utcValue * 1000)
-      date = new Date(
-        dateInfo.getFullYear(),
-        dateInfo.getMonth(),
-        dateInfo.getDate()
-      ).toString()
-    } else if (typeof input === 'string') {
-      const [day, month, year] = input.split('/')
-      date = new Date(`${year}-${month}-${day}`).toString()
+    let date;
+    if (typeof input === "number") {
+      const utcDays = Math.floor(input - 25569);
+      const utcValue = utcDays * 86400;
+      const dateInfo = new Date(utcValue * 1000);
+      date = new Date(dateInfo.getFullYear(), dateInfo.getMonth(), dateInfo.getDate()).toString();
+    } else if (typeof input === "string") {
+      const [day, month, year] = input.split("/");
+      date = new Date(`${year}-${month}-${day}`).toString();
     }
 
-    return date
-  }
+    return date;
+  };
 
   // Handle File Import
   // const handleFileImport = (file) => {
@@ -396,96 +377,56 @@ const TujuanPemeliharaan = () => {
   const renderColumns = () => {
     const baseColumns = [
       {
-        title: 'ID Tujuan Pemeliharaan',
-        dataIndex: 'idTujuanPemeliharaan',
-        key: 'idTujuanPemeliharaan',
+        title: "ID Tujuan Pemeliharaan",
+        dataIndex: "idTujuanPemeliharaan",
+        key: "idTujuanPemeliharaan",
       },
-      { title: 'Tujuan Pemeliharaan', dataIndex: 'tujuanPemeliharaan', key: 'tujuanPemeliharaan' },
-      { title: 'Deskripsi', dataIndex: 'deskripsi', key: 'deskripsi' },
-    ]
+      { title: "Tujuan Pemeliharaan", dataIndex: "tujuanPemeliharaan", key: "tujuanPemeliharaan" },
+      { title: "Deskripsi", dataIndex: "deskripsi", key: "deskripsi" },
+    ];
 
-    if (
-      user &&
-      (user.role === 'ROLE_ADMINISTRATOR' || user.role === 'ROLE_PETUGAS')
-    ) {
+    if (user && (user.role === "ROLE_ADMINISTRATOR" || user.role === "ROLE_PETUGAS")) {
       baseColumns.push({
-        title: 'Operasi',
-        key: 'action',
+        title: "Operasi",
+        key: "action",
         width: 120,
-        align: 'center',
+        align: "center",
         render: (text, row) => (
           <span>
-            <Button
-              type="primary"
-              shape="circle"
-              icon="edit"
-              title="Edit"
-              // onClick={() => handleEditHewan(row)}
-            />
+            <Button type="primary" shape="circle" icon="edit" title="Edit" onClick={() => handleEditTujuan(row)} />
             <Divider type="vertical" />
-            <Button
-              type="primary"
-              danger
-              shape="circle"
-              icon="delete"
-              title="Delete"
-              // onClick={() => handleDeleteHewan(row)}
-            />
+            <Button type="primary" danger shape="circle" icon="delete" title="Delete" onClick={() => handleDeleteTujuan(row)} />
           </span>
         ),
-      })
+      });
     }
 
-    return baseColumns
-  }
+    return baseColumns;
+  };
 
   // Render Table based on User Role
   const renderTable = () => {
-    if (user && user.role === 'ROLE_PETERNAK') {
-      return (
-        <Table
-          dataSource={tujuanPemeliharaans}
-          bordered
-          columns={renderColumns()}
-          rowKey="idTujuanPemeliharaan"
-        />
-      )
-    } else if (
-      user &&
-      (user.role === 'ROLE_ADMINISTRATOR' || user.role === 'ROLE_PETUGAS')
-    ) {
-      return (
-        <Table
-          dataSource={tujuanPemeliharaans}
-          bordered
-          columns={renderColumns()}
-          rowKey="idTujuanPemeliharaan"
-        />
-      )
+    if (user && user.role === "ROLE_PETERNAK") {
+      return <Table dataSource={tujuanPemeliharaans} bordered columns={renderColumns()} rowKey="idTujuanPemeliharaan" />;
+    } else if (user && (user.role === "ROLE_ADMINISTRATOR" || user.role === "ROLE_PETUGAS")) {
+      return <Table dataSource={tujuanPemeliharaans} bordered columns={renderColumns()} rowKey="idTujuanPemeliharaan" />;
     } else {
-      return null
+      return null;
     }
-  }
+  };
 
   // Render Buttons based on User Role
   const renderButtons = () => {
-    if (
-      user &&
-      (user.role === 'ROLE_ADMINISTRATOR' || user.role === 'ROLE_PETUGAS')
-    ) {
+    if (user && (user.role === "ROLE_ADMINISTRATOR" || user.role === "ROLE_PETUGAS")) {
       return (
         <Row gutter={[16, 16]} justify="start" style={{ paddingLeft: 9 }}>
           <Col xs={24} sm={12} md={8} lg={8} xl={8}>
-            <Button type="primary" block>
+            <Button type="primary" block onClick={handleAddTujuan}>
               Tambah tujuan pemeliharaan
             </Button>
           </Col>
           <Col xs={24} sm={12} md={8} lg={8} xl={8}>
-            <Button
-              icon={<UploadOutlined />}
-              onClick={handleImportModalOpen}
-              block
-            >
+            <Button icon={<UploadOutlined />} onClick={handleImportModalOpen} block>
               Import File
             </Button>
           </Col>
@@ -495,11 +436,11 @@ const TujuanPemeliharaan = () => {
             </Button>
           </Col>
         </Row>
-      )
+      );
     } else {
-      return null
+      return null;
     }
-  }
+  };
 
   // Define the Title with Buttons and Search Input
   const title = (
@@ -510,41 +451,28 @@ const TujuanPemeliharaan = () => {
           placeholder="Cari data"
           value={searchKeyword}
           // onChange={(e) => handleSearch(e.target.value)}
-          style={{ width: '100%' }}
+          style={{ width: "100%" }}
         />
       </Col>
     </Row>
-  )
+  );
 
-  const cardContent = `Di sini, Anda dapat mengelola daftar tujuan pemeliharaan di sistem.`
+  const cardContent = `Di sini, Anda dapat mengelola daftar tujuan pemeliharaan di sistem.`;
 
   return (
     <div className="app-container">
       {/* TypingCard component */}
       <TypingCard title="Manajemen Tujuan Pemeliharaan" source={cardContent} />
       <br />
-      <Card title={title} style={{ overflowX: 'scroll' }}>
+      <Card title={title} style={{ overflowX: "scroll" }}>
         {renderTable()}
       </Card>
 
-      {/* Edit Jenis Hewan Modal */}
-      {/* <EditHewanForm
-        currentRowData={currentRowData}
-        wrappedComponentRef={editHewanFormRef}
-        visible={editHewanModalVisible}
-        confirmLoading={editHewanModalLoading}
-        onCancel={handleCancel}
-        onOk={handleEditHewanOk}
-      /> */}
+      {/* Edit Tujuan Pemeliharaan Modal */}
+      <EditTujuanPemeliharaanForm currentRowData={currentRowData} wrappedComponentRef={editTujuanFormRef} visible={editTujuanModalVisible} confirmLoading={editTujuanModalLoading} onCancel={handleCancel} onOk={handleEditTujuanOk} />
 
-      {/* Add Jenis Hewan Modal */}
-      {/* <AddHewanForm
-        wrappedComponentRef={addHewanFormRef}
-        visible={addHewanModalVisible}
-        confirmLoading={addHewanModalLoading}
-        onCancel={handleCancel}
-        onOk={handleAddHewanOk}
-      /> */}
+      {/* Add Tujuan Pemeliharraan Modal */}
+      <AddTujuanPemeliharaanForm wrappedComponentRef={addTujuanFormRef} visible={addTujuanModalVisible} confirmLoading={addTujuanModalLoading} onCancel={handleCancel} onOk={handleAddTujuanOk} />
 
       {/* Import Modal */}
       <Modal
@@ -574,7 +502,7 @@ const TujuanPemeliharaan = () => {
         </Upload>
       </Modal>
     </div>
-  )
-}
+  );
+};
 
-export default TujuanPemeliharaan
+export default TujuanPemeliharaan;
