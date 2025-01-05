@@ -485,14 +485,14 @@ export default class ImportAllData extends Component {
             columnMapping,
             "No. Eartag***)"
           ),
-          petugas_id: row[columnMapping["NIK Petugas Pendataan*)"]],
+          nikPetugas: cleanNik(row[columnMapping["NIK Petugas Pendataan*)"]]),
           tanggalLahir: row[columnMapping["Tanggal Lahir Ternak**)"]],
           sex: row[columnMapping["Jenis Kelamin**)"]],
           tempatLahir: row[columnMapping["Tempat Lahir Ternak"]],
-          peternak_id: generateIdPeternak,
-          kandang_id: generateIdKandang,
-          jenisHewanId: generateIdJenisHewan,
-          rumpunHewanId: generateIdRumpunHewan,
+          nikPeternak: dataPeternak.nikPeternak,
+          // kandang_id: generateIdKandang,
+          jenis: row[columnMapping["Jenis Ternak**)"]],
+          // rumpunHewanId: generateIdRumpunHewan,
         };
 
         // data vaksin
