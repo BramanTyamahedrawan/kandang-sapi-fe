@@ -7,7 +7,7 @@ import {
 } from "@/api/hewan";
 import { getPetugas } from "@/api/petugas";
 import TypingCard from "@/components/TypingCard";
-import { UploadOutlined } from "@ant-design/icons";
+import { DeleteOutlined, EditOutlined, UploadOutlined } from "@ant-design/icons";
 import {
   Button,
   Card,
@@ -131,7 +131,7 @@ const Hewan = () => {
               identifikasiHewan.toLowerCase().includes(keyword))
           );
         });
-
+        console.log(content);
         setHewans(filteredHewans);
       }
     } catch (error) {
@@ -390,8 +390,9 @@ const Hewan = () => {
           spesies: spesies, // Menggunakan spesies yang sudah digabungkan
           jenis: jenis, // Masukkan spesies ke dalam kolom jenis
           sex: row[mapping["Jenis Kelamin**"]] || row[mapping["sex"]] || "-",
+          tempatLahir: row[columnMapping["Tempat Lahir Ternak"]] || "-",
+          tanggalLahir: row[columnMapping["Tanggal Lahir Ternak"]] || "-",
           umur:
-            row[mapping["Tanggal Lahir Ternak**"]] ||
             row[mapping["umur"]] ||
             "-",
           // latitude: lat || row[mapping["Latitude"]] || "-",
@@ -453,7 +454,7 @@ const Hewan = () => {
       "NIK Peternak",
       "Id Kandang",
       "Alamat",
-      "Spesies",
+      "Jenis Hewan",
       "Jenis Kelamin",
       "Umur",
       "Identifikasi Hewan",
@@ -471,6 +472,8 @@ const Hewan = () => {
         item.alamat,
         item.spesies,
         item.sex,
+        item.tanggalLahir,
+        item.tempatLahir,
         item.umur,
         item.identifikasiHewan,
         item.petugas.namaPetugas,
@@ -519,18 +522,23 @@ const Hewan = () => {
         key: "nikPeternak",
       },
       {
-        title: "Id Kandang",
-        dataIndex: ["kandang", "idKandang"],
-        key: "idKandang",
+        title: "Nama Kandang",
+        dataIndex: ["kandang", "namaKandang"],
+        key: "namaKandang",
       },
-      { title: "Spesies", dataIndex: "spesies", key: "spesies" },
+      { title: "Rumpun Hewan", dataIndex:  ["rumpunHewan", "rumpun"], key: "rumpun" },
+      { title: "Jenis Hewan", dataIndex:  ["jenisHewan", "jenis"], key: "jenis" },
       { title: "Jenis Kelamin", dataIndex: "sex", key: "sex" },
+      { title: "Tempat Lahir", dataIndex: "tempatLahir", key: "tempatLahir" },
+      { title: "Tanggal Lahir", dataIndex: "tanggalLahir", key: "tanggalLahir" },
       { title: "Umur", dataIndex: "umur", key: "umur" },
+      
       {
         title: "Identifikasi Hewan",
         dataIndex: "identifikasiHewan",
         key: "identifikasiHewan",
       },
+      { title: "Tujuan Pemeliharaan", dataIndex:  ["tujuanPemeliharaan", "tujuanPemeliharaan"], key: "tujuanPemeliharaan" },
       {
         title: "Petugas Pendaftar",
         dataIndex: ["petugas", "namaPetugas"],
@@ -570,7 +578,7 @@ const Hewan = () => {
             <Button
               type="primary"
               shape="circle"
-              icon="edit"
+              icon={<EditOutlined/>}
               title="Edit"
               onClick={() => handleEditHewan(row)}
             />
@@ -579,7 +587,7 @@ const Hewan = () => {
               type="primary"
               danger
               shape="circle"
-              icon="delete"
+              icon={<DeleteOutlined/>}
               title="Delete"
               onClick={() => handleDeleteHewan(row)}
             />

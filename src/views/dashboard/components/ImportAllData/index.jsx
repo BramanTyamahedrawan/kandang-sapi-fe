@@ -336,6 +336,42 @@ export default class ImportAllData extends Component {
           return name.toLowerCase().replace(/\s+/g, "") + "@gmail.com";
         };
 
+        const formatDateToString = (dateString) => {
+          // Jika dateString adalah angka (seperti nilai dari Excel)
+          if (!isNaN(dateString)) {
+              // Excel menganggap angka tersebut sebagai jumlah hari sejak 01/01/1900
+              // Konversi angka menjadi milidetik
+              const excelEpoch = new Date(1900, 0, 1).getTime(); // 1 Januari 1900
+              const milliseconds = dateString * 86400000; // 86400000 ms dalam 1 hari
+              const date = new Date(excelEpoch + milliseconds);
+      
+              // Format tanggal dan waktu menjadi string
+              const day = String(date.getDate()).padStart(2, '0');
+              const month = String(date.getMonth() + 1).padStart(2, '0'); // Bulan dimulai dari 0
+              const year = date.getFullYear();
+              const hours = String(date.getHours()).padStart(2, '0');
+              const minutes = String(date.getMinutes()).padStart(2, '0');
+              const seconds = String(date.getSeconds()).padStart(2, '0');
+      
+              return `${day}/${month}/${year} ${hours}:${minutes}:${seconds}`;
+          }
+      
+          // Jika dateString adalah string yang valid dengan format DD/MM/YYYY atau DD/MM/YYYY HH:mm:ss
+          if (typeof dateString === 'string' && dateString.includes(' ')) {
+              const [datePart, timePart] = dateString.split(' ');
+              const [day, month, year] = datePart.split('/');
+      
+              return `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')} ${timePart}`;
+          } else if (typeof dateString === 'string') {
+              const [day, month, year] = dateString.split('/');
+              return `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
+          }
+      
+          // Jika format tidak dikenali
+          return "Invalid Date";
+      };
+      
+
         const validateEmail = (email) => {
           // Jika email tidak valid (null, undefined, atau bukan string), gunakan default
           if (typeof email !== "string" || !email.includes("@")) {
@@ -371,7 +407,6 @@ export default class ImportAllData extends Component {
         const pecahAlamat = parseAddress(
           row[columnMapping["Alamat Pemilik Ternak**)"]]
         );
-
         // const setEmail =;
 
         console.log("Row Data:", row);
@@ -439,19 +474,23 @@ export default class ImportAllData extends Component {
         }
 
         // data tujuan pemeliharaan
-        if(!uniqueData.has(row[columnMapping["Tujuan Pemeliharaan Ternak**)"]])){
-        const dataTujuanPemeliharaan = {
-          idTujuanPemeliharaan: generateIdTujuanPemeliharaan,
-          tujuanPemeliharaan:
+        if (
+          !uniqueData.has(row[columnMapping["Tujuan Pemeliharaan Ternak**)"]])
+        ) {
+          const dataTujuanPemeliharaan = {
+            idTujuanPemeliharaan: generateIdTujuanPemeliharaan,
+            tujuanPemeliharaan:
+              row[columnMapping["Tujuan Pemeliharaan Ternak**)"]],
+            deskripsi:
+              "Deskripsi " +
+              getValidData(row, columnMapping, "Tujuan Pemeliharaan Ternak**)"),
+          };
+          tujuanPemeliharaanBulk.push(dataTujuanPemeliharaan);
+          uniqueData.set(
             row[columnMapping["Tujuan Pemeliharaan Ternak**)"]],
-          deskripsi:
-            "Deskripsi " +
-            getValidData(row, columnMapping, "Tujuan Pemeliharaan Ternak**)"),
-        };
-        tujuanPemeliharaanBulk.push(dataTujuanPemeliharaan);
-        uniqueData.set(row[columnMapping["Tujuan Pemeliharaan Ternak**)"]], true);
-  
-      }
+            true
+          );
+        }
 
         console.log("Peternak Bulk api:", peternakBulk);
 
@@ -476,16 +515,16 @@ export default class ImportAllData extends Component {
         console.log("Data Kandang:", dataKandang);
 
         // data rumpun hewan
-        if(!uniqueData.has(row[columnMapping["Rumpun Ternak"]])){
-        const dataRumpunHewan = {
-          idRumpunHewan: generateIdRumpunHewan,
-          rumpun: getValidData(row, columnMapping, "Rumpun Ternak"),
-          deskripsi:
-            "Deskripsi " + getValidData(row, columnMapping, "Rumpun Ternak"),
-        };
-        rumpunHewanBulk.push(dataRumpunHewan);
-        uniqueData.set(row[columnMapping["Rumpun Ternak"]], true);
-      }
+        if (!uniqueData.has(row[columnMapping["Rumpun Ternak"]])) {
+          const dataRumpunHewan = {
+            idRumpunHewan: generateIdRumpunHewan,
+            rumpun: getValidData(row, columnMapping, "Rumpun Ternak"),
+            deskripsi:
+              "Deskripsi " + getValidData(row, columnMapping, "Rumpun Ternak"),
+          };
+          rumpunHewanBulk.push(dataRumpunHewan);
+          uniqueData.set(row[columnMapping["Rumpun Ternak"]], true);
+        }
 
         // data ternak hewan
         const dataTernakHewan = {
@@ -496,13 +535,25 @@ export default class ImportAllData extends Component {
             "No. Eartag***)"
           ),
           nikPetugas: cleanNik(row[columnMapping["NIK Petugas Pendataan*)"]]),
-          tanggalLahir: row[columnMapping["Tanggal Lahir Ternak**)"]],
-          sex: row[columnMapping["Jenis Kelamin**)"]],
-          tempatLahir: row[columnMapping["Tempat Lahir Ternak"]],
+          tanggalLahir: formatDateToString(
+            row[columnMapping["Tanggal Lahir Ternak**)"]] || "_"
+          ),
+          sex: row[columnMapping["Jenis Kelamin**)"]] || "_",
+          tempatLahir: row[columnMapping["Tempat Lahir Ternak"]] || "_",
+          umur: row[columnMapping["Umur"]] || "_",
+          identifikasiHewan:
+            row[columnMapping["Identifikasi Hewan*"]] ||
+            row[columnMapping["Identifikasi Hewan"]] ||
+            "_",
           nikPeternak: dataPeternak.nikPeternak,
-          // kandang_id: generateIdKandang,
-          jenis: row[columnMapping["Jenis Ternak**)"]],
-          tujuanPemeliharaan: row[columnMapping["Tujuan Pemeliharaan Ternak**)"]]
+          namaKandang: `Kandang ${dataPeternak.namaPeternak}`,
+          jenis: row[columnMapping["Jenis Ternak**)"]] || "_",
+          tujuanPemeliharaan:
+            row[columnMapping["Tujuan Pemeliharaan Ternak**)"]] || "_",
+          rumpunHewan: row[columnMapping["Rumpun Ternak"]] || "_",
+          tanggalTerdaftar: formatDateToString(
+            row[columnMapping["Tanggal Pendataan"]] || "_"
+          ),
           // rumpunHewanId: generateIdRumpunHewan,
         };
 
@@ -545,8 +596,8 @@ export default class ImportAllData extends Component {
         await sendPeternakBulkData(peternakBulk);
         await sendKandangBulkData(kandangBulk);
         await sendRumpunHewanBulkData(rumpunHewanBulk);
-        await sendTernakHewanBulkData(ternakHewanBulk);
         await sendTujuanPemeliharaanBulkData(tujuanPemeliharaanBulk);
+        await sendTernakHewanBulkData(ternakHewanBulk);
         // await sendPeternakImport(peternakBulk)
         // await sendJenisHewanImport(jenisHewanBulk)
         // await sendRumpunHewanImport(rumpunHewanBulk)
