@@ -1,6 +1,6 @@
 /* eslint-disable no-constant-condition */
 /* eslint-disable no-unused-vars */
-import { Component } from 'react'
+import { Component } from "react";
 import {
   Card,
   Button,
@@ -12,22 +12,22 @@ import {
   Modal,
   Upload,
   Input,
-} from 'antd'
-import { getPeternaks } from '@/api/peternak'
+} from "antd";
+import { getPeternaks } from "@/api/peternak";
 import {
   getInseminasis,
   getInseminasiByPeternak,
   deleteInseminasi,
   editInseminasi,
   addInseminasi,
-} from '@/api/inseminasi'
-import { getPetugas } from '@/api/petugas'
-import { UploadOutlined } from '@ant-design/icons'
-import { read, utils } from 'xlsx'
-import AddInseminasiBuatanForm from './forms/add-inseminasi-form'
-import EditInseminasiBuatanForm from './forms/edit-inseminasi-form'
-import TypingCard from '@/components/TypingCard'
-import { reqUserInfo } from '../../api/user'
+} from "@/api/inseminasi";
+import { getPetugas } from "@/api/petugas";
+import { UploadOutlined } from "@ant-design/icons";
+import { read, utils } from "xlsx";
+import AddInseminasiBuatanForm from "./forms/add-inseminasi-form";
+import EditInseminasiBuatanForm from "./forms/edit-inseminasi-form";
+import TypingCard from "@/components/TypingCard";
+import { reqUserInfo } from "../../api/user";
 
 class InseminasiBuatan extends Component {
   state = {
@@ -42,18 +42,18 @@ class InseminasiBuatan extends Component {
     importModalVisible: false,
     importedData: [],
     columnTitles: [],
-    fileName: '',
+    fileName: "",
     uploading: false,
     columnMapping: {},
-    searchKeyword: '',
+    searchKeyword: "",
     user: null,
-  }
+  };
 
   getInseminasis = async () => {
-    const result = await getInseminasis()
+    const result = await getInseminasis();
 
-    console.log(result)
-    const { content, statusCode } = result.data
+    console.log(result);
+    const { content, statusCode } = result.data;
 
     if (statusCode === 200) {
       const filteredInseminasi = content.filter((inseminasis) => {
@@ -68,19 +68,20 @@ class InseminasiBuatan extends Component {
           produsen,
           inseminator,
           lokasi,
-        } = inseminasis
-        const keyword = this.state.searchKeyword.toLowerCase()
+        } = inseminasis;
+        const keyword = this.state.searchKeyword.toLowerCase();
 
-        const isIdInseminasiValid = typeof idInseminasi === 'string'
-        const isIdPeternakValid = typeof idPeternak === 'string'
-        const isNamaPeternakValid = typeof namaPeternak === 'string'
-        const isKodeEartagNasionalValid = typeof kodeEartagNasional === 'string'
-        const isIdPejantanValid = typeof idPejantan === 'string'
-        const isIdPembuatanValid = typeof idPembuatan === 'string'
-        const isBangsaPejantanValid = typeof bangsaPejantan === 'string'
-        const isProdusenValid = typeof produsen === 'string'
-        const isInseminatorValid = typeof inseminator === 'string'
-        const isLokasiValid = typeof lokasi === 'string'
+        const isIdInseminasiValid = typeof idInseminasi === "string";
+        const isIdPeternakValid = typeof idPeternak === "string";
+        const isNamaPeternakValid = typeof namaPeternak === "string";
+        const isKodeEartagNasionalValid =
+          typeof kodeEartagNasional === "string";
+        const isIdPejantanValid = typeof idPejantan === "string";
+        const isIdPembuatanValid = typeof idPembuatan === "string";
+        const isBangsaPejantanValid = typeof bangsaPejantan === "string";
+        const isProdusenValid = typeof produsen === "string";
+        const isInseminatorValid = typeof inseminator === "string";
+        const isLokasiValid = typeof lokasi === "string";
 
         return (
           (isIdInseminasiValid &&
@@ -97,26 +98,26 @@ class InseminasiBuatan extends Component {
           (isProdusenValid && produsen.toLowerCase().includes(keyword)) ||
           (isInseminatorValid && inseminator.toLowerCase().includes(keyword)) ||
           (isLokasiValid && lokasi.toLowerCase().includes(keyword))
-        )
-      })
+        );
+      });
 
       this.setState({
         inseminasis: filteredInseminasi,
-      })
+      });
     }
-  }
+  };
 
   getInseminasiByPeternak = async (peternakID) => {
     try {
-      const result = await getInseminasiByPeternak(peternakID)
-      const { content, statusCode } = result.data
+      const result = await getInseminasiByPeternak(peternakID);
+      const { content, statusCode } = result.data;
       if (statusCode === 200) {
-        this.setState({ inseminasis: content })
+        this.setState({ inseminasis: content });
       }
     } catch (error) {
-      console.error('Failed to fetch data:', error)
+      console.error("Failed to fetch data:", error);
     }
-  }
+  };
 
   handleSearch = (keyword) => {
     this.setState(
@@ -124,297 +125,300 @@ class InseminasiBuatan extends Component {
         searchKeyword: keyword,
       },
       () => {
-        this.getInseminasis()
+        this.getInseminasis();
       }
-    )
-  }
+    );
+  };
 
   getPeternaks = async () => {
-    const result = await getPeternaks()
-    console.log(result)
-    const { content, statusCode } = result.data
+    const result = await getPeternaks();
+    console.log(result);
+    const { content, statusCode } = result.data;
 
     if (statusCode === 200) {
       this.setState({
         peternaks: content,
-      })
+      });
     }
-  }
+  };
 
   getPetugas = async () => {
-    const result = await getPetugas()
-    const { content, statusCode } = result.data
+    const result = await getPetugas();
+    const { content, statusCode } = result.data;
 
     if (statusCode === 200) {
       this.setState({
         petugas: content,
-      })
+      });
     }
-  }
+  };
 
   handleEditInseminasi = (row) => {
     this.setState({
       currentRowData: Object.assign({}, row),
       editInseminasiModalVisible: true,
-    })
-  }
+    });
+  };
 
   handleEditInseminasiOk = (_) => {
-    const { form } = this.editInseminasiFormRef.props
+    const { form } = this.editInseminasiFormRef.props;
     form.validateFields((err, values) => {
       if (err) {
-        return
+        return;
       }
-      this.setState({ editInseminasiModalLoading: true })
+      this.setState({ editInseminasiModalLoading: true });
       editInseminasi(values, values.idInseminasi)
         .then((response) => {
-          form.resetFields()
+          form.resetFields();
           this.setState({
             editInseminasiModalVisible: false,
             editInseminasiModalLoading: false,
-          })
-          message.success('Berhasil diedit!')
-          this.getInseminasis()
+          });
+          message.success("Berhasil diedit!");
+          this.getInseminasis();
         })
         .catch((e) => {
-          message.success('Pengeditan gagal, harap coba lagi!')
-        })
-    })
-  }
+          message.success("Pengeditan gagal, harap coba lagi!");
+        });
+    });
+  };
 
   handleDeleteInseminasi = (row) => {
-    const { idInseminasi } = row
+    const { idInseminasi } = row;
 
     Modal.confirm({
-      title: 'Konfirmasi',
-      content: 'Apakah Anda yakin ingin menghapus data ini?',
-      okText: 'Ya',
-      okType: 'danger',
-      cancelText: 'Tidak',
+      title: "Konfirmasi",
+      content: "Apakah Anda yakin ingin menghapus data ini?",
+      okText: "Ya",
+      okType: "danger",
+      cancelText: "Tidak",
       onOk: () => {
         deleteInseminasi({ idInseminasi }).then((res) => {
-          message.success('Berhasil dihapus')
-          this.getInseminasis()
-        })
+          message.success("Berhasil dihapus");
+          this.getInseminasis();
+        });
       },
-    })
-  }
+    });
+  };
 
   handleCancel = (_) => {
     this.setState({
       editInseminasiModalVisible: false,
       addInseminasiModalVisible: false,
       importModalVisible: false,
-    })
-  }
+    });
+  };
 
   handleAddInseminasi = (row) => {
     this.setState({
       addInseminasiModalVisible: true,
-    })
-  }
+    });
+  };
 
   handleAddInseminasiOk = (_) => {
-    const { form } = this.addInseminasiFormRef.props
+    const { form } = this.addInseminasiFormRef.props;
     form.validateFields((err, values) => {
       if (err) {
-        return
+        return;
       }
-      this.setState({ addInseminasiModalLoading: true })
+      this.setState({ addInseminasiModalLoading: true });
       addInseminasi(values)
         .then((response) => {
-          form.resetFields()
+          form.resetFields();
           this.setState({
             addInseminasiModalVisible: false,
             addInseminasiModalLoading: false,
-          })
-          message.success('Berhasil menambahkan!')
-          this.getInseminasis()
+          });
+          message.success("Berhasil menambahkan!");
+          this.getInseminasis();
         })
         .catch((e) => {
-          message.success('Gagal menambahkan, harap coba lagi!')
-        })
-    })
-  }
+          message.success("Gagal menambahkan, harap coba lagi!");
+        });
+    });
+  };
 
   convertToJSDate(input) {
-    let date
-    if (typeof input === 'number') {
-      const utcDays = Math.floor(input - 25569)
-      const utcValue = utcDays * 86400
-      const dateInfo = new Date(utcValue * 1000)
+    let date;
+    if (typeof input === "number") {
+      const utcDays = Math.floor(input - 25569);
+      const utcValue = utcDays * 86400;
+      const dateInfo = new Date(utcValue * 1000);
       date = new Date(
         dateInfo.getFullYear(),
         dateInfo.getMonth(),
         dateInfo.getDate()
-      ).toString()
-    } else if (typeof input === 'string') {
-      const [day, month, year] = input.split('/')
-      date = new Date(`${year}-${month}-${day}`).toString()
+      ).toString();
+    } else if (typeof input === "string") {
+      const [day, month, year] = input.split("/");
+      date = new Date(`${year}-${month}-${day}`).toString();
     }
 
-    return date
+    return date;
   }
 
   handleImportModalOpen = () => {
-    this.setState({ importModalVisible: true })
-  }
+    this.setState({ importModalVisible: true });
+  };
 
   handleImportModalClose = () => {
-    this.setState({ importModalVisible: false })
-  }
+    this.setState({ importModalVisible: false });
+  };
 
   handleFileImport = (file) => {
-    const reader = new FileReader()
-
+    const reader = new FileReader();
     reader.onload = (e) => {
-      const data = new Uint8Array(e.target.result)
-      const workbook = read(data, { type: 'array' })
+      const data = new Uint8Array(e.target.result);
+      const workbook = read(data, { type: "array" });
+      const worksheet = workbook.Sheets[workbook.SheetNames[0]];
 
-      const worksheet = workbook.Sheets[workbook.SheetNames[0]]
-      const jsonData = utils.sheet_to_json(worksheet, { header: 1 })
+      // Set defval to null so empty cells are not skipped
+      const jsonData = utils.sheet_to_json(worksheet, {
+        header: 1,
+        blankrows: false,
+        defval: null,
+      });
+      const importedData = jsonData.slice(1); // Exclude the first row (column titles)
+      const columnTitles = jsonData[0]; // Assume the first row contains column titles
 
-      const importedData = jsonData.slice(1) // Exclude the first row (column titles)
+      const columnMapping = {};
+      columnTitles.forEach((title, index) => {
+        columnMapping[title.trim()] = index; // Trim untuk menghapus spasi tambahan
+      });
 
-      const columnTitles = jsonData[0] // Assume the first row contains column titles
-
-      // Get the file name from the imported file
-      const fileName = file.name.toLowerCase()
+      console.log("Column Titles:", columnTitles);
+      console.log("Column Mapping:", columnMapping);
 
       this.setState({
         importedData,
         columnTitles,
-        fileName, // Set the fileName in the state
-      })
-
-      // Create column mapping
-      const columnMapping = {}
-      columnTitles.forEach((title, index) => {
-        columnMapping[title] = index
-      })
-      this.setState({ columnMapping })
-    }
-    reader.readAsArrayBuffer(file)
-  }
+        fileName: file.name.toLowerCase(),
+        columnMapping,
+      });
+    };
+    reader.readAsArrayBuffer(file);
+  };
 
   handleUpload = () => {
-    const { importedData, columnMapping } = this.state
+    const { importedData, columnMapping } = this.state;
 
     if (importedData.length === 0) {
-      message.error('No data to import.')
-      return
+      message.error("No data to import.");
+      return;
     }
 
-    this.setState({ uploading: true })
+    this.setState({ uploading: true });
 
     this.saveImportedData(columnMapping)
       .then(() => {
         this.setState({
           uploading: false,
           importModalVisible: false,
-        })
+        });
       })
       .catch((error) => {
-        console.error('Gagal mengunggah data:', error)
-        this.setState({ uploading: false })
-        message.error('Gagal mengunggah data, harap coba lagi.')
-      })
-  }
+        console.error("Gagal mengunggah data:", error);
+        this.setState({ uploading: false });
+        message.error("Gagal mengunggah data, harap coba lagi.");
+      });
+  };
 
   saveImportedData = async (columnMapping) => {
-    const { importedData, inseminasis, petugas } = this.state
-    let errorCount = 0
+    const { importedData, inseminasis, petugas } = this.state;
+    let errorCount = 0;
 
     try {
       for (const row of importedData) {
-        const petugasNama = row[columnMapping['Inseminator']]?.toLowerCase()
+        const petugasNama = row[columnMapping["Inseminator"]]?.toLowerCase();
         const petugasData = petugas.find(
           (p) => p.namaPetugas.toLowerCase() === petugasNama
-        )
-        const petugasId = petugasData ? petugasData.nikPetugas : null
+        );
+        const petugasId = petugasData ? petugasData.nikPetugas : null;
         console.log(
           `Mencocokkan nama petugas: ${petugasNama}, Ditemukan: ${
-            petugasData ? 'Ya' : 'Tidak'
+            petugasData ? "Ya" : "Tidak"
           }, petugasId: ${petugasId}`
-        )
+        );
         const dataToSave = {
-          idInseminasi: row[columnMapping['ID']],
-          tanggalIB: this.convertToJSDate(row[columnMapping['Tanggal IB']]),
-          peternak_id: row[columnMapping['ID Peternak']],
-          hewan_id: row[columnMapping['ID Hewan']],
-          ib: row[columnMapping['IB 1']],
-          idPejantan: row[columnMapping['ID Pejantan']],
-          idPembuatan: row[columnMapping['ID Pembuatan']],
-          bangsaPejantan: row[columnMapping['Bangsa Pejantan']],
-          produsen: row[columnMapping['Produsen']],
+          idInseminasi: row[columnMapping["ID"]],
+          tanggalIB: this.convertToJSDate(row[columnMapping["Tanggal IB"]]),
+          peternak_id: row[columnMapping["ID Peternak"]],
+          hewan_id: row[columnMapping["ID Hewan"]],
+          ib: row[columnMapping["IB 1"]],
+          idPejantan: row[columnMapping["ID Pejantan"]],
+          idPembuatan: row[columnMapping["ID Pembuatan"]],
+          bangsaPejantan: row[columnMapping["Bangsa Pejantan"]],
+          produsen: row[columnMapping["Produsen"]],
           petugas_id: petugasId,
-        }
+        };
         const existingInseminasiIndex = inseminasis.findIndex(
           (p) => p.idInseminasi === dataToSave.idInseminasi
-        )
+        );
 
         try {
           if (existingInseminasiIndex > -1) {
             // Update existing data
-            await editInseminasi(dataToSave, dataToSave.idInseminasi)
+            console.log("Mengupdate data:", dataToSave);
+            // await editInseminasi(dataToSave, dataToSave.idInseminasi);
             this.setState((prevState) => {
-              const updatedInseminasi = [...prevState.inseminasis]
-              updatedInseminasi[existingInseminasiIndex] = dataToSave
-              return { inseminasis: updatedInseminasi }
-            })
+              const updatedInseminasi = [...prevState.inseminasis];
+              updatedInseminasi[existingInseminasiIndex] = dataToSave;
+              return { inseminasis: updatedInseminasi };
+            });
           } else {
             // Add new data
-            await addInseminasi(dataToSave)
+            console.log("Menyimpan data:", dataToSave);
+            // await addInseminasi(dataToSave);
             this.setState((prevState) => ({
               inseminasis: [...prevState.inseminasis, dataToSave],
-            }))
+            }));
           }
         } catch (error) {
-          errorCount++
-          console.error('Gagal menyimpan data:', error)
+          errorCount++;
+          console.error("Gagal menyimpan data:", error);
         }
       }
 
       if (errorCount === 0) {
-        message.success(`Semua data berhasil disimpan.`)
+        message.success(`Semua data berhasil disimpan.`);
       } else {
-        message.error(`${errorCount} data gagal disimpan, harap coba lagi!`)
+        message.error(`${errorCount} data gagal disimpan, harap coba lagi!`);
       }
     } catch (error) {
-      console.error('Gagal memproses data:', error)
+      console.error("Gagal memproses data:", error);
     } finally {
       this.setState({
         importedData: [],
         columnTitles: [],
         columnMapping: {},
-      })
+      });
     }
-  }
+  };
 
   handleExportData = () => {
-    const { inseminasis } = this.state
-    const csvContent = this.convertToCSV(inseminasis)
-    this.downloadCSV(csvContent)
-  }
+    const { inseminasis } = this.state;
+    const csvContent = this.convertToCSV(inseminasis);
+    this.downloadCSV(csvContent);
+  };
 
   convertToCSV = (data) => {
     const columnTitles = [
-      'ID Inseminasi',
-      'Tanggal IB',
-      'Lokasi',
-      'Nama Peternak',
-      'ID Peternak',
-      'ID Hewan',
-      'Eartag',
-      'IB',
-      'ID Pejantan',
-      'ID Pembuatan',
-      'Bangsa Pejantan',
-      'Produsen',
-      'Inseminator',
-    ]
+      "ID Inseminasi",
+      "Tanggal IB",
+      "Lokasi",
+      "Nama Peternak",
+      "ID Peternak",
+      "ID Hewan",
+      "Eartag",
+      "IB",
+      "ID Pejantan",
+      "ID Pembuatan",
+      "Bangsa Pejantan",
+      "Produsen",
+      "Inseminator",
+    ];
 
-    const rows = [columnTitles]
+    const rows = [columnTitles];
     data.forEach((item) => {
       const row = [
         item.idInseminasi,
@@ -429,96 +433,96 @@ class InseminasiBuatan extends Component {
         item.bangsaPejantan,
         item.produsen,
         item.inseminator,
-      ]
-      rows.push(row)
-    })
+      ];
+      rows.push(row);
+    });
 
-    let csvContent = 'data:text/csv;charset=utf-8,'
+    let csvContent = "data:text/csv;charset=utf-8,";
 
     rows.forEach((rowArray) => {
-      const row = rowArray.join(';')
-      csvContent += row + '\r\n'
-    })
+      const row = rowArray.join(";");
+      csvContent += row + "\r\n";
+    });
 
-    return csvContent
-  }
+    return csvContent;
+  };
 
   downloadCSV = (csvContent) => {
-    const encodedUri = encodeURI(csvContent)
-    const link = document.createElement('a')
-    link.setAttribute('href', encodedUri)
-    link.setAttribute('download', 'Inseminasi.csv')
-    document.body.appendChild(link)
-    link.click()
-  }
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement("a");
+    link.setAttribute("href", encodedUri);
+    link.setAttribute("download", "Inseminasi.csv");
+    document.body.appendChild(link);
+    link.click();
+  };
 
   componentDidMount() {
-    this.getPeternaks()
-    this.getPetugas()
+    this.getPeternaks();
+    this.getPetugas();
     reqUserInfo()
       .then((response) => {
-        const user = response.data
+        const user = response.data;
         this.setState({ user }, () => {
-          if (user.role === 'ROLE_PETERNAK') {
-            this.getInseminasiByPeternak(user.username)
+          if (user.role === "ROLE_PETERNAK") {
+            this.getInseminasiByPeternak(user.username);
           } else {
-            this.getInseminasis()
+            this.getInseminasis();
           }
-        })
+        });
       })
       .catch((error) => {
-        console.error('Terjadi kesalahan saat mengambil data user:', error)
-      })
+        console.error("Terjadi kesalahan saat mengambil data user:", error);
+      });
   }
 
   render() {
     const { inseminasis, peternaks, importModalVisible, searchKeyword, user } =
-      this.state
+      this.state;
     const columns = [
       {
-        title: 'ID Inseminasi',
-        dataIndex: 'idInseminasi',
-        key: 'idInseminasi',
+        title: "ID Inseminasi",
+        dataIndex: "idInseminasi",
+        key: "idInseminasi",
       },
-      { title: 'Tanggal IB', dataIndex: 'tanggalIB', key: 'tanggalIB' },
+      { title: "Tanggal IB", dataIndex: "tanggalIB", key: "tanggalIB" },
       {
-        title: 'Nama Peternak',
-        dataIndex: 'peternak.namaPeternak',
-        key: 'namaPeternak',
+        title: "Nama Peternak",
+        dataIndex: "peternak.namaPeternak",
+        key: "namaPeternak",
       },
       {
-        title: 'NIK Peternak',
-        dataIndex: 'peternak.nikPeternak',
-        key: 'nikPeternak',
+        title: "NIK Peternak",
+        dataIndex: "peternak.nikPeternak",
+        key: "nikPeternak",
       },
-      { title: 'Lokasi', dataIndex: 'peternak.lokasi', key: 'lokasi' },
+      { title: "Lokasi", dataIndex: "peternak.lokasi", key: "lokasi" },
       {
-        title: 'Kode Eartag',
-        dataIndex: 'hewan.kodeEartagNasional',
-        key: 'kodeEartagNasional',
+        title: "Kode Eartag",
+        dataIndex: "hewan.kodeEartagNasional",
+        key: "kodeEartagNasional",
       },
-      { title: 'IB', dataIndex: 'ib', key: 'ib' },
-      { title: 'ID Pejantan', dataIndex: 'idPejantan', key: 'idPejantan' },
-      { title: 'ID Pembuatan', dataIndex: 'idPembuatan', key: 'idPembuatan' },
+      { title: "IB", dataIndex: "ib", key: "ib" },
+      { title: "ID Pejantan", dataIndex: "idPejantan", key: "idPejantan" },
+      { title: "ID Pembuatan", dataIndex: "idPembuatan", key: "idPembuatan" },
       {
-        title: 'Bangsa Pejantan',
-        dataIndex: 'bangsaPejantan',
-        key: 'bangsaPejantan',
+        title: "Bangsa Pejantan",
+        dataIndex: "bangsaPejantan",
+        key: "bangsaPejantan",
       },
-      { title: 'Produsen', dataIndex: 'produsen', key: 'produsen' },
+      { title: "Produsen", dataIndex: "produsen", key: "produsen" },
       {
-        title: 'inseminator',
-        dataIndex: 'petugas.namaPetugas',
-        key: 'inseminator',
+        title: "inseminator",
+        dataIndex: "petugas.namaPetugas",
+        key: "inseminator",
       },
-    ]
+    ];
 
     const renderTable = () => {
-      if (user && user.role === 'ROLE_PETERNAK') {
-        return <Table dataSource={inseminasis} bordered columns={columns} />
+      if (user && user.role === "ROLE_PETERNAK") {
+        return <Table dataSource={inseminasis} bordered columns={columns} />;
       } else if (
-        (user && user.role === 'ROLE_ADMINISTRATOR') ||
-        'ROLE_PETUGAS'
+        (user && user.role === "ROLE_ADMINISTRATOR") ||
+        "ROLE_PETUGAS"
       ) {
         return (
           <Table
@@ -526,16 +530,16 @@ class InseminasiBuatan extends Component {
             bordered
             columns={columns && renderColumns()}
           />
-        )
+        );
       } else {
-        return null
+        return null;
       }
-    }
+    };
 
     const renderButtons = () => {
       if (
         user &&
-        (user.role === 'ROLE_ADMINISTRATOR' || user.role === 'ROLE_PETUGAS')
+        (user.role === "ROLE_ADMINISTRATOR" || user.role === "ROLE_PETUGAS")
       ) {
         return (
           <Row gutter={[16, 16]} justify="start" style={{ paddingLeft: 9 }}>
@@ -563,19 +567,19 @@ class InseminasiBuatan extends Component {
               </Button>
             </Col>
           </Row>
-        )
+        );
       } else {
-        return null
+        return null;
       }
-    }
+    };
 
     const renderColumns = () => {
-      if ((user && user.role === 'ROLE_ADMINISTRATOR') || 'ROLE_PETUGAS') {
+      if ((user && user.role === "ROLE_ADMINISTRATOR") || "ROLE_PETUGAS") {
         columns.push({
-          title: 'Operasi',
-          key: 'action',
+          title: "Operasi",
+          key: "action",
           width: 120,
-          align: 'center',
+          align: "center",
           render: (text, row) => (
             <span>
               <Button
@@ -595,10 +599,10 @@ class InseminasiBuatan extends Component {
               />
             </span>
           ),
-        })
+        });
       }
-      return columns
-    }
+      return columns;
+    };
 
     const title = (
       <Row gutter={[16, 16]} justify="start">
@@ -612,17 +616,17 @@ class InseminasiBuatan extends Component {
           />
         </Col>
       </Row>
-    )
+    );
 
-    const { role } = user ? user.role : ''
-    console.log('peran pengguna:', role)
-    const cardContent = `Di sini, Anda dapat mengelola daftar inseminasi di sistem.`
+    const { role } = user ? user.role : "";
+    console.log("peran pengguna:", role);
+    const cardContent = `Di sini, Anda dapat mengelola daftar inseminasi di sistem.`;
 
     return (
       <div className="app-container">
         <TypingCard title="Manajemen Inseminasi Buatan" source={cardContent} />
         <br />
-        <Card title={title} style={{ overflowX: 'scroll' }}>
+        <Card title={title} style={{ overflowX: "scroll" }}>
           {renderTable()}
         </Card>
         <EditInseminasiBuatanForm
@@ -667,8 +671,8 @@ class InseminasiBuatan extends Component {
           </Upload>
         </Modal>
       </div>
-    )
+    );
   }
 }
 
-export default InseminasiBuatan
+export default InseminasiBuatan;
