@@ -1,9 +1,9 @@
 /* eslint-disable react/prop-types */
 /* eslint-disable react/display-name */
 /* eslint-disable no-unused-vars */
-import React, { forwardRef, useImperativeHandle, useEffect, useState } from "react";
-import { Form, Input, Modal } from "antd";
 import { getJenisVaksin } from "@/api/jenis-vaksin";
+import { Form, Input, Modal, Select } from "antd";
+import React, { forwardRef, useEffect, useImperativeHandle, useState } from "react";
 
 const EditNamaVaksinForm = forwardRef((props, ref) => {
   const [form] = Form.useForm();
@@ -79,7 +79,25 @@ const EditNamaVaksinForm = forwardRef((props, ref) => {
         name="EditJenisVaksinForm"
         onFinish={onFinish}
       >
-        <Form.Item name="jenis" label="Jenis Vaksin:" rules={[{ required: true, message: "Silahkan masukkan jenis vaksin!" }]}>
+         <Form.Item
+          label="Jenis Vaksin:"
+          name="jenisVaksinId"
+          rules={[
+            {
+              required: true,
+              message: "Silahkan pilih jenis vaksin!",
+            },
+          ]}
+        >
+          <Select placeholder="Pilih Jenis Vaksin" allowClear>
+            {jenisVaksinList.map((jenisVaksin) => (
+              <Select.Option key={jenisVaksin.idJenisVaksin} value={jenisVaksin.idJenisVaksin}>
+                {jenisVaksin.jenis}
+              </Select.Option>
+            ))}
+          </Select>
+        </Form.Item>
+        <Form.Item name="jenis" label="Jenis Vaksin:" rules={[{ required: true, message: "Silahkan masukkan nama vaksin!" }]}>
           <Input placeholder="Masukkan jenis vaksin" />
         </Form.Item>
 

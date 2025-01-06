@@ -1,37 +1,34 @@
 /* eslint-disable no-unused-vars */
-import React, { useState, useEffect, useRef } from "react";
 import {
-  Card,
-  Button,
-  Table,
-  message,
-  Upload,
-  Row,
-  Col,
-  Divider,
-  Modal,
-  Input,
-} from "antd";
-import {
-  getHewans,
-  getHewanByPeternak,
+  addHewan,
   deleteHewan,
   editHewan,
-  addHewan,
-  addHewanWithoutFile,
+  getHewans
 } from "@/api/hewan";
 import { getPetugas } from "@/api/petugas";
-import { read, utils } from "xlsx";
+import TypingCard from "@/components/TypingCard";
 import { UploadOutlined } from "@ant-design/icons";
-import moment from "moment";
+import {
+  Button,
+  Card,
+  Col,
+  Divider,
+  Input,
+  message,
+  Modal,
+  Row,
+  Table,
+  Upload,
+} from "antd";
+import React, { useEffect, useRef, useState } from "react";
+import { v4 as uuidv4 } from "uuid";
+import { read, utils } from "xlsx";
+import { addHewanImport } from "../../api/hewan";
+import { reqUserInfo } from "../../api/user";
+import kandangSapi from "../../assets/images/kandangsapi.jpg";
+import imgUrl from "../../utils/imageURL";
 import AddHewanForm from "./forms/add-hewan-form";
 import EditHewanForm from "./forms/edit-hewan-form";
-import TypingCard from "@/components/TypingCard";
-import { reqUserInfo } from "../../api/user";
-import imgUrl from "../../utils/imageURL";
-import kandangSapi from "../../assets/images/kandangsapi.jpg";
-import { addHewanImport } from "../../api/hewan";
-import { v4 as uuidv4 } from "uuid";
 
 const { Column } = Table;
 
@@ -102,6 +99,8 @@ const Hewan = () => {
             kecamatan,
             kabupaten,
             desa,
+            umur,
+            identifikasiHewan
           } = hewan;
           const keyword = searchKeyword.toLowerCase();
 
@@ -113,6 +112,8 @@ const Hewan = () => {
           const isKecamatanValid = typeof kecamatan === "string";
           const isKabupatenValid = typeof kabupaten === "string";
           const isDesaValid = typeof desa === "string";
+          const isUmurValid = typeof umur === "string";
+          const isidentifikasiHewanValid = typeof identifikasiHewan === "string";
 
           return (
             (isNamaPeternakValid &&
@@ -124,7 +125,10 @@ const Hewan = () => {
             (isProvinsiValid && provinsi.toLowerCase().includes(keyword)) ||
             (isKecamatanValid && kecamatan.toLowerCase().includes(keyword)) ||
             (isKabupatenValid && kabupaten.toLowerCase().includes(keyword)) ||
-            (isDesaValid && desa.toLowerCase().includes(keyword))
+            (isDesaValid && desa.toLowerCase().includes(keyword)) ||
+            (isUmurValid && umur.toLowerCase().includes(keyword)) ||
+            (isidentifikasiHewanValid &&
+              identifikasiHewan.toLowerCase().includes(keyword))
           );
         });
 
@@ -382,6 +386,7 @@ const Hewan = () => {
           nikPeternak: nikPeternak,
           namaPeternak: row[mapping["Nama Peternak"]] || "-",
           kandang_id: row[mapping["ID Kandang"]] || "-",
+          // namaKandang: `Kandang ${dataPeternak.namaPeternak}`,
           spesies: spesies, // Menggunakan spesies yang sudah digabungkan
           jenis: jenis, // Masukkan spesies ke dalam kolom jenis
           sex: row[mapping["Jenis Kelamin**"]] || row[mapping["sex"]] || "-",
@@ -502,7 +507,7 @@ const Hewan = () => {
         dataIndex: "kodeEartagNasional",
         key: "kodeEartagNasional",
       },
-      { title: "Alamat", dataIndex: "alamat", key: "alamat" },
+      { title: "Alamat", dataIndex: ["peternak", "alamat"], key: "alamat" },
       {
         title: "Nama Peternak",
         dataIndex: ["peternak", "namaPeternak"],

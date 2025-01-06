@@ -1,25 +1,23 @@
 /* eslint-disable no-constant-condition */
 /* eslint-disable no-unused-vars */
-import React, { useState, useEffect, useRef } from "react";
-import { Card, Button, Table, message, Upload, Row, Col, Divider, Modal, Input } from "antd";
-import { UploadOutlined } from "@ant-design/icons";
-import { read, utils } from "xlsx";
-import AddJenisVaksinForm from "./forms/add-jenisvaksin-form";
-import EditJenisVaksinForm from "./forms/edit-jenisvaksin-form";
+import { addNamaVaksin, deleteNamaVaksin, editNamaVaksin, getNamaVaksin } from "@/api/nama-vaksin";
 import TypingCard from "@/components/TypingCard";
-import { getJenisVaksin, deleteJenisVaksin, editJenisVaksin, addJenisVaksin } from "@/api/jenis-vaksin";
-import { reqUserInfo } from "../../api/user";
+import { UploadOutlined } from "@ant-design/icons";
+import { Button, Card, Col, Divider, Input, message, Modal, Row, Table, Upload } from "antd";
+import React, { useRef, useState } from "react";
+import { read, utils } from "xlsx";
+import AddNamaVaksinForm from "./forms/add-namavaksin-form";
+import EditNamaVaksinForm from "./forms/edit-namavaksin-form";
 
-import kandangSapi from "../../assets/images/kandangsapi.jpg"; // Assuming it's a default export
 
-const JenisVaksin = () => {
+const NamaVaksin = () => {
   // State Variables
-  const [jenisVaksins, setJenisVaksins] = useState([]);
-  const [editJenisVaksinModalVisible, setEditJenisVaksinModalVisible] = useState(false);
-  const [editJenisVaksinModalLoading, setEditJenisVaksinModalLoading] = useState(false);
+  const [namaVaksins, setNamaVaksins] = useState([]);
+  const [editNamaVaksinModalVisible, setEditNamaVaksinModalVisible] = useState(false);
+  const [editNamaVaksinModalLoading, setEditNamaVaksinModalLoading] = useState(false);
   const [currentRowData, setCurrentRowData] = useState({});
-  const [addJenisVaksinModalVisible, setAddJenisVaksinModalVisible] = useState(false);
-  const [addJenisVaksinModalLoading, setAddJenisVaksinModalLoading] = useState(false);
+  const [addNamaVaksinModalVisible, setAddNamaVaksinModalVisible] = useState(false);
+  const [addNamaVaksinModalLoading, setAddNamaVaksinModalLoading] = useState(false);
   const [importModalVisible, setImportModalVisible] = useState(false);
   const [importedData, setImportedData] = useState([]);
   const [searchKeyword, setSearchKeyword] = useState("");
@@ -30,8 +28,8 @@ const JenisVaksin = () => {
   const [columnMapping, setColumnMapping] = useState({});
 
   // Form References
-  const editJenisVaksinFormRef = useRef(null);
-  const addJenisVaksinFormRef = useRef(null);
+  const editNamaVaksinFormRef = useRef(null);
+  const addNamaVaksinFormRef = useRef(null);
 
   // Fetch Initial Data on Component Mount
   // useEffect(() => {
@@ -55,28 +53,28 @@ const JenisVaksin = () => {
   // }, [])
 
   // Fetch All Jenis Vaksin with Optional Filtering
-  const getJenisVaksinData = async () => {
+  const getNamaVaksinData = async () => {
     try {
-      const result = await getJenisVaksin();
+      const result = await getNamaVaksin();
       const { content, statusCode } = result.data;
 
       if (statusCode === 200) {
-        const filteredJenisVaksin = content.filter((jv) => {
-          const { idJenisVaksin, jenis, deskripsi } = jv;
+        const filteredNamaVaksin = content.filter((jv) => {
+          const { idNamaVaksin, nama, deskripsi } = jv;
           const keyword = searchKeyword.toLowerCase();
 
-          const isIdJenisVaksinValid = typeof idJenisVaksin === "string";
-          const isJenisValid = typeof jenis === "string";
+          const isIdNamaVaksinValid = typeof idNamaVaksin === "string";
+          const isNamaValid = typeof nama === "string";
           const isDeskripsiValid = typeof deskripsi === "string";
 
-          return (isIdJenisVaksinValid && idJenisVaksin.toLowerCase().includes(keyword)) || (isJenisValid && jenis.toLowerCase().includes(keyword)) || (isDeskripsiValid && deskripsi.toLowerCase().includes(keyword));
+          return (isIdNamaVaksinValid && idNamaVaksin.toLowerCase().includes(keyword)) || (isNamaValid && nama.toLowerCase().includes(keyword)) || (isDeskripsiValid && deskripsi.toLowerCase().includes(keyword));
         });
 
-        setJenisVaksins(filteredJenisVaksin);
+        setNamaVaksins(filteredNamaVaksin);
       }
     } catch (error) {
       console.error("Failed to fetch jenis vaksin:", error);
-      message.error("Gagal mengambil data jenis vaksin, harap coba lagi!");
+      message.error("Gagal mengambil data nama vaksin, harap coba lagi!");
     }
   };
 
@@ -113,9 +111,11 @@ const JenisVaksin = () => {
   // }
 
   // Handle Search Input Change
+  
+  
   const handleSearch = (keyword) => {
     setSearchKeyword(keyword);
-    getJenisVaksinData();
+    getNamaVaksinData();
   };
 
   // Handle Opening the Import Modal
@@ -128,58 +128,59 @@ const JenisVaksin = () => {
     setImportModalVisible(false);
   };
 
-  // Handle Adding a Jenis Hewan
+  // Handle Adding a Nama Vaksin
   const handleAddJenisVaksin = () => {
-    setAddJenisVaksinModalVisible(true);
+    setAddNamaVaksinModalVisible(true);
   };
 
-  // Handle Confirming the Add Jenis Hewan Modal
-  const handleAddJenisVaksinOk = async (values, form) => {
-    setAddJenisVaksinModalLoading(true);
-    const jenisData = {
+  // Handle Confirming the Add Nama Vaksin Modal
+  const handleAddNamaVaksinOk = async (values, form) => {
+    setAddNamaVaksinModalLoading(true);
+    const namaData = {
       jenis: values.jenis,
+      nama: values.nama,
       deskripsi: values.deskripsi,
     };
     try {
-      await addJenisVaksin(jenisData);
+      await addNamaVaksin(namaData);
       form.resetFields();
-      setAddJenisVaksinModalVisible(false);
-      setAddJenisVaksinModalLoading(false);
+      setAddNamaVaksinModalVisible(false);
+      setAddNamaVaksinModalLoading(false);
       message.success("Berhasil menambahkan!");
-      getJenisVaksinData();
+      getNamaVaksinData();
     } catch (e) {
-      setAddJenisVaksinModalLoading(false);
-      console.error("Failed to add jenis vaksin:", e);
+      setAddNamaVaksinModalLoading(false);
+      console.error("Failed to add Nama vaksin:", e);
       message.error("Gagal menambahkan, harap coba lagi!");
     }
   };
 
   // Handle Editing a Jenis Vaksin
-  const handleEditJenisVaksin = (row) => {
+  const handleEditNamaVaksin = (row) => {
     setCurrentRowData({ ...row });
-    setEditJenisVaksinModalVisible(true);
+    setEditNamaVaksinModalVisible(true);
   };
 
   // Handle Confirming the Edit Jenis Vaksin Modal
-  const handleEditJenisVaksinOk = async (values, form) => {
-    setEditJenisVaksinModalLoading(true);
+  const handleEditNamaVaksinOk = async (values, form) => {
+    setEditNamaVaksinModalLoading(true);
     try {
-      await editJenisVaksin(values, values.idJenisVaksin);
+      await editNamaVaksin(values, values.idNamaVaksin);
       form.resetFields();
-      setEditJenisVaksinModalVisible(false);
-      setEditJenisVaksinModalLoading(false);
+      setEditNamaVaksinModalVisible(false);
+      setEditNamaVaksinModalLoading(false);
       message.success("Berhasil diedit!");
-      getJenisVaksinData();
+      getNamaVaksinData();
     } catch (e) {
-      setEditJenisVaksinModalLoading(false);
-      console.error("Failed to edit jenis vaksin:", e);
+      setEditNamaVaksinModalLoading(false);
+      console.error("Failed to edit Nama vaksin:", e);
       message.error("Pengeditan gagal, harap coba lagi!");
     }
   };
 
-  // Handle Deleting a Jenis Vaksin
-  const handleDeleteJenisVaksin = (row) => {
-    const { idJenisVaksin } = row;
+  // Handle Deleting a Nama Vaksin
+  const handleDeleteNamaVaksin = (row) => {
+    const { idNamaVaksin } = row;
 
     Modal.confirm({
       title: "Konfirmasi",
@@ -189,11 +190,11 @@ const JenisVaksin = () => {
       cancelText: "Tidak",
       onOk: async () => {
         try {
-          await deleteJenisVaksin({ idJenisVaksin });
+          await deleteNamaVaksin({ idNamaVaksin });
           message.success("Berhasil dihapus");
-          getJenisVaksinData();
+          getNamaVaksinData();
         } catch (error) {
-          console.error("Failed to delete jenis vaksin:", error);
+          console.error("Failed to delete Nama vaksin:", error);
           message.error("Gagal menghapus data, harap coba lagi!");
         }
       },
@@ -202,8 +203,8 @@ const JenisVaksin = () => {
 
   // Handle Canceling Any Modal
   const handleCancel = () => {
-    setEditJenisVaksinModalVisible(false);
-    setAddJenisVaksinModalVisible(false);
+    setEditNamaVaksinModalVisible(false);
+    setAddNamaVaksinModalVisible(false);
     setImportModalVisible(false);
   };
 
@@ -244,7 +245,7 @@ const JenisVaksin = () => {
       });
 
       // Iterate through importedData and process the address (if applicable)
-      // Note: For Jenis Hewan, address processing may not be necessary.
+      // Note: For Nama Hewan, address processing may not be necessary.
       // If not needed, this part can be adjusted or removed.
       const modifiedData = importedData.map((row) => {
         // Example processing; adjust based on actual CSV structure
@@ -289,79 +290,79 @@ const JenisVaksin = () => {
   const saveImportedData = async (mapping) => {
     let errorCount = 0;
 
-    try {
-      for (const row of importedData) {
-        const idJenisVaksin = row[mapping["ID Jenis Vaksin"]]?.toLowerCase();
-        const jenis = row[mapping["Jenis Vaksin"]]?.toLowerCase();
-        const deskripsi = row[mapping["Deskripsi"]]?.toLowerCase();
+    // try {
+    //   for (const row of importedData) {
+    //     const idJenisVaksin = row[mapping["ID Jenis Vaksin"]]?.toLowerCase();
+    //     const jenis = row[mapping["Jenis Vaksin"]]?.toLowerCase();
+    //     const deskripsi = row[mapping["Deskripsi"]]?.toLowerCase();
 
-        const dataToSave = {
-          idJenisVaksin: row[mapping["ID Jenis Hewan"]] || "",
-          jenis: row[mapping["Jenis Vaksin"]] || "",
-          deskripsi: row[mapping["Deskripsi"]] || "",
-        };
+    //     const dataToSave = {
+    //       idJenisVaksin: row[mapping["ID Jenis Hewan"]] || "",
+    //       jenis: row[mapping["Jenis Vaksin"]] || "",
+    //       deskripsi: row[mapping["Deskripsi"]] || "",
+    //     };
 
-        const existingJenisVaksinIndex = jenisVaksins.findIndex((p) => p.idJenisVaksin === dataToSave.idJenisVaksin);
+    //     const existingJenisVaksinIndex = jenisVaksins.findIndex((p) => p.idJenisVaksin === dataToSave.idJenisVaksin);
 
-        try {
-          if (existingJenisVaksinIndex > -1) {
-            // Update existing data
-            await editJenisVaksin(dataToSave, dataToSave.idJenisVaksin);
-            setJenisVaksins((prevJenisVaksins) => {
-              const updatedJenisVaksins = [...prevJenisVaksins];
-              updatedJenisVaksins[existingJenisVaksinIndex] = dataToSave;
-              return updatedJenisVaksins;
-            });
-          } else {
-            // Add new data
-            await addJenisVaksin(dataToSave);
-            setJenisVaksins((prevJenisVaksins) => [...prevJenisVaksins, dataToSave]);
-          }
-        } catch (error) {
-          errorCount++;
-          console.error("Gagal menyimpan data:", error);
-        }
-      }
+    //     try {
+    //       if (existingJenisVaksinIndex > -1) {
+    //         // Update existing data
+    //         await editJenisVaksin(dataToSave, dataToSave.idJenisVaksin);
+    //         setJenisVaksins((prevJenisVaksins) => {
+    //           const updatedJenisVaksins = [...prevJenisVaksins];
+    //           updatedJenisVaksins[existingJenisVaksinIndex] = dataToSave;
+    //           return updatedJenisVaksins;
+    //         });
+    //       } else {
+    //         // Add new data
+    //         await addJenisVaksin(dataToSave);
+    //         setJenisVaksins((prevJenisVaksins) => [...prevJenisVaksins, dataToSave]);
+    //       }
+    //     } catch (error) {
+    //       errorCount++;
+    //       console.error("Gagal menyimpan data:", error);
+    //     }
+    //   }
 
-      if (errorCount === 0) {
-        message.success(`Semua data berhasil disimpan.`);
-      } else {
-        message.error(`${errorCount} data gagal disimpan, harap coba lagi!`);
-      }
-    } catch (error) {
-      console.error("Gagal memproses data:", error);
-      message.error("Gagal memproses data, harap coba lagi!");
-    } finally {
-      setImportedData([]);
-      setColumnTitles([]);
-      setColumnMapping({});
-    }
+    //   if (errorCount === 0) {
+    //     message.success(`Semua data berhasil disimpan.`);
+    //   } else {
+    //     message.error(`${errorCount} data gagal disimpan, harap coba lagi!`);
+    //   }
+    // } catch (error) {
+    //   console.error("Gagal memproses data:", error);
+    //   message.error("Gagal memproses data, harap coba lagi!");
+    // } finally {
+    //   setImportedData([]);
+    //   setColumnTitles([]);
+    //   setColumnMapping({});
+    // }
   };
 
   // Handle Exporting Data to CSV
   const handleExportData = () => {
-    const csvContent = convertToCSV(jenisVaksins);
+    const csvContent = convertToCSV(namaVaksins);
     downloadCSV(csvContent);
   };
 
   // Convert Data to CSV Format
   const convertToCSV = (data) => {
-    const columnTitles = ["ID Jenis Vaksin", "Jenis Vaksin", "Deskripsi"];
+    // const columnTitles = ["ID Jenis Vaksin", "Jenis Vaksin", "Deskripsi"];
 
-    const rows = [columnTitles];
-    data.forEach((item) => {
-      const row = [item.idJenisVaksin, item.jenis, item.deskripsi];
-      rows.push(row);
-    });
+    // const rows = [columnTitles];
+    // data.forEach((item) => {
+    //   const row = [item.idJenisVaksin, item.jenis, item.deskripsi];
+    //   rows.push(row);
+    // });
 
-    let csvContent = "data:text/csv;charset=utf-8,";
+    // let csvContent = "data:text/csv;charset=utf-8,";
 
-    rows.forEach((rowArray) => {
-      const row = rowArray.join(";");
-      csvContent += row + "\r\n";
-    });
+    // rows.forEach((rowArray) => {
+    //   const row = rowArray.join(";");
+    //   csvContent += row + "\r\n";
+    // });
 
-    return csvContent;
+    // return csvContent;
   };
 
   // Download CSV File
@@ -369,7 +370,7 @@ const JenisVaksin = () => {
     const encodedUri = encodeURI(csvContent);
     const link = document.createElement("a");
     link.setAttribute("href", encodedUri);
-    link.setAttribute("download", "JenisVaksin.csv");
+    link.setAttribute("download", "NamaVaksin.csv");
     document.body.appendChild(link); // Required for Firefox
     link.click();
     document.body.removeChild(link); // Clean up
@@ -379,11 +380,12 @@ const JenisVaksin = () => {
   const renderColumns = () => {
     const baseColumns = [
       {
-        title: "ID Jenis Vaksin",
-        dataIndex: "idJenisVaksin",
-        key: "idJenisVaksin",
+        title: "ID Nama Vaksin",
+        dataIndex: "idNamaVaksin",
+        key: "idNamaVaksin",
       },
       { title: "Jenis", dataIndex: "jenis", key: "jenis" },
+      { title: "Nama Vaksin", dataIndex: "namaVaksin", key: "nama" },
       { title: "Deskripsi", dataIndex: "deskripsi", key: "deskripsi" },
     ];
 
@@ -395,9 +397,9 @@ const JenisVaksin = () => {
         align: "center",
         render: (text, row) => (
           <span>
-            <Button type="primary" shape="circle" icon="edit" title="Edit" onClick={() => handleEditJenisVaksin(row)} />
+            <Button type="primary" shape="circle" icon="edit" title="Edit" onClick={() => handleEditNamaVaksin(row)} />
             <Divider type="vertical" />
-            <Button type="primary" danger shape="circle" icon="delete" title="Delete" onClick={() => handleDeleteJenisVaksin(row)} />
+            <Button type="primary" danger shape="circle" icon="delete" title="Delete" onClick={() => handleDeleteNamaVaksin(row)} />
           </span>
         ),
       });
@@ -409,9 +411,9 @@ const JenisVaksin = () => {
   // Render Table based on User Role
   const renderTable = () => {
     if (user && user.role === "ROLE_PETERNAK") {
-      return <Table dataSource={jenisVaksins} bordered columns={renderColumns()} rowKey="idJenisVaksin" />;
+      return <Table dataSource={namaVaksins} bordered columns={renderColumns()} rowKey="idNamaVaksin" />;
     } else if (user && (user.role === "ROLE_ADMINISTRATOR" || user.role === "ROLE_PETUGAS")) {
-      return <Table dataSource={jenisVaksins} bordered columns={renderColumns()} rowKey="idJenisVaksin" />;
+      return <Table dataSource={namaVaksins} bordered columns={renderColumns()} rowKey="idNamaVaksin" />;
     } else {
       return null;
     }
@@ -424,7 +426,7 @@ const JenisVaksin = () => {
         <Row gutter={[16, 16]} justify="start" style={{ paddingLeft: 9 }}>
           <Col xs={24} sm={12} md={8} lg={8} xl={8}>
             <Button type="primary" onClick={handleAddJenisVaksin} block>
-              Tambah Jenis Vaksin
+              Tambah Nama Vaksin
             </Button>
           </Col>
           <Col xs={24} sm={12} md={8} lg={8} xl={8}>
@@ -454,29 +456,29 @@ const JenisVaksin = () => {
     </Row>
   );
 
-  const cardContent = `Di sini, Anda dapat mengelola daftar jenis vaksin di sistem.`;
+  const cardContent = `Di sini, Anda dapat mengelola daftar nama vaksin di sistem.`;
 
   return (
     <div className="app-container">
       {/* TypingCard component */}
-      <TypingCard title="Manajemen Jenis Vaksin" source={cardContent} />
+      <TypingCard title="Manajemen Nama Vaksin" source={cardContent} />
       <br />
       <Card title={title} style={{ overflowX: "scroll" }}>
         {renderTable()}
       </Card>
 
-      {/* Edit Jenis Vaksin Modal */}
-      <EditJenisVaksinForm
+      {/* Edit Nama vaksin Modal */}
+      <EditNamaVaksinForm
         currentRowData={currentRowData}
-        wrappedComponentRef={editJenisVaksinFormRef}
-        visible={editJenisVaksinModalVisible}
-        confirmLoading={editJenisVaksinModalLoading}
+        wrappedComponentRef={editNamaVaksinFormRef}
+        visible={editNamaVaksinModalVisible}
+        confirmLoading={editNamaVaksinModalLoading}
         onCancel={handleCancel}
-        onOk={handleEditJenisVaksinOk}
+        onOk={handleEditNamaVaksinOk}
       />
 
-      {/* Add Jenis Vaksin Modal */}
-      <AddJenisVaksinForm wrappedComponentRef={addJenisVaksinFormRef} visible={addJenisVaksinModalVisible} confirmLoading={addJenisVaksinModalLoading} onCancel={handleCancel} onOk={handleAddJenisVaksinOk} />
+      {/* Add Nama Vaksin Modal */}
+      <AddNamaVaksinForm wrappedComponentRef={addNamaVaksinFormRef} visible={addNamaVaksinModalVisible} confirmLoading={addNamaVaksinModalLoading} onCancel={handleCancel} onOk={handleAddNamaVaksinOk} />
 
       {/* Import Modal */}
       <Modal
@@ -500,4 +502,4 @@ const JenisVaksin = () => {
   );
 };
 
-export default JenisVaksin;
+export default NamaVaksin;

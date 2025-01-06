@@ -425,6 +425,7 @@ export default class ImportAllData extends Component {
         console.log("data peternak = ", dataPeternak);
         // uniqueData.set(nikPeternak, true);
 
+        // Jenis Hewan
         // if jenis hewan berulang kali dengan nama yang sama, maka hanya akan disimpan satu kali
         if (!uniqueData.has(row[columnMapping["Jenis Ternak**)"]])) {
           const dataJenisHewan = {
@@ -438,6 +439,7 @@ export default class ImportAllData extends Component {
         }
 
         // data tujuan pemeliharaan
+        if(!uniqueData.has(row[columnMapping["Tujuan Pemeliharaan Ternak**)"]])){
         const dataTujuanPemeliharaan = {
           idTujuanPemeliharaan: generateIdTujuanPemeliharaan,
           tujuanPemeliharaan:
@@ -446,6 +448,10 @@ export default class ImportAllData extends Component {
             "Deskripsi " +
             getValidData(row, columnMapping, "Tujuan Pemeliharaan Ternak**)"),
         };
+        tujuanPemeliharaanBulk.push(dataTujuanPemeliharaan);
+        uniqueData.set(row[columnMapping["Tujuan Pemeliharaan Ternak**)"]], true);
+  
+      }
 
         console.log("Peternak Bulk api:", peternakBulk);
 
@@ -470,12 +476,16 @@ export default class ImportAllData extends Component {
         console.log("Data Kandang:", dataKandang);
 
         // data rumpun hewan
+        if(!uniqueData.has(row[columnMapping["Rumpun Ternak"]])){
         const dataRumpunHewan = {
           idRumpunHewan: generateIdRumpunHewan,
           rumpun: getValidData(row, columnMapping, "Rumpun Ternak"),
           deskripsi:
             "Deskripsi " + getValidData(row, columnMapping, "Rumpun Ternak"),
         };
+        rumpunHewanBulk.push(dataRumpunHewan);
+        uniqueData.set(row[columnMapping["Rumpun Ternak"]], true);
+      }
 
         // data ternak hewan
         const dataTernakHewan = {
@@ -492,6 +502,7 @@ export default class ImportAllData extends Component {
           nikPeternak: dataPeternak.nikPeternak,
           // kandang_id: generateIdKandang,
           jenis: row[columnMapping["Jenis Ternak**)"]],
+          tujuanPemeliharaan: row[columnMapping["Tujuan Pemeliharaan Ternak**)"]]
           // rumpunHewanId: generateIdRumpunHewan,
         };
 
@@ -514,13 +525,10 @@ export default class ImportAllData extends Component {
         // petugasPendataanBulk.push(dataPetugasPendataan);
         petugasVaksinasiBulk.push(dataPetugasVaksinasi);
         // peternakBulk.push(dataPeternak);
-        // jenisHewanBulk.push(dataJenisHewan);
         peternakBulk.push(dataPeternak);
         kandangBulk.push(dataKandang);
-        rumpunHewanBulk.push(dataRumpunHewan);
         ternakHewanBulk.push(dataTernakHewan);
         vaksinBulk.push(dataVaksin);
-        tujuanPemeliharaanBulk.push(dataTujuanPemeliharaan);
       }
 
       // Send bulk data to server

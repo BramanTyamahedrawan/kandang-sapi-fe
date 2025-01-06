@@ -1,13 +1,13 @@
 /* eslint-disable no-constant-condition */
 /* eslint-disable no-unused-vars */
-import React, { useEffect, useState, useRef } from "react";
+import { addTujuanPemeliharaan, deleteTujuanPemeliharaan, editTujuanPemeliharaan, getTujuanPemeliharaan } from "@/api/tujuan-pemeliharaan";
+import TypingCard from "@/components/TypingCard";
 import { UploadOutlined } from "@ant-design/icons";
 import { Button, Card, Col, Divider, Input, message, Modal, Row, Table, Upload } from "antd";
+import React, { useEffect, useRef, useState } from "react";
+import { reqUserInfo } from "../../api/user";
 import AddTujuanPemeliharaanForm from "./forms/add-tujuanpemeliharaan-form";
 import EditTujuanPemeliharaanForm from "./forms/edit-tujuanpemeliharaan-form";
-import { getTujuanPemeliharaan, addTujuanPemeliharaan, editTujuanPemeliharaan, deleteTujuanPemeliharaan } from "@/api/tujuan-pemeliharaan";
-import TypingCard from "@/components/TypingCard";
-import { reqUserInfo } from "../../api/user";
 
 const TujuanPemeliharaan = () => {
   // State Variables
@@ -420,17 +420,17 @@ const TujuanPemeliharaan = () => {
     if (user && (user.role === "ROLE_ADMINISTRATOR" || user.role === "ROLE_PETUGAS")) {
       return (
         <Row gutter={[16, 16]} justify="start" style={{ paddingLeft: 9 }}>
-          <Col xs={24} sm={12} md={8} lg={8} xl={8}>
+          <Col>
             <Button type="primary" block onClick={handleAddTujuan}>
               Tambah tujuan pemeliharaan
             </Button>
           </Col>
-          <Col xs={24} sm={12} md={8} lg={8} xl={8}>
+          <Col>
             <Button icon={<UploadOutlined />} onClick={handleImportModalOpen} block>
               Import File
             </Button>
           </Col>
-          <Col xs={24} sm={12} md={8} lg={8} xl={8}>
+          <Col>
             <Button icon={<UploadOutlined />} block>
               Export File
             </Button>
