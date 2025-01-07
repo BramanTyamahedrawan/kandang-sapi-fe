@@ -603,9 +603,8 @@ export default class ImportAllData extends Component {
           uniqueData.set(row[columnMapping["Jenis Vaksin**)"]], true);
         }
 
-        let dataNamaVaksin;
         if (!uniqueData.has(row[columnMapping["Nama Vaksin**)"]])) {
-          dataNamaVaksin = {
+          const dataNamaVaksin = {
             idNamaVaksin: generateIdNamaVaksin,
             idJenisVaksin: dataJenisVaksin
               ? dataJenisVaksin.idJenisVaksin
@@ -622,12 +621,10 @@ export default class ImportAllData extends Component {
         // data vaksin
         const dataVaksin = {
           idVaksin: generateIdVaksin,
-          idJenisVaksin: dataJenisVaksin
-            ? dataJenisVaksin.idJenisVaksin
-            : generateIdJenisVaksin,
-          idNamaVaksin: dataNamaVaksin
-            ? dataNamaVaksin.idNamaVaksin
-            : generateIdNamaVaksin,
+          namaJenisVaksin:
+            row[columnMapping["Jenis Vaksin**)"]] || "Jenis Vaksin Tidak Valid",
+          namaVaksin:
+            row[columnMapping["Nama Vaksin**)"]] || "Nama Vaksin Tidak Valid",
           kodeEartagNasional: getValidData(
             row,
             columnMapping,
@@ -638,7 +635,10 @@ export default class ImportAllData extends Component {
           batchVaksin: row[columnMapping["Batch Vaksin**)"]],
           vaksinKe: row[columnMapping["Vaksin ke-**)"]],
           tglVaksin: row[columnMapping["Tanggal Vaksin**)"]],
+          tglPendataan: row[columnMapping["Tanggal Pendataan"]],
         };
+
+        console.log("Data Vaksin:", dataVaksin);
 
         // Add data to bulk arrays
         // petugasPendataanBulk.push(dataPetugasPendataan);
