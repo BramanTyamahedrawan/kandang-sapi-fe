@@ -1,33 +1,32 @@
 /* eslint-disable no-constant-condition */
 /* eslint-disable no-unused-vars */
-import React, { useState, useEffect, useRef } from 'react'
+import { getPetugas } from '@/api/petugas'
 import {
-  Card,
-  Button,
-  Table,
-  message,
-  Upload,
-  Row,
-  Col,
-  Divider,
-  Modal,
-  Input,
-} from 'antd'
-import { UploadOutlined } from '@ant-design/icons'
-import { read, utils } from 'xlsx'
-import AddHewanForm from './forms/add-rumpunhewan-form'
-import EditHewanForm from './forms/edit-rumpunhewan-form'
-import TypingCard from '@/components/TypingCard'
-import {
-  getRumpunHewan,
+  addRumpunHewan,
   deleteRumpunHewan,
   editRumpunHewan,
-  addRumpunHewan,
+  getRumpunHewan,
 } from '@/api/rumpunhewan'
-import { getPetugas } from '@/api/petugas'
+import TypingCard from '@/components/TypingCard'
+import { DeleteOutlined, EditOutlined, UploadOutlined, } from '@ant-design/icons'
+import {
+  Button,
+  Card,
+  Col,
+  Divider,
+  Input,
+  message,
+  Modal,
+  Row,
+  Table,
+  Upload,
+} from 'antd'
+import React, { useEffect, useRef, useState } from 'react'
+import { read, utils } from 'xlsx'
 import { reqUserInfo } from '../../api/user'
+import AddHewanForm from './forms/add-rumpunhewan-form'
+import EditHewanForm from './forms/edit-rumpunhewan-form'
 
-import kandangSapi from '../../assets/images/kandangsapi.jpg' // Assuming it's a default export
 
 const RumpunHewan = () => {
   // State Variables
@@ -433,7 +432,7 @@ const RumpunHewan = () => {
             <Button
               type="primary"
               shape="circle"
-              icon="edit"
+              icon={<EditOutlined/>}
               title="Edit"
               onClick={() => handleEditHewan(row)}
             />
@@ -442,7 +441,7 @@ const RumpunHewan = () => {
               type="primary"
               danger
               shape="circle"
-              icon="delete"
+              icon={<DeleteOutlined/>}
               title="Delete"
               onClick={() => handleDeleteHewan(row)}
             />

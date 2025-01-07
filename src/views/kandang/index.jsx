@@ -1,31 +1,30 @@
 /* eslint-disable no-constant-condition */
 /* eslint-disable no-unused-vars */
-import React, { useState, useEffect, useRef } from 'react'
 import {
-  Card,
-  Button,
-  Table,
-  message,
-  Upload,
-  Row,
-  Col,
-  Divider,
-  Modal,
-  Input,
-} from 'antd'
-import {
-  getKandang,
-  getKandangByPeternak,
+  addKandang,
   deleteKandang,
   editKandang,
-  addKandang,
+  getKandang
 } from '@/api/kandang'
 import TypingCard from '@/components/TypingCard'
-import EditKandangForm from './forms/edit-kandang-form'
+import {
+  Button,
+  Card,
+  Col,
+  Divider,
+  Input,
+  message,
+  Modal,
+  Row,
+  Table,
+  Upload,
+} from 'antd'
+import React, { useEffect, useRef, useState } from 'react'
 import AddKandangForm from './forms/add-kandang-form'
+import EditKandangForm from './forms/edit-kandang-form'
 // import ViewKandangForm from "./forms/view-kandang-form";
-import { read, utils } from 'xlsx'
 import { DeleteOutlined, EditOutlined, UploadOutlined } from '@ant-design/icons'
+import { read, utils } from 'xlsx'
 import { reqUserInfo } from '../../api/user'
 import imgUrl from '../../utils/imageURL'
 
@@ -448,8 +447,9 @@ const Kandang = () => {
   const renderColumns = () => {
     const baseColumns = [
       { title: 'Id Kandang', dataIndex: 'idKandang', key: 'idKandang' },
+      { title: 'Nama Pemilik Kandang', dataIndex: ['peternak', 'namaPeternak'], key: 'namaPeternak' },
+      { title: 'Jenis Kandang', dataIndex: 'jenisKandang', key: 'jenisKandang' },
       { title: 'Luas', dataIndex: 'luas', key: 'luas' },
-      { title: 'Jenis Hewan', dataIndex: ['jenis', 'nama'], key: 'jenis.nama' },
       { title: 'Kapasitas', dataIndex: 'kapasitas', key: 'kapasitas' },
       {
         title: 'Nilai Bangunan',
@@ -457,6 +457,8 @@ const Kandang = () => {
         key: 'nilaiBangunan',
       },
       { title: 'Alamat', dataIndex: 'alamat', key: 'alamat' },
+      { title: 'Latitude', dataIndex: 'latitude', key: 'latitude' },
+      { title: 'Longitude', dataIndex: 'longitude', key: 'longitude' },
       {
         title: 'Foto Kandang',
         dataIndex: 'file_path',

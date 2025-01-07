@@ -6,9 +6,9 @@ import {
   editNamaVaksin,
   getNamaVaksin,
 } from "@/api/nama-vaksin";
-import TypingCard from "@/components/TypingCard";
 import { reqUserInfo } from "@/api/user"; // Adjust the import path as necessary
-import { UploadOutlined } from "@ant-design/icons";
+import TypingCard from "@/components/TypingCard";
+import { DeleteOutlined, EditOutlined, UploadOutlined, } from "@ant-design/icons";
 import {
   Button,
   Card,
@@ -21,10 +21,10 @@ import {
   Table,
   Upload,
 } from "antd";
+import React, { useEffect, useRef, useState } from "react";
 import { read, utils } from "xlsx";
 import AddNamaVaksinForm from "./forms/add-namavaksin-form";
 import EditNamaVaksinForm from "./forms/edit-namavaksin-form";
-import React, { useEffect, useRef, useState } from "react";
 
 const NamaVaksin = () => {
   // State Variables
@@ -400,7 +400,7 @@ const NamaVaksin = () => {
       },
       {
         title: "Jenis Vaksin",
-        dataIndex: ["jenisVaksin", "namaVaksin"],
+        dataIndex: ["jenisVaksin", "jenisVaksin"],
         key: "jenisVaksin",
       },
       { title: "Nama Vaksin", dataIndex: "namaVaksin", key: "namaVaksin" },
@@ -421,7 +421,7 @@ const NamaVaksin = () => {
             <Button
               type="primary"
               shape="circle"
-              icon="edit"
+              icon={<EditOutlined/>}
               title="Edit"
               onClick={() => handleEditNamaVaksin(row)}
             />
@@ -430,7 +430,7 @@ const NamaVaksin = () => {
               type="primary"
               danger
               shape="circle"
-              icon="delete"
+              icon={<DeleteOutlined/>}
               title="Delete"
               onClick={() => handleDeleteNamaVaksin(row)}
             />

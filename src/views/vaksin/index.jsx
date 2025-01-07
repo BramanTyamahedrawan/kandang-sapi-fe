@@ -1,33 +1,32 @@
 /* eslint-disable no-constant-condition */
 /* eslint-disable no-unused-vars */
-import React, { useState, useEffect, useRef } from 'react'
-import {
-  Card,
-  Button,
-  Table,
-  message,
-  Row,
-  Col,
-  Divider,
-  Modal,
-  Upload,
-  Input,
-} from 'antd'
-import { UploadOutlined } from '@ant-design/icons'
-import { read, utils } from 'xlsx'
-import AddVaksinForm from './forms/add-vaksin-form'
-import EditVaksinForm from './forms/edit-vaksin-form'
-import TypingCard from '@/components/TypingCard'
 import { getPeternaks } from '@/api/peternak'
+import { getPetugas } from '@/api/petugas'
 import {
-  getVaksins,
-  getVaksinByPeternak,
+  addVaksin,
   deleteVaksin,
   editVaksin,
-  addVaksin,
+  getVaksins
 } from '@/api/vaksin'
-import { getPetugas } from '@/api/petugas'
+import TypingCard from '@/components/TypingCard'
+import { DeleteOutlined, EditOutlined, UploadOutlined, } from '@ant-design/icons'
+import {
+  Button,
+  Card,
+  Col,
+  Divider,
+  Input,
+  message,
+  Modal,
+  Row,
+  Table,
+  Upload,
+} from 'antd'
+import React, { useEffect, useRef, useState } from 'react'
+import { read, utils } from 'xlsx'
 import { reqUserInfo } from '../../api/user'
+import AddVaksinForm from './forms/add-vaksin-form'
+import EditVaksinForm from './forms/edit-vaksin-form'
 
 const Vaksin = () => {
   const [vaksins, setVaksins] = useState([])
@@ -478,8 +477,8 @@ const Vaksin = () => {
   const renderColumns = () => {
     const baseColumns = [
       { title: 'ID Vaksin', dataIndex: 'idVaksin', key: 'idVaksin' },
-      { title: 'Nama Vaksin', dataIndex: 'namaVaksin', key: 'namaVaksin' },
-      { title: 'Jenis Vaksin', dataIndex: 'jenisVaksin', key: 'jenisVaksin' },
+      { title: 'Jenis Vaksin', dataIndex: ['jenisVaksin','jenisVaksin'], key: 'jenisVaksin' },
+      { title: 'Nama Vaksin', dataIndex: ['namaVaksin', 'namaVaksin'], key: 'namaVaksin' },
       {
         title: 'Kode Eartag',
         dataIndex: ['hewan', 'kodeEartagNasional'],
@@ -495,13 +494,16 @@ const Vaksin = () => {
         dataIndex: ['peternak', 'nikPeternak'],
         key: 'nikPeternak',
       },
-      { title: 'Lokasi', dataIndex: ['peternak', 'lokasi'], key: 'lokasi' },
+      { title: 'Bacth Vaksin', dataIndex: 'batchVaksin', key: 'batchVaksin' },
+      { title: 'Dosis Vaksin', dataIndex: 'vaksinKe', key: 'vaksinKe' },
       {
         title: 'Inseminator',
         dataIndex: ['petugas', 'namaPetugas'],
         key: 'inseminator',
       },
       { title: 'Tanggal Vaksin', dataIndex: 'tglVaksin', key: 'tglVaksin' },
+      { title: 'Tanggal Pendataan', dataIndex: ['hewan', 'tanggalTerdaftar'], key: 'tanggalTerdaftar' },
+      
     ]
 
     if (
@@ -518,7 +520,7 @@ const Vaksin = () => {
             <Button
               type="primary"
               shape="circle"
-              icon="edit"
+              icon={<EditOutlined/>}
               title="Edit"
               onClick={() => handleEditVaksin(row)}
             />
@@ -527,7 +529,7 @@ const Vaksin = () => {
               type="primary"
               danger
               shape="circle"
-              icon="delete"
+              icon={<DeleteOutlined/>}
               title="Delete"
               onClick={() => handleDeleteVaksin(row)}
             />

@@ -582,6 +582,7 @@ export default class ImportAllData extends Component {
           alamat:
             row[columnMapping["Alamat Kandang**)"]] || "Alamat Tidak Valid",
           luas: row[columnMapping["Luas Kandang*)"]] || "_",
+          kapasitas: row[columnMapping["Kapasitas Kandang*)"]] || "_",
           nilaiBangunan: row[columnMapping["Nilai Bangunan*)"]] || "_",
           jenisKandang: generateJenisKandang(
             row[columnMapping["Jenis Kandang*)"]]
@@ -634,6 +635,7 @@ export default class ImportAllData extends Component {
           ),
         };
 
+        // Jenis Vaksin
         let dataJenisVaksin;
         if (!uniqueData.has(row[columnMapping["Jenis Vaksin**)"]])) {
           dataJenisVaksin = {
@@ -649,6 +651,7 @@ export default class ImportAllData extends Component {
           uniqueData.set(row[columnMapping["Jenis Vaksin**)"]], true);
         }
 
+        // Nama Vaksin
         let dataNamaVaksin;
         if (!uniqueData.has(row[columnMapping["Nama Vaksin**)"]])) {
           dataNamaVaksin = {
@@ -681,7 +684,7 @@ export default class ImportAllData extends Component {
           nikPeternak: dataPeternak.nikPeternak,
           batchVaksin: row[columnMapping["Batch Vaksin**)"]],
           vaksinKe: row[columnMapping["Vaksin ke-**)"]],
-          tglVaksin: row[columnMapping["Tanggal Vaksin**)"]],
+          tglVaksin: formatDateToString(row[columnMapping["Tanggal Vaksin**)"]]),
         };
 
         // Add data to bulk arrays
