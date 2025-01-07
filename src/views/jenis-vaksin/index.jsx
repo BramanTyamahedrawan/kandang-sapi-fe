@@ -406,7 +406,7 @@ const JenisVaksin = () => {
         dataIndex: "idJenisVaksin",
         key: "idJenisVaksin",
       },
-      { title: "Jenis", dataIndex: "jenis", key: "jenis" },
+      { title: "Jenis", dataIndex: "namaVaksin", key: "namaVaksin" },
       { title: "Deskripsi", dataIndex: "deskripsi", key: "deskripsi" },
     ];
 

@@ -6,12 +6,15 @@ import { v4 as uuidv4 } from "uuid";
 import { read, utils } from "xlsx";
 
 import { addTernakBulk } from "@/api/hewan";
+import { addJenisVaksinBulk } from "@/api/jenis-vaksin";
 import { addJenisHewanBulk } from "@/api/jenishewan";
 import { addKandangBulk } from "@/api/kandang";
+import { addNamaVaksinBulk } from "@/api/nama-vaksin";
 import { addPeternakBulk } from "@/api/peternak";
 import { addPetugasBulk } from "@/api/petugas";
 import { addRumpunHewanBulk } from "@/api/rumpunhewan";
 import { addTujuanPemeliharaanBulk } from "@/api/tujuan-pemeliharaan";
+import { addVaksinBulk } from "@/api/vaksin";
 // import { addTernakBulk } from "@/api/hewan";
 // import { addJenisHewanBulk } from "@/api/jenishewan";
 // import { addKandangBulk } from "@/api/kandang";
@@ -181,6 +184,75 @@ const sendTernakHewanBulkData = async (data, batchSize = 7000) => {
   }
 };
 
+const sendJenisVaksinBulkData = async (data, batchSize = 7000) => {
+  const totalBatches = Math.ceil(data.length / batchSize);
+
+  for (let i = 0; i < totalBatches; i++) {
+    const batchData = data.slice(i * batchSize, (i + 1) * batchSize);
+
+    try {
+      console.log(`Data Jenis Vaksin (Batch ${i + 1}):`, batchData); // Log data yang dikirim
+      const response = await addJenisVaksinBulk(batchData);
+      console.log(
+        `Batch ${i + 1}/${totalBatches} berhasil dikirim`,
+        response.data
+      );
+    } catch (error) {
+      console.error(
+        `Batch ${i + 1}/${totalBatches} gagal dikirim`,
+        error.response?.data || error.message
+      );
+      throw error; // Hentikan proses jika batch gagal
+    }
+  }
+};
+
+const sendNamaVaksinBulkData = async (data, batchSize = 7000) => {
+  const totalBatches = Math.ceil(data.length / batchSize);
+
+  for (let i = 0; i < totalBatches; i++) {
+    const batchData = data.slice(i * batchSize, (i + 1) * batchSize);
+
+    try {
+      console.log(`Data Nama Vaksin (Batch ${i + 1}):`, batchData); // Log data yang dikirim
+      const response = await addNamaVaksinBulk(batchData);
+      console.log(
+        `Batch ${i + 1}/${totalBatches} berhasil dikirim`,
+        response.data
+      );
+    } catch (error) {
+      console.error(
+        `Batch ${i + 1}/${totalBatches} gagal dikirim`,
+        error.response?.data || error.message
+      );
+      throw error; // Hentikan proses jika batch gagal
+    }
+  }
+};
+
+const sendVaksinBulkData = async (data, batchSize = 7000) => {
+  const totalBatches = Math.ceil(data.length / batchSize);
+
+  for (let i = 0; i < totalBatches; i++) {
+    const batchData = data.slice(i * batchSize, (i + 1) * batchSize);
+
+    try {
+      console.log(`Data Vaksin (Batch ${i + 1}):`, batchData); // Log data yang dikirim
+      const response = await addVaksinBulk(batchData);
+      console.log(
+        `Batch ${i + 1}/${totalBatches} berhasil dikirim`,
+        response.data
+      );
+    } catch (error) {
+      console.error(
+        `Batch ${i + 1}/${totalBatches} gagal dikirim`,
+        error.response?.data || error.message
+      );
+      throw error; // Hentikan proses jika batch gagal
+    }
+  }
+};
+
 const cleanNik = (nik) => (nik ? nik.replace(/'/g, "").trim() : "-");
 
 // function untuk parse address
@@ -314,6 +386,8 @@ export default class ImportAllData extends Component {
       const ternakHewanBulk = [];
       const vaksinBulk = [];
       const tujuanPemeliharaanBulk = [];
+      const jenisVaksinBulk = [];
+      const namaVaksinBulk = [];
 
       for (const row of importedData) {
         const generateIdPeternak = uuidv4();
@@ -323,6 +397,8 @@ export default class ImportAllData extends Component {
         const generateIdHewan = uuidv4();
         const generateIdVaksin = uuidv4();
         const generateIdTujuanPemeliharaan = uuidv4();
+        const generateIdJenisVaksin = uuidv4();
+        const generateIdNamaVaksin = uuidv4();
 
         const nikPeternak = cleanNik(
           row[columnMapping["NIK Pemilik Ternak*)"]]
@@ -339,38 +415,40 @@ export default class ImportAllData extends Component {
         const formatDateToString = (dateString) => {
           // Jika dateString adalah angka (seperti nilai dari Excel)
           if (!isNaN(dateString)) {
-              // Excel menganggap angka tersebut sebagai jumlah hari sejak 01/01/1900
-              // Konversi angka menjadi milidetik
-              const excelEpoch = new Date(1900, 0, 1).getTime(); // 1 Januari 1900
-              const milliseconds = dateString * 86400000; // 86400000 ms dalam 1 hari
-              const date = new Date(excelEpoch + milliseconds);
-      
-              // Format tanggal dan waktu menjadi string
-              const day = String(date.getDate()).padStart(2, '0');
-              const month = String(date.getMonth() + 1).padStart(2, '0'); // Bulan dimulai dari 0
-              const year = date.getFullYear();
-              const hours = String(date.getHours()).padStart(2, '0');
-              const minutes = String(date.getMinutes()).padStart(2, '0');
-              const seconds = String(date.getSeconds()).padStart(2, '0');
-      
-              return `${day}/${month}/${year} ${hours}:${minutes}:${seconds}`;
+            // Excel menganggap angka tersebut sebagai jumlah hari sejak 01/01/1900
+            // Konversi angka menjadi milidetik
+            const excelEpoch = new Date(1900, 0, 1).getTime(); // 1 Januari 1900
+            const milliseconds = dateString * 86400000; // 86400000 ms dalam 1 hari
+            const date = new Date(excelEpoch + milliseconds);
+
+            // Format tanggal dan waktu menjadi string
+            const day = String(date.getDate()).padStart(2, "0");
+            const month = String(date.getMonth() + 1).padStart(2, "0"); // Bulan dimulai dari 0
+            const year = date.getFullYear();
+            const hours = String(date.getHours()).padStart(2, "0");
+            const minutes = String(date.getMinutes()).padStart(2, "0");
+            const seconds = String(date.getSeconds()).padStart(2, "0");
+
+            return `${day}/${month}/${year} ${hours}:${minutes}:${seconds}`;
           }
-      
+
           // Jika dateString adalah string yang valid dengan format DD/MM/YYYY atau DD/MM/YYYY HH:mm:ss
-          if (typeof dateString === 'string' && dateString.includes(' ')) {
-              const [datePart, timePart] = dateString.split(' ');
-              const [day, month, year] = datePart.split('/');
-      
-              return `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')} ${timePart}`;
-          } else if (typeof dateString === 'string') {
-              const [day, month, year] = dateString.split('/');
-              return `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
+          if (typeof dateString === "string" && dateString.includes(" ")) {
+            const [datePart, timePart] = dateString.split(" ");
+            const [day, month, year] = datePart.split("/");
+
+            return `${year}-${month.padStart(2, "0")}-${day.padStart(
+              2,
+              "0"
+            )} ${timePart}`;
+          } else if (typeof dateString === "string") {
+            const [day, month, year] = dateString.split("/");
+            return `${year}-${month.padStart(2, "0")}-${day.padStart(2, "0")}`;
           }
-      
+
           // Jika format tidak dikenali
           return "Invalid Date";
-      };
-      
+        };
 
         const validateEmail = (email) => {
           // Jika email tidak valid (null, undefined, atau bukan string), gunakan default
@@ -554,22 +632,56 @@ export default class ImportAllData extends Component {
           tanggalTerdaftar: formatDateToString(
             row[columnMapping["Tanggal Pendataan"]] || "_"
           ),
-          // rumpunHewanId: generateIdRumpunHewan,
         };
+
+        let dataJenisVaksin;
+        if (!uniqueData.has(row[columnMapping["Jenis Vaksin**)"]])) {
+          dataJenisVaksin = {
+            idJenisVaksin: generateIdJenisVaksin,
+            namaVaksin:
+              row[columnMapping["Jenis Vaksin**)"]] ||
+              "Jenis Vaksin Tidak Valid",
+            deskripsi:
+              "Deskripsi " +
+              getValidData(row, columnMapping, "Jenis Vaksin**)"),
+          };
+          jenisVaksinBulk.push(dataJenisVaksin);
+          uniqueData.set(row[columnMapping["Jenis Vaksin**)"]], true);
+        }
+
+        let dataNamaVaksin;
+        if (!uniqueData.has(row[columnMapping["Nama Vaksin**)"]])) {
+          dataNamaVaksin = {
+            idNamaVaksin: generateIdNamaVaksin,
+            idJenisVaksin: dataJenisVaksin
+              ? dataJenisVaksin.idJenisVaksin
+              : generateIdJenisVaksin,
+            namaVaksin:
+              row[columnMapping["Nama Vaksin**)"]] || "Nama Vaksin Tidak Valid",
+            deskripsi:
+              "Deskripsi " + getValidData(row, columnMapping, "Nama Vaksin**)"),
+          };
+          namaVaksinBulk.push(dataNamaVaksin);
+          uniqueData.set(row[columnMapping["Nama Vaksin**)"]], true);
+        }
 
         // data vaksin
         const dataVaksin = {
           idVaksin: generateIdVaksin,
-          peternak_id: generateIdPeternak,
-          hewan_id: generateIdHewan,
-          petugas_id: getValidData(
+          jenisVaksin:
+            row[columnMapping["Jenis Vaksin**)"]] || "Jenis Vaksin Tidak Valid",
+          namaVaksin:
+            row[columnMapping["Nama Vaksin**)"]] || "Nama Vaksin Tidak Valid",
+          kodeEartagNasional: getValidData(
             row,
             columnMapping,
-            "NIK Petugas Vaksinasi*)"
+            "No. Eartag***)"
           ),
-          namaVaksin: getValidData(row, columnMapping, "Nama Vaksin*)"),
-          jenisVaksin: getValidData(row, columnMapping, "Jenis Vaksin*)"),
-          tglVaksin: getValidData(row, columnMapping, "Tanggal Vaksin*)"),
+          nikPetugas: cleanNik(row[columnMapping["NIK Petugas Vaksinasi*)"]]),
+          nikPeternak: dataPeternak.nikPeternak,
+          batchVaksin: row[columnMapping["Batch Vaksin**)"]],
+          vaksinKe: row[columnMapping["Vaksin ke-**)"]],
+          tglVaksin: row[columnMapping["Tanggal Vaksin**)"]],
         };
 
         // Add data to bulk arrays
@@ -584,13 +696,6 @@ export default class ImportAllData extends Component {
 
       // Send bulk data to server
       try {
-        console.log("Petugas Pendataan Bulk api: ", petugasPendataanBulk);
-        console.log("Peternak Bulk api :", peternakBulk);
-        console.log("Kandang Bulk api :", kandangBulk);
-        console.log("Rumpun Hewan Bulk api :", rumpunHewanBulk);
-        console.log("Ternak Hewan Bulk api :", ternakHewanBulk);
-        console.log("Tujuan Pemeliharaan : ", tujuanPemeliharaanBulk);
-        // await sendPetugasBulkData(petugasVaksinasiBulk);
         await sendPetugasBulkData(petugasPendataanBulk);
         await sendJenisHewanBulkData(jenisHewanBulk);
         await sendPeternakBulkData(peternakBulk);
@@ -598,12 +703,9 @@ export default class ImportAllData extends Component {
         await sendRumpunHewanBulkData(rumpunHewanBulk);
         await sendTujuanPemeliharaanBulkData(tujuanPemeliharaanBulk);
         await sendTernakHewanBulkData(ternakHewanBulk);
-        // await sendPeternakImport(peternakBulk)
-        // await sendJenisHewanImport(jenisHewanBulk)
-        // await sendRumpunHewanImport(rumpunHewanBulk)
-        // await sendKandangImport(kandangBulk)
-        // await sendHewanImport(ternakBulk)
-        // await sendVaksinImport(vaksinBulk)
+        await sendJenisVaksinBulkData(jenisVaksinBulk);
+        await sendNamaVaksinBulkData(namaVaksinBulk);
+        await sendVaksinBulkData(vaksinBulk);
       } catch (error) {
         console.error(
           "Gagal menyimpan data secara bulk:",
