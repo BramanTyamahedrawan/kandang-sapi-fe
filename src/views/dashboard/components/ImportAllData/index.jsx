@@ -528,8 +528,7 @@ export default class ImportAllData extends Component {
           kecamatan: pecahAlamat.kecamatan,
           kabupaten: pecahAlamat.kabupaten,
           tanggalLahir:
-            row[columnMapping["Tanggal Lahir Pemilik*)"]] ||
-            generateDefaultTanggalLahir(),
+            formatDateToString(row[columnMapping["Tanggal Lahir Pemilik Ternak"]] || "-"),
           idIsikhnas: row[columnMapping["ID Isikhnas*)"]] || "-",
           latitude: row[columnMapping["latitude"]],
           longitude: row[columnMapping["longitude"]],

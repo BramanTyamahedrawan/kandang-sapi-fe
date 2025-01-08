@@ -118,5 +118,11 @@ const menuList = [
     icon: CameraOutlined,
     roles: ["ROLE_ADMINISTRATOR", "ROLE_PETUGAS", "ROLE_PETERNAK"],
   },
+  {
+    title: "Data User",
+    path: "/users",
+    icon: UsergroupAddOutlined,
+    roles: ["ROLE_ADMINISTRATOR"],
+  },
 ];
 export default menuList;

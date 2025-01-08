@@ -1,12 +1,16 @@
 /* eslint-disable no-unused-vars */
 import {
   addPeternak,
+  // addPeternakImport
+  addPeternakImport,
   deletePeternak,
   editPeternak,
   getPeternaks,
 } from "@/api/peternak";
 import { getPetugas } from "@/api/petugas";
 import {
+  // addUserBulk,
+  addUserBulk,
   deleteUser,
   getUserByUsername,
   register,
@@ -17,7 +21,7 @@ import TypingCard from "@/components/TypingCard";
 import {
   DeleteOutlined,
   EditOutlined,
-  UploadOutlined
+  UploadOutlined,
 } from "@ant-design/icons";
 import {
   Button,
@@ -266,7 +270,11 @@ const Peternak = () => {
       const workbook = read(data, { type: "array" });
 
       const worksheet = workbook.Sheets[workbook.SheetNames[0]];
-      const jsonData = utils.sheet_to_json(worksheet, { header: 1 });
+      const jsonData = utils.sheet_to_json(worksheet, {
+        header: 1,
+        blankrows: false,
+        defval: null,
+      });
 
       const importedData = jsonData.slice(1); // Exclude the first row (column titles)
       const columnTitles = jsonData[0]; // Assume the first row contains column titles
@@ -286,7 +294,6 @@ const Peternak = () => {
     };
 
     reader.readAsArrayBuffer(file);
-    return false; // Prevent upload
   };
 
   // Convert to JS Date
@@ -310,40 +317,160 @@ const Peternak = () => {
     return date;
   };
 
+  function parseAddress(address) {
+    // Pastikan alamat berupa string, jika tidak kembalikan "alamat tidak valid"
+    if (typeof address !== "string" || !address) {
+      console.warn(`Alamat tidak valid: ${address}`);
+      return "alamat tidak valid";
+    }
+
+    // Pecah alamat berdasarkan koma
+    const parts = address.split(",").map((part) => part.trim());
+
+    // Ambil masing-masing bagian sesuai urutan, isi dengan "-" jika tidak ada
+    // const dusun = parts[4] || "-";
+    const desa = parts[3] || "-";
+    const kecamatan = parts[2] || "-";
+    const kabupaten = parts[1]?.replace(/KAB\. /i, "") || "-"; // Hapus "KAB." jika ada
+    const provinsi = parts[0] || "-";
+
+    // Validasi bahwa setidaknya satu bagian selain "-" harus terisi
+    const isValid =
+      desa !== "-" ||
+      kecamatan !== "-" ||
+      kabupaten !== "-" ||
+      provinsi !== "-";
+
+    if (!isValid) {
+      console.warn(`Alamat tidak valid: ${address}`);
+      return "alamat tidak valid";
+    }
+
+    // Return dalam bentuk object
+    return { desa, kecamatan, kabupaten, provinsi };
+  }
+
+  const generateDefaultTanggalLahir = () => {
+    const randomDate = new Date(
+      Math.floor(Math.random() * 100) + 1920,
+      Math.floor(Math.random() * 12),
+      Math.floor(Math.random() * 28)
+    );
+    return randomDate.toISOString().split("T")[0];
+  };
+
+  const generateDefaultPhoneNumber = () => {
+    const randomNumber = Math.floor(1000000000 + Math.random() * 9000000000); // 10 digit dimulai dengan 8
+    return `8${randomNumber.toString().substring(1)}`; // Tambahkan 8 di depan
+  };
+
+  // const validateEmail = (email) => {
+  //   // Jika email tidak valid (null, undefined, atau bukan string), gunakan default
+  //   if (typeof email !== "string" || !email.includes("@")) {
+  //     console.warn(
+  //       `Email tidak valid: ${email}. Menggunakan email default.`
+  //     );
+  //     return "default@gmail.com"; // Email default
+  //   }
+  //   // Jika valid, kembalikan email
+  //   return email;
+  // };
+
   // Save imported data
   const saveImportedData = async () => {
-    const { importedData, peternaks } = { importedData, peternaks }; // Destructure from state
+    // const { importedData, peternaks } = { importedData, peternaks }; // Destructure from state
     let errorCount = 0;
-
+    const dataPeternakToSaveArray = [];
+    const dataUserToSaveArray = [];
     try {
       for (const row of importedData) {
+        const pecahAlamat = parseAddress(
+          row[
+            columnMapping["Alamat Pemilik Ternak**)"] || columnMapping["lokasi"]
+          ]
+        );
+
+        const validateEmail = (email) => {
+          // Jika email tidak valid (null, undefined, atau bukan string), gunakan default
+          if (typeof email !== "string" || !email.includes("@")) {
+            console.warn(
+              `Email tidak valid: ${email}. Menggunakan email default.`
+            );
+            return `${
+              row[
+                columnMapping["Nama Pemilik Ternak**)"] || columnMapping["nama"]
+              ]
+            }@gmail.com`; // Email default
+          }
+          // Jika valid, kembalikan email
+          return email;
+        };
         const role = "3";
         const dataToSaveUser = {
-          name: row[columnMapping["Nama Pemilik Ternak**)"]],
-          username: row[columnMapping["NIK Pemilik Ternak**)"]],
-          email: `${row[columnMapping["Nama Pemilik Ternak**)"]]}@gmail.com`,
-          password: row[columnMapping["NIK Pemilik Ternak**)"]],
-          roles: role,
+          id: row[columnMapping["ID Peternak"]],
+          name: row[
+            columnMapping["Nama Pemilik Ternak**)"] || columnMapping["nama"]
+          ],
+          nik:
+            row[columnMapping["NIK Peternak"]] ||
+            row[columnMapping["ID Peternak"]],
+          username:
+            row[columnMapping["NIK Peternak"]] ||
+            row[columnMapping["ID Peternak"]],
+          email: `${
+            row[
+              columnMapping["Nama Pemilik Ternak**)"] || columnMapping["nama"]
+            ]
+          }@gmail.com`,
+          password: `${
+            row[columnMapping["NIK Peternak"]] ||
+            row[columnMapping["ID Peternak"]]
+          }@123`,
+          alamat:
+            row[
+              columnMapping["Alamat Pemilik Ternak**)"] ||
+                columnMapping["lokasi"]
+            ],
+          role: role,
           photo: kandangSapi,
         };
 
         const dataToSavePeternak = {
-          idPeternak: row[columnMapping["NIK Pemilik Ternak**)"]],
-          nikPeternak: row[columnMapping["NIK Pemilik Ternak**)"]],
+          idPeternak: row[columnMapping["ID Peternak"]],
+          nikPeternak:
+            row[columnMapping["NIK Peternak"]] ||
+            row[columnMapping["ID Peternak"]],
           namaPeternak:
             row[
               columnMapping["Nama Pemilik Ternak**)"] || columnMapping["nama"]
             ],
+          noTelepon:
+            row[columnMapping["No. Telp Pemilik Ternak*)"]] ||
+            generateDefaultPhoneNumber(),
+          email: validateEmail(row[columnMapping["Email Pemilik Ternak"]]),
+          // dusun: pecahAlamat.dusun,
+          desa: pecahAlamat.desa,
+          kecamatan: pecahAlamat.kecamatan,
+          kabupaten: pecahAlamat.kabupaten,
+          provinsi: pecahAlamat.provinsi,
+          jenisKelamin: row[columnMapping["Jenis Kelamin"]] || "-",
+          tanggalLahir:
+            row[columnMapping["Tanggal Lahir Pemilik Ternak"]] ||
+            generateDefaultTanggalLahir(),
           lokasi:
             row[
               columnMapping["Alamat Pemilik Ternak**)"] ||
                 columnMapping["lokasi"]
             ],
-          petugas_id:
+          alamat:
             row[
-              columnMapping["Petugas Pendaftar"] ||
-                columnMapping["NIK Petugas Pendataan*)"]
+              columnMapping["Alamat Pemilik Ternak**)"] ||
+                columnMapping["lokasi"]
             ],
+          idIsikhnas: row[columnMapping["ID iSIKHNAS"]] || "-",
+          latitude: row[columnMapping["latitude"]] || "-",
+          longitude: row[columnMapping["longitude"]] || "-",
+          namaPetugas: row[columnMapping["Petugas Pendaftar"]] || "-",
           tanggalPendaftaran:
             row[columnMapping["Tanggal Pendataan"]] ||
             convertToJSDate(row[columnMapping["Tanggal Pendaftaran"]]),
@@ -352,6 +479,11 @@ const Peternak = () => {
         const existingPeternakIndex = peternaks.findIndex(
           (p) => p.idPeternak === dataToSavePeternak.idPeternak
         );
+
+        dataPeternakToSaveArray.push(dataToSavePeternak);
+        dataUserToSaveArray.push(dataToSaveUser);
+        console.log("DATA PETERNAK TO SAVE : ", dataPeternakToSaveArray);
+        console.log("Data User : ", dataUserToSaveArray);
 
         try {
           if (existingPeternakIndex > -1) {
@@ -367,8 +499,8 @@ const Peternak = () => {
             });
           } else {
             // Add new data
-            await addPeternak(dataToSavePeternak);
-            await register(dataToSaveUser);
+            await addPeternakImport(dataPeternakToSaveArray);
+            await addUserBulk(dataUserToSaveArray);
             setPeternaks((prevPeternaks) => [
               ...prevPeternaks,
               dataToSavePeternak,
@@ -521,10 +653,9 @@ const Peternak = () => {
         key: "namaPetugas",
       },
       {
-        title: "Tanggal Pendaftaran",
-        dataIndex: "tanggalPendaftaran",
-        key: "tanggalPendaftaran",
-        render: (text) => moment(text).format("DD/MM/YYYY"),
+        title: "Tanggal Lahir",
+        dataIndex: "tanggalLahir",
+        key: "tanggalLahir",
       },
     ];
 
@@ -645,6 +776,7 @@ const Peternak = () => {
         rowData={viewRowData}
       />
       {/* Import Modal */}
+
       <Modal
         title="Import File"
         visible={importModalVisible}
@@ -663,19 +795,14 @@ const Peternak = () => {
           </Button>,
         ]}
       >
-        <Upload
-          beforeUpload={handleFileImport}
-          accept=".xlsx, .xls, .csv"
-          multiple={false}
-          showUploadList={false}
-        >
+        <Upload beforeUpload={handleFileImport} accept=".xlsx, .xls, .csv">
           <Button icon={<UploadOutlined />}>Pilih File</Button>
         </Upload>
-        {fileName && (
+        {/* {fileName && (
           <div style={{ marginTop: 10 }}>
             <strong>File Terpilih:</strong> {fileName}
           </div>
-        )}
+        )} */}
       </Modal>
     </div>
   );

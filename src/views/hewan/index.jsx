@@ -380,13 +380,14 @@ const Hewan = () => {
           idPetugas: row[mapping["ID Petugas"]] || "-",
           idKandang: row[mapping["ID Kandang"]] || "-",
           idHewan: generateIdHewan,
+          rumpunHewan: row[mapping["Rumpun Ternak"]] || "-",
           kodeEartagNasional: row[mapping["Kode Eartag Nasional"]] || "-",
           noKartuTernak: row[mapping["No Kartu Ternak"]] || "-",
           peternak_id: peternakId, // Gunakan ID Peternak untuk peternak_id
           nikPeternak: nikPeternak,
           namaPeternak: row[mapping["Nama Peternak"]] || "-",
           kandang_id: row[mapping["ID Kandang"]] || "-",
-          // namaKandang: `Kandang ${dataPeternak.namaPeternak}`,
+          namaKandang: `Kandang ${row[mapping["Nama Peternak"]] || "-"}`,
           spesies: spesies, // Menggunakan spesies yang sudah digabungkan
           jenis: jenis, // Masukkan spesies ke dalam kolom jenis
           sex: row[mapping["Jenis Kelamin**"]] || row[mapping["sex"]] || "-",

@@ -17,6 +17,7 @@ const RumpunHewan = React.lazy(() => import("@/views/rumpun-hewan"));
 const TujuanPemeliharaan = React.lazy(() => import("@/views/tujuan-pemeliharaan"));
 const JenisVaksin = React.lazy(() => import("@/views/jenis-vaksin"));
 const NamaVaksin = React.lazy(() => import("@/views/nama-vaksin"));
+const User = React.lazy(()=>import("@/views/user"));
 
 export default [
   {
@@ -98,5 +99,10 @@ export default [
     path: "/rumpun-hewan",
     component: RumpunHewan,
     roles: ["ROLE_ADMINISTRATOR", "ROLE_PETUGAS", "ROLE_PETERNAK"],
+  },
+  {
+    path: "/users",
+    component: User,
+    roles: ["ROLE_ADMINISTRATOR"],
   },
 ];
