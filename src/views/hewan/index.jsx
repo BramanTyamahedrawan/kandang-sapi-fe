@@ -381,7 +381,7 @@ const Hewan = () => {
           idPetugas: row[mapping["ID Petugas"]] || generateIdPetugas,
           idKandang: row[mapping["ID Kandang"]] || "-",
           idHewan: generateIdHewan,
-          rumpunHewan: rumpunHewan,
+          rumpun: rumpunHewan,
           tujuanPemeliharaan: tujuanPemeliharaan,
           kodeEartagNasional: row[mapping["Kode Eartag Nasional"]] || "-",
           noKartuTernak: row[mapping["No Kartu Ternak"]] || "-",
