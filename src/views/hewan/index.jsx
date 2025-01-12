@@ -313,6 +313,7 @@ const Hewan = () => {
     const dataToSaveArray = []; // Array untuk menampung semua data yang akan disimpan
 
     try {
+      const uniqueData = new Map();
       console.log("Imported Data:", importedData); // Memastikan importedData berisi data yang benar
       for (const row of importedData) {
         const generateIdHewan = uuidv4();
@@ -364,14 +365,24 @@ const Hewan = () => {
         const spesies = row[mapping["Jenis Ternak"]] || row[mapping["Spesies"]];
         const jenis = spesies; // Jika tidak ada spesies, gunakan "-"
 
+        const rumpunHewan = row[mapping["Rumpun Ternak"]] || "Nama rumpun tidak ditemukan waktu import hewan";
+        if (!uniqueData.has(rumpunHewan)) {
+          uniqueData.set(rumpunHewan, true); // Menambahkan rumpun ke dalam Map jika belum ada
+        }
+
+        const tujuanPemeliharaan = row[mapping["Tujuan Pemeliharaan"]] || "Tujuan pemeiharaan tidak ditemukan waktu import hewan";
+        if (!uniqueData.has(tujuanPemeliharaan)) {
+          uniqueData.set(tujuanPemeliharaan, true);
+        }
+
         // Jika NIK ada, maka gunakan NIK untuk kolom nikPeternak dan peternak_id
         // Jika NIK tidak ada, gunakan ID Peternak untuk keduanya
         const dataToSave = {
           idPetugas: row[mapping["ID Petugas"]] || generateIdPetugas,
           idKandang: row[mapping["ID Kandang"]] || "-",
           idHewan: generateIdHewan,
-          rumpunHewan: row[mapping["Rumpun Ternak"]],
-          tujuanPemeliharaan: row[mapping["Tujuan Pemeliharaan"]],
+          rumpunHewan: rumpunHewan,
+          tujuanPemeliharaan: tujuanPemeliharaan,
           kodeEartagNasional: row[mapping["Kode Eartag Nasional"]] || "-",
           noKartuTernak: row[mapping["No Kartu Ternak"]] || "-",
           peternak_id: peternakId, // Gunakan ID Peternak untuk peternak_id
