@@ -19,7 +19,7 @@ export function getKelahiranByPeternak(peternakID) {
   return request({
     url: "/kelahiran",
     method: "get",
-    params:{peternakID : peternakID}
+    params: { peternakID: peternakID },
   });
 }
 
@@ -35,6 +35,14 @@ export function deleteKelahiran(data) {
   return request({
     url: `/kelahiran/${data.idKejadian}`,
     method: "delete",
+    data,
+  });
+}
+
+export function addKelahiranBulk(data) {
+  return request({
+    url: "/kelahiran/bulk",
+    method: "post",
     data,
   });
 }

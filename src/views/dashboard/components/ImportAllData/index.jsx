@@ -518,7 +518,7 @@ export default class ImportAllData extends Component {
           nikPeternak: cleanNik(row[columnMapping["NIK Pemilik Ternak**)"]]),
           namaPeternak: row[columnMapping["Nama Pemilik Ternak**)"]] || "-",
           noTelepon:
-            row[columnMapping["No. Telp Pemilik Ternak*)"]] ||
+            row[columnMapping["No Telp. Pemilik Ternak**)"]] ||
             generateDefaultPhoneNumber(),
           email: validateEmail(row[columnMapping["Email Pemilik Ternak"]]),
           nikPetugas: cleanNik(row[columnMapping["NIK Petugas Pendataan*)"]]),
@@ -527,9 +527,9 @@ export default class ImportAllData extends Component {
           desa: pecahAlamat.desa,
           kecamatan: pecahAlamat.kecamatan,
           kabupaten: pecahAlamat.kabupaten,
-          tanggalLahir:
-            row[columnMapping["Tanggal Lahir Pemilik*)"]] ||
-            generateDefaultTanggalLahir(),
+          tanggalLahir: formatDateToString(
+            row[columnMapping["Tanggal Lahir Pemilik Ternak"]] || "_ "
+          ),
           idIsikhnas: row[columnMapping["ID Isikhnas*)"]] || "-",
           latitude: row[columnMapping["latitude"]],
           longitude: row[columnMapping["longitude"]],
@@ -636,46 +636,30 @@ export default class ImportAllData extends Component {
         };
 
         // Jenis Vaksin
-        let dataJenisVaksin;
-        if (!uniqueData.has(row[columnMapping["Jenis Vaksin**)"]])) {
-          dataJenisVaksin = {
-            idJenisVaksin: generateIdJenisVaksin,
-            namaVaksin:
-              row[columnMapping["Jenis Vaksin**)"]] ||
-              "Jenis Vaksin Tidak Valid",
-            deskripsi:
-              "Deskripsi " +
-              getValidData(row, columnMapping, "Jenis Vaksin**)"),
-          };
-          jenisVaksinBulk.push(dataJenisVaksin);
-          uniqueData.set(row[columnMapping["Jenis Vaksin**)"]], true);
-        }
+        const dataJenisVaksin = {
+          idJenisVaksin: generateIdJenisVaksin,
+          namaVaksin:
+            row[columnMapping["Jenis Vaksin**)"]] || "Jenis Vaksin Tidak Valid",
+          deskripsi:
+            "Deskripsi " + getValidData(row, columnMapping, "Jenis Vaksin**)"),
+        };
 
-
-        // Nama Vaksin
-        let dataNamaVaksin;
-
-        if (!uniqueData.has(row[columnMapping["Nama Vaksin**)"]])) {
-          const dataNamaVaksin = {
-            idNamaVaksin: generateIdNamaVaksin,
-            idJenisVaksin: dataJenisVaksin
-              ? dataJenisVaksin.idJenisVaksin
-              : generateIdJenisVaksin,
-            namaVaksin:
-              row[columnMapping["Nama Vaksin**)"]] || "Nama Vaksin Tidak Valid",
-            deskripsi:
-              "Deskripsi " + getValidData(row, columnMapping, "Nama Vaksin**)"),
-          };
-          namaVaksinBulk.push(dataNamaVaksin);
-          uniqueData.set(row[columnMapping["Nama Vaksin**)"]], true);
-        }
+        const dataNamaVaksin = {
+          idNamaVaksin: generateIdNamaVaksin,
+          idJenisVaksin: dataJenisVaksin
+            ? dataJenisVaksin.idJenisVaksin
+            : generateIdJenisVaksin,
+          namaVaksin:
+            row[columnMapping["Nama Vaksin**)"]] || "Nama Vaksin Tidak Valid",
+          deskripsi:
+            "Deskripsi " + getValidData(row, columnMapping, "Nama Vaksin**)"),
+        };
 
         // data vaksin
         const dataVaksin = {
           idVaksin: generateIdVaksin,
 
           jenisVaksin:
-
             row[columnMapping["Jenis Vaksin**)"]] || "Jenis Vaksin Tidak Valid",
           namaVaksin:
             row[columnMapping["Nama Vaksin**)"]] || "Nama Vaksin Tidak Valid",
@@ -689,8 +673,9 @@ export default class ImportAllData extends Component {
           batchVaksin: row[columnMapping["Batch Vaksin**)"]],
           vaksinKe: row[columnMapping["Vaksin ke-**)"]],
 
-          tglVaksin: formatDateToString(row[columnMapping["Tanggal Vaksin**)"]]),
-
+          tglVaksin: formatDateToString(
+            row[columnMapping["Tanggal Vaksin**)"]]
+          ),
         };
 
         console.log("Data Vaksin:", dataVaksin);
@@ -702,6 +687,8 @@ export default class ImportAllData extends Component {
         peternakBulk.push(dataPeternak);
         kandangBulk.push(dataKandang);
         ternakHewanBulk.push(dataTernakHewan);
+        jenisVaksinBulk.push(dataJenisVaksin);
+        namaVaksinBulk.push(dataNamaVaksin);
         vaksinBulk.push(dataVaksin);
       }
 

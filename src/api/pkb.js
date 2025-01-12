@@ -19,7 +19,7 @@ export function getPkbByPeternak(peternakID) {
   return request({
     url: "/pkb",
     method: "get",
-    params:{peternakID:peternakID}
+    params: { peternakID: peternakID },
   });
 }
 
@@ -35,6 +35,14 @@ export function deletePkb(data) {
   return request({
     url: `/pkb/${data.idKejadian}`,
     method: "delete",
+    data,
+  });
+}
+
+export function addPkbImport(data) {
+  return request({
+    url: "/pkb/import",
+    method: "post",
     data,
   });
 }

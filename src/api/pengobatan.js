@@ -30,3 +30,11 @@ export function deletePengobatan(data) {
     data,
   });
 }
+
+export function addPengobatanImport(data) {
+  return request({
+    url: "/pengobatan/import",
+    method: "post",
+    data,
+  });
+}

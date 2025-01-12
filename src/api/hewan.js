@@ -147,6 +147,14 @@ export function addHewanImport(data) {
   });
 }
 
+export function addHewanBulkImport(data) {
+  return request({
+    url: "/hewan/bulkNama",
+    method: "post",
+    data: data, // Mengirim FormData dengan file
+  });
+}
+
 export function addTernakBulk(data) {
   return request({
     url: "/hewan/bulk",

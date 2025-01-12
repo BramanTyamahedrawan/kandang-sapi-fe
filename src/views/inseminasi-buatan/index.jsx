@@ -20,6 +20,7 @@ import {
   deleteInseminasi,
   editInseminasi,
   addInseminasi,
+  addInseminasiImport,
 } from "@/api/inseminasi";
 import { getPetugas } from "@/api/petugas";
 import { UploadOutlined } from "@ant-design/icons";
@@ -28,6 +29,60 @@ import AddInseminasiBuatanForm from "./forms/add-inseminasi-form";
 import EditInseminasiBuatanForm from "./forms/edit-inseminasi-form";
 import TypingCard from "@/components/TypingCard";
 import { reqUserInfo } from "../../api/user";
+import { v4 as uuidv4 } from "uuid";
+import { data } from "react-router-dom";
+
+export const sendInseminasiBuatanImport = async (data, batchSize = 7000) => {
+  const totalBatches = Math.ceil(data.length / batchSize);
+
+  for (let i = 0; i < totalBatches; i++) {
+    const batchData = data.slice(i * batchSize, (i + 1) * batchSize);
+
+    try {
+      console.log(`Data Inseminasi Buatan (Batch ${i + 1}):`, batchData); // Log data yang dikirim
+      const response = await addInseminasiImport(batchData);
+      console.log(
+        `Batch ${i + 1}/${totalBatches} berhasil dikirim`,
+        response.data
+      );
+    } catch (error) {
+      console.error(
+        `Batch ${i + 1}/${totalBatches} gagal dikirim`,
+        error.response?.data || error.message
+      );
+      throw error; // Hentikan proses jika batch gagal
+    }
+  }
+};
+
+function parseLocation(lokasi) {
+  // Pastikan lokasi berupa string, jika tidak kembalikan "lokasi tidak valid"
+  if (typeof lokasi !== "string" || !lokasi) {
+    console.warn(`Alamat tidak valid: ${lokasi}`);
+    return "alamat tidak valid";
+  }
+
+  // Pecah alamat berdasarkan koma
+  const parts = lokasi.split(",").map((part) => part.trim());
+
+  // Ambil masing-masing bagian sesuai urutan, isi dengan "-" jika tidak ada
+  const provinsi = parts[0] || "-";
+  const kabupaten = parts[1]?.replace(/KAB\. /i, "") || "-"; // Hapus "KAB." jika ada
+  const kecamatan = parts[2] || "-";
+  const desa = parts[3] || "-";
+
+  // Validasi bahwa setidaknya satu bagian selain "-" harus terisi
+  const isValid =
+    desa !== "-" || kecamatan !== "-" || kabupaten !== "-" || provinsi !== "-";
+
+  if (!isValid) {
+    console.warn(`Lokasi tidak valid: ${lokasi}`);
+    return "lokasi tidak valid";
+  }
+
+  // Return dalam bentuk object
+  return { provinsi, kabupaten, kecamatan, desa };
+}
 
 class InseminasiBuatan extends Component {
   state = {
@@ -323,66 +378,202 @@ class InseminasiBuatan extends Component {
       });
   };
 
+  // data save import lama
+
+  // saveImportedData = async (columnMapping) => {
+  //   const { importedData, inseminasis, petugas } = this.state;
+  //   let errorCount = 0;
+
+  //   try {
+  //     for (const row of importedData) {
+  //       const petugasNama = row[columnMapping["Inseminator"]]?.toLowerCase();
+  //       const petugasData = petugas.find(
+  //         (p) => p.namaPetugas.toLowerCase() === petugasNama
+  //       );
+  //       const petugasId = petugasData ? petugasData.nikPetugas : null;
+  //       console.log(
+  //         `Mencocokkan nama petugas: ${petugasNama}, Ditemukan: ${
+  //           petugasData ? "Ya" : "Tidak"
+  //         }, petugasId: ${petugasId}`
+  //       );
+  //       const dataToSave = {
+  //         idInseminasi: row[columnMapping["ID"]],
+  //         tanggalIB: this.convertToJSDate(row[columnMapping["Tanggal IB"]]),
+  //         peternak_id: row[columnMapping["ID Peternak"]],
+  //         hewan_id: row[columnMapping["ID Hewan"]],
+  //         ib: row[columnMapping["IB 1"]],
+  //         idPejantan: row[columnMapping["ID Pejantan"]],
+  //         idPembuatan: row[columnMapping["ID Pembuatan"]],
+  //         bangsaPejantan: row[columnMapping["Bangsa Pejantan"]],
+  //         produsen: row[columnMapping["Produsen"]],
+  //         petugas_id: petugasId,
+  //       };
+  //       const existingInseminasiIndex = inseminasis.findIndex(
+  //         (p) => p.idInseminasi === dataToSave.idInseminasi
+  //       );
+
+  //       try {
+  //         if (existingInseminasiIndex > -1) {
+  //           // Update existing data
+  //           console.log("Mengupdate data:", dataToSave);
+  //           // await editInseminasi(dataToSave, dataToSave.idInseminasi);
+  //           this.setState((prevState) => {
+  //             const updatedInseminasi = [...prevState.inseminasis];
+  //             updatedInseminasi[existingInseminasiIndex] = dataToSave;
+  //             return { inseminasis: updatedInseminasi };
+  //           });
+  //         } else {
+  //           // Add new data
+  //           console.log("Menyimpan data:", dataToSave);
+  //           // await addInseminasi(dataToSave);
+  //           this.setState((prevState) => ({
+  //             inseminasis: [...prevState.inseminasis, dataToSave],
+  //           }));
+  //         }
+  //       } catch (error) {
+  //         errorCount++;
+  //         console.error("Gagal menyimpan data:", error);
+  //       }
+  //     }
+
+  //     if (errorCount === 0) {
+  //       message.success(`Semua data berhasil disimpan.`);
+  //     } else {
+  //       message.error(`${errorCount} data gagal disimpan, harap coba lagi!`);
+  //     }
+  //   } catch (error) {
+  //     console.error("Gagal memproses data:", error);
+  //   } finally {
+  //     this.setState({
+  //       importedData: [],
+  //       columnTitles: [],
+  //       columnMapping: {},
+  //     });
+  //   }
+  // };
+
+  // ================================================
+  // data save import baru
+
   saveImportedData = async (columnMapping) => {
-    const { importedData, inseminasis, petugas } = this.state;
+    const { importedData } = this.state;
     let errorCount = 0;
 
     try {
-      for (const row of importedData) {
-        const petugasNama = row[columnMapping["Inseminator"]]?.toLowerCase();
-        const petugasData = petugas.find(
-          (p) => p.namaPetugas.toLowerCase() === petugasNama
-        );
-        const petugasId = petugasData ? petugasData.nikPetugas : null;
-        console.log(
-          `Mencocokkan nama petugas: ${petugasNama}, Ditemukan: ${
-            petugasData ? "Ya" : "Tidak"
-          }, petugasId: ${petugasId}`
-        );
-        const dataToSave = {
-          idInseminasi: row[columnMapping["ID"]],
-          tanggalIB: this.convertToJSDate(row[columnMapping["Tanggal IB"]]),
-          peternak_id: row[columnMapping["ID Peternak"]],
-          hewan_id: row[columnMapping["ID Hewan"]],
-          ib: row[columnMapping["IB 1"]],
-          idPejantan: row[columnMapping["ID Pejantan"]],
-          idPembuatan: row[columnMapping["ID Pembuatan"]],
-          bangsaPejantan: row[columnMapping["Bangsa Pejantan"]],
-          produsen: row[columnMapping["Produsen"]],
-          petugas_id: petugasId,
-        };
-        const existingInseminasiIndex = inseminasis.findIndex(
-          (p) => p.idInseminasi === dataToSave.idInseminasi
-        );
+      const uniqueData = new Map();
 
-        try {
-          if (existingInseminasiIndex > -1) {
-            // Update existing data
-            console.log("Mengupdate data:", dataToSave);
-            // await editInseminasi(dataToSave, dataToSave.idInseminasi);
-            this.setState((prevState) => {
-              const updatedInseminasi = [...prevState.inseminasis];
-              updatedInseminasi[existingInseminasiIndex] = dataToSave;
-              return { inseminasis: updatedInseminasi };
-            });
-          } else {
-            // Add new data
-            console.log("Menyimpan data:", dataToSave);
-            // await addInseminasi(dataToSave);
-            this.setState((prevState) => ({
-              inseminasis: [...prevState.inseminasis, dataToSave],
-            }));
+      const inseminasiBuatan = [];
+
+      for (const row of importedData) {
+        const generateIdInseminasi = uuidv4();
+        const generateIdHewan = uuidv4();
+
+        const formatDateToString = (dateString) => {
+          // Jika dateString adalah angka (seperti nilai dari Excel)
+          if (!isNaN(dateString)) {
+            // Excel menganggap angka tersebut sebagai jumlah hari sejak 01/01/1900
+            // Konversi angka menjadi milidetik
+            const excelEpoch = new Date(1900, 0, 1).getTime(); // 1 Januari 1900
+            const milliseconds = dateString * 86400000; // 86400000 ms dalam 1 hari
+            const date = new Date(excelEpoch + milliseconds);
+
+            // Format tanggal dan waktu menjadi string
+            const day = String(date.getDate()).padStart(2, "0");
+            const month = String(date.getMonth() + 1).padStart(2, "0"); // Bulan dimulai dari 0
+            const year = date.getFullYear();
+            const hours = String(date.getHours()).padStart(2, "0");
+            const minutes = String(date.getMinutes()).padStart(2, "0");
+            const seconds = String(date.getSeconds()).padStart(2, "0");
+
+            return `${day}/${month}/${year} ${hours}:${minutes}:${seconds}`;
           }
-        } catch (error) {
-          errorCount++;
-          console.error("Gagal menyimpan data:", error);
-        }
+
+          // Jika dateString adalah string yang valid dengan format DD/MM/YYYY atau DD/MM/YYYY HH:mm:ss
+          if (typeof dateString === "string" && dateString.includes(" ")) {
+            const [datePart, timePart] = dateString.split(" ");
+            const [day, month, year] = datePart.split("/");
+
+            return `${year}-${month.padStart(2, "0")}-${day.padStart(
+              2,
+              "0"
+            )} ${timePart}`;
+          } else if (typeof dateString === "string") {
+            const [day, month, year] = dateString.split("/");
+            return `${year}-${month.padStart(2, "0")}-${day.padStart(2, "0")}`;
+          }
+
+          // Jika format tidak dikenali
+          return "Invalid Date";
+        };
+
+        const validateEmail = (email) => {
+          // Jika email tidak valid (null, undefined, atau bukan string), gunakan default
+          if (typeof email !== "string" || !email.includes("@")) {
+            console.warn(
+              `Email tidak valid: ${email}. Menggunakan email default.`
+            );
+            return "default@gmail.com"; // Email default
+          }
+          // Jika valid, kembalikan email
+          return email;
+        };
+
+        const pecahLokasi = parseLocation(
+          row[columnMapping["Lokasi"]] || row[columnMapping["Alamat"]] || "-"
+        );
+        // const setEmail =;
+
+        console.log("Row Data:", row);
+
+        // data vaksin
+        const dataInseminasi = {
+          idInseminasi: row[columnMapping["ID"]] || generateIdInseminasi,
+          tanggalIB:
+            formatDateToString(row[columnMapping["Tanggal IB"]]) || "-",
+          lokasi: row[columnMapping["Lokasi"]] || "-",
+          desa: pecahLokasi.desa,
+          kecamatan: pecahLokasi.kecamatan,
+          kabupaten: pecahLokasi.kabupaten,
+          provinsi: pecahLokasi.provinsi,
+          namaPeternak: row[columnMapping["Nama Peternak"]] || "-",
+          idPeternak: row[columnMapping["ID Peternak"]] || "-",
+          nikPeternak: row[columnMapping["NIK Peternak"]] || "NIK Kosong",
+          idHewan: row[columnMapping["ID Hewan"]] || generateIdHewan,
+          kodeEartagNasional: row[columnMapping["eartag"]] || "-",
+          ib1: row[columnMapping["IB 1"]] || "-",
+          ib2: row[columnMapping["IB 2"]] || "-",
+          ib3: row[columnMapping["IB 3"]] || "-",
+          ibLain: row[columnMapping["IB lain"]] || "-",
+          idPejantan: row[columnMapping["ID Pejantan"]] || "-",
+          idPembuatan: row[columnMapping["ID Pembuatan"]] || "-",
+          bangsaPejantan: row[columnMapping["Bangsa Pejantan"]] || "-",
+          produsen: row[columnMapping["Produsen"]] || "-",
+          namaPetugas: row[columnMapping["Inseminator"]] || "-",
+          nikPetugas: row[columnMapping["NIK Petugas"]] || "NIK Kosong",
+        };
+
+        console.log("Data Vaksin:", dataInseminasi);
+
+        inseminasiBuatan.push(dataInseminasi);
+      }
+
+      // Send bulk data to server
+      try {
+        await sendInseminasiBuatanImport(inseminasiBuatan);
+      } catch (error) {
+        console.error(
+          "Gagal menyimpan data secara bulk:",
+          error,
+          error.response?.data
+        );
       }
 
       if (errorCount === 0) {
         message.success(`Semua data berhasil disimpan.`);
       } else {
-        message.error(`${errorCount} data gagal disimpan, harap coba lagi!`);
+        message.error(
+          `${errorCount} data gagal disimpan karena duplikasi data!`
+        );
       }
     } catch (error) {
       console.error("Gagal memproses data:", error);
@@ -487,21 +678,46 @@ class InseminasiBuatan extends Component {
       { title: "Tanggal IB", dataIndex: "tanggalIB", key: "tanggalIB" },
       {
         title: "Nama Peternak",
-        dataIndex: "peternak.namaPeternak",
+        dataIndex: ["peternak", "namaPeternak"],
         key: "namaPeternak",
       },
-      {
-        title: "NIK Peternak",
-        dataIndex: "peternak.nikPeternak",
-        key: "nikPeternak",
-      },
-      { title: "Lokasi", dataIndex: "peternak.lokasi", key: "lokasi" },
+      // {
+      //   title: "NIK Peternak",
+      //   dataIndex: ["peternak", "nikPeternak"],
+      //   key: "nikPeternak",
+      // },
+      { title: "Lokasi", dataIndex: "lokasi", key: "lokasi" },
       {
         title: "Kode Eartag",
-        dataIndex: "hewan.kodeEartagNasional",
+        dataIndex: ["hewan", "kodeEartagNasional"],
         key: "kodeEartagNasional",
       },
-      { title: "IB", dataIndex: "ib", key: "ib" },
+      {
+        title: "IB",
+        key: "ib",
+        render: (text, record) => {
+          const { ib1, ib2, ib3, ibLain } = record;
+
+          const ibValues = [
+            { label: "IB1", value: ib1 },
+            { label: "IB2", value: ib2 },
+            { label: "IB3", value: ib3 },
+            { label: "IB Lain", value: ibLain },
+          ];
+
+          const validIB = ibValues
+            .filter(
+              (ib) =>
+                ib.value &&
+                ib.value !== "-" &&
+                ib.value !== null &&
+                ib.value !== undefined
+            )
+            .map((ib) => `${ib.label}: ${ib.value}`); // Gabungkan label dan nilai
+
+          return validIB.length > 0 ? validIB.join(", ") : "Tidak ada IB";
+        },
+      },
       { title: "ID Pejantan", dataIndex: "idPejantan", key: "idPejantan" },
       { title: "ID Pembuatan", dataIndex: "idPembuatan", key: "idPembuatan" },
       {
@@ -512,7 +728,7 @@ class InseminasiBuatan extends Component {
       { title: "Produsen", dataIndex: "produsen", key: "produsen" },
       {
         title: "inseminator",
-        dataIndex: "petugas.namaPetugas",
+        dataIndex: ["petugas", "namaPetugas"],
         key: "inseminator",
       },
     ];
@@ -618,8 +834,8 @@ class InseminasiBuatan extends Component {
       </Row>
     );
 
-    const { role } = user ? user.role : "";
-    console.log("peran pengguna:", role);
+    // const { role } = user ? user.role : "";
+    // console.log("peran pengguna:", role);
     const cardContent = `Di sini, Anda dapat mengelola daftar inseminasi di sistem.`;
 
     return (

@@ -1,5 +1,5 @@
-import request from '@/utils/request'
-import { v4 as uuidv4 } from 'uuid'
+import request from "@/utils/request";
+import { v4 as uuidv4 } from "uuid";
 
 /**
  * Tambah peternak baru
@@ -10,11 +10,11 @@ export function addPeternak(data) {
   const updatedData = {
     ...data,
     idPeternak: uuidv4(),
-  }
+  };
 
-  console.log('Data yang dikirim ke backend:', updatedData)
+  console.log("Data yang dikirim ke backend:", updatedData);
 
-  return request.post('/peternak', updatedData)
+  return request.post("/peternak", updatedData);
 }
 
 /**
@@ -22,7 +22,7 @@ export function addPeternak(data) {
  * @returns {Promise} - Axios response
  */
 export function getPeternaks() {
-  return request.get('/peternak')
+  return request.get("/peternak");
 }
 
 /**
@@ -32,7 +32,7 @@ export function getPeternaks() {
  * @returns {Promise} - Axios response
  */
 export function editPeternak(data, id) {
-  return request.put(`/peternak/${id}`, data)
+  return request.put(`/peternak/${id}`, data);
 }
 
 /**
@@ -41,7 +41,7 @@ export function editPeternak(data, id) {
  * @returns {Promise} - Axios response
  */
 export function deletePeternak(idPeternak) {
-  return request.delete(`/peternak/${idPeternak}`)
+  return request.delete(`/peternak/${idPeternak}`);
 }
 
 /**
@@ -50,14 +50,13 @@ export function deletePeternak(idPeternak) {
  * @returns {Promise} - Axios response
  */
 export const getPeternakById = (id) => {
-  return request.get(`/peternak/${id}`)
+  return request.get(`/peternak/${id}`);
+};
+
+export function addPeternakBulkByNama(data) {
+  return request.post("/peternak/bulkNama", data);
 }
 
-/**
- * Tambah peternak secara massal
- * @param {Array} data - Array data peternak
- * @returns {Promise} - Axios response
- */
 export function addPeternakBulk(data) {
-  return request.post('/peternak/bulk', data)
+  return request.post("/peternak/bulk", data);
 }

@@ -19,7 +19,7 @@ export function getInseminasiByPeternak(peternakID) {
   return request({
     url: "/inseminasi",
     method: "get",
-    params:{peternakID:peternakID}
+    params: { peternakID: peternakID },
   });
 }
 
@@ -35,6 +35,22 @@ export function deleteInseminasi(data) {
   return request({
     url: `/inseminasi/${data.idInseminasi}`,
     method: "delete",
+    data,
+  });
+}
+
+export function addInseminasiImport(data) {
+  return request({
+    url: "/inseminasi/import",
+    method: "post",
+    data,
+  });
+}
+
+export function addInseminsasiBulk(data) {
+  return request({
+    url: "/inseminasi/bulk",
+    method: "post",
     data,
   });
 }
