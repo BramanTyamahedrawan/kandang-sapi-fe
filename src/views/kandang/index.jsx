@@ -448,6 +448,7 @@ const Kandang = () => {
     const baseColumns = [
       { title: 'Id Kandang', dataIndex: 'idKandang', key: 'idKandang' },
       { title: 'Nama Pemilik Kandang', dataIndex: ['peternak', 'namaPeternak'], key: 'namaPeternak' },
+      { title: 'Nama Kandang', dataIndex: 'namaKandang', key: 'namaKandang' },
       { title: 'Jenis Kandang', dataIndex: 'jenisKandang', key: 'jenisKandang' },
       { title: 'Luas', dataIndex: 'luas', key: 'luas' },
       { title: 'Kapasitas', dataIndex: 'kapasitas', key: 'kapasitas' },

@@ -2,7 +2,7 @@
 /* eslint-disable no-unused-vars */
 import { addTujuanPemeliharaan, deleteTujuanPemeliharaan, editTujuanPemeliharaan, getTujuanPemeliharaan } from "@/api/tujuan-pemeliharaan";
 import TypingCard from "@/components/TypingCard";
-import { UploadOutlined } from "@ant-design/icons";
+import { UploadOutlined, EditOutlined, DeleteOutlined } from "@ant-design/icons";
 import { Button, Card, Col, Divider, Input, message, Modal, Row, Table, Upload } from "antd";
 import React, { useEffect, useRef, useState } from "react";
 import { reqUserInfo } from "../../api/user";
@@ -393,9 +393,9 @@ const TujuanPemeliharaan = () => {
         align: "center",
         render: (text, row) => (
           <span>
-            <Button type="primary" shape="circle" icon="edit" title="Edit" onClick={() => handleEditTujuan(row)} />
+            <Button type="primary" shape="circle" icon={<EditOutlined />} title="Edit" onClick={() => handleEditTujuan(row)} />
             <Divider type="vertical" />
-            <Button type="primary" danger shape="circle" icon="delete" title="Delete" onClick={() => handleDeleteTujuan(row)} />
+            <Button type="primary" danger shape="circle" icon={<DeleteOutlined />} title="Delete" onClick={() => handleDeleteTujuan(row)} />
           </span>
         ),
       });

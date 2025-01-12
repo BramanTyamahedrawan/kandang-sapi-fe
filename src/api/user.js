@@ -17,7 +17,7 @@ export function reqUserInfo() {
  * @returns {Promise} - Axios response promise
  */
 export function getUsers() {
-  return request.get('/user/list')
+  return request.get('/users')
 }
 
 /**
@@ -67,7 +67,11 @@ export function reqValidatUserID(data) {
  * @returns {Promise} - Axios response promise
  */
 export function addUser(data) {
-  return request.post('/user/add', data)
+  return request.post('/users', data)
+}
+
+export function addUserBulk(data) {
+  return request.post('/users/bulk', data)
 }
 
 /**

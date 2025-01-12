@@ -60,3 +60,6 @@ export function addPeternakBulkByNama(data) {
 export function addPeternakBulk(data) {
   return request.post("/peternak/bulk", data);
 }
+export function addPeternakImport(data) {
+  return request.post('/peternak/import', data)
+}
