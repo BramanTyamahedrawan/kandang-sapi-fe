@@ -1,25 +1,9 @@
 /* eslint-disable no-unused-vars */
-import {
-  addHewan,
-  deleteHewan,
-  editHewan,
-  getHewans
-} from "@/api/hewan";
+import { addHewan, deleteHewan, editHewan, getHewans } from "@/api/hewan";
 import { getPetugas } from "@/api/petugas";
 import TypingCard from "@/components/TypingCard";
 import { DeleteOutlined, EditOutlined, UploadOutlined } from "@ant-design/icons";
-import {
-  Button,
-  Card,
-  Col,
-  Divider,
-  Input,
-  message,
-  Modal,
-  Row,
-  Table,
-  Upload,
-} from "antd";
+import { Button, Card, Col, Divider, Input, message, Modal, Row, Table, Upload } from "antd";
 import React, { useEffect, useRef, useState } from "react";
 import { v4 as uuidv4 } from "uuid";
 import { read, utils } from "xlsx";
@@ -91,22 +75,11 @@ const Hewan = () => {
 
       if (statusCode === 200) {
         const filteredHewans = content.filter((hewan) => {
-          const {
-            namaPeternak,
-            kodeEartagNasional,
-            petugasPendaftar,
-            provinsi,
-            kecamatan,
-            kabupaten,
-            desa,
-            umur,
-            identifikasiHewan
-          } = hewan;
+          const { namaPeternak, kodeEartagNasional, petugasPendaftar, provinsi, kecamatan, kabupaten, desa, umur, identifikasiHewan } = hewan;
           const keyword = searchKeyword.toLowerCase();
 
           const isNamaPeternakValid = typeof namaPeternak === "string";
-          const isKodeEartagNasionalValid =
-            typeof kodeEartagNasional === "string";
+          const isKodeEartagNasionalValid = typeof kodeEartagNasional === "string";
           const isPetugasPendaftarValid = typeof petugasPendaftar === "string";
           const isProvinsiValid = typeof provinsi === "string";
           const isKecamatanValid = typeof kecamatan === "string";
@@ -116,19 +89,15 @@ const Hewan = () => {
           const isidentifikasiHewanValid = typeof identifikasiHewan === "string";
 
           return (
-            (isNamaPeternakValid &&
-              namaPeternak.toLowerCase().includes(keyword)) ||
-            (isKodeEartagNasionalValid &&
-              kodeEartagNasional.toLowerCase().includes(keyword)) ||
-            (isPetugasPendaftarValid &&
-              petugasPendaftar.toLowerCase().includes(keyword)) ||
+            (isNamaPeternakValid && namaPeternak.toLowerCase().includes(keyword)) ||
+            (isKodeEartagNasionalValid && kodeEartagNasional.toLowerCase().includes(keyword)) ||
+            (isPetugasPendaftarValid && petugasPendaftar.toLowerCase().includes(keyword)) ||
             (isProvinsiValid && provinsi.toLowerCase().includes(keyword)) ||
             (isKecamatanValid && kecamatan.toLowerCase().includes(keyword)) ||
             (isKabupatenValid && kabupaten.toLowerCase().includes(keyword)) ||
             (isDesaValid && desa.toLowerCase().includes(keyword)) ||
             (isUmurValid && umur.toLowerCase().includes(keyword)) ||
-            (isidentifikasiHewanValid &&
-              identifikasiHewan.toLowerCase().includes(keyword))
+            (isidentifikasiHewanValid && identifikasiHewan.toLowerCase().includes(keyword))
           );
         });
         console.log(content);
@@ -256,40 +225,29 @@ const Hewan = () => {
     }
   };
 
-  const convertToJSDate = (input) => {
-    let date;
-    if (typeof input === "number") {
-      const utcDays = Math.floor(input - 25569);
-      const utcValue = utcDays * 86400;
-      const dateInfo = new Date(utcValue * 1000);
-      date = new Date(
-        dateInfo.getFullYear(),
-        dateInfo.getMonth(),
-        dateInfo.getDate()
-      ).toString();
-    } else if (typeof input === "string") {
-      const [day, month, year] = input.split("/");
-      date = new Date(`${year}-${month}-${day}`).toString();
-    }
+  // const convertToJSDate = (input) => {
+  //   let date;
+  //   if (typeof input === "number") {
+  //     const utcDays = Math.floor(input - 25569);
+  //     const utcValue = utcDays * 86400;
+  //     const dateInfo = new Date(utcValue * 1000);
+  //     date = new Date(dateInfo.getFullYear(), dateInfo.getMonth(), dateInfo.getDate()).toString();
+  //   } else if (typeof input === "string") {
+  //     const [day, month, year] = input.split("/");
+  //     date = new Date(`${year}-${month}-${day}`).toString();
+  //   }
 
-    return date;
-  };
+  //   return date;
+  // };
 
   const fetchCoordinates = async (address) => {
     try {
-      const response = await fetch(
-        `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(
-          address
-        )}&format=json`
-      );
+      const response = await fetch(`https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(address)}&format=json`);
       const data = await response.json();
       if (data && data.length > 0) {
         return { lat: data[0].lat, lon: data[0].lon };
       } else {
-        console.error(
-          "No coordinates found for the provided address:",
-          address
-        );
+        console.error("No coordinates found for the provided address:", address);
         return { lat: null, lon: null };
       }
     } catch (error) {
@@ -358,58 +316,85 @@ const Hewan = () => {
       console.log("Imported Data:", importedData); // Memastikan importedData berisi data yang benar
       for (const row of importedData) {
         const generateIdHewan = uuidv4();
-        const address = `${row[mapping["Desa"]]}, ${
-          row[mapping["Kecamatan"]]
-        }, ${row[mapping["Kabupaten"]]}, ${row[mapping["Provinsi"]]}`;
-        // const { lat, lon } = await fetchCoordinates(address);
+        const generateIdPetugas = uuidv4();
+        const generateIdPeternak = uuidv4();
+        const generateIdKandang = uuidv4();
+        const address = `${row[mapping["Desa"]]}, ${row[mapping["Kecamatan"]]}, ${row[mapping["Kabupaten"]]}, ${row[mapping["Provinsi"]]}`;
+        const { lat, lon } = await fetchCoordinates(address);
+
+        const formatDateToString = (dateString) => {
+          // Jika dateString adalah angka (seperti nilai dari Excel)
+          if (!isNaN(dateString)) {
+            // Excel menganggap angka tersebut sebagai jumlah hari sejak 01/01/1900
+            // Konversi angka menjadi milidetik
+            const excelEpoch = new Date(1900, 0, 1).getTime(); // 1 Januari 1900
+            const milliseconds = dateString * 86400000; // 86400000 ms dalam 1 hari
+            const date = new Date(excelEpoch + milliseconds);
+
+            // Format tanggal dan waktu menjadi string
+            const day = String(date.getDate()).padStart(2, "0");
+            const month = String(date.getMonth() + 1).padStart(2, "0"); // Bulan dimulai dari 0
+            const year = date.getFullYear();
+
+            return `${day}/${month}/${year}`;
+          }
+
+          // Jika dateString adalah string yang valid dengan format DD/MM/YYYY atau DD/MM/YYYY HH:mm:ss
+          if (typeof dateString === "string" && dateString.includes(" ")) {
+            const [datePart, timePart] = dateString.split(" ");
+            const [day, month, year] = datePart.split("/");
+
+            return `${year}-${month.padStart(2, "0")}-${day.padStart(2, "0")} ${timePart}`;
+          } else if (typeof dateString === "string") {
+            const [day, month, year] = dateString.split("/");
+            return `${year}-${month.padStart(2, "0")}-${day.padStart(2, "0")}`;
+          }
+
+          // Jika format tidak dikenali
+          return "Invalid Date";
+        };
 
         const validAddress = address || "-";
 
         // Cek apakah ada NIK Peternak, jika tidak ada gunakan ID Peternak
-        const peternakId = row[mapping["ID Peternak"]] || "-";
-        const nikPeternak = row[mapping["NIK Peternak"]] || peternakId; // Gunakan peternak_id jika NIK kosong
+        const peternakId = row[mapping["ID Peternak"]] || generateIdPeternak;
+        const nikPeternak = row[mapping["NIK Peternak"]] || row[mapping["ID Peternak"]]; // Gunakan peternak_id jika NIK kosong
 
         // Gabungkan Rumpun Ternak dengan Spesies, jika ada
-        const spesies =
-          row[mapping["Jenis Ternak"]] || row[mapping["Spesies"]] || "-";
-        const jenis = spesies || "-"; // Jika tidak ada spesies, gunakan "-"
+        const spesies = row[mapping["Jenis Ternak"]] || row[mapping["Spesies"]];
+        const jenis = spesies; // Jika tidak ada spesies, gunakan "-"
 
         // Jika NIK ada, maka gunakan NIK untuk kolom nikPeternak dan peternak_id
         // Jika NIK tidak ada, gunakan ID Peternak untuk keduanya
         const dataToSave = {
-          idPetugas: row[mapping["ID Petugas"]] || "-",
+          idPetugas: row[mapping["ID Petugas"]] || generateIdPetugas,
           idKandang: row[mapping["ID Kandang"]] || "-",
           idHewan: generateIdHewan,
-          rumpunHewan: row[mapping["Rumpun Ternak"]] || "-",
+          rumpunHewan: row[mapping["Rumpun Ternak"]],
+          tujuanPemeliharaan: row[mapping["Tujuan Pemeliharaan"]],
           kodeEartagNasional: row[mapping["Kode Eartag Nasional"]] || "-",
           noKartuTernak: row[mapping["No Kartu Ternak"]] || "-",
           peternak_id: peternakId, // Gunakan ID Peternak untuk peternak_id
           nikPeternak: nikPeternak,
-          namaPeternak: row[mapping["Nama Peternak"]] || "-",
-          kandang_id: row[mapping["ID Kandang"]] || "-",
-          namaKandang: `Kandang ${row[mapping["Nama Peternak"]] || "-"}`,
+          namaPeternak: row[mapping["Nama Peternak"]],
+          kandang_id: row[mapping["ID Kandang"]] || generateIdKandang,
+          namaKandang: `Kandang ${row[mapping["Nama Peternak"]]}`,
           spesies: spesies, // Menggunakan spesies yang sudah digabungkan
           jenis: jenis, // Masukkan spesies ke dalam kolom jenis
           sex: row[mapping["Jenis Kelamin**"]] || row[mapping["sex"]] || "-",
           tempatLahir: row[columnMapping["Tempat Lahir Ternak"]] || "-",
           tanggalLahir: row[columnMapping["Tanggal Lahir Ternak"]] || "-",
-          umur:
-            row[mapping["umur"]] ||
-            "-",
-          // latitude: lat || row[mapping["Latitude"]] || "-",
-          // longitude: lon || row[mapping["Longitude"]] || "-",
+          umur: row[mapping["umur"]] || "-",
+          latitude: lat || row[mapping["Latitude"]] || "-",
+          longitude: lon || row[mapping["Longitude"]] || "-",
           desa: row[mapping["Desa"]] || "-",
           kecamatan: row[mapping["Kecamatan"]] || "-",
           kabupaten: row[mapping["Kabupaten"]] || "-",
           provinsi: row[mapping["Provinsi"]] || "-",
           alamat: validAddress || "-",
           namaPetugas: row[mapping["Petugas Pendaftar"]] || "-",
-          identifikasiHewan:
-            row[mapping["Identifikasi Hewan*"]] ||
-            row[mapping["Identifikasi Hewan"]] ||
-            "-",
-          tanggalTerdaftar:
-            convertToJSDate(row[mapping["Tanggal Terdaftar"]]) || "-",
+          identifikasiHewan: row[mapping["Identifikasi Hewan*"]] || row[mapping["Identifikasi Hewan"]] || "-",
+          tanggalTerdaftar: formatDateToString(row[mapping["Tanggal Terdaftar"]]) || "-",
           file: kandangSapi || "-",
         };
 
@@ -449,19 +434,7 @@ const Hewan = () => {
   };
 
   const convertToCSV = (data) => {
-    const columnTitles = [
-      "Kode Eartag Nasional",
-      "Nama Peternak",
-      "NIK Peternak",
-      "Id Kandang",
-      "Alamat",
-      "Jenis Hewan",
-      "Jenis Kelamin",
-      "Umur",
-      "Identifikasi Hewan",
-      "Petugas Pendaftar",
-      "Tanggal Terdaftar",
-    ];
+    const columnTitles = ["Kode Eartag Nasional", "Nama Peternak", "NIK Peternak", "Id Kandang", "Alamat", "Jenis Hewan", "Jenis Kelamin", "Umur", "Identifikasi Hewan", "Petugas Pendaftar", "Tanggal Terdaftar"];
 
     const rows = [columnTitles];
     data.forEach((item) => {
@@ -511,7 +484,7 @@ const Hewan = () => {
         dataIndex: "kodeEartagNasional",
         key: "kodeEartagNasional",
       },
-      { title: "Alamat", dataIndex: ["peternak", "alamat"], key: "alamat" },
+
       {
         title: "Nama Peternak",
         dataIndex: ["peternak", "namaPeternak"],
@@ -527,19 +500,20 @@ const Hewan = () => {
         dataIndex: ["kandang", "namaKandang"],
         key: "namaKandang",
       },
-      { title: "Rumpun Hewan", dataIndex:  ["rumpunHewan", "rumpun"], key: "rumpun" },
-      { title: "Jenis Hewan", dataIndex:  ["jenisHewan", "jenis"], key: "jenis" },
+      { title: "Rumpun Hewan", dataIndex: ["rumpunHewan", "rumpun"], key: "rumpun" },
+      { title: "Jenis Hewan", dataIndex: ["jenisHewan", "jenis"], key: "jenis" },
       { title: "Jenis Kelamin", dataIndex: "sex", key: "sex" },
       { title: "Tempat Lahir", dataIndex: "tempatLahir", key: "tempatLahir" },
       { title: "Tanggal Lahir", dataIndex: "tanggalLahir", key: "tanggalLahir" },
       { title: "Umur", dataIndex: "umur", key: "umur" },
-      
+
       {
         title: "Identifikasi Hewan",
         dataIndex: "identifikasiHewan",
         key: "identifikasiHewan",
       },
-      { title: "Tujuan Pemeliharaan", dataIndex:  ["tujuanPemeliharaan", "tujuanPemeliharaan"], key: "tujuanPemeliharaan" },
+      { title: "Tujuan Pemeliharaan", dataIndex: ["tujuanPemeliharaan", "tujuanPemeliharaan"], key: "tujuanPemeliharaan" },
+      { title: "Alamat", dataIndex: ["peternak", "alamat"], key: "alamat" },
       {
         title: "Petugas Pendaftar",
         dataIndex: ["petugas", "namaPetugas"],
@@ -554,21 +528,11 @@ const Hewan = () => {
         title: "Foto Hewan",
         dataIndex: "file_path",
         key: "file_path",
-        render: (text, row) => (
-          <img
-            src={`${imgUrl}/hewan/${row.file_path}`}
-            width={200}
-            height={150}
-            alt="Hewan"
-          />
-        ),
+        render: (text, row) => <img src={`${imgUrl}/hewan/${row.file_path}`} width={200} height={150} alt="Hewan" />,
       },
     ];
 
-    if (
-      user &&
-      (user.role === "ROLE_ADMINISTRATOR" || user.role === "ROLE_PETUGAS")
-    ) {
+    if (user && (user.role === "ROLE_ADMINISTRATOR" || user.role === "ROLE_PETUGAS")) {
       baseColumns.push({
         title: "Operasi",
         key: "action",
@@ -576,22 +540,9 @@ const Hewan = () => {
         align: "center",
         render: (text, row) => (
           <span>
-            <Button
-              type="primary"
-              shape="circle"
-              icon={<EditOutlined/>}
-              title="Edit"
-              onClick={() => handleEditHewan(row)}
-            />
+            <Button type="primary" shape="circle" icon={<EditOutlined />} title="Edit" onClick={() => handleEditHewan(row)} />
             <Divider type="vertical" />
-            <Button
-              type="primary"
-              danger
-              shape="circle"
-              icon={<DeleteOutlined/>}
-              title="Delete"
-              onClick={() => handleDeleteHewan(row)}
-            />
+            <Button type="primary" danger shape="circle" icon={<DeleteOutlined />} title="Delete" onClick={() => handleDeleteHewan(row)} />
           </span>
         ),
       });
@@ -603,26 +554,9 @@ const Hewan = () => {
   // Render Table based on User Role
   const renderTable = () => {
     if (user && user.role === "ROLE_PETERNAK") {
-      return (
-        <Table
-          dataSource={hewans}
-          bordered
-          columns={renderColumns()}
-          rowKey="kodeEartagNasional"
-        />
-      );
-    } else if (
-      user &&
-      (user.role === "ROLE_ADMINISTRATOR" || user.role === "ROLE_PETUGAS")
-    ) {
-      return (
-        <Table
-          dataSource={hewans}
-          bordered
-          columns={renderColumns()}
-          rowKey="kodeEartagNasional"
-        />
-      );
+      return <Table dataSource={hewans} bordered columns={renderColumns()} rowKey="kodeEartagNasional" />;
+    } else if (user && (user.role === "ROLE_ADMINISTRATOR" || user.role === "ROLE_PETUGAS")) {
+      return <Table dataSource={hewans} bordered columns={renderColumns()} rowKey="kodeEartagNasional" />;
     } else {
       return null;
     }
@@ -630,10 +564,7 @@ const Hewan = () => {
 
   // Render Buttons based on User Role
   const renderButtons = () => {
-    if (
-      user &&
-      (user.role === "ROLE_ADMINISTRATOR" || user.role === "ROLE_PETUGAS")
-    ) {
+    if (user && (user.role === "ROLE_ADMINISTRATOR" || user.role === "ROLE_PETUGAS")) {
       return (
         <Row gutter={[16, 16]} justify="start" style={{ paddingLeft: 9 }}>
           <Col xs={24} sm={12} md={8} lg={8} xl={8}>
@@ -642,11 +573,7 @@ const Hewan = () => {
             </Button>
           </Col>
           <Col xs={24} sm={12} md={8} lg={8} xl={8}>
-            <Button
-              icon={<UploadOutlined />}
-              onClick={handleImportModalOpen}
-              block
-            >
+            <Button icon={<UploadOutlined />} onClick={handleImportModalOpen} block>
               Import File
             </Button>
           </Col>
@@ -666,12 +593,7 @@ const Hewan = () => {
     <Row gutter={[16, 16]} justify="space-between">
       {renderButtons()}
       <Col xs={24} sm={12} md={8} lg={8} xl={8}>
-        <Input
-          placeholder="Cari data"
-          value={searchKeyword}
-          onChange={(e) => handleSearch(e.target.value)}
-          style={{ width: "100%" }}
-        />
+        <Input placeholder="Cari data" value={searchKeyword} onChange={(e) => handleSearch(e.target.value)} style={{ width: "100%" }} />
       </Col>
     </Row>
   );
@@ -687,21 +609,8 @@ const Hewan = () => {
         {renderTable()}
       </Card>
 
-      <EditHewanForm
-        currentRowData={currentRowData}
-        wrappedComponentRef={editHewanFormRef}
-        visible={editHewanModalVisible}
-        confirmLoading={editHewanModalLoading}
-        onCancel={handleCancel}
-        onOk={handleEditHewanOk}
-      />
-      <AddHewanForm
-        wrappedComponentRef={addHewanFormRef}
-        visible={addHewanModalVisible}
-        confirmLoading={addHewanModalLoading}
-        onCancel={handleCancel}
-        onOk={handleAddHewanOk}
-      />
+      <EditHewanForm currentRowData={currentRowData} wrappedComponentRef={editHewanFormRef} visible={editHewanModalVisible} confirmLoading={editHewanModalLoading} onCancel={handleCancel} onOk={handleEditHewanOk} />
+      <AddHewanForm wrappedComponentRef={addHewanFormRef} visible={addHewanModalVisible} confirmLoading={addHewanModalLoading} onCancel={handleCancel} onOk={handleAddHewanOk} />
       <Modal
         title="Import File"
         open={importModalVisible}
@@ -710,12 +619,7 @@ const Hewan = () => {
           <Button key="cancel" onClick={handleImportModalClose}>
             Cancel
           </Button>,
-          <Button
-            key="upload"
-            type="primary"
-            loading={uploading}
-            onClick={handleUpload}
-          >
+          <Button key="upload" type="primary" loading={uploading} onClick={handleUpload}>
             Upload
           </Button>,
         ]}
