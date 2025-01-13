@@ -1,5 +1,5 @@
 /* eslint-disable no-unused-vars */
-import { addHewan, deleteHewan, editHewan, getHewans } from "@/api/hewan";
+import { addHewan, addHewanImport, deleteHewan, editHewan, getHewans } from "@/api/hewan";
 import { getPetugas } from "@/api/petugas";
 import TypingCard from "@/components/TypingCard";
 import { DeleteOutlined, EditOutlined, UploadOutlined } from "@ant-design/icons";
@@ -7,7 +7,6 @@ import { Button, Card, Col, Divider, Input, message, Modal, Row, Table, Upload }
 import React, { useEffect, useRef, useState } from "react";
 import { v4 as uuidv4 } from "uuid";
 import { read, utils } from "xlsx";
-import { addHewanImport } from "../../api/hewan";
 import { reqUserInfo } from "../../api/user";
 import kandangSapi from "../../assets/images/kandangsapi.jpg";
 import imgUrl from "../../utils/imageURL";
@@ -321,7 +320,7 @@ const Hewan = () => {
         const generateIdPeternak = uuidv4();
         const generateIdKandang = uuidv4();
         const address = `${row[mapping["Desa"]]}, ${row[mapping["Kecamatan"]]}, ${row[mapping["Kabupaten"]]}, ${row[mapping["Provinsi"]]}`;
-        const { lat, lon } = await fetchCoordinates(address);
+        // const { lat, lon } = await fetchCoordinates(address);
 
         const formatDateToString = (dateString) => {
           // Jika dateString adalah angka (seperti nilai dari Excel)
@@ -389,15 +388,15 @@ const Hewan = () => {
           nikPeternak: nikPeternak,
           namaPeternak: row[mapping["Nama Peternak"]],
           kandang_id: row[mapping["ID Kandang"]] || generateIdKandang,
-          namaKandang: `Kandang ${row[mapping["Nama Peternak"]]}`,
+          // namaKandang: `Kandang ${row[mapping["Nama Peternak"]]}`,
           spesies: spesies, // Menggunakan spesies yang sudah digabungkan
           jenis: jenis, // Masukkan spesies ke dalam kolom jenis
           sex: row[mapping["Jenis Kelamin**"]] || row[mapping["sex"]] || "-",
           tempatLahir: row[columnMapping["Tempat Lahir Ternak"]] || "-",
           tanggalLahir: row[columnMapping["Tanggal Lahir Ternak"]] || "-",
           umur: row[mapping["umur"]] || "-",
-          latitude: lat || row[mapping["Latitude"]] || "-",
-          longitude: lon || row[mapping["Longitude"]] || "-",
+          latitude:  row[mapping["latitude"]] || "-",
+          longitude:  row[mapping["longitude"]] || "-",
           desa: row[mapping["Desa"]] || "-",
           kecamatan: row[mapping["Kecamatan"]] || "-",
           kabupaten: row[mapping["Kabupaten"]] || "-",
@@ -524,7 +523,6 @@ const Hewan = () => {
         key: "identifikasiHewan",
       },
       { title: "Tujuan Pemeliharaan", dataIndex: ["tujuanPemeliharaan", "tujuanPemeliharaan"], key: "tujuanPemeliharaan" },
-      { title: "Alamat", dataIndex: ["peternak", "alamat"], key: "alamat" },
       {
         title: "Petugas Pendaftar",
         dataIndex: ["petugas", "namaPetugas"],
