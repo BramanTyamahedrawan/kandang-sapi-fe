@@ -15,17 +15,21 @@ export function getPetugas() {
   });
 }
 
-export function editPetugas(data, nikPetugas) {
+export function editPetugas(data, petugasId) {
+  console.log(data, petugasId);
+  
   return request({
-    url: `/petugas/${nikPetugas}`,
+    url: `/petugas/${petugasId}`,
     method: "put",
     data,
   });
 }
 
 export function deletePetugas(data) {
+  console.log("Data Id ",data.petugasId);
+  
   return request({
-    url: `/petugas/${data.nikPetugas}`,
+    url: `/petugas/${data.petugasId}`,
     method: "delete",
     data,
   });

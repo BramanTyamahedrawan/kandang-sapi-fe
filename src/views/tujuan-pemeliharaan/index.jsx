@@ -2,7 +2,7 @@
 /* eslint-disable no-unused-vars */
 import { addTujuanPemeliharaan, deleteTujuanPemeliharaan, editTujuanPemeliharaan, getTujuanPemeliharaan } from "@/api/tujuan-pemeliharaan";
 import TypingCard from "@/components/TypingCard";
-import { UploadOutlined, EditOutlined, DeleteOutlined } from "@ant-design/icons";
+import { DeleteOutlined, EditOutlined, UploadOutlined } from "@ant-design/icons";
 import { Button, Card, Col, Divider, Input, message, Modal, Row, Table, Upload } from "antd";
 import React, { useEffect, useRef, useState } from "react";
 import { reqUserInfo } from "../../api/user";
@@ -27,6 +27,7 @@ const TujuanPemeliharaan = () => {
   const [fileName, setFileName] = useState("");
   const [columnMapping, setColumnMapping] = useState({});
 
+  const [loading, setLoading] = useState(false);
   // Form References
   const editTujuanFormRef = useRef(null);
   const addTujuanFormRef = useRef(null);
@@ -170,27 +171,37 @@ const TujuanPemeliharaan = () => {
   };
 
   // Handle Deleting a Tujuan Pemeliharaan
-  const handleDeleteTujuan = (row) => {
-    const { idTujuanPemeliharaan } = row;
-    Modal.confirm({
-      title: "Konfirmasi",
-      content: "Apakah Anda yakin ingin menghapus data ini?",
-      okText: "Ya",
-      okType: "danger",
-      cancelText: "Tidak",
-      onOk: () => {
-        deleteTujuanPemeliharaan({ idTujuanPemeliharaan })
-          .then((res) => {
-            message.success("Berhasil dihapus");
-            getTujuanPemeliharaanData();
-          })
-          .catch((error) => {
-            console.error("Gagal menghapus tujuan:", error);
-            message.error("Gagal menghapus tujuan.");
-          });
-      },
-    });
-  };
+
+const handleDeleteTujuan = (row) => {  // Tambahkan state loading
+  const { idTujuanPemeliharaan } = row;
+  
+  Modal.confirm({
+    title: "Konfirmasi",
+    content: "Apakah Anda yakin ingin menghapus data ini?",
+    okText: "Ya",
+    okType: "danger",
+    cancelText: "Tidak",
+    okButtonProps: {
+      loading: loading,  // Aktifkan loading pada tombol ok
+    },
+    onOk: () => {
+      setLoading(true); // Mengaktifkan loading saat klik ok
+      deleteTujuanPemeliharaan({ idTujuanPemeliharaan })
+        .then((res) => {
+          message.success("Berhasil dihapus");
+          getTujuanPemeliharaanData();
+        })
+        .catch((error) => {
+          console.error("Gagal menghapus tujuan:", error);
+          message.error("Gagal menghapus tujuan.");
+        })
+        .finally(() => {
+          setLoading(false); // Menonaktifkan loading setelah proses selesai
+        });
+    },
+  });
+};
+
 
   // // Handle Canceling Any Modal
   const handleCancel = () => {
