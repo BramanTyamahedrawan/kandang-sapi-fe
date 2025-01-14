@@ -7,7 +7,7 @@ export function addTujuanPemeliharaan(data) {
     ...data,
     idTujuanPemeliharaan: uuidv4(),
   };
-
+  console.log("data yang diterima : ", updatedData);
   return request({
     url: "/tujuanpemeliharaan",
     method: "post",
@@ -22,15 +22,11 @@ export function getTujuanPemeliharaan() {
   });
 }
 
-export function editTujuanPemeliharaan(data, id) {
-  const formData = new FormData();
-  formData.append("tujuanPemeliharaan", data.tujuan);
-  formData.append("deskripsi", data.deskripsi);
-
+export function editTujuanPemeliharaan(data, idTujuanPemeliharaan) {
   return request({
-    url: `/tujuanpemeliharaan/${id}`,
+    url: `/tujuanpemeliharaan/${idTujuanPemeliharaan}`,
     method: "put",
-    data: formData,
+    data,
   });
 }
 
