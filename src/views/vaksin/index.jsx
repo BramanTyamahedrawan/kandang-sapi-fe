@@ -4,7 +4,11 @@
 import { getNamaVaksin } from "@/api/nama-vaksin";
 import { getPeternaks } from "@/api/peternak";
 import TypingCard from "@/components/TypingCard";
-import { DeleteOutlined, EditOutlined, UploadOutlined } from "@ant-design/icons";
+import {
+  DeleteOutlined,
+  EditOutlined,
+  UploadOutlined,
+} from "@ant-design/icons";
 import {
   Button,
   Card,
@@ -22,18 +26,10 @@ import { read, utils } from "xlsx";
 import AddVaksinForm from "./forms/add-vaksin-form";
 import EditVaksinForm from "./forms/edit-vaksin-form";
 
-import {
-  addVaksin,
-  deleteVaksin,
-  editVaksin,
-
-  getVaksins
-} from '@/api/vaksin';
-
+import { addVaksin, deleteVaksin, editVaksin, getVaksins } from "@/api/vaksin";
 
 import { getPetugas } from "@/api/petugas";
 import { reqUserInfo } from "../../api/user";
-
 
 const Vaksin = () => {
   const [vaksins, setVaksins] = useState([]);
@@ -497,10 +493,13 @@ const Vaksin = () => {
   // Render Columns with Operations
   const renderColumns = () => {
     const baseColumns = [
-
-      { title: 'ID Vaksin', dataIndex: 'idVaksin', key: 'idVaksin' },
-      { title: 'Jenis Vaksin', dataIndex: ['jenisVaksin','jenisVaksin'], key: 'jenisVaksin' },
-      { title: 'Nama Vaksin', dataIndex: ['namaVaksin', 'namaVaksin'], key: 'namaVaksin' },
+      { title: "ID Vaksin", dataIndex: "idVaksin", key: "idVaksin" },
+      {
+        title: "Jenis Vaksin",
+        dataIndex: ["jenisVaksin", "jenis"],
+        key: "jenis",
+      },
+      { title: "Nama Vaksin", dataIndex: ["namaVaksin", "nama"], key: "nama" },
 
       {
         title: "Kode Eartag",
@@ -518,8 +517,8 @@ const Vaksin = () => {
         key: "nikPeternak",
       },
 
-      { title: 'Bacth Vaksin', dataIndex: 'batchVaksin', key: 'batchVaksin' },
-      { title: 'Dosis Vaksin', dataIndex: 'vaksinKe', key: 'vaksinKe' },
+      { title: "Bacth Vaksin", dataIndex: "batchVaksin", key: "batchVaksin" },
+      { title: "Dosis Vaksin", dataIndex: "vaksinKe", key: "vaksinKe" },
 
       {
         title: "Inseminator",
@@ -527,11 +526,13 @@ const Vaksin = () => {
         key: "inseminator",
       },
 
-      { title: 'Tanggal Vaksin', dataIndex: 'tglVaksin', key: 'tglVaksin' },
-      { title: 'Tanggal Pendataan', dataIndex: ['hewan', 'tanggalTerdaftar'], key: 'tanggalTerdaftar' },
-      
-    ]
-
+      { title: "Tanggal Vaksin", dataIndex: "tglVaksin", key: "tglVaksin" },
+      {
+        title: "Tanggal Pendataan",
+        dataIndex: ["hewan", "tanggalTerdaftar"],
+        key: "tanggalTerdaftar",
+      },
+    ];
 
     if (
       user &&
@@ -547,7 +548,7 @@ const Vaksin = () => {
             <Button
               type="primary"
               shape="circle"
-              icon={<EditOutlined/>}
+              icon={<EditOutlined />}
               title="Edit"
               onClick={() => handleEditVaksin(row)}
             />
@@ -556,7 +557,7 @@ const Vaksin = () => {
               type="primary"
               danger
               shape="circle"
-              icon={<DeleteOutlined/>}
+              icon={<DeleteOutlined />}
               title="Delete"
               onClick={() => handleDeleteVaksin(row)}
             />

@@ -27,7 +27,7 @@ import { addHewanBulkImport } from "@/api/hewan";
 // import { addTernakBulk } from "@/api/hewan";
 import { addPeternakBulkByNama } from "@/api/peternak";
 import { addPetugasBulkByNama } from "@/api/petugas";
-// import { addKandangBulkByNama } from "@/api/kandang";
+import { addKandangBulkByNama } from "@/api/kandang";
 import { getPetugas } from "@/api/petugas";
 import { getHewans } from "@/api/hewan";
 import { UploadOutlined } from "@ant-design/icons";
@@ -38,6 +38,7 @@ import AddPkbForm from "./forms/add-pkb-form";
 import { reqUserInfo } from "../../api/user";
 import { v4 as uuidv4 } from "uuid";
 import { getPeternaks } from "../../api/peternak";
+import { data } from "react-router-dom";
 
 export const sendPetugasBulkData = async (data, batchSize = 7000) => {
   const totalBatches = Math.ceil(data.length / batchSize);
@@ -139,11 +140,11 @@ export const sendKandangBulkData = async (data, batchSize = 7000) => {
 
     try {
       console.log(`Data Kandang (Batch ${i + 1}):`, batchData); // Log data yang dikirim
-      // const response = await addKandangBulkByNama(batchData);
-      // console.log(
-      //   `Batch ${i + 1}/${totalBatches} berhasil dikirim`,
-      //   response.data
-      // );
+      const response = await addKandangBulkByNama(batchData);
+      console.log(
+        `Batch ${i + 1}/${totalBatches} berhasil dikirim`,
+        response.data
+      );
     } catch (error) {
       console.error(
         `Batch ${i + 1}/${totalBatches} gagal dikirim`,
@@ -688,6 +689,24 @@ class Pkb extends Component {
             row[columnMapping["Jenis Kelamin Pemilik Ternak"]] || "-",
         };
 
+        const dataKandang = {
+          idKandang: row[columnMapping["ID Kandang"]] || generateIdKandang,
+          peternak_id: dataPeternak.idPeternak,
+          nikPeternak: dataPeternak.nikPeternak,
+          namaPeternak: dataPeternak.namaPeternak,
+          namaKandang: `Kandang ${dataPeternak.namaPeternak}`,
+          alamat:
+            row[columnMapping["Alamat Kandang**)"]] || "Alamat Tidak Valid",
+          luas: row[columnMapping["Luas Kandang*)"]] || "_",
+          kapasitas: row[columnMapping["Kapasitas Kandang*)"]] || "_",
+          nilaiBangunan: row[columnMapping["Nilai Bangunan*)"]] || "_",
+          jenisKandang: generateJenisKandang(
+            row[columnMapping["Jenis Kandang"]]
+          ),
+          latitude: row[columnMapping["latitude"]] || null,
+          longitude: row[columnMapping["longitude"]] || null,
+        };
+
         const dataTernakHewan = {
           idHewan: row[columnMapping["ID Hewan"]] || generateIdHewan,
           kodeEartagNasional: row[columnMapping["Kode Eartag Nasional"]] || "_",
@@ -705,8 +724,8 @@ class Pkb extends Component {
             row[columnMapping["Identifikasi Hewan"]] ||
             "_",
           nikPeternak: dataPeternak.nikPeternak,
-          // idKandang: row[columnMapping["ID Kandang"]] || generateIdKandang,
-          // namaKandang: `Kandang ${dataPeternak.namaPeternak}`,
+          idKandang: dataKandang.idKandang,
+          namaKandang: dataKandang.namaKandang,
           jenis: row[columnMapping["kategori"]] || "_",
           rumpun: row[columnMapping["Spesies"]] || "_",
           idPeternak: dataPeternak.idPeternak,
@@ -718,24 +737,6 @@ class Pkb extends Component {
           // ),
         };
 
-        // const dataKandang = {
-        //   idKandang: row[columnMapping["ID Kandang"]] || generateIdKandang,
-        //   peternak_id: dataPeternak.idPeternak,
-        //   nikPeternak: dataPeternak.nikPeternak,
-        //   namaKandang: `Kandang ${dataPeternak.namaPeternak}`,
-        //   alamat:
-        //     row[columnMapping["Alamat Kandang**)"]] || "Alamat Tidak Valid",
-        //   luas: row[columnMapping["Luas Kandang*)"]] || "_",
-        //   kapasitas: row[columnMapping["Kapasitas Kandang*)"]] || "_",
-        //   nilaiBangunan: row[columnMapping["Nilai Bangunan*)"]] || "_",
-        //   jenisKandang: generateJenisKandang(
-        //     row[columnMapping["Jenis Kandang*)"]]
-        //   ),
-        //   latitude: row[columnMapping["latitude"]] || null,
-        //   longitude: row[columnMapping["longitude"]] || null,
-        // };
-
-        // data vaksin
         const dataPkb = {
           idKejadian: row[columnMapping["ID Kejadian"]] || generateIdKejadian,
           tanggalPkb: formatDateToString(row[columnMapping["Tanggal PKB"]]),
@@ -749,8 +750,8 @@ class Pkb extends Component {
           nikPeternak: dataPeternak.nikPeternak || "-",
           nikPetugas: cleanNik(row[columnMapping["NIK Petugas"]]) || "-",
           namaPetugas: row[columnMapping["Pemeriksa Kebuntingan"]] || "-",
-          // idKandang: dataKandang.idKandang || generateIdKandang,
-          // namaKandang: dataKandang.namaKandang || "-",
+          idKandang: dataKandang.idKandang || generateIdKandang,
+          namaKandang: dataKandang.namaKandang || "-",
           idHewan: dataTernakHewan.idHewan || generateIdHewan,
           kodeEartagNasional: row[columnMapping["Kode Eartag Nasional"]] || "-",
           rumpun: row[columnMapping["Spesies"]] || "-",
@@ -759,9 +760,9 @@ class Pkb extends Component {
 
         petugasPendataanBulk.push(dataPetugasPemeriksa);
         peternakBulk.push(dataPeternak);
+        kandangBulk.push(dataKandang);
         ternakHewanBulk.push(dataTernakHewan);
         pkb.push(dataPkb);
-        // kandangBulk.push(dataKandang);
       }
 
       // Send bulk data to server
@@ -770,8 +771,8 @@ class Pkb extends Component {
         await sendRumpunHewanBulkData(rumpunHewanBulk);
         await sendPetugasBulkData(petugasPendataanBulk);
         await sendPeternakBulkData(peternakBulk);
+        await sendKandangBulkData(kandangBulk);
         await sendTernakHewanBulkData(ternakHewanBulk);
-        // await sendKandangBulkData(kandangBulk);
         await sendPkbImport(pkb);
       } catch (error) {
         console.error(

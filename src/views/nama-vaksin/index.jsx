@@ -8,7 +8,11 @@ import {
 } from "@/api/nama-vaksin";
 import { reqUserInfo } from "@/api/user"; // Adjust the import path as necessary
 import TypingCard from "@/components/TypingCard";
-import { DeleteOutlined, EditOutlined, UploadOutlined, } from "@ant-design/icons";
+import {
+  DeleteOutlined,
+  EditOutlined,
+  UploadOutlined,
+} from "@ant-design/icons";
 import {
   Button,
   Card,
@@ -400,10 +404,10 @@ const NamaVaksin = () => {
       },
       {
         title: "Jenis Vaksin",
-        dataIndex: ["jenisVaksin", "jenisVaksin"],
-        key: "jenisVaksin",
+        dataIndex: ["jenisVaksin", "jenis"],
+        key: "jenis",
       },
-      { title: "Nama Vaksin", dataIndex: "namaVaksin", key: "namaVaksin" },
+      { title: "Nama Vaksin", dataIndex: "nama", key: "nama" },
       { title: "Deskripsi", dataIndex: "deskripsi", key: "deskripsi" },
     ];
 
@@ -421,7 +425,7 @@ const NamaVaksin = () => {
             <Button
               type="primary"
               shape="circle"
-              icon={<EditOutlined/>}
+              icon={<EditOutlined />}
               title="Edit"
               onClick={() => handleEditNamaVaksin(row)}
             />
@@ -430,7 +434,7 @@ const NamaVaksin = () => {
               type="primary"
               danger
               shape="circle"
-              icon={<DeleteOutlined/>}
+              icon={<DeleteOutlined />}
               title="Delete"
               onClick={() => handleDeleteNamaVaksin(row)}
             />

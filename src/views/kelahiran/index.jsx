@@ -25,6 +25,7 @@ import {
 import { addJenisHewanBulk } from "@/api/jenishewan";
 import { addRumpunHewanBulk } from "@/api/rumpunhewan";
 import { addHewanBulkImport } from "@/api/hewan";
+import { addKandangBulkByNama } from "@/api/kandang";
 import { addPeternakBulkByNama } from "@/api/peternak";
 import { addPetugasBulkByNama } from "@/api/petugas";
 import { addInseminsasiBulk } from "@/api/inseminasi";
@@ -128,6 +129,29 @@ const sendJenisHewanBulkData = async (data, batchSize = 7000) => {
   }
 };
 
+export const sendKandangBulkData = async (data, batchSize = 7000) => {
+  const totalBatches = Math.ceil(data.length / batchSize);
+
+  for (let i = 0; i < totalBatches; i++) {
+    const batchData = data.slice(i * batchSize, (i + 1) * batchSize);
+
+    try {
+      console.log(`Data Kandang (Batch ${i + 1}):`, batchData); // Log data yang dikirim
+      const response = await addKandangBulkByNama(batchData);
+      console.log(
+        `Batch ${i + 1}/${totalBatches} berhasil dikirim`,
+        response.data
+      );
+    } catch (error) {
+      console.error(
+        `Batch ${i + 1}/${totalBatches} gagal dikirim`,
+        error.response?.data || error.message
+      );
+      throw error; // Hentikan proses jika batch gagal
+    }
+  }
+};
+
 const sendTernakHewanBulkData = async (data, batchSize = 7000) => {
   const totalBatches = Math.ceil(data.length / batchSize);
 
@@ -181,12 +205,12 @@ export const sendKelahiranBulkData = async (data, batchSize = 7000) => {
     const batchData = data.slice(i * batchSize, (i + 1) * batchSize);
 
     try {
-      console.log(`Data Inseminasi Buatan (Batch ${i + 1}):`, batchData); // Log data yang dikirim
-      // const response = await addKelahiranBulk(batchData);
-      // console.log(
-      //   `Batch ${i + 1}/${totalBatches} berhasil dikirim`,
-      //   response.data
-      // );
+      console.log(`Data Kelahiran (Batch ${i + 1}):`, batchData); // Log data yang dikirim
+      const response = await addKelahiranBulk(batchData);
+      console.log(
+        `Batch ${i + 1}/${totalBatches} berhasil dikirim`,
+        response.data
+      );
     } catch (error) {
       console.error(
         `Batch ${i + 1}/${totalBatches} gagal dikirim`,
@@ -556,6 +580,7 @@ class Kelahiran extends Component {
       const peternakBulk = [];
       const inseminasiBulk = [];
       const kelahiranBulk = [];
+      const kandangBulk = [];
 
       for (const row of importedData) {
         const generateIdKejadian = uuidv4();
@@ -564,6 +589,7 @@ class Kelahiran extends Component {
         const generateIdHewan = uuidv4();
         const generateIdPeternak = uuidv4();
         const generateIdInseminasi = uuidv4();
+        const generateIdKandang = uuidv4();
 
         const formatDateToString = (dateString) => {
           // Jika dateString adalah angka (seperti nilai dari Excel)
@@ -678,6 +704,24 @@ class Kelahiran extends Component {
             row[columnMapping["Jenis Kelamin Pemilik Ternak"]] || "-",
         };
 
+        const dataKandang = {
+          idKandang: row[columnMapping["ID Kandang"]] || generateIdKandang,
+          peternak_id: dataPeternak.idPeternak,
+          nikPeternak: dataPeternak.nikPeternak,
+          namaPeternak: dataPeternak.namaPeternak,
+          namaKandang: `Kandang ${dataPeternak.namaPeternak}`,
+          alamat:
+            row[columnMapping["Alamat Kandang**)"]] || "Alamat Tidak Valid",
+          luas: row[columnMapping["Luas Kandang*)"]] || "_",
+          kapasitas: row[columnMapping["Kapasitas Kandang*)"]] || "_",
+          nilaiBangunan: row[columnMapping["Nilai Bangunan*)"]] || "_",
+          jenisKandang: generateJenisKandang(
+            row[columnMapping["Jenis Kandang"]]
+          ),
+          latitude: row[columnMapping["latitude"]] || null,
+          longitude: row[columnMapping["longitude"]] || null,
+        };
+
         const dataTernakHewan = {
           idHewan: row[columnMapping["ID Hewan Induk"]] || generateIdHewan,
           kodeEartagNasional: row[columnMapping["eartag_induk"]] || "_",
@@ -695,8 +739,8 @@ class Kelahiran extends Component {
             row[columnMapping["Identifikasi Hewan"]] ||
             "_",
           nikPeternak: dataPeternak.nikPeternak,
-          // idKandang: row[columnMapping["ID Kandang"]] || generateIdKandang,
-          // namaKandang: `Kandang ${dataPeternak.namaPeternak}`,
+          idKandang: dataKandang.idKandang,
+          namaKandang: dataKandang.namaKandang,
           jenis: row[columnMapping["kategori"]] || "-",
           rumpun: row[columnMapping["Spesies Induk"]] || "-",
           idPeternak: dataPeternak.idPeternak,
@@ -708,32 +752,35 @@ class Kelahiran extends Component {
           // ),
         };
 
-        const dataInseminasi = {
-          idInseminasi:
-            row[columnMapping["ID Inseminasi"]] || generateIdInseminasi,
-          tanggalIB:
-            formatDateToString(row[columnMapping["Tanggal IB"]]) || "-",
-          lokasi: row[columnMapping["lokasi inseminasi"]] || "-",
-          // desa: pecahLokasi.desa,
-          // kecamatan: pecahLokasi.kecamatan,
-          // kabupaten: pecahLokasi.kabupaten,
-          // provinsi: pecahLokasi.provinsi,
-          namaPeternak: dataPeternak.namaPeternak,
-          idPeternak: dataPeternak.idPeternak,
-          nikPeternak: dataPeternak.nikPeternak,
-          idHewan: dataTernakHewan.idHewan,
-          kodeEartagNasional: dataTernakHewan.kodeEartagNasional,
-          ib1: row[columnMapping["IB 1"]] || "-",
-          ib2: row[columnMapping["IB 2"]] || "-",
-          ib3: row[columnMapping["IB 3"]] || "-",
-          ibLain: row[columnMapping["IB lain"]] || "-",
-          idPejantan: row[columnMapping["ID Pejantan Straw"]] || "-",
-          idPembuatan: row[columnMapping["ID Batch Straw"]] || "-",
-          bangsaPejantan: row[columnMapping["Spesies Pejantan"]] || "-",
-          produsen: row[columnMapping["Produsen Straw"]] || "-",
-          namaPetugas: dataPetugasKelahiran.namaPetugas,
-          nikPetugas: dataPetugasKelahiran.nikPetugas,
-        };
+        if (row[columnMapping["ID Pejantan Straw"]] != null) {
+          const dataInseminasi = {
+            idInseminasi:
+              row[columnMapping["ID Inseminasi"]] || generateIdInseminasi,
+            tanggalIB:
+              formatDateToString(row[columnMapping["Tanggal IB"]]) || "-",
+            lokasi: row[columnMapping["lokasi inseminasi"]] || "-",
+            // desa: pecahLokasi.desa,
+            // kecamatan: pecahLokasi.kecamatan,
+            // kabupaten: pecahLokasi.kabupaten,
+            // provinsi: pecahLokasi.provinsi,
+            namaPeternak: dataPeternak.namaPeternak,
+            idPeternak: dataPeternak.idPeternak,
+            nikPeternak: dataPeternak.nikPeternak,
+            idHewan: dataTernakHewan.idHewan,
+            kodeEartagNasional: dataTernakHewan.kodeEartagNasional,
+            ib1: row[columnMapping["IB 1"]] || "-",
+            ib2: row[columnMapping["IB 2"]] || "-",
+            ib3: row[columnMapping["IB 3"]] || "-",
+            ibLain: row[columnMapping["IB lain"]] || "-",
+            idPejantan: row[columnMapping["ID Pejantan Straw"]] || "-",
+            idPembuatan: row[columnMapping["ID Batch Straw"]] || "-",
+            bangsaPejantan: row[columnMapping["Spesies Pejantan"]] || "-",
+            produsen: row[columnMapping["Produsen Straw"]] || "-",
+            namaPetugas: dataPetugasKelahiran.namaPetugas,
+            nikPetugas: dataPetugasKelahiran.nikPetugas,
+          };
+          inseminasiBulk.push(dataInseminasi);
+        }
 
         // data vaksin
         const dataKelahiran = {
@@ -747,6 +794,8 @@ class Kelahiran extends Component {
           lokasi: row[columnMapping["Lokasi"]] || "_",
           idPeternak: dataPeternak.idPeternak,
           namaPeternak: dataPeternak.namaPeternak,
+          idKandang: dataKandang.idKandang,
+          namaKandang: dataKandang.namaKandang,
           idHewan: dataTernakHewan.idHewan,
           noKartuTernak: dataTernakHewan.noKartuTernak,
           kodeEartagNasional: dataTernakHewan.kodeEartagNasional,
@@ -758,13 +807,16 @@ class Kelahiran extends Component {
           jenisKelaminAnak: row[columnMapping["Jenis Kelamin Anak"]] || "_",
           nikPetugas: dataPetugasKelahiran.nikPetugas,
           namaPetugas: dataPetugasKelahiran.namaPetugas,
+          jenis: row[columnMapping["kategori"]] || "-",
+          rumpun: row[columnMapping["Spesies Induk"]] || "-",
           urutanIB: row[columnMapping["urutan_ib"]] || "_",
+          idPejantan: row[columnMapping["ID Pejantan Straw"]] || "_",
         };
 
         petugasKelahiran.push(dataPetugasKelahiran);
         peternakBulk.push(dataPeternak);
+        kandangBulk.push(dataKandang);
         ternakHewanBulk.push(dataTernakHewan);
-        inseminasiBulk.push(dataInseminasi);
         kelahiranBulk.push(dataKelahiran);
       }
 
@@ -774,6 +826,7 @@ class Kelahiran extends Component {
         await sendRumpunHewanBulkData(rumpunHewanBulk);
         await sendPetugasBulkData(petugasKelahiran);
         await sendPeternakBulkData(peternakBulk);
+        await sendKandangBulkData(kandangBulk);
         await sendTernakHewanBulkData(ternakHewanBulk);
         await sendInseminasiBulkData(inseminasiBulk);
         await sendKelahiranBulkData(kelahiranBulk);
@@ -802,85 +855,6 @@ class Kelahiran extends Component {
       });
     }
   };
-
-  // saveImportedData = async (columnMapping) => {
-  //   const { importedData, kelahirans, petugas } = this.state
-  //   let errorCount = 0
-
-  //   try {
-  //     for (const row of importedData) {
-  //       const petugasNama = row[columnMapping['Petugas Pelapor']]?.toLowerCase()
-  //       const petugasData = petugas.find(
-  //         (p) => p.namaPetugas.toLowerCase() === petugasNama
-  //       )
-  //       const petugasId = petugasData ? petugasData.nikPetugas : null
-  //       console.log(
-  //         `Mencocokkan nama petugas: ${petugasNama}, Ditemukan: ${
-  //           petugasData ? 'Ya' : 'Tidak'
-  //         }, petugasId: ${petugasId}`
-  //       )
-  //       const dataToSave = {
-  //         idKejadian: row[columnMapping['ID Kejadian']],
-  //         tanggalLaporan: this.convertToJSDate(
-  //           row[columnMapping['Tanggal laporan']]
-  //         ),
-  //         tanggalLahir: this.convertToJSDate(
-  //           row[columnMapping['Tanggal lahir']]
-  //         ),
-  //         peternak_id: row[columnMapping['ID Peternak']],
-  //         hewan_id: row[columnMapping['ID Hewan Induk']],
-  //         petugas_id: row[columnMapping['Petugas Pelapor']],
-  //         idPejantanStraw: row[columnMapping['ID Pejantan Straw']],
-  //         idBatchStraw: row[columnMapping['ID Batch Straw']],
-  //         produsenStraw: row[columnMapping['Produsen Straw']],
-  //         spesiesPejantan: row[columnMapping['Spesies Pejantan']],
-  //         eartagAnak: row[columnMapping['eartag_anak']],
-  //         jenisKelaminAnak: row[columnMapping['Jenis Kelamin Anak']],
-  //         spesies: row[columnMapping['kategori']],
-  //         kandang_id: row[columnMapping['ID Kandang']],
-  //         inseminasi_id: row[columnMapping['urutan_ib']],
-  //       }
-  //       const existingKelahiranIndex = kelahirans.findIndex(
-  //         (p) => p.idKejadian === dataToSave.idKejadian
-  //       )
-
-  //       try {
-  //         if (existingKelahiranIndex > -1) {
-  //           // Update existing data
-  //           await editKelahiran(dataToSave, dataToSave.idKejadian)
-  //           this.setState((prevState) => {
-  //             const updatedKelahiran = [...prevState.kelahirans]
-  //             updatedKelahiran[existingKelahiranIndex] = dataToSave
-  //             return { kelahirans: updatedKelahiran }
-  //           })
-  //         } else {
-  //           // Add new data
-  //           await addKelahiran(dataToSave)
-  //           this.setState((prevState) => ({
-  //             kelahirans: [...prevState.kelahirans, dataToSave],
-  //           }))
-  //         }
-  //       } catch (error) {
-  //         errorCount++
-  //         console.error('Gagal menyimpan data:', error)
-  //       }
-  //     }
-
-  //     if (errorCount === 0) {
-  //       message.success(`Semua data berhasil disimpan.`)
-  //     } else {
-  //       message.error(`${errorCount} data gagal disimpan, harap coba lagi!`)
-  //     }
-  //   } catch (error) {
-  //     console.error('Gagal memproses data:', error)
-  //   } finally {
-  //     this.setState({
-  //       importedData: [],
-  //       columnTitles: [],
-  //       columnMapping: {},
-  //     })
-  //   }
-  // }
 
   handleExportData = () => {
     const { kelahirans } = this.state;
@@ -987,45 +961,45 @@ class Kelahiran extends Component {
         dataIndex: "tanggalLahir",
         key: "tanggalLahir",
       },
-      { title: "Lokasi", dataIndex: "peternak.lokasi", key: "lokasi" },
+      { title: "Lokasi", dataIndex: "lokasi", key: "lokasi" },
       {
         title: "Nama Peternak",
-        dataIndex: "peternak.idPeternak",
+        dataIndex: ["peternak", "namaPeternak"],
         key: "namaPeternak",
       },
       {
         title: "ID Peternak",
-        dataIndex: "peternak.namaPeternak",
+        dataIndex: ["peternak", "idPeternak"],
         key: "idPeternak",
       },
       {
         title: "Eartag Induk",
-        dataIndex: "hewan.kodeEartagNasional",
+        dataIndex: ["hewan", "kodeEartagNasional"],
         key: "kodeEartagNasional",
       },
       {
-        title: "Spesies Induk",
-        dataIndex: "hewan.spesies",
-        key: "spesiesInduk",
+        title: "Kartu Ternak Induk",
+        dataIndex: ["hewan", "noKartuTernak"],
+        key: "noKartuTernak",
       },
       {
         title: "ID Pejantan Straw",
-        dataIndex: "inseminasi.idPejantan",
+        dataIndex: ["inseminasi", "idPejantan"],
         key: "idPejantan",
       },
       {
         title: "ID Batch Straw",
-        dataIndex: "inseminasi.idPembuatan",
+        dataIndex: ["inseminasi", "idPembuatan"],
         key: "idPembuatan",
       },
       {
         title: "Produsen Straw",
-        dataIndex: "inseminasi.produsen",
+        dataIndex: ["inseminasi", "produsen"],
         key: "produsen",
       },
       {
         title: "Spesies Pejantan",
-        dataIndex: "inseminasi.bangsaPejantan",
+        dataIndex: ["inseminasi", "bangsaPejantan"],
         key: "bangsaPejantan",
       },
       { title: "Eartag Anak", dataIndex: "eartagAnak", key: "eartagAnak" },
@@ -1034,13 +1008,14 @@ class Kelahiran extends Component {
         dataIndex: "jenisKelaminAnak",
         key: "jenisKelaminAnak",
       },
-      { title: "Spesies", dataIndex: "spesies", key: "spesies" },
+      { title: "Spesies", dataIndex: ["rumpunHewan", "rumpun"], key: "rumpun" },
+      { title: "Kategori", dataIndex: ["jenisHewan", "jenis"], key: "jenis" },
       {
         title: "Petugas Pelapor",
-        dataIndex: "petugas.namaPetugas",
-        key: "petugasPelapor",
+        dataIndex: ["petugas", "namaPetugas"],
+        key: "namaPetugas",
       },
-      { title: "Urutan IB", dataIndex: "inseminasi.ib", key: "ib" },
+      { title: "Urutan IB", dataIndex: "urutanIB", key: "urutanIB" },
     ];
 
     const renderTable = () => {

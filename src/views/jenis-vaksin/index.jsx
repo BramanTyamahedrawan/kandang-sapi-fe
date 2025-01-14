@@ -7,7 +7,11 @@ import {
   getJenisVaksin,
 } from "@/api/jenis-vaksin";
 import TypingCard from "@/components/TypingCard";
-import { DeleteOutlined, EditOutlined, UploadOutlined, } from "@ant-design/icons";
+import {
+  DeleteOutlined,
+  EditOutlined,
+  UploadOutlined,
+} from "@ant-design/icons";
 import {
   Button,
   Card,
@@ -406,7 +410,7 @@ const JenisVaksin = () => {
         dataIndex: "idJenisVaksin",
         key: "idJenisVaksin",
       },
-      { title: "Jenis", dataIndex: "jenisVaksin", key: "jenisVaksin" },
+      { title: "Jenis", dataIndex: "jenis", key: "jenis" },
       { title: "Deskripsi", dataIndex: "deskripsi", key: "deskripsi" },
     ];
 
@@ -424,7 +428,7 @@ const JenisVaksin = () => {
             <Button
               type="primary"
               shape="circle"
-              icon={<EditOutlined/>}
+              icon={<EditOutlined />}
               title="Edit"
               onClick={() => handleEditJenisVaksin(row)}
             />
@@ -433,7 +437,7 @@ const JenisVaksin = () => {
               type="primary"
               danger
               shape="circle"
-              icon={<DeleteOutlined/>}
+              icon={<DeleteOutlined />}
               title="Delete"
               onClick={() => handleDeleteJenisVaksin(row)}
             />

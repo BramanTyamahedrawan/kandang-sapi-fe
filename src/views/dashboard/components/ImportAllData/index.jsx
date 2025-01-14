@@ -629,40 +629,42 @@ export default class ImportAllData extends Component {
           jenis: row[columnMapping["Jenis Ternak**)"]] || "_",
           tujuanPemeliharaan:
             row[columnMapping["Tujuan Pemeliharaan Ternak**)"]] || "_",
-          rumpunHewan: row[columnMapping["Rumpun Ternak"]] || "_",
+          rumpun: row[columnMapping["Rumpun Ternak"]] || "_",
           tanggalTerdaftar: formatDateToString(
             row[columnMapping["Tanggal Pendataan"]] || "_"
           ),
         };
 
         // Jenis Vaksin
-        const dataJenisVaksin = {
-          idJenisVaksin: generateIdJenisVaksin,
-          namaVaksin:
-            row[columnMapping["Jenis Vaksin**)"]] || "Jenis Vaksin Tidak Valid",
-          deskripsi:
-            "Deskripsi " + getValidData(row, columnMapping, "Jenis Vaksin**)"),
-        };
+        if (!uniqueData.has(row[columnMapping["Jenis Vaksin**)"]])) {
+          const dataJenisVaksin = {
+            idJenisVaksin: generateIdJenisVaksin,
+            jenis: row[columnMapping["Jenis Vaksin**)"]],
+            deskripsi:
+              "Deskripsi " +
+              getValidData(row, columnMapping, "Jenis Vaksin**)"),
+          };
+          jenisVaksinBulk.push(dataJenisVaksin);
+          uniqueData.set(row[columnMapping["Jenis Vaksin**)"]], true);
+        }
 
-        const dataNamaVaksin = {
-          idNamaVaksin: generateIdNamaVaksin,
-          idJenisVaksin: dataJenisVaksin
-            ? dataJenisVaksin.idJenisVaksin
-            : generateIdJenisVaksin,
-          namaVaksin:
-            row[columnMapping["Nama Vaksin**)"]] || "Nama Vaksin Tidak Valid",
-          deskripsi:
-            "Deskripsi " + getValidData(row, columnMapping, "Nama Vaksin**)"),
-        };
+        if (!uniqueData.has(row[columnMapping["Nama Vaksin**)"]])) {
+          const dataNamaVaksin = {
+            idNamaVaksin: generateIdNamaVaksin,
+            jenis: row[columnMapping["Jenis Vaksin**)"]],
+            nama: row[columnMapping["Nama Vaksin**)"]],
+            deskripsi:
+              "Deskripsi " + getValidData(row, columnMapping, "Nama Vaksin**)"),
+          };
+          namaVaksinBulk.push(dataNamaVaksin);
+          uniqueData.set(row[columnMapping["Nama Vaksin**)"]], true);
+        }
 
         // data vaksin
         const dataVaksin = {
           idVaksin: generateIdVaksin,
-
-          jenisVaksin:
-            row[columnMapping["Jenis Vaksin**)"]] || "Jenis Vaksin Tidak Valid",
-          namaVaksin:
-            row[columnMapping["Nama Vaksin**)"]] || "Nama Vaksin Tidak Valid",
+          jenis: row[columnMapping["Jenis Vaksin**)"]],
+          nama: row[columnMapping["Nama Vaksin**)"]],
           kodeEartagNasional: getValidData(
             row,
             columnMapping,
@@ -687,8 +689,8 @@ export default class ImportAllData extends Component {
         peternakBulk.push(dataPeternak);
         kandangBulk.push(dataKandang);
         ternakHewanBulk.push(dataTernakHewan);
-        jenisVaksinBulk.push(dataJenisVaksin);
-        namaVaksinBulk.push(dataNamaVaksin);
+        // jenisVaksinBulk.push(dataJenisVaksin);
+        // namaVaksinBulk.push(dataNamaVaksin);
         vaksinBulk.push(dataVaksin);
       }
 
