@@ -130,7 +130,7 @@ const TujuanPemeliharaan = () => {
   const handleAddTujuanOk = async (values, form) => {
     setAddTujuanModalLoading(true);
     const tujuanData = {
-      jenis: values.tujuan,
+      tujuanPemeliharaan: values.tujuanPemeliharaan,
       deskripsi: values.deskripsi,
     };
     try {
@@ -147,18 +147,17 @@ const TujuanPemeliharaan = () => {
     }
   };
 
-  // Handle Editing a Jenis Hewan
+  // Handle Editing a Tujuan Pemeliharaan
   const handleEditTujuan = (row) => {
     setCurrentRowData({ ...row });
     setEditTujuanModalVisible(true);
   };
 
-  // Handle Confirming the Edit Jenis Hewan Modal
-  const handleEditTujuanOk = async (values, form) => {
+  // Handle Confirming the Edit Tujuan Pemeliharaan Modal
+  const handleEditTujuanOk = async (values) => {
     setEditTujuanModalLoading(true);
     try {
       await editTujuanPemeliharaan(values, values.idTujuanPemeliharaan);
-      form.resetFields();
       setEditTujuanModalVisible(false);
       setEditTujuanModalLoading(false);
       message.success("Berhasil diedit!");
@@ -170,25 +169,25 @@ const TujuanPemeliharaan = () => {
     }
   };
 
-  // Handle Deleting a Jenis Hewan
+  // Handle Deleting a Tujuan Pemeliharaan
   const handleDeleteTujuan = (row) => {
     const { idTujuanPemeliharaan } = row;
-
     Modal.confirm({
       title: "Konfirmasi",
       content: "Apakah Anda yakin ingin menghapus data ini?",
       okText: "Ya",
       okType: "danger",
       cancelText: "Tidak",
-      onOk: async () => {
-        try {
-          await deleteTujuanPemeliharaan({ idTujuanPemeliharaan });
-          message.success("Berhasil dihapus");
-          getTujuanPemeliharaanData();
-        } catch (error) {
-          console.error("Failed to delete Tujuan:", error);
-          message.error("Gagal menghapus data, harap coba lagi!");
-        }
+      onOk: () => {
+        deleteTujuanPemeliharaan({ idTujuanPemeliharaan })
+          .then((res) => {
+            message.success("Berhasil dihapus");
+            getTujuanPemeliharaanData();
+          })
+          .catch((error) => {
+            console.error("Gagal menghapus tujuan:", error);
+            message.error("Gagal menghapus tujuan.");
+          });
       },
     });
   };

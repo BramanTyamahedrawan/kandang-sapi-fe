@@ -3,6 +3,7 @@
 /* eslint-disable no-unused-vars */
 import React, { forwardRef, useImperativeHandle, useEffect } from "react";
 import { Form, Input, Modal } from "antd";
+import TujuanPemeliharaan from "..";
 
 const EditTujuanPemeliharaanForm = forwardRef((props, ref) => {
   const [form] = Form.useForm();
@@ -17,7 +18,8 @@ const EditTujuanPemeliharaanForm = forwardRef((props, ref) => {
   useEffect(() => {
     if (visible) {
       form.setFieldsValue({
-        tujuan: currentRowData.tujuan,
+        idTujuanPemeliharaan: currentRowData.idTujuanPemeliharaan,
+        tujuanPemeliharaan: currentRowData.tujuanPemeliharaan,
         deskripsi: currentRowData.deskripsi,
       });
     } else {
@@ -59,7 +61,10 @@ const EditTujuanPemeliharaanForm = forwardRef((props, ref) => {
         name="EditTujuanPemeliharaanForm"
         onFinish={onFinish}
       >
-        <Form.Item name="tujuan" label="Tujuan Pemeliharaan:" rules={[{ required: true, message: "Silahkan masukkan tujuan pemeliharaan!" }]}>
+        <Form.Item name="idTujuanPemeliharaan" hidden>
+          <Input placeholder="ID Tujuan Pemeliharaan" />
+        </Form.Item>
+        <Form.Item name="tujuanPemeliharaan" label="Tujuan Pemeliharaan:" rules={[{ required: true, message: "Silahkan masukkan tujuan pemeliharaan!" }]}>
           <Input placeholder="Masukkan tujuan pemeliharaan" />
         </Form.Item>
 

@@ -47,7 +47,7 @@ const AddTujuanPemeliharaanForm = forwardRef((props, ref) => {
         name="AddTujuanPemeliharaanForm"
         onFinish={onFinish}
       >
-        <Form.Item name="tujuan" label="Tujuan Pemeliharaan:" rules={[{ required: true, message: "Silahkan masukkan tujuan pemeliharaan!" }]}>
+        <Form.Item name="tujuanPemeliharaan" label="Tujuan Pemeliharaan:" rules={[{ required: true, message: "Silahkan masukkan tujuan pemeliharaan!" }]}>
           <Input placeholder="Masukkan tujuan pemeliharaan" />
         </Form.Item>
 
