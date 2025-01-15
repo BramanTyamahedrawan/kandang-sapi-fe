@@ -67,6 +67,8 @@ export function reqValidatUserID(data) {
  * @returns {Promise} - Axios response promise
  */
 export function addUser(data) {
+  console.log("data user ",data);
+  
   return request.post('/users', data)
 }
 

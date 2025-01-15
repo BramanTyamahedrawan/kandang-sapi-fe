@@ -1,7 +1,7 @@
 /* eslint-disable react/prop-types */
-import { useEffect, useState } from 'react'
+import { getPetugas } from '@/api/petugas'; // Import fungsi API untuk mengambil data petugas
 import { Col, Form, Input, Modal, Row, Select, message } from 'antd'
-import { getPetugas } from '@/api/petugas' // Import fungsi API untuk mengambil data petugas
+import { useEffect, useState } from 'react'
 
 const AddPeternakForm = ({ visible, onCancel, onOk, confirmLoading }) => {
   const [form] = Form.useForm()
@@ -31,7 +31,7 @@ const AddPeternakForm = ({ visible, onCancel, onOk, confirmLoading }) => {
       if (statusCode === 200) {
         // Ekstrak nama petugas dan nikPetugas
         const list = content.map((petugas) => ({
-          nikPetugas: petugas.nikPetugas,
+          petugasId: petugas.petugasId,
           namaPetugas: petugas.namaPetugas,
         }))
         setPetugasList(list)
@@ -428,8 +428,8 @@ const AddPeternakForm = ({ visible, onCancel, onOk, confirmLoading }) => {
               <Select placeholder="Pilih Petugas Pendaftar" allowClear>
                 {petugasList.map((petugas) => (
                   <Select.Option
-                    key={petugas.nikPetugas}
-                    value={petugas.nikPetugas}
+                    key={petugas.petugasId}
+                    value={petugas.petugasId}
                   >
                     {petugas.namaPetugas}
                   </Select.Option>

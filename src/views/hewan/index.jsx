@@ -490,6 +490,11 @@ const Hewan = () => {
   const renderColumns = () => {
     const baseColumns = [
       {
+        title: "Id Hewan",
+        dataIndex: "idHewan",
+        key: "idHewan",
+      },
+      {
         title: "Kode Eartag Nasional",
         dataIndex: "kodeEartagNasional",
         key: "kodeEartagNasional",
@@ -526,7 +531,7 @@ const Hewan = () => {
       {
         title: "Petugas Pendaftar",
         dataIndex: ["petugas", "namaPetugas"],
-        key: "petugasPendaftar",
+        key: "namaPetugas",
       },
       {
         title: "Tanggal Terdaftar",
@@ -563,9 +568,9 @@ const Hewan = () => {
   // Render Table based on User Role
   const renderTable = () => {
     if (user && user.role === "ROLE_PETERNAK") {
-      return <Table dataSource={hewans} bordered columns={renderColumns()} rowKey="kodeEartagNasional" />;
+      return <Table dataSource={hewans} bordered columns={renderColumns()} rowKey="idHewan" />;
     } else if (user && (user.role === "ROLE_ADMINISTRATOR" || user.role === "ROLE_PETUGAS")) {
-      return <Table dataSource={hewans} bordered columns={renderColumns()} rowKey="kodeEartagNasional" />;
+      return <Table dataSource={hewans} bordered columns={renderColumns()} rowKey="idHewan" />;
     } else {
       return null;
     }

@@ -1,6 +1,7 @@
 import request from "@/utils/request";
 
 export function addPetugas(data) {
+  
   return request({
     url: "/petugas",
     method: "post",

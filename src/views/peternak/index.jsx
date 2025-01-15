@@ -9,12 +9,12 @@ import {
 } from "@/api/peternak";
 import { getPetugas } from "@/api/petugas";
 import {
+  addUser,
   // addUserBulk,
   addUserBulk,
   deleteUser,
   getUserByUsername,
-  register,
-  reqUserInfo,
+  reqUserInfo
 } from "@/api/user";
 import kandangSapi from "@/assets/images/kandangsapi.jpg";
 import TypingCard from "@/components/TypingCard";
@@ -37,11 +37,11 @@ import {
 } from "antd";
 import moment from "moment";
 import React, { useEffect, useState } from "react";
+import { v4 as uuidv4 } from "uuid";
 import { read, utils } from "xlsx";
 import AddPeternakForm from "./forms/add-peternak-form";
 import EditPeternakForm from "./forms/edit-peternak-form";
 import ViewPeternakForm from "./forms/view-peternak-form";
-
 const Peternak = () => {
   const [petugas, setPetugas] = useState([]);
   const [peternaks, setPeternaks] = useState([]);
@@ -225,19 +225,23 @@ const Peternak = () => {
   // Handle add peternak OK
   const handleAddPeternakOk = async (values, form) => {
     setAddPeternakModalLoading(true);
-
+    const idUser = uuidv4();
     const userData = {
+      id: idUser,
+      nik: values.nikPeternak,
       name: values.namaPeternak,
       username: values.nikPeternak.trim(),
       email: `${values.email}`,
       password: values.nikPeternak,
-      roles: "3",
+      alamat: values.alamat,
+      role: "3",
+      createdAt: new Date().toISOString(),
       photo: kandangSapi, // Assuming you want to set a default photo
     };
-
+   
     try {
       await addPeternak(values).then(async (response) => {
-        await register(userData).then((response) => {
+        await addUser(userData).then((response) => {
           form.resetFields();
           setAddPeternakModalVisible(false);
           setAddPeternakModalLoading(false);
