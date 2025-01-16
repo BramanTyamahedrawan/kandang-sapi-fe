@@ -1,6 +1,6 @@
 // src/api/user.js
 
-import request from '@/utils/request'
+import request from "@/utils/request";
 
 /**
  * Permintaan informasi user saat ini.
@@ -8,7 +8,7 @@ import request from '@/utils/request'
  * @returns {Promise} - Axios response promise
  */
 export function reqUserInfo() {
-  return request.get('/user/me')
+  return request.get("/user/me");
 }
 
 /**
@@ -17,7 +17,7 @@ export function reqUserInfo() {
  * @returns {Promise} - Axios response promise
  */
 export function getUsers() {
-  return request.get('/users')
+  return request.get("/users");
 }
 
 /**
@@ -27,7 +27,7 @@ export function getUsers() {
  * @returns {Promise} - Axios response promise
  */
 export function getUserByUsername(username) {
-  return request.get(`/user/${username}`)
+  return request.get(`/user/${username}`);
 }
 
 /**
@@ -37,7 +37,8 @@ export function getUserByUsername(username) {
  * @returns {Promise} - Axios response promise
  */
 export function deleteUser(id) {
-  return request.delete(`/user/${id}`)
+  console.log("id user ", id);
+  return request.delete(`/user/${id}`);
 }
 
 /**
@@ -47,7 +48,7 @@ export function deleteUser(id) {
  * @returns {Promise} - Axios response promise
  */
 export function editUser(data) {
-  return request.post('/user/edit', data)
+  return request.post("/user/edit", data);
 }
 
 /**
@@ -57,7 +58,7 @@ export function editUser(data) {
  * @returns {Promise} - Axios response promise
  */
 export function reqValidatUserID(data) {
-  return request.post('/user/validatUserID', data)
+  return request.post("/user/validatUserID", data);
 }
 
 /**
@@ -67,13 +68,13 @@ export function reqValidatUserID(data) {
  * @returns {Promise} - Axios response promise
  */
 export function addUser(data) {
-  console.log("data user ",data);
-  
-  return request.post('/users', data)
+  console.log("data user ", data);
+
+  return request.post("/users", data);
 }
 
 export function addUserBulk(data) {
-  return request.post('/users/bulk', data)
+  return request.post("/users/bulk", data);
 }
 
 /**
@@ -83,5 +84,5 @@ export function addUserBulk(data) {
  * @returns {Promise} - Axios response promise
  */
 export function register(data) {
-  return request.post('/auth/signup', data)
+  return request.post("/auth/signup", data);
 }
