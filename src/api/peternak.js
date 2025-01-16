@@ -32,6 +32,7 @@ export function getPeternaks() {
  * @returns {Promise} - Axios response
  */
 export function editPeternak(data, id) {
+  console.log("Data id yang dikirim", id);
   return request.put(`/peternak/${id}`, data);
 }
 

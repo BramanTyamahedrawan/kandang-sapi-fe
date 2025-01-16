@@ -73,6 +73,7 @@ const Peternak = () => {
       if (statusCode === 200) {
         const filteredPeternaks = content.filter((peternak) => {
           const {
+            petugasId,
             namaPeternak,
             nikPeternak,
             idPeternak,
@@ -86,10 +87,13 @@ const Peternak = () => {
           const isIdPeternakValid = typeof idPeternak === "string";
           const isPetugasPendaftarValid = typeof petugasPendaftar === "string";
           const isLokasiValid = typeof lokasi === "string";
-
+          const isPetugasIdValid = typeof petugasId === "string";
+          
           return (
             (isNamaPeternakValid &&
               namaPeternak.toLowerCase().includes(keyword)) ||
+              (isPetugasIdValid &&
+                petugasId.toLowerCase().includes(keyword)) ||
             (isNikPeternakValid &&
               nikPeternak.toLowerCase().includes(keyword)) ||
             (isIdPeternakValid && idPeternak.toLowerCase().includes(keyword)) ||
@@ -177,7 +181,6 @@ const Peternak = () => {
             onOk: async () => {
               try {
                 await deletePeternak({ idPeternak });
-                message.success("Berhasil dihapus");
                 fetchPeternaks();
               } catch (error) {
                 console.error("Error deleting peternak:", error);
@@ -186,7 +189,7 @@ const Peternak = () => {
 
               try {
                 await deleteUser({ userId });
-                message.success("User berhasil dihapus");
+                message.success("Data peternak berhasil dihapus");
               } catch (error) {
                 console.error("Error deleting user:", error);
                 message.error("Gagal menghapus user.");
@@ -205,7 +208,7 @@ const Peternak = () => {
   const handleEditPeternakOk = async (values) => {
     setEditPeternakModalLoading(true);
     try {
-      await editPeternak(values, values.idPeternak);
+      await editPeternak(values, currentRowData.idPeternak);
       setEditPeternakModalVisible(false);
       setEditPeternakModalLoading(false);
       message.success("Berhasil diedit!");
@@ -633,34 +636,43 @@ const Peternak = () => {
 
     // Clone columns to prevent mutation
     const clonedColumns = [
+
+      { title: "Id Peternak", dataIndex: "idPeternak", key: "idPeternak" },
       { title: "NIK Peternak", dataIndex: "nikPeternak", key: "nikPeternak" },
+      {
+        title: "Id Isikhnas",
+        dataIndex: "idIsikhnas",
+        key: "idIsikhnas",
+      },
       {
         title: "Nama Peternak",
         dataIndex: "namaPeternak",
         key: "namaPeternak",
       },
       {
+        title: "Tanggal Lahir",
+        dataIndex: "tanggalLahir",
+        key: "tanggalLahir",
+      },
+      {
+        title: "Jenis Kelamin",
+        dataIndex: "jenisKelamin",
+        key: "jenisKelamin",
+      },
+      {
         title: "Email",
         dataIndex: "email",
         key: "email",
       },
-      {
-        title: "Id Isikhnas",
-        dataIndex: "idIsikhnas",
-        key: "idIsikhnas",
-      },
-      { title: "Alamat", dataIndex: "alamat", key: "alamat" },
       { title: "No Telepon", dataIndex: "noTelepon", key: "noTelepon" },
+      { title: "Alamat", dataIndex: "alamat", key: "alamat" },
+      { title: "Lokasi", dataIndex: "lokasi", key: "lokasi" },
       {
         title: "Petugas Pendaftar",
         dataIndex: ["petugas", "namaPetugas"],
         key: "namaPetugas",
       },
-      {
-        title: "Tanggal Lahir",
-        dataIndex: "tanggalLahir",
-        key: "tanggalLahir",
-      },
+      
     ];
 
     if (

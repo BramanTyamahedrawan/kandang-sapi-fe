@@ -1,7 +1,7 @@
 /* eslint-disable react/prop-types */
 import { getPetugas } from '@/api/petugas'; // Import fungsi API untuk mengambil data petugas
-import { Col, Form, Input, Modal, Row, Select, message } from 'antd'
-import { useEffect, useState } from 'react'
+import { Col, Form, Input, Modal, Row, Select, message } from 'antd';
+import { useEffect, useState } from 'react';
 
 const AddPeternakForm = ({ visible, onCancel, onOk, confirmLoading }) => {
   const [form] = Form.useForm()
@@ -68,7 +68,7 @@ const AddPeternakForm = ({ visible, onCancel, onOk, confirmLoading }) => {
       kabupaten: undefined,
       kecamatan: undefined,
       desa: undefined,
-      lokasi: undefined,
+      alamat: undefined,
     })
     setRegencies([])
     setDistricts([])
@@ -95,7 +95,7 @@ const AddPeternakForm = ({ visible, onCancel, onOk, confirmLoading }) => {
     form.setFieldsValue({
       kecamatan: undefined,
       desa: undefined,
-      lokasi: undefined,
+      alamat: undefined,
     })
     setDistricts([])
     setVillages([])
@@ -119,10 +119,10 @@ const AddPeternakForm = ({ visible, onCancel, onOk, confirmLoading }) => {
         })
     }
 
-    // Reset field desa dan lokasi
+    // Reset field desa dan alamat
     form.setFieldsValue({
       desa: undefined,
-      lokasi: undefined,
+      alamat: undefined,
     })
     setVillages([])
   }
@@ -148,7 +148,7 @@ const AddPeternakForm = ({ visible, onCancel, onOk, confirmLoading }) => {
     ) {
       const mergedLocation = `${selectedVillage.name}, ${selectedDistrict.name}, ${selectedRegency.name}, ${selectedProvince.name}`
       form.setFieldsValue({
-        lokasi: mergedLocation,
+        alamat: mergedLocation,
       })
     }
   }
@@ -181,7 +181,7 @@ const AddPeternakForm = ({ visible, onCancel, onOk, confirmLoading }) => {
         autoComplete="off"
       >
         <Row gutter={16}>
-          <Col span={24}>
+          <Col span={12}>
             <Form.Item
               label="ID Isikhnas:"
               name="idIsikhnas"
@@ -368,20 +368,20 @@ const AddPeternakForm = ({ visible, onCancel, onOk, confirmLoading }) => {
           </Col>
           <Col span={12}>
             <Form.Item
-              label="Lokasi:"
-              name="lokasi"
-              rules={[{ required: true, message: 'Silahkan isi lokasi' }]}
-            >
-              <Input placeholder="Lokasi akan otomatis terisi" readOnly />
-            </Form.Item>
-          </Col>
-          <Col span={24}>
-            <Form.Item
               label="Alamat:"
               name="alamat"
               rules={[{ required: true, message: 'Silahkan isi alamat' }]}
             >
-              <Input placeholder="Masukkan alamat" />
+              <Input placeholder="Alamat akan terisi otomatis" readOnly />
+            </Form.Item>
+          </Col>
+          <Col span={12}>
+            <Form.Item
+              label="Lokasi:"
+              name="lokasi"
+              rules={[{ required: true, message: 'Silahkan isi lokasi' }]}
+            >
+              <Input placeholder="Masukan Lokasi" />
             </Form.Item>
           </Col>
           <Col span={12}>
@@ -417,7 +417,7 @@ const AddPeternakForm = ({ visible, onCancel, onOk, confirmLoading }) => {
           <Col span={12}>
             <Form.Item
               label="Petugas Pendaftar:"
-              name="petugas_id"
+              name="petugasId"
               rules={[
                 {
                   required: true,
