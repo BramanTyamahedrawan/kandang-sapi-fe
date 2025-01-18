@@ -34,19 +34,10 @@ const AddJenisVaksinForm = forwardRef((props, ref) => {
           });
       }}
       confirmLoading={confirmLoading}
-      width={700}
       destroyOnClose
+      okText="Simpan"
     >
-      <Form
-        {...{
-          labelCol: { span: 6 },
-          wrapperCol: { span: 17 },
-        }}
-        form={form}
-        layout="vertical"
-        name="AddJenisVaksinForm"
-        onFinish={onFinish}
-      >
+      <Form form={form} layout="vertical" name="AddJenisVaksinForm" onFinish={onFinish}>
         <Form.Item name="jenis" label="Jenis Vaksin:" rules={[{ required: true, message: "Silahkan masukkan jenis vaksin!" }]}>
           <Input placeholder="Masukkan jenis vaksin" />
         </Form.Item>

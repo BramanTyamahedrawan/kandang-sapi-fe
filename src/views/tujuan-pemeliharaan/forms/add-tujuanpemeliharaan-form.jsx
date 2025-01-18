@@ -34,19 +34,10 @@ const AddTujuanPemeliharaanForm = forwardRef((props, ref) => {
           });
       }}
       confirmLoading={confirmLoading}
-      width={700}
       destroyOnClose
+      okText="Simpan"
     >
-      <Form
-        {...{
-          labelCol: { span: 6 },
-          wrapperCol: { span: 17 },
-        }}
-        form={form}
-        layout="vertical"
-        name="AddTujuanPemeliharaanForm"
-        onFinish={onFinish}
-      >
+      <Form form={form} layout="vertical" name="AddTujuanPemeliharaanForm" onFinish={onFinish}>
         <Form.Item name="tujuanPemeliharaan" label="Tujuan Pemeliharaan:" rules={[{ required: true, message: "Silahkan masukkan tujuan pemeliharaan!" }]}>
           <Input placeholder="Masukkan tujuan pemeliharaan" />
         </Form.Item>

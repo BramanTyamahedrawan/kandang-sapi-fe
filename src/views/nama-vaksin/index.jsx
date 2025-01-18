@@ -1,30 +1,10 @@
 /* eslint-disable no-constant-condition */
 /* eslint-disable no-unused-vars */
-import {
-  addNamaVaksin,
-  deleteNamaVaksin,
-  editNamaVaksin,
-  getNamaVaksin,
-} from "@/api/nama-vaksin";
+import { addNamaVaksin, deleteNamaVaksin, editNamaVaksin, getNamaVaksin } from "@/api/nama-vaksin";
 import { reqUserInfo } from "@/api/user"; // Adjust the import path as necessary
 import TypingCard from "@/components/TypingCard";
-import {
-  DeleteOutlined,
-  EditOutlined,
-  UploadOutlined,
-} from "@ant-design/icons";
-import {
-  Button,
-  Card,
-  Col,
-  Divider,
-  Input,
-  message,
-  Modal,
-  Row,
-  Table,
-  Upload,
-} from "antd";
+import { DeleteOutlined, EditOutlined, UploadOutlined } from "@ant-design/icons";
+import { Button, Card, Col, Divider, Input, message, Modal, Row, Table, Upload } from "antd";
 import React, { useEffect, useRef, useState } from "react";
 import { read, utils } from "xlsx";
 import AddNamaVaksinForm from "./forms/add-namavaksin-form";
@@ -33,15 +13,11 @@ import EditNamaVaksinForm from "./forms/edit-namavaksin-form";
 const NamaVaksin = () => {
   // State Variables
   const [namaVaksins, setNamaVaksins] = useState([]);
-  const [editNamaVaksinModalVisible, setEditNamaVaksinModalVisible] =
-    useState(false);
-  const [editNamaVaksinModalLoading, setEditNamaVaksinModalLoading] =
-    useState(false);
+  const [editNamaVaksinModalVisible, setEditNamaVaksinModalVisible] = useState(false);
+  const [editNamaVaksinModalLoading, setEditNamaVaksinModalLoading] = useState(false);
   const [currentRowData, setCurrentRowData] = useState({});
-  const [addNamaVaksinModalVisible, setAddNamaVaksinModalVisible] =
-    useState(false);
-  const [addNamaVaksinModalLoading, setAddNamaVaksinModalLoading] =
-    useState(false);
+  const [addNamaVaksinModalVisible, setAddNamaVaksinModalVisible] = useState(false);
+  const [addNamaVaksinModalLoading, setAddNamaVaksinModalLoading] = useState(false);
   const [importModalVisible, setImportModalVisible] = useState(false);
   const [importedData, setImportedData] = useState([]);
   const [searchKeyword, setSearchKeyword] = useState("");
@@ -81,12 +57,7 @@ const NamaVaksin = () => {
           const isNamaValid = typeof namaVaksin === "string";
           const isDeskripsiValid = typeof deskripsi === "string";
 
-          return (
-            (isIdNamaVaksinValid &&
-              idNamaVaksin.toLowerCase().includes(keyword)) ||
-            (isNamaValid && namaVaksin.toLowerCase().includes(keyword)) ||
-            (isDeskripsiValid && deskripsi.toLowerCase().includes(keyword))
-          );
+          return (isIdNamaVaksinValid && idNamaVaksin.toLowerCase().includes(keyword)) || (isNamaValid && namaVaksin.toLowerCase().includes(keyword)) || (isDeskripsiValid && deskripsi.toLowerCase().includes(keyword));
         });
 
         setNamaVaksins(filteredNamaVaksin);
@@ -233,11 +204,7 @@ const NamaVaksin = () => {
       const utcDays = Math.floor(input - 25569);
       const utcValue = utcDays * 86400;
       const dateInfo = new Date(utcValue * 1000);
-      date = new Date(
-        dateInfo.getFullYear(),
-        dateInfo.getMonth(),
-        dateInfo.getDate()
-      ).toString();
+      date = new Date(dateInfo.getFullYear(), dateInfo.getMonth(), dateInfo.getDate()).toString();
     } else if (typeof input === "string") {
       const [day, month, year] = input.split("/");
       date = new Date(`${year}-${month}-${day}`).toString();
@@ -411,10 +378,7 @@ const NamaVaksin = () => {
       { title: "Deskripsi", dataIndex: "deskripsi", key: "deskripsi" },
     ];
 
-    if (
-      user &&
-      (user.role === "ROLE_ADMINISTRATOR" || user.role === "ROLE_PETUGAS")
-    ) {
+    if (user && (user.role === "ROLE_ADMINISTRATOR" || user.role === "ROLE_PETUGAS")) {
       baseColumns.push({
         title: "Operasi",
         key: "action",
@@ -422,22 +386,9 @@ const NamaVaksin = () => {
         align: "center",
         render: (text, row) => (
           <span>
-            <Button
-              type="primary"
-              shape="circle"
-              icon={<EditOutlined />}
-              title="Edit"
-              onClick={() => handleEditNamaVaksin(row)}
-            />
+            <Button type="primary" shape="circle" icon={<EditOutlined />} title="Edit" onClick={() => handleEditNamaVaksin(row)} />
             <Divider type="vertical" />
-            <Button
-              type="primary"
-              danger
-              shape="circle"
-              icon={<DeleteOutlined />}
-              title="Delete"
-              onClick={() => handleDeleteNamaVaksin(row)}
-            />
+            <Button type="primary" danger shape="circle" icon={<DeleteOutlined />} title="Delete" onClick={() => handleDeleteNamaVaksin(row)} />
           </span>
         ),
       });
@@ -449,26 +400,9 @@ const NamaVaksin = () => {
   // Render Table based on User Role
   const renderTable = () => {
     if (user && user.role === "ROLE_PETERNAK") {
-      return (
-        <Table
-          dataSource={namaVaksins}
-          bordered
-          columns={renderColumns()}
-          rowKey="idNamaVaksin"
-        />
-      );
-    } else if (
-      user &&
-      (user.role === "ROLE_ADMINISTRATOR" || user.role === "ROLE_PETUGAS")
-    ) {
-      return (
-        <Table
-          dataSource={namaVaksins}
-          bordered
-          columns={renderColumns()}
-          rowKey="idNamaVaksin"
-        />
-      );
+      return <Table dataSource={namaVaksins} bordered columns={renderColumns()} rowKey="idNamaVaksin" />;
+    } else if (user && (user.role === "ROLE_ADMINISTRATOR" || user.role === "ROLE_PETUGAS")) {
+      return <Table dataSource={namaVaksins} bordered columns={renderColumns()} rowKey="idNamaVaksin" />;
     } else {
       return null;
     }
@@ -476,27 +410,20 @@ const NamaVaksin = () => {
 
   // Render Buttons based on User Role
   const renderButtons = () => {
-    if (
-      user &&
-      (user.role === "ROLE_ADMINISTRATOR" || user.role === "ROLE_PETUGAS")
-    ) {
+    if (user && (user.role === "ROLE_ADMINISTRATOR" || user.role === "ROLE_PETUGAS")) {
       return (
         <Row gutter={[16, 16]} justify="start" style={{ paddingLeft: 9 }}>
-          <Col xs={24} sm={12} md={8} lg={8} xl={8}>
+          <Col>
             <Button type="primary" onClick={handleAddJenisVaksin} block>
               Tambah Nama Vaksin
             </Button>
           </Col>
-          <Col xs={24} sm={12} md={8} lg={8} xl={8}>
-            <Button
-              icon={<UploadOutlined />}
-              onClick={handleImportModalOpen}
-              block
-            >
+          <Col>
+            <Button icon={<UploadOutlined />} onClick={handleImportModalOpen} block>
               Import File
             </Button>
           </Col>
-          <Col xs={24} sm={12} md={8} lg={8} xl={8}>
+          <Col>
             <Button icon={<UploadOutlined />} onClick={handleExportData} block>
               Export File
             </Button>
@@ -513,12 +440,7 @@ const NamaVaksin = () => {
     <Row gutter={[16, 16]} justify="space-between">
       {renderButtons()}
       <Col xs={24} sm={12} md={8} lg={8} xl={8}>
-        <Input
-          placeholder="Cari data"
-          value={searchKeyword}
-          onChange={(e) => handleSearch(e.target.value)}
-          style={{ width: "100%" }}
-        />
+        <Input placeholder="Cari data" value={searchKeyword} onChange={(e) => handleSearch(e.target.value)} style={{ width: "100%" }} />
       </Col>
     </Row>
   );
@@ -535,23 +457,10 @@ const NamaVaksin = () => {
       </Card>
 
       {/* Edit Nama vaksin Modal */}
-      <EditNamaVaksinForm
-        currentRowData={currentRowData}
-        wrappedComponentRef={editNamaVaksinFormRef}
-        visible={editNamaVaksinModalVisible}
-        confirmLoading={editNamaVaksinModalLoading}
-        onCancel={handleCancel}
-        onOk={handleEditNamaVaksinOk}
-      />
+      <EditNamaVaksinForm currentRowData={currentRowData} wrappedComponentRef={editNamaVaksinFormRef} visible={editNamaVaksinModalVisible} confirmLoading={editNamaVaksinModalLoading} onCancel={handleCancel} onOk={handleEditNamaVaksinOk} />
 
       {/* Add Nama Vaksin Modal */}
-      <AddNamaVaksinForm
-        wrappedComponentRef={addNamaVaksinFormRef}
-        visible={addNamaVaksinModalVisible}
-        confirmLoading={addNamaVaksinModalLoading}
-        onCancel={handleCancel}
-        onOk={handleAddNamaVaksinOk}
-      />
+      <AddNamaVaksinForm wrappedComponentRef={addNamaVaksinFormRef} visible={addNamaVaksinModalVisible} confirmLoading={addNamaVaksinModalLoading} onCancel={handleCancel} onOk={handleAddNamaVaksinOk} />
 
       {/* Import Modal */}
       <Modal
@@ -562,21 +471,12 @@ const NamaVaksin = () => {
           <Button key="cancel" onClick={handleImportModalClose}>
             Cancel
           </Button>,
-          <Button
-            key="upload"
-            type="primary"
-            loading={uploading}
-            onClick={handleUpload}
-          >
+          <Button key="upload" type="primary" loading={uploading} onClick={handleUpload}>
             Upload
           </Button>,
         ]}
       >
-        <Upload
-          beforeUpload={handleFileImport}
-          accept=".xlsx,.xls,.csv"
-          showUploadList={false}
-        >
+        <Upload beforeUpload={handleFileImport} accept=".xlsx,.xls,.csv" showUploadList={false}>
           <Button icon={<UploadOutlined />}>Pilih File</Button>
         </Upload>
       </Modal>

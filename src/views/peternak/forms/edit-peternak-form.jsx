@@ -1,3 +1,4 @@
+/* eslint-disable react/prop-types */
 /**
  * eslint-disable react/prop-types
  *
@@ -10,13 +11,7 @@ import { useEffect, useState } from "react";
 
 const { Option } = Select;
 
-const EditPeternakForm = ({
-  visible,
-  onCancel,
-  onOk,
-  confirmLoading,
-  currentRowData,
-}) => {
+const EditPeternakForm = ({ visible, onCancel, onOk, confirmLoading, currentRowData }) => {
   const [form] = Form.useForm();
   const [provinces, setProvinces] = useState([]);
   const [regencies, setRegencies] = useState([]);
@@ -41,9 +36,7 @@ const EditPeternakForm = ({
   // Fungsi untuk mengambil daftar provinsi
   const fetchProvinces = async () => {
     try {
-      const response = await fetch(
-        "https://www.emsifa.com/api-wilayah-indonesia/api/provinces.json"
-      );
+      const response = await fetch("https://www.emsifa.com/api-wilayah-indonesia/api/provinces.json");
       const data = await response.json();
       setProvinces(data);
     } catch (error) {
@@ -63,7 +56,6 @@ const EditPeternakForm = ({
           namaPetugas: petugas.namaPetugas,
         }));
         setPetugasList(list);
-        
       } else {
         message.error("Gagal mengambil data petugas.");
       }
@@ -75,9 +67,7 @@ const EditPeternakForm = ({
 
   // Fungsi untuk menginisialisasi form berdasarkan alamat
   const initializeForm = async (alamat) => {
-    const [village, district, regency, province] = alamat
-      .split(", ")
-      .map((item) => item.trim());
+    const [village, district, regency, province] = alamat.split(", ").map((item) => item.trim());
 
     form.setFieldsValue({
       provinsi: province,
@@ -113,9 +103,7 @@ const EditPeternakForm = ({
     const selectedProvince = provinces.find((prov) => prov.name === province);
     if (selectedProvince) {
       try {
-        const response = await fetch(
-          `https://www.emsifa.com/api-wilayah-indonesia/api/regencies/${selectedProvince.id}.json`
-        );
+        const response = await fetch(`https://www.emsifa.com/api-wilayah-indonesia/api/regencies/${selectedProvince.id}.json`);
         const data = await response.json();
         setRegencies(data);
       } catch (error) {
@@ -130,9 +118,7 @@ const EditPeternakForm = ({
     const selectedRegency = regencies.find((reg) => reg.name === regency);
     if (selectedRegency) {
       try {
-        const response = await fetch(
-          `https://www.emsifa.com/api-wilayah-indonesia/api/districts/${selectedRegency.id}.json`
-        );
+        const response = await fetch(`https://www.emsifa.com/api-wilayah-indonesia/api/districts/${selectedRegency.id}.json`);
         const data = await response.json();
         setDistricts(data);
       } catch (error) {
@@ -147,9 +133,7 @@ const EditPeternakForm = ({
     const selectedDistrict = districts.find((dist) => dist.name === district);
     if (selectedDistrict) {
       try {
-        const response = await fetch(
-          `https://www.emsifa.com/api-wilayah-indonesia/api/villages/${selectedDistrict.id}.json`
-        );
+        const response = await fetch(`https://www.emsifa.com/api-wilayah-indonesia/api/villages/${selectedDistrict.id}.json`);
         const data = await response.json();
         setVillages(data);
       } catch (error) {
@@ -161,15 +145,11 @@ const EditPeternakForm = ({
 
   // Handler perubahan provinsi
   const handleProvinceChange = async (value) => {
-    const selectedProvince = provinces.find(
-      (province) => province.name === value
-    );
+    const selectedProvince = provinces.find((province) => province.name === value);
 
     if (selectedProvince) {
       try {
-        const response = await fetch(
-          `https://www.emsifa.com/api-wilayah-indonesia/api/regencies/${selectedProvince.id}.json`
-        );
+        const response = await fetch(`https://www.emsifa.com/api-wilayah-indonesia/api/regencies/${selectedProvince.id}.json`);
         const data = await response.json();
         setRegencies(data);
         setDistricts([]);
@@ -193,9 +173,7 @@ const EditPeternakForm = ({
 
     if (selectedRegency) {
       try {
-        const response = await fetch(
-          `https://www.emsifa.com/api-wilayah-indonesia/api/districts/${selectedRegency.id}.json`
-        );
+        const response = await fetch(`https://www.emsifa.com/api-wilayah-indonesia/api/districts/${selectedRegency.id}.json`);
         const data = await response.json();
         setDistricts(data);
         setVillages([]);
@@ -213,15 +191,11 @@ const EditPeternakForm = ({
 
   // Handler perubahan kecamatan
   const handleDistrictChange = async (value) => {
-    const selectedDistrict = districts.find(
-      (district) => district.name === value
-    );
+    const selectedDistrict = districts.find((district) => district.name === value);
 
     if (selectedDistrict) {
       try {
-        const response = await fetch(
-          `https://www.emsifa.com/api-wilayah-indonesia/api/villages/${selectedDistrict.id}.json`
-        );
+        const response = await fetch(`https://www.emsifa.com/api-wilayah-indonesia/api/villages/${selectedDistrict.id}.json`);
         const data = await response.json();
         setVillages(data);
         form.setFieldsValue({
@@ -237,23 +211,12 @@ const EditPeternakForm = ({
 
   // Handler perubahan desa
   const handleVillageChange = (value) => {
-    const selectedProvince = provinces.find(
-      (province) => province.name === form.getFieldValue("provinsi")
-    );
-    const selectedRegency = regencies.find(
-      (regency) => regency.name === form.getFieldValue("kabupaten")
-    );
-    const selectedDistrict = districts.find(
-      (district) => district.name === form.getFieldValue("kecamatan")
-    );
+    const selectedProvince = provinces.find((province) => province.name === form.getFieldValue("provinsi"));
+    const selectedRegency = regencies.find((regency) => regency.name === form.getFieldValue("kabupaten"));
+    const selectedDistrict = districts.find((district) => district.name === form.getFieldValue("kecamatan"));
     const selectedVillage = villages.find((village) => village.name === value);
 
-    if (
-      selectedProvince &&
-      selectedRegency &&
-      selectedDistrict &&
-      selectedVillage
-    ) {
+    if (selectedProvince && selectedRegency && selectedDistrict && selectedVillage) {
       const mergedLocation = `${selectedVillage.name}, ${selectedDistrict.name}, ${selectedRegency.name}, ${selectedProvince.name}`;
       form.setFieldsValue({
         alamat: mergedLocation,
@@ -274,17 +237,11 @@ const EditPeternakForm = ({
   };
 
   return (
-    <Modal
-      title='Edit Peternak'
-      visible={visible}
-      onCancel={onCancel}
-      onOk={handleOk}
-      confirmLoading={confirmLoading}
-      width={1000}>
+    <Modal title="Edit Peternak" visible={visible} onCancel={onCancel} onOk={handleOk} confirmLoading={confirmLoading} width={1000} okText="Simpan">
       <Form
         form={form}
-        name='edit_peternak_form'
-        layout='vertical'
+        name="edit_peternak_form"
+        layout="vertical"
         initialValues={{
           idPeternak: currentRowData?.idPeternak,
           idIsikhnas: currentRowData?.idIsikhnas,
@@ -301,39 +258,31 @@ const EditPeternakForm = ({
           petugasId: currentRowData.petugas?.petugasId,
           tanggalPendaftaran: currentRowData?.tanggalPendaftaran,
         }}
-        autoComplete='off'>
+        autoComplete="off"
+      >
         <Row gutter={16}>
           <Col span={12}>
             <Form.Item
-              label='ID Isikhnas:'
-              name='idIsikhnas'
+              label="ID Isikhnas:"
+              name="idIsikhnas"
               rules={[
                 {
                   required: true,
                   message: "Silahkan isi ID Isikhnas Peternak",
                 },
-              ]}>
-              <Input placeholder='Masukkan ID Isikhnas Peternak' />
+              ]}
+            >
+              <Input placeholder="Masukkan ID Isikhnas Peternak" />
             </Form.Item>
           </Col>
           <Col span={12}>
-            <Form.Item
-              label='Nama Peternak:'
-              name='namaPeternak'
-              rules={[
-                { required: true, message: "Silahkan isi nama peternak" },
-              ]}>
-              <Input placeholder='Masukkan Nama Peternak' />
+            <Form.Item label="Nama Peternak:" name="namaPeternak" rules={[{ required: true, message: "Silahkan isi nama peternak" }]}>
+              <Input placeholder="Masukkan Nama Peternak" />
             </Form.Item>
           </Col>
           <Col span={12}>
-            <Form.Item
-              label='NIK Peternak:'
-              name='nikPeternak'
-              rules={[
-                { required: true, message: "Silahkan isi NIK Peternak" },
-              ]}>
-              <Input placeholder='Masukkan NIK Peternak' />
+            <Form.Item label="NIK Peternak:" name="nikPeternak" rules={[{ required: true, message: "Silahkan isi NIK Peternak" }]}>
+              <Input placeholder="Masukkan NIK Peternak" />
             </Form.Item>
           </Col>
           <Col span={12}>
@@ -343,7 +292,7 @@ const EditPeternakForm = ({
               rules={[
                 {
                   required: true,
-                  message: 'Silahkan isi No. Telepon Peternak',
+                  message: "Silahkan isi No. Telepon Peternak",
                 },
               ]}
             >
@@ -357,7 +306,7 @@ const EditPeternakForm = ({
               rules={[
                 {
                   required: true,
-                  message: 'Silahkan isi Email Peternak',
+                  message: "Silahkan isi Email Peternak",
                 },
               ]}
             >
@@ -371,15 +320,15 @@ const EditPeternakForm = ({
               rules={[
                 {
                   required: true,
-                  message: 'Silahkan isi Jenis Kelamin Peternak',
+                  message: "Silahkan isi Jenis Kelamin Peternak",
                 },
               ]}
             >
               <Select placeholder="Pilih jenis kelamin">
-                <Select.Option key={1} value={'laki-laki'}>
+                <Select.Option key={1} value={"laki-laki"}>
                   Laki-laki
                 </Select.Option>
-                <Select.Option key={2} value={'Perempuan'}>
+                <Select.Option key={2} value={"Perempuan"}>
                   Perempuan
                 </Select.Option>
               </Select>
@@ -392,7 +341,7 @@ const EditPeternakForm = ({
               rules={[
                 {
                   required: true,
-                  message: 'Silahkan pilih tanggal lahir',
+                  message: "Silahkan pilih tanggal lahir",
                 },
               ]}
             >
@@ -400,14 +349,8 @@ const EditPeternakForm = ({
             </Form.Item>
           </Col>
           <Col span={12}>
-            <Form.Item
-              label='Provinsi:'
-              name='provinsi'
-              rules={[{ required: true, message: "Silahkan pilih provinsi" }]}>
-              <Select
-                placeholder='Pilih Provinsi'
-                onChange={handleProvinceChange}
-                allowClear>
+            <Form.Item label="Provinsi:" name="provinsi" rules={[{ required: true, message: "Silahkan pilih provinsi" }]}>
+              <Select placeholder="Pilih Provinsi" onChange={handleProvinceChange} allowClear>
                 {provinces.map((province) => (
                   <Option key={province.id} value={province.name}>
                     {province.name}
@@ -417,15 +360,8 @@ const EditPeternakForm = ({
             </Form.Item>
           </Col>
           <Col span={12}>
-            <Form.Item
-              label='Kabupaten:'
-              name='kabupaten'
-              rules={[{ required: true, message: "Silahkan pilih kabupaten" }]}>
-              <Select
-                placeholder='Pilih Kabupaten'
-                onChange={handleRegencyChange}
-                allowClear
-                disabled={!regencies.length}>
+            <Form.Item label="Kabupaten:" name="kabupaten" rules={[{ required: true, message: "Silahkan pilih kabupaten" }]}>
+              <Select placeholder="Pilih Kabupaten" onChange={handleRegencyChange} allowClear disabled={!regencies.length}>
                 {regencies.map((regency) => (
                   <Option key={regency.id} value={regency.name}>
                     {regency.name}
@@ -435,15 +371,8 @@ const EditPeternakForm = ({
             </Form.Item>
           </Col>
           <Col span={12}>
-            <Form.Item
-              label='Kecamatan:'
-              name='kecamatan'
-              rules={[{ required: true, message: "Silahkan pilih kecamatan" }]}>
-              <Select
-                placeholder='Pilih Kecamatan'
-                onChange={handleDistrictChange}
-                allowClear
-                disabled={!districts.length}>
+            <Form.Item label="Kecamatan:" name="kecamatan" rules={[{ required: true, message: "Silahkan pilih kecamatan" }]}>
+              <Select placeholder="Pilih Kecamatan" onChange={handleDistrictChange} allowClear disabled={!districts.length}>
                 {districts.map((district) => (
                   <Option key={district.id} value={district.name}>
                     {district.name}
@@ -453,15 +382,8 @@ const EditPeternakForm = ({
             </Form.Item>
           </Col>
           <Col span={12}>
-            <Form.Item
-              label='Desa:'
-              name='desa'
-              rules={[{ required: true, message: "Silahkan pilih desa" }]}>
-              <Select
-                placeholder='Pilih Desa'
-                onChange={handleVillageChange}
-                allowClear
-                disabled={!villages.length}>
+            <Form.Item label="Desa:" name="desa" rules={[{ required: true, message: "Silahkan pilih desa" }]}>
+              <Select placeholder="Pilih Desa" onChange={handleVillageChange} allowClear disabled={!villages.length}>
                 {villages.map((village) => (
                   <Option key={village.id} value={village.name}>
                     {village.name}
@@ -471,70 +393,63 @@ const EditPeternakForm = ({
             </Form.Item>
           </Col>
           <Col span={12}>
-            <Form.Item
-              label='Dusun:'
-              name='dusun'
-              rules={[{ required: true, message: "Silahkan isi dusun" }]}>
-              <Input placeholder='Masukkan dusun' />
+            <Form.Item label="Dusun:" name="dusun" rules={[{ required: true, message: "Silahkan isi dusun" }]}>
+              <Input placeholder="Masukkan dusun" />
+            </Form.Item>
+          </Col>
+          <Col span={12}>
+            <Form.Item label="Alamat:" name="alamat" rules={[{ required: true, message: "Silahkan isi alamat" }]}>
+              <Input placeholder="Alamat akan terisi otomatis" readOnly />
+            </Form.Item>
+          </Col>
+          <Col span={12}>
+            <Form.Item label="Lokasi:" name="lokasi" rules={[{ required: true, message: "Silahkan isi lokasi" }]}>
+              <Input placeholder="Masukan Lokasi" />
             </Form.Item>
           </Col>
           <Col span={12}>
             <Form.Item
-              label='Alamat:'
-              name='alamat'
-              rules={[{ required: true, message: "Silahkan isi alamat" }]}>
-              <Input placeholder='Alamat akan terisi otomatis' readOnly/>
-            </Form.Item>
-          </Col>
-          <Col span={12}>
-            <Form.Item
-              label='Lokasi:'
-              name='lokasi'
-              rules={[{ required: true, message: "Silahkan isi lokasi" }]}>
-              <Input placeholder='Masukan Lokasi' />
-            </Form.Item>
-          </Col>
-          <Col span={12}>
-            <Form.Item
-              label='Latitude:'
-              name='latitude'
+              label="Latitude:"
+              name="latitude"
               rules={[
                 { required: true, message: "Silahkan isi latitude" },
                 {
                   pattern: /^-?\d+(\.\d+)?$/,
                   message: "Latitude harus berupa angka",
                 },
-              ]}>
-              <Input placeholder='Masukkan Latitude' />
+              ]}
+            >
+              <Input placeholder="Masukkan Latitude" />
             </Form.Item>
           </Col>
           <Col span={12}>
             <Form.Item
-              label='Longitude:'
-              name='longitude'
+              label="Longitude:"
+              name="longitude"
               rules={[
                 { required: true, message: "Silahkan isi longitude" },
                 {
                   pattern: /^-?\d+(\.\d+)?$/,
                   message: "Longitude harus berupa angka",
                 },
-              ]}>
-              <Input placeholder='Masukkan Longitude' />
+              ]}
+            >
+              <Input placeholder="Masukkan Longitude" />
             </Form.Item>
           </Col>
           <Col span={12}>
             <Form.Item
-              label='Petugas Pendaftar:'
-              name='petugasId'
+              label="Petugas Pendaftar:"
+              name="petugasId"
               rules={[
                 {
                   required: true,
                   message: "Silahkan pilih petugas pendaftar",
                 },
-              ]}>
-              <Select placeholder='Pilih Petugas Pendaftar' allowClear>
+              ]}
+            >
+              <Select placeholder="Pilih Petugas Pendaftar" allowClear>
                 {petugasList.map((petugas) => (
-                  
                   <Option key={petugas.petugasId} value={petugas.petugasId}>
                     {petugas.namaPetugas}
                   </Option>
@@ -544,15 +459,16 @@ const EditPeternakForm = ({
           </Col>
           <Col span={12}>
             <Form.Item
-              label='Tanggal Pendaftaran:'
-              name='tanggalPendaftaran'
+              label="Tanggal Pendaftaran:"
+              name="tanggalPendaftaran"
               rules={[
                 {
                   required: true,
                   message: "Silahkan pilih tanggal pendaftaran",
                 },
-              ]}>
-              <Input type='date' placeholder='Masukkan Tanggal Pendaftaran' />
+              ]}
+            >
+              <Input type="date" placeholder="Masukkan Tanggal Pendaftaran" />
             </Form.Item>
           </Col>
         </Row>

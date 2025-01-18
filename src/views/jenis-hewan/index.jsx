@@ -161,11 +161,10 @@ const JenisHewan = () => {
   };
 
   // Handle Confirming the Edit Jenis Hewan Modal
-  const handleEditHewanOk = async (values, form) => {
+  const handleEditHewanOk = async (values) => {
     setEditHewanModalLoading(true);
     try {
-      await editJenisHewan(values, values.idJenisHewan);
-      form.resetFields();
+      await editJenisHewan(values, currentRowData.idJenisHewan);
       setEditHewanModalVisible(false);
       setEditHewanModalLoading(false);
       message.success("Berhasil diedit!");
@@ -422,17 +421,17 @@ const JenisHewan = () => {
     if (user && (user.role === "ROLE_ADMINISTRATOR" || user.role === "ROLE_PETUGAS")) {
       return (
         <Row gutter={[16, 16]} justify="start" style={{ paddingLeft: 9 }}>
-          <Col xs={24} sm={12} md={8} lg={8} xl={8}>
+          <Col>
             <Button type="primary" onClick={handleAddHewan} block>
               Tambah Jenis Hewan
             </Button>
           </Col>
-          <Col xs={24} sm={12} md={8} lg={8} xl={8}>
+          <Col>
             <Button icon={<UploadOutlined />} onClick={handleImportModalOpen} block>
               Import File
             </Button>
           </Col>
-          <Col xs={24} sm={12} md={8} lg={8} xl={8}>
+          <Col>
             <Button icon={<UploadOutlined />} onClick={handleExportData} block>
               Export File
             </Button>

@@ -378,7 +378,7 @@ const Hewan = () => {
         // Jika NIK tidak ada, gunakan ID Peternak untuk keduanya
         const dataToSave = {
           idPetugas: row[mapping["ID Petugas"]] || generateIdPetugas,
-          idKandang: row[mapping["ID Kandang"]] || "-",
+          idKandang: row[mapping["ID Kandang"]] || generateIdKandang,
           idHewan: generateIdHewan,
           rumpun: rumpunHewan,
           tujuanPemeliharaan: tujuanPemeliharaan,
@@ -395,8 +395,8 @@ const Hewan = () => {
           tempatLahir: row[columnMapping["Tempat Lahir Ternak"]] || "-",
           tanggalLahir: row[columnMapping["Tanggal Lahir Ternak"]] || "-",
           umur: row[mapping["umur"]] || "-",
-          latitude:  row[mapping["latitude"]] || "-",
-          longitude:  row[mapping["longitude"]] || "-",
+          latitude: row[mapping["latitude"]] || "-",
+          longitude: row[mapping["longitude"]] || "-",
           desa: row[mapping["Desa"]] || "-",
           kecamatan: row[mapping["Kecamatan"]] || "-",
           kabupaten: row[mapping["Kabupaten"]] || "-",

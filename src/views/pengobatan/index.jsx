@@ -1,32 +1,11 @@
 /* eslint-disable no-constant-condition */
 /* eslint-disable no-unused-vars */
 import { Component } from "react";
-import {
-  Card,
-  Button,
-  Table,
-  message,
-  Row,
-  Col,
-  Divider,
-  Modal,
-  Upload,
-  Input,
-} from "antd";
-import {
-  getPengobatan,
-  deletePengobatan,
-  editPengobatan,
-  addPengobatan,
-  addPengobatanImport,
-} from "@/api/pengobatan";
+import { Card, Button, Table, message, Row, Col, Divider, Modal, Upload, Input } from "antd";
+import { getPengobatan, deletePengobatan, editPengobatan, addPengobatan, addPengobatanImport } from "@/api/pengobatan";
 import { getPetugas } from "@/api/petugas";
 import { read, utils } from "xlsx";
-import {
-  UploadOutlined,
-  EditOutlined,
-  DeleteOutlined,
-} from "@ant-design/icons";
+import { UploadOutlined, EditOutlined, DeleteOutlined } from "@ant-design/icons";
 import AddPengobatanForm from "./forms/add-pengobatan-form";
 import EditPengobatanForm from "./forms/edit-pengobatan-form";
 import TypingCard from "@/components/TypingCard";
@@ -42,15 +21,9 @@ export const sendPengobatanImport = async (data, batchSize = 7000) => {
     try {
       console.log(`Data Pengobatan (Batch ${i + 1}):`, batchData); // Log data yang dikirim
       const response = await addPengobatanImport(batchData);
-      console.log(
-        `Batch ${i + 1}/${totalBatches} berhasil dikirim`,
-        response.data
-      );
+      console.log(`Batch ${i + 1}/${totalBatches} berhasil dikirim`, response.data);
     } catch (error) {
-      console.error(
-        `Batch ${i + 1}/${totalBatches} gagal dikirim`,
-        error.response?.data || error.message
-      );
+      console.error(`Batch ${i + 1}/${totalBatches} gagal dikirim`, error.response?.data || error.message);
       throw error; // Hentikan proses jika batch gagal
     }
   }
@@ -73,8 +46,7 @@ function parseLocation(lokasi) {
   const desa = parts[3] || "-";
 
   // Validasi bahwa setidaknya satu bagian selain "-" harus terisi
-  const isValid =
-    desa !== "-" || kecamatan !== "-" || kabupaten !== "-" || provinsi !== "-";
+  const isValid = desa !== "-" || kecamatan !== "-" || kabupaten !== "-" || provinsi !== "-";
 
   if (!isValid) {
     console.warn(`Lokasi tidak valid: ${lokasi}`);
@@ -111,17 +83,7 @@ class Pengobatan extends Component {
 
     if (statusCode === 200) {
       const filteredPengobatan = content.filter((pengobatan) => {
-        const {
-          idKasus,
-          tanggalPengobatan,
-          tanggalKasus,
-          namaPetugas,
-          namaInfrastruktur,
-          lokasi,
-          dosis,
-          sindrom,
-          diagnosaBanding,
-        } = pengobatan;
+        const { idKasus, tanggalPengobatan, tanggalKasus, namaPetugas, namaInfrastruktur, lokasi, dosis, sindrom, diagnosaBanding } = pengobatan;
         const keyword = this.state.searchKeyword.toLowerCase();
 
         const isIdKasusValid = typeof idKasus === "string";
@@ -136,18 +98,14 @@ class Pengobatan extends Component {
 
         return (
           (isIdKasusValid && idKasus.toLowerCase().includes(keyword)) ||
-          (isTanggalPengobatanValid &&
-            tanggalPengobatan.toLowerCase().includes(keyword)) ||
-          (isTanggalKasusValid &&
-            tanggalKasus.toLowerCase().includes(keyword)) ||
+          (isTanggalPengobatanValid && tanggalPengobatan.toLowerCase().includes(keyword)) ||
+          (isTanggalKasusValid && tanggalKasus.toLowerCase().includes(keyword)) ||
           (isNamaPetugasValid && namaPetugas.toLowerCase().includes(keyword)) ||
-          (isNamaInfrastrukturValid &&
-            namaInfrastruktur.toLowerCase().includes(keyword)) ||
+          (isNamaInfrastrukturValid && namaInfrastruktur.toLowerCase().includes(keyword)) ||
           (isLokasiValid && lokasi.toLowerCase().includes(keyword)) ||
           (isDosisValid && dosis.toLowerCase().includes(keyword)) ||
           (isSindromValid && sindrom.toLowerCase().includes(keyword)) ||
-          (isDiagnosaBandingValid &&
-            diagnosaBanding.toLowerCase().includes(keyword))
+          (isDiagnosaBandingValid && diagnosaBanding.toLowerCase().includes(keyword))
         );
       });
 
@@ -252,11 +210,7 @@ class Pengobatan extends Component {
       const utcDays = Math.floor(input - 25569);
       const utcValue = utcDays * 86400;
       const dateInfo = new Date(utcValue * 1000);
-      date = new Date(
-        dateInfo.getFullYear(),
-        dateInfo.getMonth(),
-        dateInfo.getDate()
-      ).toString();
+      date = new Date(dateInfo.getFullYear(), dateInfo.getMonth(), dateInfo.getDate()).toString();
     } else if (typeof input === "string") {
       const [day, month, year] = input.split("/");
       date = new Date(`${year}-${month}-${day}`).toString();
@@ -302,10 +256,7 @@ class Pengobatan extends Component {
             const [datePart, timePart] = dateString.split(" ");
             const [day, month, year] = datePart.split("/");
 
-            return `${year}-${month.padStart(2, "0")}-${day.padStart(
-              2,
-              "0"
-            )} ${timePart}`;
+            return `${year}-${month.padStart(2, "0")}-${day.padStart(2, "0")} ${timePart}`;
           } else if (typeof dateString === "string") {
             const [day, month, year] = dateString.split("/");
             return `${year}-${month.padStart(2, "0")}-${day.padStart(2, "0")}`;
@@ -318,18 +269,14 @@ class Pengobatan extends Component {
         const validateEmail = (email) => {
           // Jika email tidak valid (null, undefined, atau bukan string), gunakan default
           if (typeof email !== "string" || !email.includes("@")) {
-            console.warn(
-              `Email tidak valid: ${email}. Menggunakan email default.`
-            );
+            console.warn(`Email tidak valid: ${email}. Menggunakan email default.`);
             return "default@gmail.com"; // Email default
           }
           // Jika valid, kembalikan email
           return email;
         };
 
-        const pecahLokasi = parseLocation(
-          row[columnMapping["Lokasi"]] || row[columnMapping["Alamat"]] || "-"
-        );
+        const pecahLokasi = parseLocation(row[columnMapping["Lokasi"]] || row[columnMapping["Alamat"]] || "-");
         // const setEmail =;
 
         console.log("Row Data:", row);
@@ -337,11 +284,8 @@ class Pengobatan extends Component {
         // data vaksin
         const dataPengobatan = {
           idKasus: row[columnMapping["ID Kasus"]] || generateIdKasus,
-          tanggalPengobatan: formatDateToString(
-            row[columnMapping["tanggal_pengobatan"]] || "-"
-          ),
-          tanggalKasus:
-            formatDateToString(row[columnMapping["tanggal_kasus"]]) || "-",
+          tanggalPengobatan: formatDateToString(row[columnMapping["tanggal_pengobatan"]] || "-"),
+          tanggalKasus: formatDateToString(row[columnMapping["tanggal_kasus"]]) || "-",
           namaInfrastruktur: row[columnMapping["Nama Infrasruktur"]] || "-",
           lokasi: row[columnMapping["Lokasi"]] || "-",
           provinsiPengobatan: pecahLokasi.provinsi,
@@ -363,19 +307,13 @@ class Pengobatan extends Component {
       try {
         await sendPengobatanImport(pengobatan);
       } catch (error) {
-        console.error(
-          "Gagal menyimpan data secara bulk:",
-          error,
-          error.response?.data
-        );
+        console.error("Gagal menyimpan data secara bulk:", error, error.response?.data);
       }
 
       if (errorCount === 0) {
         message.success(`Semua data berhasil disimpan.`);
       } else {
-        message.error(
-          `${errorCount} data gagal disimpan karena duplikasi data!`
-        );
+        message.error(`${errorCount} data gagal disimpan karena duplikasi data!`);
       }
     } catch (error) {
       console.error("Gagal memproses data:", error);
@@ -566,31 +504,11 @@ class Pengobatan extends Component {
   };
 
   convertToCSV = (data) => {
-    const columnTitles = [
-      "Tanggal Pengobatan",
-      "Tanggal Kasus",
-      "ID Kasus",
-      "Petugas",
-      "Nama Infrastruktur",
-      "Lokasi",
-      "Dosis",
-      "Tanda atau Sindrom",
-      "Diagnosa Banding",
-    ];
+    const columnTitles = ["Tanggal Pengobatan", "Tanggal Kasus", "ID Kasus", "Petugas", "Nama Infrastruktur", "Lokasi", "Dosis", "Tanda atau Sindrom", "Diagnosa Banding"];
 
     const rows = [columnTitles];
     data.forEach((item) => {
-      const row = [
-        item.tanggalPengobatan,
-        item.tanggalKasus,
-        item.idKasus,
-        item.namaPetugas,
-        item.namaInfrastruktur,
-        item.lokasi,
-        item.dosis,
-        item.sindrom,
-        item.diagnosaBanding,
-      ];
+      const row = [item.tanggalPengobatan, item.tanggalKasus, item.idKasus, item.namaPetugas, item.namaInfrastruktur, item.lokasi, item.dosis, item.sindrom, item.diagnosaBanding];
       rows.push(row);
     });
 
@@ -650,49 +568,29 @@ class Pengobatan extends Component {
     const renderTable = () => {
       if (user && user.role === "ROLE_PETERNAK") {
         return <Table dataSource={pengobatan} bordered columns={columns} />;
-      } else if (
-        (user && user.role === "ROLE_ADMINISTRATOR") ||
-        "ROLE_PETUGAS"
-      ) {
-        return (
-          <Table
-            dataSource={pengobatan}
-            bordered
-            columns={columns && renderColumns()}
-          />
-        );
+      } else if ((user && user.role === "ROLE_ADMINISTRATOR") || "ROLE_PETUGAS") {
+        return <Table dataSource={pengobatan} bordered columns={columns && renderColumns()} />;
       } else {
         return null;
       }
     };
 
     const renderButtons = () => {
-      if (
-        user &&
-        (user.role === "ROLE_ADMINISTRATOR" || user.role === "ROLE_PETUGAS")
-      ) {
+      if (user && (user.role === "ROLE_ADMINISTRATOR" || user.role === "ROLE_PETUGAS")) {
         return (
           <Row gutter={[16, 16]} justify="start" style={{ paddingLeft: 9 }}>
-            <Col xs={24} sm={12} md={8} lg={8} xl={8}>
+            <Col>
               <Button type="primary" onClick={this.handleAddPengobatan} block>
                 Tambah Pengobatan
               </Button>
             </Col>
-            <Col xs={24} sm={12} md={8} lg={8} xl={8}>
-              <Button
-                icon={<UploadOutlined />}
-                onClick={this.handleImportModalOpen}
-                block
-              >
+            <Col>
+              <Button icon={<UploadOutlined />} onClick={this.handleImportModalOpen} block>
                 Import File
               </Button>
             </Col>
-            <Col xs={24} sm={12} md={8} lg={8} xl={8}>
-              <Button
-                icon={<UploadOutlined />}
-                onClick={this.handleExportData}
-                block
-              >
+            <Col>
+              <Button icon={<UploadOutlined />} onClick={this.handleExportData} block>
                 Export File
               </Button>
             </Col>
@@ -712,21 +610,9 @@ class Pengobatan extends Component {
           align: "center",
           render: (text, row) => (
             <span>
-              <Button
-                type="primary"
-                shape="circle"
-                icon={<EditOutlined />}
-                title="Edit"
-                onClick={() => this.handleEditPengobatan(row)}
-              />
+              <Button type="primary" shape="circle" icon={<EditOutlined />} title="Edit" onClick={() => this.handleEditPengobatan(row)} />
               <Divider type="vertical" />
-              <Button
-                type="primary"
-                shape="circle"
-                icon={<DeleteOutlined />}
-                title="Delete"
-                onClick={() => this.handleDeletePengobatan(row)}
-              />
+              <Button type="primary" shape="circle" icon={<DeleteOutlined />} title="Delete" onClick={() => this.handleDeletePengobatan(row)} />
             </span>
           ),
         });
@@ -738,12 +624,7 @@ class Pengobatan extends Component {
       <Row gutter={[16, 16]} justify="start">
         {renderButtons()}
         <Col xs={24} sm={12} md={8} lg={8} xl={8}>
-          <Input
-            placeholder="Cari data"
-            value={searchKeyword}
-            onChange={(e) => this.handleSearch(e.target.value)}
-            style={{ width: 235, marginLeft: 10 }}
-          />
+          <Input placeholder="Cari data" value={searchKeyword} onChange={(e) => this.handleSearch(e.target.value)} style={{ width: 235, marginLeft: 10 }} />
         </Col>
       </Row>
     );
@@ -760,18 +641,14 @@ class Pengobatan extends Component {
         </Card>
         <EditPengobatanForm
           currentRowData={this.state.currentRowData}
-          wrappedComponentRef={(formRef) =>
-            (this.editPengobatanFormRef = formRef)
-          }
+          wrappedComponentRef={(formRef) => (this.editPengobatanFormRef = formRef)}
           visible={this.state.editPengobatanModalVisible}
           confirmLoading={this.state.editPengobatanModalLoading}
           onCancel={this.handleCancel}
           onOk={this.handleEditPengobatanOk}
         />
         <AddPengobatanForm
-          wrappedComponentRef={(formRef) =>
-            (this.addPengobatanFormRef = formRef)
-          }
+          wrappedComponentRef={(formRef) => (this.addPengobatanFormRef = formRef)}
           visible={this.state.addPengobatanModalVisible}
           confirmLoading={this.state.addPengobatanModalLoading}
           onCancel={this.handleCancel}
@@ -785,12 +662,7 @@ class Pengobatan extends Component {
             <Button key="cancel" onClick={this.handleImportModalClose}>
               Cancel
             </Button>,
-            <Button
-              key="upload"
-              type="primary"
-              loading={this.state.uploading}
-              onClick={this.handleUpload}
-            >
+            <Button key="upload" type="primary" loading={this.state.uploading} onClick={this.handleUpload}>
               Upload
             </Button>,
           ]}

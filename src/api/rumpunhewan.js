@@ -23,15 +23,12 @@ export function getRumpunHewan() {
   });
 }
 
-export function editRumpunHewan(data, id) {
-  const formData = new FormData();
-  formData.append("jenis", data.jenis);
-  formData.append("deskripsi", data.deskripsi);
-
+export function editRumpunHewan(data, idRumpunHewan) {
+  console.log("data rumpun ", data);
   return request({
-    url: `/rumpunhewan/${id}`,
+    url: `/rumpunhewan/${idRumpunHewan}`,
     method: "put",
-    data: formData,
+    data,
   });
 }
 

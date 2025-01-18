@@ -8,16 +8,15 @@ import { v4 as uuidv4 } from "uuid";
  */
 export function addKandang(data) {
   const generatedId = uuidv4();
-
+  console.log("data yang dikirm ", data);
   const fileList = data.file;
-  const file =
-    fileList && fileList.length > 0 ? fileList[0].originFileObj : null;
+  const file = fileList && fileList.length > 0 ? fileList[0].originFileObj : null;
 
   const formData = new FormData();
   formData.append("idKandang", generatedId.trim());
-  formData.append("peternak_id", data.peternak_id.trim());
+  formData.append("idPeternak", data.idPeternak.trim());
   formData.append("luas", data.luas);
-  formData.append("jenisHewanId", data.jenis_id.trim());
+  formData.append("idJenisHewan", data.idJenisHewan.trim());
   formData.append("jenisKandang", data.jenisKandang);
   formData.append("namaKandang", data.namaKandang);
   formData.append("kapasitas", data.kapasitas);
@@ -43,9 +42,8 @@ export function addKandangWithoutFile(data) {
 
   const payload = {
     idKandang: generatedId.trim(),
-    peternak_id: data.peternak_id.trim(),
-    luas: data.luas,
-    jenis_id: data.jenisHewan.trim(), // Pastikan 'jenisHewan' adalah field yang benar
+    idPeternak: data.idPeternak.trim(),
+    luas: data.luas, // Pastikan 'jenisHewan' adalah field yang benar
     kapasitas: data.kapasitas,
     nilaiBangunan: data.nilaiBangunan,
     alamat: data.alamat.trim(),
@@ -63,20 +61,27 @@ export function addKandangWithoutFile(data) {
  * @returns {Promise} - Axios response
  */
 export function editKandang(data, id) {
+  const fileList = data.file;
+  const file = fileList && fileList.length > 0 ? fileList[0].originFileObj : null;
+  console.log("fileList", file);
+
   const formData = new FormData();
-  formData.append("idKandang", data.idKandang.trim());
-  formData.append("peternak_id", data.peternak_id.trim());
+  formData.append("idKandang", id);
+  formData.append("namaKandang", data.namaKandang);
+  formData.append("jenisKandang", data.jenisKandang);
+  formData.append("idPeternak", data.idPeternak.trim());
+  formData.append("idJenisHewan", data.idJenisHewan.trim());
   formData.append("luas", data.luas);
-  formData.append("jenis_id", data.jenis_id.trim());
   formData.append("kapasitas", data.kapasitas);
   formData.append("nilaiBangunan", data.nilaiBangunan);
   formData.append("alamat", data.alamat.trim());
   formData.append("latitude", data.latitude);
   formData.append("longitude", data.longitude);
 
-  if (data.file) {
-    formData.append("file", data.file);
+  if (file) {
+    formData.append("file", file);
   }
+  console.log("Data edit kandang ", formData);
 
   return request.put(`/kandang/${id.trim()}`, formData);
 }

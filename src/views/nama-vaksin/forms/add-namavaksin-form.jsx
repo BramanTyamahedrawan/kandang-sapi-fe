@@ -52,19 +52,10 @@ const AddNamaVaksinForm = forwardRef((props, ref) => {
           });
       }}
       confirmLoading={confirmLoading}
-      width={700}
       destroyOnClose
+      okText="Simpan"
     >
-      <Form
-        {...{
-          labelCol: { span: 6 },
-          wrapperCol: { span: 17 },
-        }}
-        form={form}
-        layout="vertical"
-        name="AddNamaVaksinForm"
-        onFinish={onFinish}
-      >
+      <Form form={form} layout="vertical" name="AddNamaVaksinForm" onFinish={onFinish}>
         <Form.Item
           label="Jenis Vaksin:"
           name="jenisVaksinId"

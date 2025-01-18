@@ -54,14 +54,7 @@ const Peternak = () => {
 
       if (statusCode === 200) {
         const filteredPeternaks = content.filter((peternak) => {
-          const {
-            petugasId,
-            namaPeternak,
-            nikPeternak,
-            idPeternak,
-            petugasPendaftar,
-            lokasi,
-          } = peternak;
+          const { petugasId, namaPeternak, nikPeternak, idPeternak, petugasPendaftar, lokasi } = peternak;
 
           const keyword = searchKeyword.toLowerCase();
 
@@ -71,15 +64,11 @@ const Peternak = () => {
           const isPetugasPendaftarValid = typeof petugasPendaftar === "string";
           const isLokasiValid = typeof lokasi === "string";
           const isPetugasIdValid = typeof petugasId === "string";
-          
-          return (
-            (isNamaPeternakValid &&
-              namaPeternak.toLowerCase().includes(keyword)) ||
-              (isPetugasIdValid &&
-                petugasId.toLowerCase().includes(keyword)) ||
-            (isNikPeternakValid &&
-              nikPeternak.toLowerCase().includes(keyword)) ||
 
+          return (
+            (isNamaPeternakValid && namaPeternak.toLowerCase().includes(keyword)) ||
+            (isPetugasIdValid && petugasId.toLowerCase().includes(keyword)) ||
+            (isNikPeternakValid && nikPeternak.toLowerCase().includes(keyword)) ||
             (isIdPeternakValid && idPeternak.toLowerCase().includes(keyword)) ||
             (isPetugasPendaftarValid && petugasPendaftar.toLowerCase().includes(keyword)) ||
             (isLokasiValid && lokasi.toLowerCase().includes(keyword))
@@ -164,17 +153,15 @@ const Peternak = () => {
             cancelText: "Tidak",
             onOk: async () => {
               try {
-                await deletePeternak({ idPeternak });
-
+                await deletePeternak(idPeternak);
                 fetchPeternaks();
               } catch (error) {
                 console.error("Error deleting peternak:", error);
                 message.error("Gagal menghapus peternak.");
               }
-
               try {
-                await deleteUser({ userId });
-
+                await deleteUser(userId);
+                message.success("Data berhasil dihapus!");
               } catch (error) {
                 console.error("Error deleting user:", error);
                 message.error("Gagal menghapus user.");
@@ -528,6 +515,7 @@ const Peternak = () => {
 
     // Clone columns to prevent mutation
     const clonedColumns = [
+      { title: "ID Peternak", dataIndex: "idPeternak", key: "idPeternak" },
       { title: "NIK Peternak", dataIndex: "nikPeternak", key: "nikPeternak" },
       {
         title: "Id Isikhnas",
@@ -562,7 +550,6 @@ const Peternak = () => {
         dataIndex: ["petugas", "namaPetugas"],
         key: "namaPetugas",
       },
-      
     ];
 
     if (user && (user.role === "ROLE_ADMINISTRATOR" || user.role === "ROLE_PETUGAS")) {
