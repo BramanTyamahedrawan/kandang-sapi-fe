@@ -508,6 +508,8 @@ export default class ImportAllData extends Component {
         const dataTernakHewan = {
           idHewan: generateIdHewan,
           kodeEartagNasional: getValidData(row, columnMapping, "No. Eartag***)"),
+          noKartuTernak: row[mapping["No Kartu Ternak"]] || "-",
+          idIsikhnasTernak: row[columnMapping["IdIsikhnas"]] || "_",
           nikPetugas: cleanNik(row[columnMapping["NIK Petugas Pendataan*)"]]),
           tanggalLahir: formatDateToString(row[columnMapping["Tanggal Lahir Ternak**)"]] || "_"),
           sex: row[columnMapping["Jenis Kelamin**)"]] || "_",

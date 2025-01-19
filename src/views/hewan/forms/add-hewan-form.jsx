@@ -8,34 +8,26 @@ import { Col, Form, Input, Modal, Row, Select, Upload } from "antd";
 import { useEffect, useState } from "react";
 import { getJenisHewan } from "../../../api/jenishewan";
 import { getRumpunHewan } from "../../../api/rumpunhewan";
-
+import { getTujuanPemeliharaan } from "@/api/tujuan-pemeliharaan";
 const { Option } = Select;
 
 const AddHewanForm = ({ visible, onCancel, onOk, confirmLoading }) => {
   const [form] = Form.useForm();
-  const [provinces, setProvinces] = useState([]);
-  const [regencies, setRegencies] = useState([]);
-  const [districts, setDistricts] = useState([]);
-  const [villages, setVillages] = useState([]);
   const [kandangList, setKandangList] = useState([]);
   const [petugasList, setPetugasList] = useState([]);
   const [peternakList, setPeternakList] = useState([]);
   const [jenisHewanList, setJenisHewanList] = useState([]);
   const [rumpunHewanList, setRumpunHewanList] = useState([]);
+  const [tujuanPemeliharaanList, setTujuanPemeliharaanList] = useState([]);
 
   useEffect(() => {
-    // Fetch provinces
-    fetch("https://www.emsifa.com/api-wilayah-indonesia/api/provinces.json")
-      .then((response) => response.json())
-      .then(setProvinces)
-      .catch((error) => console.error("Error fetching provinces:", error));
-
     // Fetch petugas, peternak, and kandang data
     fetchPetugasList();
     fetchPeternakList();
     fetchKandangList();
     fetchJenisHewanList();
     fetchRumpunHewanList();
+    fetchTujuanPemeliharaanList();
   }, []);
 
   const fetchJenisHewanList = async () => {
@@ -76,8 +68,8 @@ const AddHewanForm = ({ visible, onCancel, onOk, confirmLoading }) => {
       const result = await getPetugas();
       const { content, statusCode } = result.data;
       if (statusCode === 200) {
-        const petugas = content.map(({ nikPetugas, namaPetugas }) => ({
-          nikPetugas,
+        const petugas = content.map(({ petugasId, namaPetugas }) => ({
+          petugasId,
           namaPetugas,
         }));
         setPetugasList(petugas);
@@ -115,36 +107,15 @@ const AddHewanForm = ({ visible, onCancel, onOk, confirmLoading }) => {
     }
   };
 
-  const handleProvinceChange = async (value) => {
-    const province = provinces.find((item) => item.name === value);
-    if (province) {
-      const response = await fetch(`https://www.emsifa.com/api-wilayah-indonesia/api/regencies/${province.id}.json`);
-      const regenciesData = await response.json();
-      setRegencies(regenciesData);
-      setDistricts([]);
-      setVillages([]);
-      form.resetFields(["kabupaten", "kecamatan", "desa"]);
-    }
-  };
-
-  const handleRegencyChange = async (value) => {
-    const regency = regencies.find((item) => item.name === value);
-    if (regency) {
-      const response = await fetch(`https://www.emsifa.com/api-wilayah-indonesia/api/districts/${regency.id}.json`);
-      const districtsData = await response.json();
-      setDistricts(districtsData);
-      setVillages([]);
-      form.resetFields(["kecamatan", "desa"]);
-    }
-  };
-
-  const handleDistrictChange = async (value) => {
-    const district = districts.find((item) => item.name === value);
-    if (district) {
-      const response = await fetch(`https://www.emsifa.com/api-wilayah-indonesia/api/villages/${district.id}.json`);
-      const villagesData = await response.json();
-      setVillages(villagesData);
-      form.resetFields(["desa"]);
+  const fetchTujuanPemeliharaanList = async () => {
+    try {
+      const result = await getTujuanPemeliharaan();
+      const { content, statusCode } = result.data;
+      if (statusCode === 200) {
+        setTujuanPemeliharaanList(content);
+      }
+    } catch (error) {
+      console.error("Error fetching tujuan pemeliharaan data:", error);
     }
   };
 
@@ -168,7 +139,7 @@ const AddHewanForm = ({ visible, onCancel, onOk, confirmLoading }) => {
       }}
       onOk={handleSubmit}
       confirmLoading={confirmLoading}
-      width={700}
+      width={1000}
       okText="Simpan"
     >
       <Form form={form} layout="vertical">
@@ -176,6 +147,11 @@ const AddHewanForm = ({ visible, onCancel, onOk, confirmLoading }) => {
           <Col span={12}>
             <Form.Item label="Kode Eartag Nasional" name="kodeEartagNasional" rules={[{ required: true, message: "Masukkan Kode Eartag Nasional!" }]}>
               <Input placeholder="Masukkan kode" />
+            </Form.Item>
+          </Col>
+          <Col span={12}>
+            <Form.Item label="No Kartu Ternak" name="noKartuTernak" rules={[{ required: true, message: "Masukkan No Kartu Ternak!" }]}>
+              <Input placeholder="Masukkan No Kartu Ternak" />
             </Form.Item>
           </Col>
           <Col span={12}>
@@ -273,7 +249,7 @@ const AddHewanForm = ({ visible, onCancel, onOk, confirmLoading }) => {
             </Form.Item>
           </Col>
           <Col span={12}>
-            <Form.Item label="Nama Peternak" name="peternak_id" rules={[{ required: true, message: "Pilih Nama Peternak!" }]}>
+            <Form.Item label="Nama Peternak" name="idPeternak" rules={[{ required: true, message: "Pilih Nama Peternak!" }]}>
               <Select placeholder="Pilih Nama Peternak">
                 {peternakList.map((item) => (
                   <Option key={item.idPeternak} value={item.idPeternak}>
@@ -284,8 +260,8 @@ const AddHewanForm = ({ visible, onCancel, onOk, confirmLoading }) => {
             </Form.Item>
           </Col>
           <Col span={12}>
-            <Form.Item label="Kandang" name="kandang_id" rules={[{ required: true, message: "Pilih ID Kandang!" }]}>
-              <Select placeholder="Pilih ID Kandang">
+            <Form.Item label="Kandang" name="idKandang" rules={[{ required: true, message: "Pilih Nama Kandang!" }]}>
+              <Select placeholder="Pilih Nama Kandang">
                 {kandangList.map((val) => (
                   <Option key={val.idKandang} value={val.idKandang}>
                     {val.peternak != null ? `Kandang ${val.namaKandang} (${val.peternak.namaPeternak})` : `Kandang ${val.namaKandang}`}
@@ -297,7 +273,7 @@ const AddHewanForm = ({ visible, onCancel, onOk, confirmLoading }) => {
           <Col span={12}>
             <Form.Item
               label="Petugas Pendaftar:"
-              name="petugas_id"
+              name="petugasId"
               rules={[
                 {
                   required: true,
@@ -305,27 +281,33 @@ const AddHewanForm = ({ visible, onCancel, onOk, confirmLoading }) => {
                 },
               ]}
             >
-              <Select placeholder="Pilih Petugas Pendaftar" allowClear>
+              <Select placeholder="Pilih Petugas Pendaftar">
                 {petugasList.map((petugas) => (
-                  <Select.Option key={petugas.nikPetugas} value={petugas.nikPetugas}>
+                  <Option key={petugas.petugasId} value={petugas.petugasId}>
                     {petugas.namaPetugas}
-                  </Select.Option>
+                  </Option>
                 ))}
               </Select>
             </Form.Item>
           </Col>
-          <Col span={24}>
+          <Col span={12}>
             <Form.Item
               label="Tujuan Pemeliharaan:"
-              name="tujuanPemeliharaan"
+              name="idTujuanPemeliharaan"
               rules={[
                 {
                   required: true,
-                  message: "Silahkan masukkan tujuan pemeliharaan",
+                  message: "Silahkan pilih tujuan pemeliharaan",
                 },
               ]}
             >
-              <Input type="text" placeholder="Masukkan tujuan pemeliharaan" />
+              <Select placeholder="Pilih Tujuan Pemeliharaan" allowClear>
+                {tujuanPemeliharaanList.map((tujuan) => (
+                  <Select.Option key={tujuan.idTujuanPemeliharaan} value={tujuan.idTujuanPemeliharaan}>
+                    {tujuan.tujuanPemeliharaan}
+                  </Select.Option>
+                ))}
+              </Select>
             </Form.Item>
           </Col>
           <Col span={24}>

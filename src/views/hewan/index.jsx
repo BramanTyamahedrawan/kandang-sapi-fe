@@ -140,26 +140,17 @@ const Hewan = () => {
     setEditHewanModalVisible(true);
   };
 
-  const handleEditHewanOk = () => {
-    const form = editHewanFormRef.current?.props?.form;
-    if (form) {
-      form.validateFields(async (err, values) => {
-        if (err) {
-          return;
-        }
-        setEditHewanModalLoading(true);
-        try {
-          await editHewan(values, values.kodeEartagNasional);
-          form.resetFields();
-          setEditHewanModalVisible(false);
-          setEditHewanModalLoading(false);
-          message.success("Berhasil diedit!");
-          getHewansData();
-        } catch (e) {
-          setEditHewanModalLoading(false);
-          message.error("Pengeditan gagal, harap coba lagi!");
-        }
-      });
+  const handleEditHewanOk = async (values) => {
+    setEditHewanModalLoading(true);
+    try {
+      await editHewan(values, currentRowData.idHewan);
+      setEditHewanModalVisible(false);
+      setEditHewanModalLoading(false);
+      message.success("Berhasil diedit!");
+      getHewansData();
+    } catch (e) {
+      setEditHewanModalLoading(false);
+      message.error("Pengeditan gagal, harap coba lagi!");
     }
   };
 
@@ -199,21 +190,21 @@ const Hewan = () => {
     const hewanData = {
       kodeEartagNasional: values.kodeEartagNasional,
       idIsikhnasTernak: values.idIsikhnasTernak,
-      petugas_id: values.petugas_id,
-      peternak_id: values.peternak_id,
-      kandang_id: values.kandang_id,
+      noKartuTernak: values.noKartuTernak,
+      petugasId: values.petugasId,
+      idPeternak: values.idPeternak,
+      idKandang: values.idKandang,
       jenisHewanId: values.jenisHewanId,
       rumpunHewanId: values.rumpunHewanId,
       sex: values.sex,
       identifikasiHewan: values.identifikasiHewan,
       tanggalLahir: values.tanggalLahir,
       tempatLahir: values.tempatLahir,
-      tujuanPemeliharaan: values.tujuanPemeliharaan,
+      idTujuanPemeliharaan: values.idTujuanPemeliharaan,
       file: values.file,
     };
     try {
       await addHewan(hewanData);
-      form.resetFields();
       setAddHewanModalVisible(false);
       setAddHewanModalLoading(false);
       message.success("Berhasil menambahkan!");
@@ -384,6 +375,7 @@ const Hewan = () => {
           tujuanPemeliharaan: tujuanPemeliharaan,
           kodeEartagNasional: row[mapping["Kode Eartag Nasional"]] || "-",
           noKartuTernak: row[mapping["No Kartu Ternak"]] || "-",
+          idIsikhnasTernak: row[mapping["Idisikhnas Ternak"]] || "-",
           peternak_id: peternakId, // Gunakan ID Peternak untuk peternak_id
           nikPeternak: nikPeternak,
           namaPeternak: row[mapping["Nama Peternak"]],
@@ -495,9 +487,19 @@ const Hewan = () => {
         key: "idHewan",
       },
       {
+        title: "Id Isikhnas Ternak",
+        dataIndex: "idIsikhnasTernak",
+        key: "idIsikhnasTernak",
+      },
+      {
         title: "Kode Eartag Nasional",
         dataIndex: "kodeEartagNasional",
         key: "kodeEartagNasional",
+      },
+      {
+        title: "No Kartu Ternak",
+        dataIndex: "noKartuTernak",
+        key: "noKartuTernak",
       },
 
       {
@@ -506,17 +508,12 @@ const Hewan = () => {
         key: "namaPeternak",
       },
       {
-        title: "NIK Peternak",
-        dataIndex: ["peternak", "nikPeternak"],
-        key: "nikPeternak",
-      },
-      {
         title: "Nama Kandang",
         dataIndex: ["kandang", "namaKandang"],
         key: "namaKandang",
       },
-      { title: "Rumpun Hewan", dataIndex: ["rumpunHewan", "rumpun"], key: "rumpun" },
       { title: "Jenis Hewan", dataIndex: ["jenisHewan", "jenis"], key: "jenis" },
+      { title: "Rumpun Hewan", dataIndex: ["rumpunHewan", "rumpun"], key: "rumpun" },
       { title: "Jenis Kelamin", dataIndex: "sex", key: "sex" },
       { title: "Tempat Lahir", dataIndex: "tempatLahir", key: "tempatLahir" },
       { title: "Tanggal Lahir", dataIndex: "tanggalLahir", key: "tanggalLahir" },
@@ -619,9 +616,8 @@ const Hewan = () => {
       {/* TypingCard component */}
       <TypingCard title="Manajemen Hewan" source={cardContent} />
       <br />
-      <Card title={title} style={{ overflowX: "scroll" }}>
-        {renderTable()}
-      </Card>
+      <Card>{title}</Card>
+      <Card style={{ overflowX: "scroll" }}>{renderTable()}</Card>
 
       <EditHewanForm currentRowData={currentRowData} wrappedComponentRef={editHewanFormRef} visible={editHewanModalVisible} confirmLoading={editHewanModalLoading} onCancel={handleCancel} onOk={handleEditHewanOk} />
       <AddHewanForm wrappedComponentRef={addHewanFormRef} visible={addHewanModalVisible} confirmLoading={addHewanModalLoading} onCancel={handleCancel} onOk={handleAddHewanOk} />

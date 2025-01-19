@@ -480,9 +480,8 @@ const Kandang = () => {
     <div className="app-container">
       <TypingCard title="Manajemen Data Kandang" source={cardContent} />
       <br />
-      <Card title={title} style={{ overflowX: "scroll" }}>
-        {renderTable()}
-      </Card>
+      <Card>{title}</Card>
+      <Card style={{ overflowX: "scroll" }}>{renderTable()}</Card>
       <EditKandangForm currentRowData={currentRowData} wrappedComponentRef={editKandangFormRef} visible={editKandangModalVisible} confirmLoading={editKandangModalLoading} onCancel={handleCancel} onOk={handleEditKandangOk} />
 
       <AddKandangForm wrappedComponentRef={addKandangFormRef} visible={addKandangModalVisible} confirmLoading={addKandangModalLoading} onCancel={handleCancel} onOk={handleAddKandangOk} />

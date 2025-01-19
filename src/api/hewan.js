@@ -5,8 +5,7 @@ export function addHewan(data) {
   const generatedId = uuidv4();
 
   const fileList = data.file;
-  const file =
-    fileList && fileList.length > 0 ? fileList[0].originFileObj : null;
+  const file = fileList && fileList.length > 0 ? fileList[0].originFileObj : null;
 
   // Fungsi untuk menghitung umur dalam bulan
   function hitungUmurDalamBulan(tanggalLahir) {
@@ -33,25 +32,26 @@ export function addHewan(data) {
   const formData = new FormData();
   formData.append("idHewan", generatedId.trim());
   formData.append("kodeEartagNasional", data.kodeEartagNasional);
+  formData.append("noKartuTernak", data.noKartuTernak);
   formData.append("idIsikhnasTernak", data.idIsikhnasTernak);
-  formData.append("petugas_id", data.petugas_id);
-  formData.append("peternak_id", data.peternak_id);
-  formData.append("kandang_id", data.kandang_id);
+  formData.append("petugasId", data.petugasId);
+  formData.append("idPeternak", data.idPeternak);
+  formData.append("idKandang", data.idKandang);
   formData.append("jenisHewanId", data.jenisHewanId);
   formData.append("rumpunHewanId", data.rumpunHewanId);
-  formData.append("latitude", data.latitude);
-  formData.append("longitude", data.longitude);
   formData.append("sex", data.sex);
   formData.append("umur", umurDalamBulan + " Bulan");
   formData.append("identifikasiHewan", data.identifikasiHewan);
   formData.append("tanggalLahir", data.tanggalLahir);
   formData.append("tempatLahir", data.tempatLahir);
-  formData.append("tujuanPemeliharaan", data.tujuanPemeliharaan);
+  formData.append("IdTujuanPemeliharaan", data.idTujuanPemeliharaan);
   formData.append("tanggalTerdaftar", new Date().toLocaleDateString("id-ID"));
 
   if (file) {
     formData.append("file", file);
   }
+
+  console.log("Data hewan ", data);
 
   return request({
     url: "/hewan",
@@ -105,24 +105,52 @@ export function getHewanByPeternak(peternakID) {
 }
 
 export function editHewan(data, id) {
+  const fileList = data.file;
+  const file = fileList && fileList.length > 0 ? fileList[0].originFileObj : null;
+
+  // Fungsi untuk menghitung umur dalam bulan
+  function hitungUmurDalamBulan(tanggalLahir) {
+    const lahir = new Date(tanggalLahir);
+    const sekarang = new Date();
+
+    // Menghitung selisih tahun dan bulan
+    let tahun = sekarang.getFullYear() - lahir.getFullYear();
+    let bulan = sekarang.getMonth() - lahir.getMonth();
+
+    // Jika bulan negatif, kurangi satu tahun dan tambahkan 12 bulan
+    if (bulan < 0) {
+      tahun--;
+      bulan += 12;
+    }
+
+    // Menghitung total bulan
+    return tahun * 12 + bulan;
+  }
+
+  const umurDalamBulan = hitungUmurDalamBulan(data.tanggalLahir);
+
   const formData = new FormData();
   formData.append("kodeEartagNasional", data.kodeEartagNasional);
   formData.append("noKartuTernak", data.noKartuTernak);
-  formData.append("provinsi", data.provinsi);
-  formData.append("kabupaten", data.kabupaten);
-  formData.append("kecamatan", data.kecamatan);
-  formData.append("desa", data.desa);
-  formData.append("alamat", data.alamat);
-  formData.append("latitude", data.latitude);
-  formData.append("longitude", data.longitude);
-  formData.append("peternak_id", data.peternak_id);
-  formData.append("kandang_id", data.kandang_id);
+  formData.append("idIsikhnasTernak", data.idIsikhnasTernak);
+  formData.append("petugasId", data.petugasId);
+  formData.append("idPeternak", data.idPeternak);
+  formData.append("idKandang", data.idKandang);
+  formData.append("jenisHewanId", data.jenisHewanId);
+  formData.append("rumpunHewanId", data.rumpunHewanId);
   formData.append("sex", data.sex);
-  formData.append("umur", data.umur);
+  formData.append("umur", umurDalamBulan + " Bulan");
   formData.append("identifikasiHewan", data.identifikasiHewan);
-  formData.append("petugas_id", data.petugas_id);
-  formData.append("tanggalTerdaftar", data.tanggalTerdaftar);
-  formData.append("file", data.file.file);
+  formData.append("tanggalLahir", data.tanggalLahir);
+  formData.append("tempatLahir", data.tempatLahir);
+  formData.append("IdTujuanPemeliharaan", data.idTujuanPemeliharaan);
+  formData.append("tanggalTerdaftar", new Date().toLocaleDateString("id-ID"));
+
+  if (file) {
+    formData.append("file", file);
+  }
+
+  console.log("'Data edit", data, "dan Id ", id);
 
   return request({
     url: `/hewan/${id}`,
