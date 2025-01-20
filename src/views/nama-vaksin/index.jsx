@@ -123,16 +123,10 @@ const NamaVaksin = () => {
   };
 
   // Handle Confirming the Add Nama Vaksin Modal
-  const handleAddNamaVaksinOk = async (values, form) => {
+  const handleAddNamaVaksinOk = async (values) => {
     setAddNamaVaksinModalLoading(true);
-    const namaData = {
-      jenis: values.jenis,
-      nama: values.nama,
-      deskripsi: values.deskripsi,
-    };
     try {
-      await addNamaVaksin(namaData);
-      form.resetFields();
+      await addNamaVaksin(values);
       setAddNamaVaksinModalVisible(false);
       setAddNamaVaksinModalLoading(false);
       message.success("Berhasil menambahkan!");
@@ -151,11 +145,10 @@ const NamaVaksin = () => {
   };
 
   // Handle Confirming the Edit Jenis Vaksin Modal
-  const handleEditNamaVaksinOk = async (values, form) => {
+  const handleEditNamaVaksinOk = async (values) => {
     setEditNamaVaksinModalLoading(true);
     try {
-      await editNamaVaksin(values, values.idNamaVaksin);
-      form.resetFields();
+      await editNamaVaksin(values, currentRowData.idNamaVaksin);
       setEditNamaVaksinModalVisible(false);
       setEditNamaVaksinModalLoading(false);
       message.success("Berhasil diedit!");

@@ -150,11 +150,10 @@ const JenisVaksin = () => {
   };
 
   // Handle Confirming the Edit Jenis Vaksin Modal
-  const handleEditJenisVaksinOk = async (values, form) => {
+  const handleEditJenisVaksinOk = async (values) => {
     setEditJenisVaksinModalLoading(true);
     try {
-      await editJenisVaksin(values, values.idJenisVaksin);
-      form.resetFields();
+      await editJenisVaksin(values, currentRowData.idJenisVaksin);
       setEditJenisVaksinModalVisible(false);
       setEditJenisVaksinModalLoading(false);
       message.success("Berhasil diedit!");

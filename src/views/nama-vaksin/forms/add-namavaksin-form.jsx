@@ -1,8 +1,8 @@
 /* eslint-disable react/display-name */
 /* eslint-disable react/prop-types */
 /* eslint-disable no-unused-vars */
-import React, { forwardRef, useImperativeHandle, useState } from "react";
-import { getJenisVaksin } from "../../../api/jenis-vaksin";
+import React, { forwardRef, useEffect, useImperativeHandle, useState } from "react";
+import { getJenisVaksin } from "@/api/jenis-vaksin";
 import { Form, Input, Modal, Select } from "antd";
 
 const AddNamaVaksinForm = forwardRef((props, ref) => {
@@ -10,17 +10,16 @@ const AddNamaVaksinForm = forwardRef((props, ref) => {
   const { visible, onCancel, onOk, confirmLoading } = props;
   const [jenisVaksinList, setJenisVaksinList] = useState([]);
 
+  useEffect(() => {
+    fetchJenisVaksinList();
+  }, []);
+
   const fetchJenisVaksinList = async () => {
     try {
       const result = await getJenisVaksin();
       const { content, statusCode } = result.data;
       if (statusCode === 200) {
-        console.log(content);
-        const jenisVaksin = content.map(({ idJenisVaksin, jenis }) => ({
-          idJenisVaksin,
-          jenis,
-        }));
-        setJenisVaksinList(jenisVaksin);
+        setJenisVaksinList(content);
       }
     } catch (error) {
       console.error("Error fetching jenis vaksin data:", error);
@@ -58,7 +57,7 @@ const AddNamaVaksinForm = forwardRef((props, ref) => {
       <Form form={form} layout="vertical" name="AddNamaVaksinForm" onFinish={onFinish}>
         <Form.Item
           label="Jenis Vaksin:"
-          name="jenisVaksinId"
+          name="idJenisVaksin"
           rules={[
             {
               required: true,

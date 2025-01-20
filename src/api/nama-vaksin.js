@@ -7,6 +7,7 @@ export function addNamaVaksin(data) {
     ...data,
     idNamaVaksin: uuidv4(),
   };
+  console.log("data dikirim", updatedData);
 
   return request({
     url: "/namavaksin",
@@ -23,14 +24,10 @@ export function getNamaVaksin() {
 }
 
 export function editNamaVaksin(data, id) {
-  const formData = new FormData();
-  formData.append("namaVaksin", data.nama);
-  formData.append("deskripsi", data.deskripsi);
-
   return request({
     url: `/namavaksin/${id}`,
     method: "put",
-    data: formData,
+    data,
   });
 }
 
