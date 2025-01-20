@@ -1,9 +1,29 @@
 /* eslint-disable no-constant-condition */
 /* eslint-disable no-unused-vars */
-import { addJenisVaksin, deleteJenisVaksin, editJenisVaksin, getJenisVaksin } from "@/api/jenis-vaksin";
+import {
+  addJenisVaksin,
+  deleteJenisVaksin,
+  editJenisVaksin,
+  getJenisVaksin,
+} from "@/api/jenis-vaksin";
 import TypingCard from "@/components/TypingCard";
-import { DeleteOutlined, EditOutlined, UploadOutlined } from "@ant-design/icons";
-import { Button, Card, Col, Divider, Input, message, Modal, Row, Table, Upload } from "antd";
+import {
+  DeleteOutlined,
+  EditOutlined,
+  UploadOutlined,
+} from "@ant-design/icons";
+import {
+  Button,
+  Card,
+  Col,
+  Divider,
+  Input,
+  message,
+  Modal,
+  Row,
+  Table,
+  Upload,
+} from "antd";
 import React, { useEffect, useRef, useState } from "react";
 import { read, utils } from "xlsx";
 import { reqUserInfo } from "../../api/user";
@@ -13,11 +33,15 @@ import EditJenisVaksinForm from "./forms/edit-jenisvaksin-form";
 const JenisVaksin = () => {
   // State Variables
   const [jenisVaksins, setJenisVaksins] = useState([]);
-  const [editJenisVaksinModalVisible, setEditJenisVaksinModalVisible] = useState(false);
-  const [editJenisVaksinModalLoading, setEditJenisVaksinModalLoading] = useState(false);
+  const [editJenisVaksinModalVisible, setEditJenisVaksinModalVisible] =
+    useState(false);
+  const [editJenisVaksinModalLoading, setEditJenisVaksinModalLoading] =
+    useState(false);
   const [currentRowData, setCurrentRowData] = useState({});
-  const [addJenisVaksinModalVisible, setAddJenisVaksinModalVisible] = useState(false);
-  const [addJenisVaksinModalLoading, setAddJenisVaksinModalLoading] = useState(false);
+  const [addJenisVaksinModalVisible, setAddJenisVaksinModalVisible] =
+    useState(false);
+  const [addJenisVaksinModalLoading, setAddJenisVaksinModalLoading] =
+    useState(false);
   const [importModalVisible, setImportModalVisible] = useState(false);
   const [importedData, setImportedData] = useState([]);
   const [searchKeyword, setSearchKeyword] = useState("");
@@ -58,7 +82,12 @@ const JenisVaksin = () => {
           const isJenisValid = typeof jenis === "string";
           const isDeskripsiValid = typeof deskripsi === "string";
 
-          return (isIdJenisVaksinValid && idJenisVaksin.toLowerCase().includes(keyword)) || (isJenisValid && jenis.toLowerCase().includes(keyword)) || (isDeskripsiValid && deskripsi.toLowerCase().includes(keyword));
+          return (
+            (isIdJenisVaksinValid &&
+              idJenisVaksin.toLowerCase().includes(keyword)) ||
+            (isJenisValid && jenis.toLowerCase().includes(keyword)) ||
+            (isDeskripsiValid && deskripsi.toLowerCase().includes(keyword))
+          );
         });
 
         setJenisVaksins(filteredJenisVaksin);
@@ -131,6 +160,7 @@ const JenisVaksin = () => {
     };
     try {
       await addJenisVaksin(jenisData);
+      console.log("Jenis Vaksin Data:", jenisData);
       form.resetFields();
       setAddJenisVaksinModalVisible(false);
       setAddJenisVaksinModalLoading(false);
@@ -150,11 +180,12 @@ const JenisVaksin = () => {
   };
 
   // Handle Confirming the Edit Jenis Vaksin Modal
-  const handleEditJenisVaksinOk = async (values, form) => {
+  const handleEditJenisVaksinOk = async (values) => {
     setEditJenisVaksinModalLoading(true);
     try {
-      await editJenisVaksin(values, values.idJenisVaksin);
-      form.resetFields();
+      await editJenisVaksin(values, currentRowData.idJenisVaksin);
+      console.log("Jenis Vaksin Data:", values);
+      console.log("ID Jenis Vaksin:", currentRowData.idJenisVaksin);
       setEditJenisVaksinModalVisible(false);
       setEditJenisVaksinModalLoading(false);
       message.success("Berhasil diedit!");
@@ -203,7 +234,11 @@ const JenisVaksin = () => {
       const utcDays = Math.floor(input - 25569);
       const utcValue = utcDays * 86400;
       const dateInfo = new Date(utcValue * 1000);
-      date = new Date(dateInfo.getFullYear(), dateInfo.getMonth(), dateInfo.getDate()).toString();
+      date = new Date(
+        dateInfo.getFullYear(),
+        dateInfo.getMonth(),
+        dateInfo.getDate()
+      ).toString();
     } else if (typeof input === "string") {
       const [day, month, year] = input.split("/");
       date = new Date(`${year}-${month}-${day}`).toString();
@@ -290,7 +325,9 @@ const JenisVaksin = () => {
           deskripsi: row[mapping["Deskripsi"]] || "",
         };
 
-        const existingJenisVaksinIndex = jenisVaksins.findIndex((p) => p.idJenisVaksin === dataToSave.idJenisVaksin);
+        const existingJenisVaksinIndex = jenisVaksins.findIndex(
+          (p) => p.idJenisVaksin === dataToSave.idJenisVaksin
+        );
 
         try {
           if (existingJenisVaksinIndex > -1) {
@@ -304,7 +341,10 @@ const JenisVaksin = () => {
           } else {
             // Add new data
             await addJenisVaksin(dataToSave);
-            setJenisVaksins((prevJenisVaksins) => [...prevJenisVaksins, dataToSave]);
+            setJenisVaksins((prevJenisVaksins) => [
+              ...prevJenisVaksins,
+              dataToSave,
+            ]);
           }
         } catch (error) {
           errorCount++;
@@ -376,7 +416,10 @@ const JenisVaksin = () => {
       { title: "Deskripsi", dataIndex: "deskripsi", key: "deskripsi" },
     ];
 
-    if (user && (user.role === "ROLE_ADMINISTRATOR" || user.role === "ROLE_PETUGAS")) {
+    if (
+      user &&
+      (user.role === "ROLE_ADMINISTRATOR" || user.role === "ROLE_PETUGAS")
+    ) {
       baseColumns.push({
         title: "Operasi",
         key: "action",
@@ -384,9 +427,22 @@ const JenisVaksin = () => {
         align: "center",
         render: (text, row) => (
           <span>
-            <Button type="primary" shape="circle" icon={<EditOutlined />} title="Edit" onClick={() => handleEditJenisVaksin(row)} />
+            <Button
+              type="primary"
+              shape="circle"
+              icon={<EditOutlined />}
+              title="Edit"
+              onClick={() => handleEditJenisVaksin(row)}
+            />
             <Divider type="vertical" />
-            <Button type="primary" danger shape="circle" icon={<DeleteOutlined />} title="Delete" onClick={() => handleDeleteJenisVaksin(row)} />
+            <Button
+              type="primary"
+              danger
+              shape="circle"
+              icon={<DeleteOutlined />}
+              title="Delete"
+              onClick={() => handleDeleteJenisVaksin(row)}
+            />
           </span>
         ),
       });
@@ -398,9 +454,26 @@ const JenisVaksin = () => {
   // Render Table based on User Role
   const renderTable = () => {
     if (user && user.role === "ROLE_PETERNAK") {
-      return <Table dataSource={jenisVaksins} bordered columns={renderColumns()} rowKey="idJenisVaksin" />;
-    } else if (user && (user.role === "ROLE_ADMINISTRATOR" || user.role === "ROLE_PETUGAS")) {
-      return <Table dataSource={jenisVaksins} bordered columns={renderColumns()} rowKey="idJenisVaksin" />;
+      return (
+        <Table
+          dataSource={jenisVaksins}
+          bordered
+          columns={renderColumns()}
+          rowKey="idJenisVaksin"
+        />
+      );
+    } else if (
+      user &&
+      (user.role === "ROLE_ADMINISTRATOR" || user.role === "ROLE_PETUGAS")
+    ) {
+      return (
+        <Table
+          dataSource={jenisVaksins}
+          bordered
+          columns={renderColumns()}
+          rowKey="idJenisVaksin"
+        />
+      );
     } else {
       return null;
     }
@@ -408,7 +481,10 @@ const JenisVaksin = () => {
 
   // Render Buttons based on User Role
   const renderButtons = () => {
-    if (user && (user.role === "ROLE_ADMINISTRATOR" || user.role === "ROLE_PETUGAS")) {
+    if (
+      user &&
+      (user.role === "ROLE_ADMINISTRATOR" || user.role === "ROLE_PETUGAS")
+    ) {
       return (
         <Row gutter={[16, 16]} justify="start" style={{ paddingLeft: 9 }}>
           <Col>
@@ -417,7 +493,11 @@ const JenisVaksin = () => {
             </Button>
           </Col>
           <Col>
-            <Button icon={<UploadOutlined />} onClick={handleImportModalOpen} block>
+            <Button
+              icon={<UploadOutlined />}
+              onClick={handleImportModalOpen}
+              block
+            >
               Import File
             </Button>
           </Col>
@@ -438,7 +518,12 @@ const JenisVaksin = () => {
     <Row gutter={[16, 16]} justify="space-between">
       {renderButtons()}
       <Col xs={24} sm={12} md={8} lg={8} xl={8}>
-        <Input placeholder="Cari data" value={searchKeyword} onChange={(e) => handleSearch(e.target.value)} style={{ width: "100%" }} />
+        <Input
+          placeholder="Cari data"
+          value={searchKeyword}
+          onChange={(e) => handleSearch(e.target.value)}
+          style={{ width: "100%" }}
+        />
       </Col>
     </Row>
   );
@@ -465,23 +550,38 @@ const JenisVaksin = () => {
       />
 
       {/* Add Jenis Vaksin Modal */}
-      <AddJenisVaksinForm wrappedComponentRef={addJenisVaksinFormRef} visible={addJenisVaksinModalVisible} confirmLoading={addJenisVaksinModalLoading} onCancel={handleCancel} onOk={handleAddJenisVaksinOk} />
+      <AddJenisVaksinForm
+        wrappedComponentRef={addJenisVaksinFormRef}
+        visible={addJenisVaksinModalVisible}
+        confirmLoading={addJenisVaksinModalLoading}
+        onCancel={handleCancel}
+        onOk={handleAddJenisVaksinOk}
+      />
 
       {/* Import Modal */}
       <Modal
         title="Import File"
-        visible={importModalVisible}
+        open={importModalVisible}
         onCancel={handleImportModalClose}
         footer={[
           <Button key="cancel" onClick={handleImportModalClose}>
             Cancel
           </Button>,
-          <Button key="upload" type="primary" loading={uploading} onClick={handleUpload}>
+          <Button
+            key="upload"
+            type="primary"
+            loading={uploading}
+            onClick={handleUpload}
+          >
             Upload
           </Button>,
         ]}
       >
-        <Upload beforeUpload={handleFileImport} accept=".xlsx,.xls,.csv" showUploadList={false}>
+        <Upload
+          beforeUpload={handleFileImport}
+          accept=".xlsx,.xls,.csv"
+          showUploadList={false}
+        >
           <Button icon={<UploadOutlined />}>Pilih File</Button>
         </Upload>
       </Modal>
