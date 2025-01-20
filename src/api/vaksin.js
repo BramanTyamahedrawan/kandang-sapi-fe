@@ -8,10 +8,12 @@ export function addVaksin(data) {
     idVaksin: uuidv4(),
   };
 
+  console.log("data", updatedData);
+
   return request({
     url: "/vaksin",
     method: "post",
-    updatedData,
+    data: updatedData,
   });
 }
 

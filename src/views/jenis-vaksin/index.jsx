@@ -184,8 +184,6 @@ const JenisVaksin = () => {
     setEditJenisVaksinModalLoading(true);
     try {
       await editJenisVaksin(values, currentRowData.idJenisVaksin);
-      console.log("Jenis Vaksin Data:", values);
-      console.log("ID Jenis Vaksin:", currentRowData.idJenisVaksin);
       setEditJenisVaksinModalVisible(false);
       setEditJenisVaksinModalLoading(false);
       message.success("Berhasil diedit!");
