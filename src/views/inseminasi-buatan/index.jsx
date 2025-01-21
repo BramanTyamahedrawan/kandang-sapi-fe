@@ -1,9 +1,28 @@
 /* eslint-disable no-constant-condition */
 /* eslint-disable no-unused-vars */
-import { Component } from "react";
-import { Card, Button, Table, message, Row, Col, Divider, Modal, Upload, Input } from "antd";
+// import { Component, useState, useRef } from "react";
+import {
+  Card,
+  Button,
+  Table,
+  message,
+  Row,
+  Col,
+  Divider,
+  Modal,
+  Upload,
+  Input,
+} from "antd";
 import { getPeternaks } from "@/api/peternak";
-import { getInseminasis, getInseminasiByPeternak, deleteInseminasi, editInseminasi, addInseminasi, addInseminasiImport, addInseminsasiBulk } from "@/api/inseminasi";
+import {
+  getInseminasis,
+  getInseminasiByPeternak,
+  deleteInseminasi,
+  editInseminasi,
+  addInseminasi,
+  addInseminasiImport,
+  addInseminsasiBulk,
+} from "@/api/inseminasi";
 import { addJenisHewanBulk } from "@/api/jenishewan";
 import { addRumpunHewanBulk } from "@/api/rumpunhewan";
 import { addHewanBulkImport } from "@/api/hewan";
@@ -11,16 +30,22 @@ import { addKandangBulkByNama } from "@/api/kandang";
 import { addPeternakBulkByNama } from "@/api/peternak";
 import { addPetugasBulkByNama } from "@/api/petugas";
 import { getPetugas } from "@/api/petugas";
-import { UploadOutlined } from "@ant-design/icons";
+import {
+  UploadOutlined,
+  EditOutlined,
+  DeleteOutlined,
+  DownloadOutlined,
+} from "@ant-design/icons";
 import { read, utils } from "xlsx";
 import AddInseminasiBuatanForm from "./forms/add-inseminasi-form";
 import EditInseminasiBuatanForm from "./forms/edit-inseminasi-form";
 import TypingCard from "@/components/TypingCard";
+import React, { useEffect, useRef, useState } from "react";
 import { reqUserInfo } from "../../api/user";
 import { v4 as uuidv4 } from "uuid";
 import { data } from "react-router-dom";
 
-export const sendPetugasBulkData = async (data, batchSize = 7000) => {
+const sendPetugasBulkData = async (data, batchSize = 7000) => {
   const totalBatches = Math.ceil(data.length / batchSize);
 
   for (let i = 0; i < totalBatches; i++) {
@@ -29,15 +54,21 @@ export const sendPetugasBulkData = async (data, batchSize = 7000) => {
     try {
       console.log(`Data Petugas (Batch ${i + 1}):`, batchData); // Log data yang dikirim
       const response = await addPetugasBulkByNama(batchData);
-      console.log(`Batch ${i + 1}/${totalBatches} berhasil dikirim`, response.data);
+      console.log(
+        `Batch ${i + 1}/${totalBatches} berhasil dikirim`,
+        response.data
+      );
     } catch (error) {
-      console.error(`Batch ${i + 1}/${totalBatches} gagal dikirim`, error.response?.data || error.message);
+      console.error(
+        `Batch ${i + 1}/${totalBatches} gagal dikirim`,
+        error.response?.data || error.message
+      );
       throw error; // Hentikan proses jika batch gagal
     }
   }
 };
 
-export const sendPeternakBulkData = async (data, batchSize = 7000) => {
+const sendPeternakBulkData = async (data, batchSize = 7000) => {
   const totalBatches = Math.ceil(data.length / batchSize);
 
   for (let i = 0; i < totalBatches; i++) {
@@ -46,9 +77,15 @@ export const sendPeternakBulkData = async (data, batchSize = 7000) => {
     try {
       console.log(`Data Peternak (Batch ${i + 1}):`, batchData); // Log data yang dikirim
       const response = await addPeternakBulkByNama(batchData);
-      console.log(`Batch ${i + 1}/${totalBatches} berhasil dikirim`, response.data);
+      console.log(
+        `Batch ${i + 1}/${totalBatches} berhasil dikirim`,
+        response.data
+      );
     } catch (error) {
-      console.error(`Batch ${i + 1}/${totalBatches} gagal dikirim`, error.response?.data || error.message);
+      console.error(
+        `Batch ${i + 1}/${totalBatches} gagal dikirim`,
+        error.response?.data || error.message
+      );
       throw error; // Hentikan proses jika batch gagal
     }
   }
@@ -63,9 +100,15 @@ const sendRumpunHewanBulkData = async (data, batchSize = 7000) => {
     try {
       console.log(`Data Rumpun Hewan (Batch ${i + 1}):`, batchData); // Log data yang dikirim
       const response = await addRumpunHewanBulk(batchData);
-      console.log(`Batch ${i + 1}/${totalBatches} berhasil dikirim`, response.data);
+      console.log(
+        `Batch ${i + 1}/${totalBatches} berhasil dikirim`,
+        response.data
+      );
     } catch (error) {
-      console.error(`Batch ${i + 1}/${totalBatches} gagal dikirim`, error.response?.data || error.message);
+      console.error(
+        `Batch ${i + 1}/${totalBatches} gagal dikirim`,
+        error.response?.data || error.message
+      );
       throw error;
     }
   }
@@ -80,15 +123,21 @@ const sendJenisHewanBulkData = async (data, batchSize = 7000) => {
     try {
       console.log(`Data Jenis Hewan (Batch ${i + 1}):`, batchData); // Log data yang dikirim
       const response = await addJenisHewanBulk(batchData);
-      console.log(`Batch ${i + 1}/${totalBatches} berhasil dikirim`, response.data);
+      console.log(
+        `Batch ${i + 1}/${totalBatches} berhasil dikirim`,
+        response.data
+      );
     } catch (error) {
-      console.error(`Batch ${i + 1}/${totalBatches} gagal dikirim`, error.response?.data || error.message);
+      console.error(
+        `Batch ${i + 1}/${totalBatches} gagal dikirim`,
+        error.response?.data || error.message
+      );
       throw error; // Hentikan proses jika batch gagal
     }
   }
 };
 
-export const sendKandangBulkData = async (data, batchSize = 7000) => {
+const sendKandangBulkData = async (data, batchSize = 7000) => {
   const totalBatches = Math.ceil(data.length / batchSize);
 
   for (let i = 0; i < totalBatches; i++) {
@@ -97,9 +146,15 @@ export const sendKandangBulkData = async (data, batchSize = 7000) => {
     try {
       console.log(`Data Kandang (Batch ${i + 1}):`, batchData); // Log data yang dikirim
       const response = await addKandangBulkByNama(batchData);
-      console.log(`Batch ${i + 1}/${totalBatches} berhasil dikirim`, response.data);
+      console.log(
+        `Batch ${i + 1}/${totalBatches} berhasil dikirim`,
+        response.data
+      );
     } catch (error) {
-      console.error(`Batch ${i + 1}/${totalBatches} gagal dikirim`, error.response?.data || error.message);
+      console.error(
+        `Batch ${i + 1}/${totalBatches} gagal dikirim`,
+        error.response?.data || error.message
+      );
       throw error; // Hentikan proses jika batch gagal
     }
   }
@@ -114,15 +169,21 @@ const sendTernakHewanBulkData = async (data, batchSize = 7000) => {
     try {
       console.log(`Data Ternak Hewan (Batch ${i + 1}):`, batchData); // Log data yang dikirim
       const response = await addHewanBulkImport(batchData);
-      console.log(`Batch ${i + 1}/${totalBatches} berhasil dikirim`, response.data);
+      console.log(
+        `Batch ${i + 1}/${totalBatches} berhasil dikirim`,
+        response.data
+      );
     } catch (error) {
-      console.error(`Batch ${i + 1}/${totalBatches} gagal dikirim`, error.response?.data || error.message);
+      console.error(
+        `Batch ${i + 1}/${totalBatches} gagal dikirim`,
+        error.response?.data || error.message
+      );
       throw error; // Hentikan proses jika batch gagal
     }
   }
 };
 
-export const sendInseminasiBuatanImport = async (data, batchSize = 7000) => {
+const sendInseminasiBuatanImport = async (data, batchSize = 7000) => {
   const totalBatches = Math.ceil(data.length / batchSize);
 
   for (let i = 0; i < totalBatches; i++) {
@@ -131,320 +192,312 @@ export const sendInseminasiBuatanImport = async (data, batchSize = 7000) => {
     try {
       console.log(`Data Inseminasi Buatan (Batch ${i + 1}):`, batchData); // Log data yang dikirim
       const response = await addInseminsasiBulk(batchData);
-      console.log(`Batch ${i + 1}/${totalBatches} berhasil dikirim`, response.data);
+      console.log(
+        `Batch ${i + 1}/${totalBatches} berhasil dikirim`,
+        response.data
+      );
     } catch (error) {
-      console.error(`Batch ${i + 1}/${totalBatches} gagal dikirim`, error.response?.data || error.message);
+      console.error(
+        `Batch ${i + 1}/${totalBatches} gagal dikirim`,
+        error.response?.data || error.message
+      );
       throw error; // Hentikan proses jika batch gagal
     }
   }
 };
 
-function parseLocation(lokasi) {
-  // Pastikan lokasi berupa string, jika tidak kembalikan "lokasi tidak valid"
-  if (typeof lokasi !== "string" || !lokasi) {
-    console.warn(`Alamat tidak valid: ${lokasi}`);
+function parseAddress(address) {
+  // Pastikan alamat berupa string, jika tidak kembalikan "alamat tidak valid"
+  if (typeof address !== "string" || !address) {
+    console.warn(`Alamat tidak valid: ${address}`);
     return "alamat tidak valid";
   }
 
   // Pecah alamat berdasarkan koma
-  const parts = lokasi.split(",").map((part) => part.trim());
+  const parts = address.split(",").map((part) => part.trim());
 
   // Ambil masing-masing bagian sesuai urutan, isi dengan "-" jika tidak ada
-  const provinsi = parts[0] || "-";
-  const kabupaten = parts[1]?.replace(/KAB\. /i, "") || "-"; // Hapus "KAB." jika ada
-  const kecamatan = parts[2] || "-";
+  const dusun = parts[4] || "-";
   const desa = parts[3] || "-";
+  const kecamatan = parts[2] || "-";
+  const kabupaten = parts[1]?.replace(/KAB\. /i, "") || "-"; // Hapus "KAB." jika ada
+  const provinsi = parts[0] || "-";
 
   // Validasi bahwa setidaknya satu bagian selain "-" harus terisi
-  const isValid = desa !== "-" || kecamatan !== "-" || kabupaten !== "-" || provinsi !== "-";
+  const isValid =
+    dusun !== "-" ||
+    desa !== "-" ||
+    kecamatan !== "-" ||
+    kabupaten !== "-" ||
+    provinsi !== "-";
 
   if (!isValid) {
-    console.warn(`Lokasi tidak valid: ${lokasi}`);
-    return "lokasi tidak valid";
+    console.warn(`Alamat tidak valid: ${address}`);
+    return "alamat tidak valid";
   }
 
   // Return dalam bentuk object
-  return { provinsi, kabupaten, kecamatan, desa };
+  return { dusun, desa, kecamatan, kabupaten, provinsi };
 }
 
 const cleanNik = (nik) => (nik ? nik.replace(/'/g, "").trim() : "-");
 
-class InseminasiBuatan extends Component {
-  state = {
-    inseminasis: [],
-    peternaks: [],
-    petugas: [],
-    editInseminasiModalVisible: false,
-    editInseminasiModalLoading: false,
-    currentRowData: {},
-    addInseminasiModalVisible: false,
-    addInseminasiModalLoading: false,
-    importModalVisible: false,
-    importedData: [],
-    columnTitles: [],
-    fileName: "",
-    uploading: false,
-    columnMapping: {},
-    searchKeyword: "",
-    user: null,
-  };
+const InseminasiBuatan = () => {
+  const [inseminasis, setInseminasis] = useState([]);
+  const [peternaks, setPeternaks] = useState([]);
+  const [petugas, setPetugas] = useState([]);
+  const [editInseminasiModalVisible, setEditInseminasiModalVisible] =
+    useState(false);
+  const [editInseminasiModalLoading, setEditInseminasiModalLoading] =
+    useState(false);
+  const [currentRowData, setCurrentRowData] = useState({});
+  const [addInseminasiModalVisible, setAddInseminasiModalVisible] =
+    useState(false);
+  const [addInseminasiModalLoading, setAddInseminasiModalLoading] =
+    useState(false);
+  const [importModalVisible, setImportModalVisible] = useState(false);
+  const [importedData, setImportedData] = useState([]);
+  const [columnTitles, setColumnTitles] = useState([]);
+  const [fileName, setFileName] = useState("");
+  const [uploading, setUploading] = useState(false);
+  const [columnMapping, setColumnMapping] = useState({});
+  const [searchKeyword, setSearchKeyword] = useState("");
+  const [user, setUser] = useState(null);
 
-  getInseminasis = async () => {
-    const result = await getInseminasis();
+  const editInseminasiFormRef = useRef(null);
+  const addInseminasiFormRef = useRef(null);
 
-    console.log(result);
-    const { content, statusCode } = result.data;
+  useEffect(() => {
+    const fetchInitialData = async () => {
+      await getPeternaksData();
+      await getPetugasData();
+      try {
+        const response = await reqUserInfo();
+        const userData = response.data;
+        setUser(userData);
+        if (userData.role === "ROLE_PETERNAK") {
+          await getInseminasiByPeternak(userData.username);
+        } else {
+          await getInseminasisData();
+        }
+      } catch (error) {
+        console.error("Terjadi kesalahan saat mengambil data user:", error);
+      }
+    };
 
-    if (statusCode === 200) {
-      const filteredInseminasi = content.filter((inseminasis) => {
-        const { idInseminasi, idPeternak, namaPeternak, kodeEartagNasional, idPejantan, idPembuatan, bangsaPejantan, produsen, inseminator, lokasi } = inseminasis;
-        const keyword = this.state.searchKeyword.toLowerCase();
+    fetchInitialData();
+  }, []);
 
-        const isIdInseminasiValid = typeof idInseminasi === "string";
-        const isIdPeternakValid = typeof idPeternak === "string";
-        const isNamaPeternakValid = typeof namaPeternak === "string";
-        const isKodeEartagNasionalValid = typeof kodeEartagNasional === "string";
-        const isIdPejantanValid = typeof idPejantan === "string";
-        const isIdPembuatanValid = typeof idPembuatan === "string";
-        const isBangsaPejantanValid = typeof bangsaPejantan === "string";
-        const isProdusenValid = typeof produsen === "string";
-        const isInseminatorValid = typeof inseminator === "string";
-        const isLokasiValid = typeof lokasi === "string";
+  const getInseminasisData = async () => {
+    try {
+      const result = await getInseminasis();
+      const { content, statusCode } = result.data;
 
-        return (
-          (isIdInseminasiValid && idInseminasi.toLowerCase().includes(keyword)) ||
-          (isIdPeternakValid && idPeternak.toLowerCase().includes(keyword)) ||
-          (isNamaPeternakValid && namaPeternak.toLowerCase().includes(keyword)) ||
-          (isKodeEartagNasionalValid && kodeEartagNasional.toLowerCase().includes(keyword)) ||
-          (isIdPejantanValid && idPejantan.toLowerCase().includes(keyword)) ||
-          (isIdPembuatanValid && idPembuatan.toLowerCase().includes(keyword)) ||
-          (isBangsaPejantanValid && bangsaPejantan.toLowerCase().includes(keyword)) ||
-          (isProdusenValid && produsen.toLowerCase().includes(keyword)) ||
-          (isInseminatorValid && inseminator.toLowerCase().includes(keyword)) ||
-          (isLokasiValid && lokasi.toLowerCase().includes(keyword))
-        );
-      });
+      if (statusCode === 200) {
+        const filteredInseminasi = content.filter((inseminasi) => {
+          const {
+            idInseminasi,
+            idPeternak,
+            namaPeternak,
+            kodeEartagNasional,
+            idPejantan,
+            idPembuatan,
+            bangsaPejantan,
+            produsen,
+            inseminator,
+            lokasi,
+          } = inseminasi;
+          const keyword = searchKeyword.toLowerCase();
 
-      this.setState({
-        inseminasis: filteredInseminasi,
-      });
+          return (
+            idInseminasi?.toLowerCase().includes(keyword) ||
+            idPeternak?.toLowerCase().includes(keyword) ||
+            namaPeternak?.toLowerCase().includes(keyword) ||
+            kodeEartagNasional?.toLowerCase().includes(keyword) ||
+            idPejantan?.toLowerCase().includes(keyword) ||
+            idPembuatan?.toLowerCase().includes(keyword) ||
+            bangsaPejantan?.toLowerCase().includes(keyword) ||
+            produsen?.toLowerCase().includes(keyword) ||
+            inseminator?.toLowerCase().includes(keyword) ||
+            lokasi?.toLowerCase().includes(keyword)
+          );
+        });
+
+        setInseminasis(filteredInseminasi);
+      }
+    } catch (error) {
+      console.error("Failed to fetch inseminasis:", error);
     }
   };
 
-  getInseminasiByPeternak = async (peternakID) => {
+  const getInseminasiByPeternak = async (peternakID) => {
     try {
       const result = await getInseminasiByPeternak(peternakID);
       const { content, statusCode } = result.data;
       if (statusCode === 200) {
-        this.setState({ inseminasis: content });
+        setInseminasis(content);
       }
     } catch (error) {
-      console.error("Failed to fetch data:", error);
+      console.error("Failed to fetch inseminasis by peternak:", error);
     }
   };
 
-  handleSearch = (keyword) => {
-    this.setState(
-      {
-        searchKeyword: keyword,
-      },
-      () => {
-        this.getInseminasis();
+  const getPeternaksData = async () => {
+    try {
+      const result = await getPeternaks();
+      const { content, statusCode } = result.data;
+
+      if (statusCode === 200) {
+        setPeternaks(content);
       }
-    );
-  };
-
-  getPeternaks = async () => {
-    const result = await getPeternaks();
-    console.log(result);
-    const { content, statusCode } = result.data;
-
-    if (statusCode === 200) {
-      this.setState({
-        peternaks: content,
-      });
+    } catch (error) {
+      console.error("Failed to fetch peternaks:", error);
     }
   };
 
-  getPetugas = async () => {
-    const result = await getPetugas();
-    const { content, statusCode } = result.data;
+  const getPetugasData = async () => {
+    try {
+      const result = await getPetugas();
+      const { content, statusCode } = result.data;
 
-    if (statusCode === 200) {
-      this.setState({
-        petugas: content,
-      });
-    }
-  };
-
-  handleEditInseminasi = (row) => {
-    this.setState({
-      currentRowData: Object.assign({}, row),
-      editInseminasiModalVisible: true,
-    });
-  };
-
-  handleEditInseminasiOk = (_) => {
-    const { form } = this.editInseminasiFormRef.props;
-    form.validateFields((err, values) => {
-      if (err) {
-        return;
+      if (statusCode === 200) {
+        setPetugas(content);
       }
-      this.setState({ editInseminasiModalLoading: true });
-      editInseminasi(values, values.idInseminasi)
-        .then((response) => {
-          form.resetFields();
-          this.setState({
-            editInseminasiModalVisible: false,
-            editInseminasiModalLoading: false,
-          });
-          message.success("Berhasil diedit!");
-          this.getInseminasis();
-        })
-        .catch((e) => {
-          message.success("Pengeditan gagal, harap coba lagi!");
-        });
-    });
+    } catch (error) {
+      console.error("Failed to fetch petugas:", error);
+    }
   };
 
-  handleDeleteInseminasi = (row) => {
+  const handleSearch = (keyword) => {
+    setSearchKeyword(keyword);
+    getInseminasisData();
+  };
+
+  const handleAddInseminasi = () => {
+    setAddInseminasiModalVisible(true);
+  };
+
+  const handleAddInseminasiOk = async (values) => {
+    setAddInseminasiModalLoading(true);
+    try {
+      console.log("Data Inseminasi:", values);
+      await addInseminasi(values);
+      setAddInseminasiModalVisible(false);
+      setAddInseminasiModalLoading(false);
+      message.success("Berhasil menambahkan!");
+      getInseminasisData();
+    } catch (e) {
+      setAddInseminasiModalLoading(false);
+      message.error("Gagal menambahkan, harap coba lagi!");
+    }
+  };
+
+  const handleEditInseminasi = (row) => {
+    setCurrentRowData({ ...row });
+    setEditInseminasiModalVisible(true);
+  };
+
+  const handleEditInseminasiOk = async (values) => {
+    setEditInseminasiModalLoading(true);
+    try {
+      await editInseminasi(values, currentRowData.idInseminasi);
+      setEditInseminasiModalVisible(false);
+      setEditInseminasiModalLoading(false);
+      message.success("Berhasil diedit!");
+      getInseminasisData();
+    } catch (e) {
+      setEditInseminasiModalLoading(false);
+      message.error("Pengeditan gagal, harap coba lagi!");
+    }
+  };
+
+  const handleDeleteInseminasi = (row) => {
     const { idInseminasi } = row;
-
     Modal.confirm({
       title: "Konfirmasi",
       content: "Apakah Anda yakin ingin menghapus data ini?",
       okText: "Ya",
       okType: "danger",
       cancelText: "Tidak",
-      onOk: () => {
-        deleteInseminasi({ idInseminasi }).then((res) => {
+      onOk: async () => {
+        try {
+          await deleteInseminasi({ idInseminasi });
           message.success("Berhasil dihapus");
-          this.getInseminasis();
-        });
+          getInseminasisData();
+        } catch (error) {
+          message.error("Gagal menghapus data, harap coba lagi!");
+        }
       },
     });
   };
 
-  handleCancel = (_) => {
-    this.setState({
-      editInseminasiModalVisible: false,
-      addInseminasiModalVisible: false,
-      importModalVisible: false,
-    });
+  const handleCancel = () => {
+    setEditInseminasiModalVisible(false);
+    setAddInseminasiModalVisible(false);
+    setImportModalVisible(false);
   };
 
-  handleAddInseminasi = (row) => {
-    this.setState({
-      addInseminasiModalVisible: true,
-    });
+  const handleImportModalOpen = () => {
+    setImportModalVisible(true);
   };
 
-  handleAddInseminasiOk = (_) => {
-    const { form } = this.addInseminasiFormRef.props;
-    form.validateFields((err, values) => {
-      if (err) {
-        return;
-      }
-      this.setState({ addInseminasiModalLoading: true });
-      addInseminasi(values)
-        .then((response) => {
-          form.resetFields();
-          this.setState({
-            addInseminasiModalVisible: false,
-            addInseminasiModalLoading: false,
-          });
-          message.success("Berhasil menambahkan!");
-          this.getInseminasis();
-        })
-        .catch((e) => {
-          message.success("Gagal menambahkan, harap coba lagi!");
-        });
-    });
+  const handleImportModalClose = () => {
+    setImportModalVisible(false);
   };
 
-  convertToJSDate(input) {
-    let date;
-    if (typeof input === "number") {
-      const utcDays = Math.floor(input - 25569);
-      const utcValue = utcDays * 86400;
-      const dateInfo = new Date(utcValue * 1000);
-      date = new Date(dateInfo.getFullYear(), dateInfo.getMonth(), dateInfo.getDate()).toString();
-    } else if (typeof input === "string") {
-      const [day, month, year] = input.split("/");
-      date = new Date(`${year}-${month}-${day}`).toString();
-    }
-
-    return date;
-  }
-
-  handleImportModalOpen = () => {
-    this.setState({ importModalVisible: true });
-  };
-
-  handleImportModalClose = () => {
-    this.setState({ importModalVisible: false });
-  };
-
-  handleFileImport = (file) => {
+  const handleFileImport = (file) => {
     const reader = new FileReader();
     reader.onload = (e) => {
       const data = new Uint8Array(e.target.result);
       const workbook = read(data, { type: "array" });
       const worksheet = workbook.Sheets[workbook.SheetNames[0]];
 
-      // Set defval to null so empty cells are not skipped
       const jsonData = utils.sheet_to_json(worksheet, {
         header: 1,
         blankrows: false,
         defval: null,
       });
-      const importedData = jsonData.slice(1); // Exclude the first row (column titles)
-      const columnTitles = jsonData[0]; // Assume the first row contains column titles
+
+      const importedData = jsonData.slice(1); // Mengambil data tanpa header
+      const columnTitles = jsonData[0]; // Mengambil judul kolom dari baris pertama
 
       const columnMapping = {};
       columnTitles.forEach((title, index) => {
-        columnMapping[title.trim()] = index; // Trim untuk menghapus spasi tambahan
+        columnMapping[title.trim()] = index;
       });
 
-      console.log("Column Titles:", columnTitles);
-      console.log("Column Mapping:", columnMapping);
-
-      this.setState({
-        importedData,
-        columnTitles,
-        fileName: file.name.toLowerCase(),
-        columnMapping,
-      });
+      // Mengupdate state menggunakan hooks
+      setImportedData(importedData);
+      setColumnTitles(columnTitles);
+      setFileName(file.name.toLowerCase());
+      setColumnMapping(columnMapping);
     };
     reader.readAsArrayBuffer(file);
   };
 
-  handleUpload = () => {
-    const { importedData, columnMapping } = this.state;
-
+  const handleUpload = () => {
     if (importedData.length === 0) {
       message.error("No data to import.");
       return;
     }
 
-    this.setState({ uploading: true });
+    setUploading(true);
 
-    this.saveImportedData(columnMapping)
+    saveImportedData(columnMapping)
       .then(() => {
-        this.setState({
-          uploading: false,
-          importModalVisible: false,
-        });
+        setUploading(false);
+        setImportModalVisible(false);
+        message.success("Berhasil mengunggah data.");
       })
       .catch((error) => {
         console.error("Gagal mengunggah data:", error);
-        this.setState({ uploading: false });
+        setUploading(false);
         message.error("Gagal mengunggah data, harap coba lagi.");
       });
   };
 
-  saveImportedData = async (columnMapping) => {
-    const { importedData } = this.state;
+  const saveImportedData = async (columnMapping) => {
+    // const { importedData } = this.state;
     let errorCount = 0;
 
     try {
@@ -459,6 +512,7 @@ class InseminasiBuatan extends Component {
       const inseminasiBuatan = [];
 
       for (const row of importedData) {
+        const generateIdPetugas = uuidv4();
         const generateIdPeternak = uuidv4();
         const generateIdInseminasi = uuidv4();
         const generateIdHewan = uuidv4();
@@ -466,7 +520,14 @@ class InseminasiBuatan extends Component {
         const generateIdJenisHewan = uuidv4();
         const generateIdKandang = uuidv4();
 
+        const namaPetugasInseminator = row[columnMapping["Inseminator"]];
+
         const formatDateToString = (dateString) => {
+          // Jika data berisi null atau "-", keluarkan "-"
+          if (dateString === null || dateString === "-") {
+            return "-";
+          }
+
           // Jika dateString adalah angka (seperti nilai dari Excel)
           if (!isNaN(dateString)) {
             // Excel menganggap angka tersebut sebagai jumlah hari sejak 01/01/1900
@@ -491,7 +552,10 @@ class InseminasiBuatan extends Component {
             const [datePart, timePart] = dateString.split(" ");
             const [day, month, year] = datePart.split("/");
 
-            return `${year}-${month.padStart(2, "0")}-${day.padStart(2, "0")} ${timePart}`;
+            return `${year}-${month.padStart(2, "0")}-${day.padStart(
+              2,
+              "0"
+            )} ${timePart}`;
           } else if (typeof dateString === "string") {
             const [day, month, year] = dateString.split("/");
             return `${year}-${month.padStart(2, "0")}-${day.padStart(2, "0")}`;
@@ -504,14 +568,18 @@ class InseminasiBuatan extends Component {
         const validateEmail = (email) => {
           // Jika email tidak valid (null, undefined, atau bukan string), gunakan default
           if (typeof email !== "string" || !email.includes("@")) {
-            console.warn(`Email tidak valid: ${email}. Menggunakan email default.`);
+            console.warn(
+              `Email tidak valid: ${email}. Menggunakan email default.`
+            );
             return "default@gmail.com"; // Email default
           }
           // Jika valid, kembalikan email
           return email;
         };
 
-        const pecahLokasi = parseLocation(row[columnMapping["Lokasi"]] || row[columnMapping["Alamat"]] || "-");
+        const pecahLokasi = parseAddress(
+          row[columnMapping["Lokasi"]] || row[columnMapping["Alamat"]] || "-"
+        );
 
         const generateJenisKandang = (jenisKandang) => {
           return jenisKandang || "Permanen";
@@ -520,19 +588,22 @@ class InseminasiBuatan extends Component {
 
         console.log("Row Data:", row);
 
-        if (!uniqueData.has(row[columnMapping["Spesies Induk"]])) {
+        if (!uniqueData.has(row[columnMapping["Bangsa Pejantan"]])) {
           const dataRumpunHewan = {
-            idRumpunHewan: row[columnMapping["ID Rumpun Hewan"]] || generateIdRumpunHewan,
-            rumpun: row[columnMapping["Spesies Induk"]] || "-",
-            deskripsi: "Deskripsi " + row[(columnMapping, ["Spesies Induk"])] || "-",
+            idRumpunHewan:
+              row[columnMapping["ID Rumpun Hewan"]] || generateIdRumpunHewan,
+            rumpun: row[columnMapping["Bangsa Pejantan"]] || "-",
+            deskripsi:
+              "Deskripsi " + row[(columnMapping, ["Bangsa Pejantan"])] || "-",
           };
           rumpunHewanBulk.push(dataRumpunHewan);
-          uniqueData.set(row[columnMapping["Spesies Induk"]], true);
+          uniqueData.set(row[columnMapping["Bangsa Pejantan"]], true);
         }
 
         if (!uniqueData.has(row[columnMapping["kategori"]])) {
           const dataJenisHewan = {
-            idJenisHewan: row[columnMapping["ID Jenis Hewan"]] || generateIdJenisHewan,
+            idJenisHewan:
+              row[columnMapping["ID Jenis Hewan"]] || generateIdJenisHewan,
             jenis: row[columnMapping["kategori"]] || "-",
             deskripsi: "Deskripsi " + row[(columnMapping, ["kategori"])] || "-",
           };
@@ -540,33 +611,43 @@ class InseminasiBuatan extends Component {
           uniqueData.set(row[columnMapping["kategori"]], true);
         }
 
-        const dataPetugas = {
-          nikPetugas: cleanNik(row[columnMapping["NIK Petugas"]]) || "-",
-          namaPetugas: row[columnMapping["Inseminator"]] || "-",
-          noTelp: row[columnMapping["No. Telp Petugas"]] || "-",
-          email: validateEmail(row[columnMapping["Email Petugas"]]) || "-",
-          job: "Petugas Kelahiran",
-        };
+        if (!uniqueData.has(namaPetugasInseminator)) {
+          const dataPetugas = {
+            petugasId: generateIdPetugas,
+            nikPetugas: cleanNik(row[columnMapping["NIK Petugas"]]) || "-",
+            namaPetugas: row[columnMapping["Inseminator"]] || "-",
+            noTelp: row[columnMapping["No. Telp Petugas"]] || "-",
+            email: validateEmail(row[columnMapping["Email Petugas"]]) || "-",
+            job: "Inseminator",
+          };
+          petugasInseminasi.push(dataPetugas);
+          uniqueData.set(namaPetugasInseminator, dataPetugas);
+        }
 
         const dataPeternak = {
           idPeternak: row[columnMapping["ID Peternak"]] || generateIdPeternak,
           nikPeternak: cleanNik(row[columnMapping["NIK Peternak"]]) || "-",
           namaPeternak: row[columnMapping["Nama Peternak"]] || "-",
           noTelpPeternak: row[columnMapping["No Telp"]] || "-",
-          emailPeternak: validateEmail(row[columnMapping["Email Pemilik Ternak"]]) || "-",
-          nikPetugas: dataPetugas.nikPetugas,
-          namaPetugas: dataPetugas.namaPetugas || "-",
-          alamatPeternak: row[columnMapping["Alamat Pemilik Ternak**)"]] || "-",
-          dusunPeternak: pecahLokasi.dusun,
-          desaPeternak: pecahLokasi.desa,
-          kecamatanPeternak: pecahLokasi.kecamatan,
-          kabupatenPeternak: pecahLokasi.kabupaten,
-          provinsiPeternak: pecahLokasi.provinsi,
-          // tanggalLahirPeternak: formatDateToString(
-          //   row[columnMapping["Tanggal Lahir Pemilik Ternak"]] || "_ "
-          // ),
+          emailPeternak:
+            validateEmail(row[columnMapping["Email Pemilik Ternak"]]) || "-",
+          idPetugas: uniqueData.get(namaPetugasInseminator).petugasId,
+          nikPetugas: uniqueData.get(namaPetugasInseminator).nikPetugas,
+          namaPetugas: uniqueData.get(namaPetugasInseminator).namaPetugas,
+          alamat: row[columnMapping["Lokasi"]] || "-",
+          dusun: pecahLokasi.dusun,
+          desa: pecahLokasi.desa,
+          kecamatan: pecahLokasi.kecamatan,
+          kabupaten: pecahLokasi.kabupaten,
+          provinsi: pecahLokasi.provinsi,
+          tanggalLahirPeternak: formatDateToString(
+            row[columnMapping["Tanggal Lahir Pemilik Ternak"]] || "-"
+          ),
+          latitude: row[columnMapping["latitude"]] || "-",
+          longitude: row[columnMapping["longitude"]] || "-",
           idIsikhnas: row[columnMapping["ID Isikhnas*)"]] || "-",
-          jenisKelaminPeternak: row[columnMapping["Jenis Kelamin Pemilik Ternak"]] || "-",
+          jenisKelaminPeternak:
+            row[columnMapping["Jenis Kelamin Pemilik Ternak"]] || "-",
         };
 
         const dataKandang = {
@@ -575,74 +656,79 @@ class InseminasiBuatan extends Component {
           nikPeternak: dataPeternak.nikPeternak,
           namaPeternak: dataPeternak.namaPeternak,
           namaKandang: `Kandang ${dataPeternak.namaPeternak}`,
-          alamat: row[columnMapping["Alamat Kandang**)"]] || "Alamat Tidak Valid",
+          alamat: row[columnMapping["Alamat Kandang**)"]] || "-",
           luas: row[columnMapping["Luas Kandang*)"]] || "_",
           kapasitas: row[columnMapping["Kapasitas Kandang*)"]] || "_",
           nilaiBangunan: row[columnMapping["Nilai Bangunan*)"]] || "_",
-          jenisKandang: generateJenisKandang(row[columnMapping["Jenis Kandang"]]),
-          latitude: row[columnMapping["latitude"]] || null,
-          longitude: row[columnMapping["longitude"]] || null,
+          jenisKandang: generateJenisKandang(
+            row[columnMapping["Jenis Kandang"]]
+          ),
+          latitude: row[columnMapping["latitude"]] || "-",
+          longitude: row[columnMapping["longitude"]] || "-",
         };
 
         const dataTernakHewan = {
           idHewan: row[columnMapping["ID Hewan"]] || generateIdHewan,
           kodeEartagNasional: row[columnMapping["eartag"]] || "-",
           noKartuTernak: row[columnMapping["kartu ternak induk"]] || "_",
-          nikPetugas: dataPetugas.nikPetugas,
-          namaPetugas: dataPetugas.namaPetugas || "_",
-          // tanggalLahir: formatDateToString(
-          //   row[columnMapping["Tanggal Lahir Ternak**)"]] || "_"
-          // ),
+          idIsikhnasTernak: row[columnMapping["IdIsikhnas"]] || "_",
           sex: row[columnMapping["Jenis Kelamin**)"]] || "_",
           tempatLahir: row[columnMapping["Tempat Lahir Ternak"]] || "_",
           umur: row[columnMapping["Umur"]] || "_",
-          identifikasiHewan: row[columnMapping["Identifikasi Hewan*"]] || row[columnMapping["Identifikasi Hewan"]] || "_",
+          identifikasiHewan:
+            row[columnMapping["Identifikasi Hewan*"]] ||
+            row[columnMapping["Identifikasi Hewan"]] ||
+            "_",
+          tanggalTerdaftar: formatDateToString(
+            row[columnMapping["Tanggal Pendataan"]] || "-"
+          ),
+          idPetugas: uniqueData.get(namaPetugasInseminator).petugasId,
+          nikPetugas: uniqueData.get(namaPetugasInseminator).nikPetugas,
+          namaPetugas: uniqueData.get(namaPetugasInseminator).namaPetugas,
+          tanggalLahir: formatDateToString(
+            row[columnMapping["Tanggal Lahir Ternak**)"]] || "-"
+          ),
           nikPeternak: dataPeternak.nikPeternak,
           idKandang: dataKandang.idKandang,
           namaKandang: dataKandang.namaKandang,
           jenis: row[columnMapping["kategori"]] || "-",
-          rumpun: row[columnMapping["species"]] || "-",
+          rumpun: row[columnMapping["Bangsa Pejantan"]] || "-",
           idPeternak: dataPeternak.idPeternak,
           namaPeternak: dataPeternak.namaPeternak,
-          tujuanPemeliharaan: row[columnMapping["Tujuan Pemeliharaan Ternak**)"]] || "_",
-          // tanggalTerdaftar: formatDateToString(
-          //   row[columnMapping["Tanggal Pendataan"]] || "_"
-          // ),
+          tujuanPemeliharaan:
+            row[columnMapping["Tujuan Pemeliharaan Ternak"]] || "-",
         };
 
         // data inseminasi
         const dataInseminasi = {
           idInseminasi: row[columnMapping["ID"]] || generateIdInseminasi,
-          tanggalIB: formatDateToString(row[columnMapping["Tanggal IB"]]) || "-",
-          lokasi: row[columnMapping["Lokasi"]] || "-",
-          desa: pecahLokasi.desa,
-          kecamatan: pecahLokasi.kecamatan,
-          kabupaten: pecahLokasi.kabupaten,
-          provinsi: pecahLokasi.provinsi,
-          namaPeternak: dataPeternak.namaPeternak,
-          idPeternak: dataPeternak.idPeternak,
-          nikPeternak: dataPeternak.nikPeternak,
-          idHewan: dataTernakHewan.idHewan,
-          kodeEartagNasional: dataTernakHewan.kodeEartagNasional,
+          tanggalIB:
+            formatDateToString(row[columnMapping["Tanggal IB"]]) || "-",
           ib1: row[columnMapping["IB 1"]] || "-",
           ib2: row[columnMapping["IB 2"]] || "-",
           ib3: row[columnMapping["IB 3"]] || "-",
           ibLain: row[columnMapping["IB lain"]] || "-",
           idPejantan: row[columnMapping["ID Pejantan"]] || "-",
-          idPembuatan: row[columnMapping["ID Pembuatan"]] || "-",
-          bangsaPejantan: row[columnMapping["Bangsa Pejantan"]] || "-",
           produsen: row[columnMapping["Produsen"]] || "-",
-          namaPetugas: dataPetugas.namaPetugas,
-          nikPetugas: dataPetugas.nikPetugas,
+          idPembuatan: row[columnMapping["ID Pembuatan"]] || "-",
+          namaPeternak: dataPeternak.namaPeternak,
+          idPeternak: dataPeternak.idPeternak,
+          nikPeternak: dataPeternak.nikPeternak,
+          idHewan: dataTernakHewan.idHewan,
+          kodeEartagNasional: dataTernakHewan.kodeEartagNasional,
+          bangsaPejantan: row[columnMapping["Bangsa Pejantan"]] || "-",
+          idPetugas: uniqueData.get(namaPetugasInseminator).petugasId,
+          namaPetugas: uniqueData.get(namaPetugasInseminator).namaPetugas,
+          nikPetugas: uniqueData.get(namaPetugasInseminator).nikPetugas,
           idKandang: dataKandang.idKandang,
           namaKandang: dataKandang.namaKandang,
           rumpun: dataTernakHewan.rumpun,
-          jenis: dataTernakHewan.jenis,
+          // jenis: dataTernakHewan.jenis,
         };
 
         console.log("Data Inseminasi:", dataInseminasi);
 
-        petugasInseminasi.push(dataPetugas);
+        // petugasInseminasi.push(dataPetugas);
         peternakBulk.push(dataPeternak);
         kandangBulk.push(dataKandang);
         ternakHewanBulk.push(dataTernakHewan);
@@ -659,37 +745,68 @@ class InseminasiBuatan extends Component {
         await sendTernakHewanBulkData(ternakHewanBulk);
         await sendInseminasiBuatanImport(inseminasiBuatan);
       } catch (error) {
-        console.error("Gagal menyimpan data secara bulk:", error, error.response?.data);
+        console.error(
+          "Gagal menyimpan data secara bulk:",
+          error,
+          error.response?.data
+        );
       }
 
       if (errorCount === 0) {
         message.success(`Semua data berhasil disimpan.`);
       } else {
-        message.error(`${errorCount} data gagal disimpan karena duplikasi data!`);
+        message.error(
+          `${errorCount} data gagal disimpan karena duplikasi data!`
+        );
       }
     } catch (error) {
       console.error("Gagal memproses data:", error);
     } finally {
-      this.setState({
-        importedData: [],
-        columnTitles: [],
-        columnMapping: {},
-      });
+      setImportedData([]); // Reset state setelah pemrosesan selesai
+      setColumnTitles([]);
+      setColumnMapping({});
     }
   };
 
-  handleExportData = () => {
+  const handleExportData = () => {
     const { inseminasis } = this.state;
     const csvContent = this.convertToCSV(inseminasis);
     this.downloadCSV(csvContent);
   };
 
-  convertToCSV = (data) => {
-    const columnTitles = ["ID Inseminasi", "Tanggal IB", "Lokasi", "Nama Peternak", "ID Peternak", "ID Hewan", "Eartag", "IB", "ID Pejantan", "ID Pembuatan", "Bangsa Pejantan", "Produsen", "Inseminator"];
+  const convertToCSV = (data) => {
+    const columnTitles = [
+      "ID Inseminasi",
+      "Tanggal IB",
+      "Lokasi",
+      "Nama Peternak",
+      "ID Peternak",
+      "ID Hewan",
+      "Eartag",
+      "IB",
+      "ID Pejantan",
+      "ID Pembuatan",
+      "Bangsa Pejantan",
+      "Produsen",
+      "Inseminator",
+    ];
 
     const rows = [columnTitles];
     data.forEach((item) => {
-      const row = [item.idInseminasi, item.tanggalIB, item.alamat, item.namaPeternak, item.idPeternak, item.kodeEartagNasional, item.ib, item.idPejantan, item.idPembuatan, item.bangsaPejantan, item.produsen, item.inseminator];
+      const row = [
+        item.idInseminasi,
+        item.tanggalIB,
+        item.alamat,
+        item.namaPeternak,
+        item.idPeternak,
+        item.kodeEartagNasional,
+        item.ib,
+        item.idPejantan,
+        item.idPembuatan,
+        item.bangsaPejantan,
+        item.produsen,
+        item.inseminator,
+      ];
       rows.push(row);
     });
 
@@ -703,7 +820,7 @@ class InseminasiBuatan extends Component {
     return csvContent;
   };
 
-  downloadCSV = (csvContent) => {
+  const downloadCSV = (csvContent) => {
     const encodedUri = encodeURI(csvContent);
     const link = document.createElement("a");
     link.setAttribute("href", encodedUri);
@@ -712,28 +829,8 @@ class InseminasiBuatan extends Component {
     link.click();
   };
 
-  componentDidMount() {
-    this.getPeternaks();
-    this.getPetugas();
-    reqUserInfo()
-      .then((response) => {
-        const user = response.data;
-        this.setState({ user }, () => {
-          if (user.role === "ROLE_PETERNAK") {
-            this.getInseminasiByPeternak(user.username);
-          } else {
-            this.getInseminasis();
-          }
-        });
-      })
-      .catch((error) => {
-        console.error("Terjadi kesalahan saat mengambil data user:", error);
-      });
-  }
-
-  render() {
-    const { inseminasis, peternaks, importModalVisible, searchKeyword, user } = this.state;
-    const columns = [
+  const renderColumns = () => {
+    const baseColumns = [
       {
         title: "ID Inseminasi",
         dataIndex: "idInseminasi",
@@ -745,12 +842,7 @@ class InseminasiBuatan extends Component {
         dataIndex: ["peternak", "namaPeternak"],
         key: "namaPeternak",
       },
-      // {
-      //   title: "NIK Peternak",
-      //   dataIndex: ["peternak", "nikPeternak"],
-      //   key: "nikPeternak",
-      // },
-      { title: "Lokasi", dataIndex: "lokasi", key: "lokasi" },
+      { title: "Alamat", dataIndex: ["peternak", "alamat"], key: "alamat" },
       {
         title: "Kode Eartag",
         dataIndex: ["hewan", "kodeEartagNasional"],
@@ -760,145 +852,193 @@ class InseminasiBuatan extends Component {
         title: "IB",
         key: "ib",
         render: (text, record) => {
-          const { ib1, ib2, ib3, ibLain } = record;
-
-          const ibValues = [
-            { label: "IB1", value: ib1 },
-            { label: "IB2", value: ib2 },
-            { label: "IB3", value: ib3 },
-            { label: "IB Lain", value: ibLain },
-          ];
-
-          const validIB = ibValues.filter((ib) => ib.value && ib.value !== "-" && ib.value !== null && ib.value !== undefined).map((ib) => `${ib.label}: ${ib.value}`); // Gabungkan label dan nilai
-
-          return validIB.length > 0 ? validIB.join(", ") : "Tidak ada IB";
+          if (record.ib1 === "1") return "IB1";
+          if (record.ib2 === "1") return "IB2";
+          if (record.ib3 === "1") return "IB3";
+          if (record.ibLain === "1") return "IBLain";
+          return "-"; // Default jika tidak ada data
         },
       },
       { title: "ID Pejantan", dataIndex: "idPejantan", key: "idPejantan" },
       { title: "ID Pembuatan", dataIndex: "idPembuatan", key: "idPembuatan" },
       {
         title: "Bangsa Pejantan",
-        dataIndex: "bangsaPejantan",
-        key: "bangsaPejantan",
+        dataIndex: ["rumpunHewan", "rumpun"],
+        key: "rumpun",
       },
       { title: "Produsen", dataIndex: "produsen", key: "produsen" },
       {
-        title: "inseminator",
+        title: "Inseminator",
         dataIndex: ["petugas", "namaPetugas"],
         key: "inseminator",
       },
     ];
 
-    const renderTable = () => {
-      if (user && user.role === "ROLE_PETERNAK") {
-        return <Table dataSource={inseminasis} bordered columns={columns} />;
-      } else if ((user && user.role === "ROLE_ADMINISTRATOR") || "ROLE_PETUGAS") {
-        return <Table dataSource={inseminasis} bordered columns={columns && renderColumns()} />;
-      } else {
-        return null;
-      }
-    };
+    if (
+      user &&
+      (user.role === "ROLE_ADMINISTRATOR" || user.role === "ROLE_PETUGAS")
+    ) {
+      baseColumns.push({
+        title: "Operasi",
+        key: "action",
+        width: 120,
+        align: "center",
+        render: (text, row) => (
+          <span>
+            <Button
+              type="primary"
+              shape="circle"
+              icon={<EditOutlined />}
+              title="Edit"
+              onClick={() => handleEditInseminasi(row)}
+            />
+            <Divider type="vertical" />
+            <Button
+              type="primary"
+              danger
+              shape="circle"
+              icon={<DeleteOutlined />}
+              title="Delete"
+              onClick={() => handleDeleteInseminasi(row)}
+            />
+          </span>
+        ),
+      });
+    }
 
-    const renderButtons = () => {
-      if (user && (user.role === "ROLE_ADMINISTRATOR" || user.role === "ROLE_PETUGAS")) {
-        return (
-          <Row gutter={[16, 16]} justify="start" style={{ paddingLeft: 9 }}>
-            <Col>
-              <Button type="primary" onClick={this.handleAddInseminasi} block>
-                Tambah Inseminasi
-              </Button>
-            </Col>
-            <Col>
-              <Button icon={<UploadOutlined />} onClick={this.handleImportModalOpen} block>
-                Import File
-              </Button>
-            </Col>
-            <Col>
-              <Button icon={<UploadOutlined />} onClick={this.handleExportData} block>
-                Export File
-              </Button>
-            </Col>
-          </Row>
-        );
-      } else {
-        return null;
-      }
-    };
+    return baseColumns;
+  };
 
-    const renderColumns = () => {
-      if ((user && user.role === "ROLE_ADMINISTRATOR") || "ROLE_PETUGAS") {
-        columns.push({
-          title: "Operasi",
-          key: "action",
-          width: 120,
-          align: "center",
-          render: (text, row) => (
-            <span>
-              <Button type="primary" shape="circle" icon="edit" title="Edit" onClick={() => this.handleEditInseminasi(row)} />
-              <Divider type="vertical" />
-              <Button type="primary" shape="circle" icon="delete" title="Delete" onClick={() => this.handleDeleteInseminasi(row)} />
-            </span>
-          ),
-        });
-      }
-      return columns;
-    };
-
-    const title = (
-      <Row gutter={[16, 16]} justify="start">
-        {renderButtons()}
-        <Col xs={24} sm={12} md={8} lg={8} xl={8}>
-          <Input placeholder="Cari data" value={searchKeyword} onChange={(e) => this.handleSearch(e.target.value)} style={{ width: 235, marginLeft: 10 }} />
-        </Col>
-      </Row>
-    );
-
-    // const { role } = user ? user.role : "";
-    // console.log("peran pengguna:", role);
-    const cardContent = `Di sini, Anda dapat mengelola daftar inseminasi di sistem.`;
-
-    return (
-      <div className="app-container">
-        <TypingCard title="Manajemen Inseminasi Buatan" source={cardContent} />
-        <br />
-        <Card title={title} style={{ overflowX: "scroll" }}>
-          {renderTable()}
-        </Card>
-        <EditInseminasiBuatanForm
-          currentRowData={this.state.currentRowData}
-          wrappedComponentRef={(formRef) => (this.editInseminasiFormRef = formRef)}
-          visible={this.state.editInseminasiModalVisible}
-          confirmLoading={this.state.editInseminasiModalLoading}
-          onCancel={this.handleCancel}
-          onOk={this.handleEditInseminasiOk}
+  const renderTable = () => {
+    if (user && user.role === "ROLE_PETERNAK") {
+      return (
+        <Table
+          dataSource={inseminasis}
+          bordered
+          columns={renderColumns()}
+          rowKey="idInseminasi"
         />
-        <AddInseminasiBuatanForm
-          wrappedComponentRef={(formRef) => (this.addInseminasiFormRef = formRef)}
-          visible={this.state.addInseminasiModalVisible}
-          confirmLoading={this.state.addInseminasiModalLoading}
-          onCancel={this.handleCancel}
-          onOk={this.handleAddInseminasiOk}
+      );
+    } else if (
+      user &&
+      (user.role === "ROLE_ADMINISTRATOR" || user.role === "ROLE_PETUGAS")
+    ) {
+      return (
+        <Table
+          dataSource={inseminasis}
+          bordered
+          columns={renderColumns()}
+          rowKey="idInseminasi"
         />
-        <Modal
-          title="Import File"
-          visible={importModalVisible}
-          onCancel={this.handleImportModalClose}
-          footer={[
-            <Button key="cancel" onClick={this.handleImportModalClose}>
-              Cancel
-            </Button>,
-            <Button key="upload" type="primary" loading={this.state.uploading} onClick={this.handleUpload}>
-              Upload
-            </Button>,
-          ]}
-        >
-          <Upload beforeUpload={this.handleFileImport}>
-            <Button icon={<UploadOutlined />}>Pilih File</Button>
-          </Upload>
-        </Modal>
-      </div>
-    );
-  }
-}
+      );
+    } else {
+      return null;
+    }
+  };
+
+  const renderButtons = () => {
+    if (
+      user &&
+      (user.role === "ROLE_ADMINISTRATOR" || user.role === "ROLE_PETUGAS")
+    ) {
+      return (
+        <Row gutter={[16, 16]} justify="start" style={{ paddingLeft: 9 }}>
+          <Col xs={24} sm={12} md={8} lg={8} xl={8}>
+            <Button type="primary" onClick={handleAddInseminasi} block>
+              Tambah Inseminasi
+            </Button>
+          </Col>
+          <Col xs={24} sm={12} md={8} lg={8} xl={8}>
+            <Button
+              icon={<UploadOutlined />}
+              onClick={handleImportModalOpen}
+              block
+            >
+              Import File
+            </Button>
+          </Col>
+          <Col xs={24} sm={12} md={8} lg={8} xl={8}>
+            <Button
+              icon={<DownloadOutlined />}
+              onClick={handleExportData}
+              block
+            >
+              Export File
+            </Button>
+          </Col>
+        </Row>
+      );
+    } else {
+      return null;
+    }
+  };
+
+  const title = (
+    <Row gutter={[16, 16]} justify="space-between">
+      {renderButtons()}
+      <Col xs={24} sm={12} md={8} lg={8} xl={8}>
+        <Input
+          placeholder="Cari data"
+          value={searchKeyword}
+          onChange={(e) => handleSearch(e.target.value)}
+          style={{ width: "100%" }}
+        />
+      </Col>
+    </Row>
+  );
+
+  return (
+    <div className="app-container">
+      <TypingCard
+        title="Manajemen Inseminasi Buatan"
+        source="Di sini, Anda dapat mengelola daftar inseminasi di sistem."
+      />
+      <br />
+      <Card title={title} style={{ overflowX: "scroll" }}>
+        {renderTable()}
+      </Card>
+
+      <EditInseminasiBuatanForm
+        currentRowData={currentRowData}
+        wrappedComponentRef={editInseminasiFormRef}
+        visible={editInseminasiModalVisible}
+        confirmLoading={editInseminasiModalLoading}
+        onCancel={handleCancel}
+        onOk={handleEditInseminasiOk}
+      />
+
+      <AddInseminasiBuatanForm
+        wrappedComponentRef={addInseminasiFormRef}
+        visible={addInseminasiModalVisible}
+        confirmLoading={addInseminasiModalLoading}
+        onCancel={handleCancel}
+        onOk={handleAddInseminasiOk}
+      />
+
+      <Modal
+        title="Import File"
+        open={importModalVisible}
+        onCancel={handleImportModalClose}
+        footer={[
+          <Button key="cancel" onClick={handleImportModalClose}>
+            Cancel
+          </Button>,
+          <Button
+            key="upload"
+            type="primary"
+            loading={uploading}
+            onClick={handleUpload}
+          >
+            Upload
+          </Button>,
+        ]}
+      >
+        <Upload beforeUpload={handleFileImport} accept=".xlsx,.xls,.csv">
+          <Button icon={<UploadOutlined />}>Pilih File</Button>
+        </Upload>
+      </Modal>
+    </div>
+  );
+};
 
 export default InseminasiBuatan;
