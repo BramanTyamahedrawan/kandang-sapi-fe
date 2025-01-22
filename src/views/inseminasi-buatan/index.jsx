@@ -497,7 +497,6 @@ const InseminasiBuatan = () => {
   };
 
   const saveImportedData = async (columnMapping) => {
-    // const { importedData } = this.state;
     let errorCount = 0;
 
     try {
@@ -723,7 +722,7 @@ const InseminasiBuatan = () => {
           idKandang: dataKandang.idKandang,
           namaKandang: dataKandang.namaKandang,
           rumpun: dataTernakHewan.rumpun,
-          // jenis: dataTernakHewan.jenis,
+          jenis: dataTernakHewan.jenis,
         };
 
         console.log("Data Inseminasi:", dataInseminasi);
