@@ -1,26 +1,8 @@
 /* eslint-disable no-constant-condition */
 /* eslint-disable no-unused-vars */
 import { Component } from "react";
-import {
-  Card,
-  Button,
-  Table,
-  message,
-  Row,
-  Col,
-  Divider,
-  Modal,
-  Upload,
-  Input,
-} from "antd";
-import {
-  getPkb,
-  getPkbByPeternak,
-  deletePkb,
-  editPkb,
-  addPkb,
-  addPkbImport,
-} from "@/api/pkb";
+import { Card, Button, Table, message, Row, Col, Divider, Modal, Upload, Input } from "antd";
+import { getPkb, getPkbByPeternak, deletePkb, editPkb, addPkb, addPkbImport } from "@/api/pkb";
 import { addJenisHewanBulk } from "@/api/jenishewan";
 import { addRumpunHewanBulk } from "@/api/rumpunhewan";
 import { addHewanBulkImport } from "@/api/hewan";
@@ -30,7 +12,7 @@ import { addPetugasBulkByNama } from "@/api/petugas";
 import { addKandangBulkByNama } from "@/api/kandang";
 import { getPetugas } from "@/api/petugas";
 import { getHewans } from "@/api/hewan";
-import { UploadOutlined } from "@ant-design/icons";
+import { DownloadOutlined, UploadOutlined } from "@ant-design/icons";
 import { read, utils } from "xlsx";
 import TypingCard from "@/components/TypingCard";
 import EditPkbForm from "./forms/edit-pkb-form";
@@ -49,15 +31,9 @@ export const sendPetugasBulkData = async (data, batchSize = 7000) => {
     try {
       console.log(`Data Petugas (Batch ${i + 1}):`, batchData); // Log data yang dikirim
       const response = await addPetugasBulkByNama(batchData);
-      console.log(
-        `Batch ${i + 1}/${totalBatches} berhasil dikirim`,
-        response.data
-      );
+      console.log(`Batch ${i + 1}/${totalBatches} berhasil dikirim`, response.data);
     } catch (error) {
-      console.error(
-        `Batch ${i + 1}/${totalBatches} gagal dikirim`,
-        error.response?.data || error.message
-      );
+      console.error(`Batch ${i + 1}/${totalBatches} gagal dikirim`, error.response?.data || error.message);
       throw error; // Hentikan proses jika batch gagal
     }
   }
@@ -72,15 +48,9 @@ export const sendPeternakBulkData = async (data, batchSize = 7000) => {
     try {
       console.log(`Data Peternak (Batch ${i + 1}):`, batchData); // Log data yang dikirim
       const response = await addPeternakBulkByNama(batchData);
-      console.log(
-        `Batch ${i + 1}/${totalBatches} berhasil dikirim`,
-        response.data
-      );
+      console.log(`Batch ${i + 1}/${totalBatches} berhasil dikirim`, response.data);
     } catch (error) {
-      console.error(
-        `Batch ${i + 1}/${totalBatches} gagal dikirim`,
-        error.response?.data || error.message
-      );
+      console.error(`Batch ${i + 1}/${totalBatches} gagal dikirim`, error.response?.data || error.message);
       throw error; // Hentikan proses jika batch gagal
     }
   }
@@ -95,15 +65,9 @@ const sendRumpunHewanBulkData = async (data, batchSize = 7000) => {
     try {
       console.log(`Data Rumpun Hewan (Batch ${i + 1}):`, batchData); // Log data yang dikirim
       const response = await addRumpunHewanBulk(batchData);
-      console.log(
-        `Batch ${i + 1}/${totalBatches} berhasil dikirim`,
-        response.data
-      );
+      console.log(`Batch ${i + 1}/${totalBatches} berhasil dikirim`, response.data);
     } catch (error) {
-      console.error(
-        `Batch ${i + 1}/${totalBatches} gagal dikirim`,
-        error.response?.data || error.message
-      );
+      console.error(`Batch ${i + 1}/${totalBatches} gagal dikirim`, error.response?.data || error.message);
       throw error;
     }
   }
@@ -118,15 +82,9 @@ const sendJenisHewanBulkData = async (data, batchSize = 7000) => {
     try {
       console.log(`Data Jenis Hewan (Batch ${i + 1}):`, batchData); // Log data yang dikirim
       const response = await addJenisHewanBulk(batchData);
-      console.log(
-        `Batch ${i + 1}/${totalBatches} berhasil dikirim`,
-        response.data
-      );
+      console.log(`Batch ${i + 1}/${totalBatches} berhasil dikirim`, response.data);
     } catch (error) {
-      console.error(
-        `Batch ${i + 1}/${totalBatches} gagal dikirim`,
-        error.response?.data || error.message
-      );
+      console.error(`Batch ${i + 1}/${totalBatches} gagal dikirim`, error.response?.data || error.message);
       throw error; // Hentikan proses jika batch gagal
     }
   }
@@ -141,15 +99,9 @@ export const sendKandangBulkData = async (data, batchSize = 7000) => {
     try {
       console.log(`Data Kandang (Batch ${i + 1}):`, batchData); // Log data yang dikirim
       const response = await addKandangBulkByNama(batchData);
-      console.log(
-        `Batch ${i + 1}/${totalBatches} berhasil dikirim`,
-        response.data
-      );
+      console.log(`Batch ${i + 1}/${totalBatches} berhasil dikirim`, response.data);
     } catch (error) {
-      console.error(
-        `Batch ${i + 1}/${totalBatches} gagal dikirim`,
-        error.response?.data || error.message
-      );
+      console.error(`Batch ${i + 1}/${totalBatches} gagal dikirim`, error.response?.data || error.message);
       throw error; // Hentikan proses jika batch gagal
     }
   }
@@ -164,15 +116,9 @@ const sendTernakHewanBulkData = async (data, batchSize = 7000) => {
     try {
       console.log(`Data Ternak Hewan (Batch ${i + 1}):`, batchData); // Log data yang dikirim
       const response = await addHewanBulkImport(batchData);
-      console.log(
-        `Batch ${i + 1}/${totalBatches} berhasil dikirim`,
-        response.data
-      );
+      console.log(`Batch ${i + 1}/${totalBatches} berhasil dikirim`, response.data);
     } catch (error) {
-      console.error(
-        `Batch ${i + 1}/${totalBatches} gagal dikirim`,
-        error.response?.data || error.message
-      );
+      console.error(`Batch ${i + 1}/${totalBatches} gagal dikirim`, error.response?.data || error.message);
       throw error; // Hentikan proses jika batch gagal
     }
   }
@@ -187,15 +133,9 @@ export const sendPkbImport = async (data, batchSize = 7000) => {
     try {
       console.log(`Data PKB (Batch ${i + 1}):`, batchData); // Log data yang dikirim
       const response = await addPkbImport(batchData);
-      console.log(
-        `Batch ${i + 1}/${totalBatches} berhasil dikirim`,
-        response.data
-      );
+      console.log(`Batch ${i + 1}/${totalBatches} berhasil dikirim`, response.data);
     } catch (error) {
-      console.error(
-        `Batch ${i + 1}/${totalBatches} gagal dikirim`,
-        error.response?.data || error.message
-      );
+      console.error(`Batch ${i + 1}/${totalBatches} gagal dikirim`, error.response?.data || error.message);
       throw error; // Hentikan proses jika batch gagal
     }
   }
@@ -218,8 +158,7 @@ function parseLocation(lokasi) {
   const desa = parts[3] || "-";
 
   // Validasi bahwa setidaknya satu bagian selain "-" harus terisi
-  const isValid =
-    desa !== "-" || kecamatan !== "-" || kabupaten !== "-" || provinsi !== "-";
+  const isValid = desa !== "-" || kecamatan !== "-" || kabupaten !== "-" || provinsi !== "-";
 
   if (!isValid) {
     console.warn(`Lokasi tidak valid: ${lokasi}`);
@@ -259,47 +198,31 @@ class Pkb extends Component {
 
     if (statusCode === 200) {
       const filteredPKB = content.filter((pkb) => {
-        const {
-          idKejadian,
-          idPeternak,
-          kodeEartagNasional,
-          tanggalPkb,
-          lokasi,
-          namaPeternak,
-          nikPeternak,
-          spesies,
-          kategori,
-          pemeriksaKebuntingan,
-        } = pkb;
+        const { idKejadian, idPeternak, kodeEartagNasional, tanggalPkb, lokasi, namaPeternak, nikPeternak, spesies, kategori, pemeriksaKebuntingan } = pkb;
         const keyword = this.state.searchKeyword.toLowerCase();
 
         const isIdKejadianValid = typeof idKejadian === "string";
         const isIdPeternakValid = typeof idPeternak === "string";
-        const isKodeEartagNasionalValid =
-          typeof kodeEartagNasional === "string";
+        const isKodeEartagNasionalValid = typeof kodeEartagNasional === "string";
         const isTanggalPKBValid = typeof tanggalPkb === "string";
         const isLokasiValid = typeof lokasi === "string";
         const isNamaPeternakValid = typeof namaPeternak === "string";
         const isNikPeternakValid = typeof nikPeternak === "string";
         const isSpesiesValid = typeof spesies === "string";
         const isKategoriValid = typeof kategori === "string";
-        const isPemeriksaKebuntinganValid =
-          typeof pemeriksaKebuntingan === "string";
+        const isPemeriksaKebuntinganValid = typeof pemeriksaKebuntingan === "string";
 
         return (
           (isIdKejadianValid && idKejadian.toLowerCase().includes(keyword)) ||
           (isIdPeternakValid && idPeternak.toLowerCase().includes(keyword)) ||
-          (isKodeEartagNasionalValid &&
-            kodeEartagNasional.toLowerCase().includes(keyword)) ||
+          (isKodeEartagNasionalValid && kodeEartagNasional.toLowerCase().includes(keyword)) ||
           (isTanggalPKBValid && tanggalPkb.toLowerCase().includes(keyword)) ||
           (isLokasiValid && lokasi.toLowerCase().includes(keyword)) ||
-          (isNamaPeternakValid &&
-            namaPeternak.toLowerCase().includes(keyword)) ||
+          (isNamaPeternakValid && namaPeternak.toLowerCase().includes(keyword)) ||
           (isNikPeternakValid && nikPeternak.toLowerCase().includes(keyword)) ||
           (isSpesiesValid && spesies.toLowerCase().includes(keyword)) ||
           (isKategoriValid && kategori.toLowerCase().includes(keyword)) ||
-          (isPemeriksaKebuntinganValid &&
-            pemeriksaKebuntingan.toLowerCase().includes(keyword))
+          (isPemeriksaKebuntinganValid && pemeriksaKebuntingan.toLowerCase().includes(keyword))
         );
       });
 
@@ -541,11 +464,7 @@ class Pkb extends Component {
       const utcDays = Math.floor(input - 25569);
       const utcValue = utcDays * 86400;
       const dateInfo = new Date(utcValue * 1000);
-      date = new Date(
-        dateInfo.getFullYear(),
-        dateInfo.getMonth(),
-        dateInfo.getDate()
-      ).toString();
+      date = new Date(dateInfo.getFullYear(), dateInfo.getMonth(), dateInfo.getDate()).toString();
     } else if (typeof input === "string") {
       const [day, month, year] = input.split("/");
       date = new Date(`${year}-${month}-${day}`).toString();
@@ -602,10 +521,7 @@ class Pkb extends Component {
             const [datePart, timePart] = dateString.split(" ");
             const [day, month, year] = datePart.split("/");
 
-            return `${year}-${month.padStart(2, "0")}-${day.padStart(
-              2,
-              "0"
-            )} ${timePart}`;
+            return `${year}-${month.padStart(2, "0")}-${day.padStart(2, "0")} ${timePart}`;
           } else if (typeof dateString === "string") {
             const [day, month, year] = dateString.split("/");
             return `${year}-${month.padStart(2, "0")}-${day.padStart(2, "0")}`;
@@ -618,18 +534,14 @@ class Pkb extends Component {
         const validateEmail = (email) => {
           // Jika email tidak valid (null, undefined, atau bukan string), gunakan default
           if (typeof email !== "string" || !email.includes("@")) {
-            console.warn(
-              `Email tidak valid: ${email}. Menggunakan email default.`
-            );
+            console.warn(`Email tidak valid: ${email}. Menggunakan email default.`);
             return "default@gmail.com"; // Email default
           }
           // Jika valid, kembalikan email
           return email;
         };
 
-        const pecahLokasi = parseLocation(
-          row[columnMapping["Lokasi"]] || row[columnMapping["Alamat"]] || "-"
-        );
+        const pecahLokasi = parseLocation(row[columnMapping["Lokasi"]] || row[columnMapping["Alamat"]] || "-");
         const generateJenisKandang = (jenisKandang) => {
           return jenisKandang || "Permanen";
         };
@@ -638,8 +550,7 @@ class Pkb extends Component {
 
         if (!uniqueData.has(row[columnMapping["Spesies"]])) {
           const dataRumpunHewan = {
-            idRumpunHewan:
-              row[columnMapping["ID Rumpun Hewan"]] || generateIdRumpunHewan,
+            idRumpunHewan: row[columnMapping["ID Rumpun Hewan"]] || generateIdRumpunHewan,
             rumpun: row[columnMapping["Spesies"]] || "-",
             deskripsi: "Deskripsi " + row[(columnMapping, ["Spesies"])] || "-",
           };
@@ -649,8 +560,7 @@ class Pkb extends Component {
 
         if (!uniqueData.has(row[columnMapping["kategori"]])) {
           const dataJenisHewan = {
-            idJenisHewan:
-              row[columnMapping["ID Jenis Hewan"]] || generateIdJenisHewan,
+            idJenisHewan: row[columnMapping["ID Jenis Hewan"]] || generateIdJenisHewan,
             jenis: row[columnMapping["kategori"]] || "-",
             deskripsi: "Deskripsi " + row[(columnMapping, ["kategori"])] || "-",
           };
@@ -671,8 +581,7 @@ class Pkb extends Component {
           nikPeternak: cleanNik(row[columnMapping["NIK Peternak"]]) || "-",
           namaPeternak: row[columnMapping["Nama Peternak"]] || "-",
           noTelpPeternak: row[columnMapping["No Telp"]] || "-",
-          emailPeternak:
-            validateEmail(row[columnMapping["Email Pemilik Ternak"]]) || "-",
+          emailPeternak: validateEmail(row[columnMapping["Email Pemilik Ternak"]]) || "-",
           nikPetugas: cleanNik(row[columnMapping["NIK Petugas"]]) || "-",
           namaPetugas: row[columnMapping["Pemeriksa Kebuntingan"]] || "-",
           alamatPeternak: row[columnMapping["Alamat Pemilik Ternak**)"]] || "-",
@@ -685,8 +594,7 @@ class Pkb extends Component {
           //   row[columnMapping["Tanggal Lahir Pemilik Ternak"]] || "_ "
           // ),
           idIsikhnas: row[columnMapping["ID Isikhnas*)"]] || "-",
-          jenisKelaminPeternak:
-            row[columnMapping["Jenis Kelamin Pemilik Ternak"]] || "-",
+          jenisKelaminPeternak: row[columnMapping["Jenis Kelamin Pemilik Ternak"]] || "-",
         };
 
         const dataKandang = {
@@ -695,14 +603,11 @@ class Pkb extends Component {
           nikPeternak: dataPeternak.nikPeternak,
           namaPeternak: dataPeternak.namaPeternak,
           namaKandang: `Kandang ${dataPeternak.namaPeternak}`,
-          alamat:
-            row[columnMapping["Alamat Kandang**)"]] || "Alamat Tidak Valid",
+          alamat: row[columnMapping["Alamat Kandang**)"]] || "Alamat Tidak Valid",
           luas: row[columnMapping["Luas Kandang*)"]] || "_",
           kapasitas: row[columnMapping["Kapasitas Kandang*)"]] || "_",
           nilaiBangunan: row[columnMapping["Nilai Bangunan*)"]] || "_",
-          jenisKandang: generateJenisKandang(
-            row[columnMapping["Jenis Kandang"]]
-          ),
+          jenisKandang: generateJenisKandang(row[columnMapping["Jenis Kandang"]]),
           latitude: row[columnMapping["latitude"]] || null,
           longitude: row[columnMapping["longitude"]] || null,
         };
@@ -719,10 +624,7 @@ class Pkb extends Component {
           sex: row[columnMapping["Jenis Kelamin**)"]] || "_",
           tempatLahir: row[columnMapping["Tempat Lahir Ternak"]] || "_",
           umur: row[columnMapping["Umur"]] || "_",
-          identifikasiHewan:
-            row[columnMapping["Identifikasi Hewan*"]] ||
-            row[columnMapping["Identifikasi Hewan"]] ||
-            "_",
+          identifikasiHewan: row[columnMapping["Identifikasi Hewan*"]] || row[columnMapping["Identifikasi Hewan"]] || "_",
           nikPeternak: dataPeternak.nikPeternak,
           idKandang: dataKandang.idKandang,
           namaKandang: dataKandang.namaKandang,
@@ -730,8 +632,7 @@ class Pkb extends Component {
           rumpun: row[columnMapping["Spesies"]] || "_",
           idPeternak: dataPeternak.idPeternak,
           namaPeternak: dataPeternak.namaPeternak,
-          tujuanPemeliharaan:
-            row[columnMapping["Tujuan Pemeliharaan Ternak**)"]] || "_",
+          tujuanPemeliharaan: row[columnMapping["Tujuan Pemeliharaan Ternak**)"]] || "_",
           // tanggalTerdaftar: formatDateToString(
           //   row[columnMapping["Tanggal Pendataan"]] || "_"
           // ),
@@ -742,8 +643,7 @@ class Pkb extends Component {
           tanggalPkb: formatDateToString(row[columnMapping["Tanggal PKB"]]),
           lokasi: row[columnMapping["Lokasi"]] || "-",
           jumlah: row[columnMapping["Jumlah"]] || "-",
-          umurKebuntingan:
-            row[columnMapping["Umur Kebuntingan saat PKB (bulan)"]],
+          umurKebuntingan: row[columnMapping["Umur Kebuntingan saat PKB (bulan)"]],
           spesies: row[columnMapping["Spesies"]] || "-",
           idPeternak: dataPeternak.idPeternak || generateIdPeternak,
           namaPeternak: dataPeternak.namaPeternak || "-",
@@ -775,19 +675,13 @@ class Pkb extends Component {
         await sendTernakHewanBulkData(ternakHewanBulk);
         await sendPkbImport(pkb);
       } catch (error) {
-        console.error(
-          "Gagal menyimpan data secara bulk:",
-          error,
-          error.response?.data
-        );
+        console.error("Gagal menyimpan data secara bulk:", error, error.response?.data);
       }
 
       if (errorCount === 0) {
         message.success(`Semua data berhasil disimpan.`);
       } else {
-        message.error(
-          `${errorCount} data gagal disimpan karena duplikasi data!`
-        );
+        message.error(`${errorCount} data gagal disimpan karena duplikasi data!`);
       }
     } catch (error) {
       console.error("Gagal memproses data:", error);
@@ -800,6 +694,33 @@ class Pkb extends Component {
     }
   };
 
+  handleDownloadCSV = () => {
+    const csvContent = convertHeaderToCSV();
+    downloadFormatCSV(csvContent);
+  };
+
+  convertHeaderToCSV = () => {
+    const columnTitlesLocal = ["Nama Peternak", "Nik Peternak", "ID Hewan", "Spesies", "kategori", "Jumlah", "Umur Kebuntingan saat PKB (bulan)", "Pemeriksa Kebuntingan"];
+    const rows = [columnTitlesLocal];
+    let csvContent = "data:text/csv;charset=utf-8,";
+    rows.forEach((rowArray) => {
+      const row = rowArray.join(";");
+      csvContent += row + "\r\n";
+    });
+
+    return csvContent;
+  };
+
+  downloadFormatCSV = (csvContent) => {
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement("a");
+    link.setAttribute("href", encodedUri);
+    link.setAttribute("download", "format_pkb.csv");
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
   // Fungsi Export dari database ke file csv
   handleExportData = () => {
     const { pkb } = this.state;
@@ -808,33 +729,11 @@ class Pkb extends Component {
   };
 
   convertToCSV = (data) => {
-    const columnTitles = [
-      "ID Kejadian",
-      "Tanggal PKB",
-      "Lokasi",
-      "Nama Peternak",
-      "NIK Peternak",
-      "ID Hewan",
-      "Spesies",
-      "Kategori",
-      "Umur Kebuntingan saat PKB (bulan)",
-      "Pemeriksa Kebuntingan",
-    ];
+    const columnTitles = ["ID Kejadian", "Tanggal PKB", "Lokasi", "Nama Peternak", "NIK Peternak", "ID Hewan", "Spesies", "Kategori", "Umur Kebuntingan saat PKB (bulan)", "Pemeriksa Kebuntingan"];
 
     const rows = [columnTitles];
     data.forEach((item) => {
-      const row = [
-        item.idKejadian,
-        item.tanggalPkb,
-        item.peternak.lokasi,
-        item.peternak.namaPeternak,
-        item.peternak.nikPeternak,
-        item.hewan.kodeEartagNasional,
-        item.spesies,
-        item.kategori,
-        item.umurKebuntingan,
-        item.pemeriksaKebuntingan,
-      ];
+      const row = [item.idKejadian, item.tanggalPkb, item.peternak.lokasi, item.peternak.namaPeternak, item.peternak.nikPeternak, item.hewan.kodeEartagNasional, item.spesies, item.kategori, item.umurKebuntingan, item.pemeriksaKebuntingan];
       rows.push(row);
     });
 
@@ -903,51 +802,35 @@ class Pkb extends Component {
     const renderTable = () => {
       if (user && user.role === "ROLE_PETERNAK") {
         return <Table dataSource={pkb} bordered columns={columns} />;
-      } else if (
-        (user && user.role === "ROLE_ADMINISTRATOR") ||
-        "ROLE_PETUGAS"
-      ) {
-        return (
-          <Table
-            dataSource={pkb}
-            bordered
-            columns={columns && renderColumns()}
-            rowKey={(row) => row.idKejadian}
-          />
-        );
+      } else if ((user && user.role === "ROLE_ADMINISTRATOR") || "ROLE_PETUGAS") {
+        return <Table dataSource={pkb} bordered columns={columns && renderColumns()} rowKey={(row) => row.idKejadian} />;
       } else {
         return null;
       }
     };
 
     const renderButtons = () => {
-      if (
-        user &&
-        (user.role === "ROLE_ADMINISTRATOR" || user.role === "ROLE_PETUGAS")
-      ) {
+      if (user && (user.role === "ROLE_ADMINISTRATOR" || user.role === "ROLE_PETUGAS")) {
         return (
           <Row gutter={[16, 16]} justify="start" style={{ paddingLeft: 9 }}>
-            <Col xs={24} sm={12} md={8} lg={8} xl={8}>
+            <Col>
               <Button type="primary" onClick={this.handleAddPkb} block>
                 Tambah PKB
               </Button>
             </Col>
-            <Col xs={24} sm={12} md={8} lg={8} xl={8}>
-              <Button
-                icon={<UploadOutlined />}
-                onClick={this.handleImportModalOpen}
-                block
-              >
+            <Col>
+              <Button icon={<UploadOutlined />} onClick={this.handleImportModalOpen} block>
                 Import File
               </Button>
             </Col>
-            <Col xs={24} sm={12} md={8} lg={8} xl={8}>
-              <Button
-                icon={<UploadOutlined />}
-                onClick={this.handleExportData}
-                block
-              >
-                Export File
+            <Col>
+              <Button icon={<DownloadOutlined />} onClick={this.handleDownloadCSV} block>
+                Download Fornat CSV
+              </Button>
+            </Col>
+            <Col>
+              <Button icon={<UploadOutlined />} onClick={this.handleExportData} block>
+                Export Data To CSV
               </Button>
             </Col>
           </Row>
@@ -966,21 +849,9 @@ class Pkb extends Component {
           align: "center",
           render: (text, row) => (
             <span>
-              <Button
-                type="primary"
-                shape="circle"
-                icon="edit"
-                title="Edit"
-                onClick={() => this.handleEditPkb(row)}
-              />
+              <Button type="primary" shape="circle" icon="edit" title="Edit" onClick={() => this.handleEditPkb(row)} />
               <Divider type="vertical" />
-              <Button
-                type="primary"
-                shape="circle"
-                icon="delete"
-                title="Delete"
-                onClick={() => this.handleDeletePkb(row)}
-              />
+              <Button type="primary" shape="circle" icon="delete" title="Delete" onClick={() => this.handleDeletePkb(row)} />
             </span>
           ),
         });
@@ -992,12 +863,7 @@ class Pkb extends Component {
       <Row gutter={[16, 16]} justify="start">
         {renderButtons()}
         <Col xs={24} sm={12} md={8} lg={8} xl={8}>
-          <Input
-            placeholder="Cari data"
-            value={searchKeyword}
-            onChange={(e) => this.handleSearch(e.target.value)}
-            style={{ width: 235, marginLeft: 10 }}
-          />
+          <Input placeholder="Cari data" value={searchKeyword} onChange={(e) => this.handleSearch(e.target.value)} style={{ width: 235, marginLeft: 10 }} />
         </Col>
       </Row>
     );
@@ -1024,13 +890,7 @@ class Pkb extends Component {
           onCancel={this.handleCancel}
           onOk={this.handleEditPkbOk}
         />
-        <AddPkbForm
-          wrappedComponentRef={(formRef) => (this.addPkbFormRef = formRef)}
-          visible={this.state.addPkbModalVisible}
-          confirmLoading={this.state.addPkbModalLoading}
-          onCancel={this.handleCancel}
-          onOk={this.handleAddPkbOk}
-        />
+        <AddPkbForm wrappedComponentRef={(formRef) => (this.addPkbFormRef = formRef)} visible={this.state.addPkbModalVisible} confirmLoading={this.state.addPkbModalLoading} onCancel={this.handleCancel} onOk={this.handleAddPkbOk} />
 
         {/* Modal Import */}
         <Modal
@@ -1041,12 +901,7 @@ class Pkb extends Component {
             <Button key="cancel" onClick={this.handleImportModalClose}>
               Cancel
             </Button>,
-            <Button
-              key="upload"
-              type="primary"
-              loading={this.state.uploading}
-              onClick={this.handleUpload}
-            >
+            <Button key="upload" type="primary" loading={this.state.uploading} onClick={this.handleUpload}>
               Upload
             </Button>,
           ]}

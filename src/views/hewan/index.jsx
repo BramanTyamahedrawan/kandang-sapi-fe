@@ -2,7 +2,7 @@
 import { addHewan, addHewanImport, deleteHewan, editHewan, getHewans } from "@/api/hewan";
 import { getPetugas } from "@/api/petugas";
 import TypingCard from "@/components/TypingCard";
-import { DeleteOutlined, EditOutlined, UploadOutlined } from "@ant-design/icons";
+import { DeleteOutlined, DownloadOutlined, EditOutlined, UploadOutlined } from "@ant-design/icons";
 import { Button, Card, Col, Divider, Input, message, Modal, Row, Table, Upload } from "antd";
 import React, { useEffect, useRef, useState } from "react";
 import { v4 as uuidv4 } from "uuid";
@@ -347,8 +347,6 @@ const Hewan = () => {
 
         const validAddress = address || "-";
 
-        // Cek apakah ada NIK Peternak, jika tidak ada gunakan ID Peternak
-        const peternakId = row[mapping["ID Peternak"]] || generateIdPeternak;
         const nikPeternak = row[mapping["NIK Peternak"]] || row[mapping["ID Peternak"]]; // Gunakan peternak_id jika NIK kosong
 
         // Gabungkan Rumpun Ternak dengan Spesies, jika ada
@@ -368,18 +366,19 @@ const Hewan = () => {
         // Jika NIK ada, maka gunakan NIK untuk kolom nikPeternak dan peternak_id
         // Jika NIK tidak ada, gunakan ID Peternak untuk keduanya
         const dataToSave = {
-          idPetugas: row[mapping["ID Petugas"]] || generateIdPetugas,
-          idKandang: row[mapping["ID Kandang"]] || generateIdKandang,
+          idPetugas: generateIdPetugas,
+          idKandang: generateIdKandang,
           idHewan: generateIdHewan,
           rumpun: rumpunHewan,
+          idPeternak: generateIdPeternak,
           tujuanPemeliharaan: tujuanPemeliharaan,
           kodeEartagNasional: row[mapping["Kode Eartag Nasional"]] || "-",
           noKartuTernak: row[mapping["No Kartu Ternak"]] || "-",
           idIsikhnasTernak: row[mapping["Idisikhnas Ternak"]] || "-",
-          peternak_id: peternakId, // Gunakan ID Peternak untuk peternak_id
+          // peternak_id: peternakId, // Gunakan ID Peternak untuk peternak_id
           nikPeternak: nikPeternak,
           namaPeternak: row[mapping["Nama Peternak"]],
-          kandang_id: row[mapping["ID Kandang"]] || generateIdKandang,
+          // kandang_id: row[mapping["ID Kandang"]] || generateIdKandang,
           // namaKandang: `Kandang ${row[mapping["Nama Peternak"]]}`,
           spesies: spesies, // Menggunakan spesies yang sudah digabungkan
           jenis: jenis, // Masukkan spesies ke dalam kolom jenis
@@ -427,6 +426,54 @@ const Hewan = () => {
       setColumnTitles([]);
       setColumnMapping({});
     }
+  };
+
+  const handleDownloadCSV = () => {
+    const csvContent = convertHeaderToCSV();
+    downloadFormatCSV(csvContent);
+  };
+
+  const convertHeaderToCSV = () => {
+    const columnTitlesLocal = [
+      "Kode Eartag Nasional",
+      "No Kartu Ternak",
+      "Idisikhnas Ternak",
+      "NIK Peternak",
+      "Nama Peternak",
+      "Jenis Ternak",
+      "Rumpun Ternak",
+      "Jenis Kelamin**",
+      "Tempat Lahir Ternak",
+      "Tanggal Lahir Ternak",
+      "umur",
+      "latitude",
+      "longitude",
+      "Desa",
+      "Kecamatan",
+      "Kabupaten",
+      "Provinsi",
+      "Petugas Pendaftar",
+      "Identifikasi Hewan*",
+      "Tanggal Terdaftar",
+    ];
+    const rows = [columnTitlesLocal];
+    let csvContent = "data:text/csv;charset=utf-8,";
+    rows.forEach((rowArray) => {
+      const row = rowArray.join(";");
+      csvContent += row + "\r\n";
+    });
+
+    return csvContent;
+  };
+
+  const downloadFormatCSV = (csvContent) => {
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement("a");
+    link.setAttribute("href", encodedUri);
+    link.setAttribute("download", "format_hewan.csv");
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
   };
 
   // Handle Export Data
@@ -589,8 +636,13 @@ const Hewan = () => {
             </Button>
           </Col>
           <Col xs={24} sm={12} md={8} lg={8} xl={8}>
+            <Button icon={<DownloadOutlined />} onClick={handleDownloadCSV} block>
+              Download Format CSV
+            </Button>
+          </Col>
+          <Col xs={24} sm={12} md={8} lg={8} xl={8}>
             <Button icon={<UploadOutlined />} onClick={handleExportData} block>
-              Export File
+              Export Data To CSV
             </Button>
           </Col>
         </Row>

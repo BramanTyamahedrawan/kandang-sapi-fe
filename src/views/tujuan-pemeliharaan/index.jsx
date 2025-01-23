@@ -2,7 +2,7 @@
 /* eslint-disable no-unused-vars */
 import { addTujuanPemeliharaan, deleteTujuanPemeliharaan, editTujuanPemeliharaan, getTujuanPemeliharaan } from "@/api/tujuan-pemeliharaan";
 import TypingCard from "@/components/TypingCard";
-import { DeleteOutlined, EditOutlined, UploadOutlined } from "@ant-design/icons";
+import { DeleteOutlined, DownloadOutlined, EditOutlined, UploadOutlined } from "@ant-design/icons";
 import { Button, Card, Col, Divider, Input, message, Modal, Row, Table, Upload } from "antd";
 import React, { useEffect, useRef, useState } from "react";
 import { reqUserInfo } from "../../api/user";
@@ -172,36 +172,36 @@ const TujuanPemeliharaan = () => {
 
   // Handle Deleting a Tujuan Pemeliharaan
 
-const handleDeleteTujuan = (row) => {  // Tambahkan state loading
-  const { idTujuanPemeliharaan } = row;
-  
-  Modal.confirm({
-    title: "Konfirmasi",
-    content: "Apakah Anda yakin ingin menghapus data ini?",
-    okText: "Ya",
-    okType: "danger",
-    cancelText: "Tidak",
-    okButtonProps: {
-      loading: loading,  // Aktifkan loading pada tombol ok
-    },
-    onOk: () => {
-      setLoading(true); // Mengaktifkan loading saat klik ok
-      deleteTujuanPemeliharaan({ idTujuanPemeliharaan })
-        .then((res) => {
-          message.success("Berhasil dihapus");
-          getTujuanPemeliharaanData();
-        })
-        .catch((error) => {
-          console.error("Gagal menghapus tujuan:", error);
-          message.error("Gagal menghapus tujuan.");
-        })
-        .finally(() => {
-          setLoading(false); // Menonaktifkan loading setelah proses selesai
-        });
-    },
-  });
-};
+  const handleDeleteTujuan = (row) => {
+    // Tambahkan state loading
+    const { idTujuanPemeliharaan } = row;
 
+    Modal.confirm({
+      title: "Konfirmasi",
+      content: "Apakah Anda yakin ingin menghapus data ini?",
+      okText: "Ya",
+      okType: "danger",
+      cancelText: "Tidak",
+      okButtonProps: {
+        loading: loading, // Aktifkan loading pada tombol ok
+      },
+      onOk: () => {
+        setLoading(true); // Mengaktifkan loading saat klik ok
+        deleteTujuanPemeliharaan({ idTujuanPemeliharaan })
+          .then((res) => {
+            message.success("Berhasil dihapus");
+            getTujuanPemeliharaanData();
+          })
+          .catch((error) => {
+            console.error("Gagal menghapus tujuan:", error);
+            message.error("Gagal menghapus tujuan.");
+          })
+          .finally(() => {
+            setLoading(false); // Menonaktifkan loading setelah proses selesai
+          });
+      },
+    });
+  };
 
   // // Handle Canceling Any Modal
   const handleCancel = () => {
@@ -224,6 +224,33 @@ const handleDeleteTujuan = (row) => {  // Tambahkan state loading
     }
 
     return date;
+  };
+
+  const handleDownloadCSV = () => {
+    const csvContent = convertHeaderToCSV();
+    downloadFormatCSV(csvContent);
+  };
+
+  const convertHeaderToCSV = () => {
+    const columnTitlesLocal = ["Tujuan Pemeliharaan", "Deskripsi"];
+    const rows = [columnTitlesLocal];
+    let csvContent = "data:text/csv;charset=utf-8,";
+    rows.forEach((rowArray) => {
+      const row = rowArray.join(";");
+      csvContent += row + "\r\n";
+    });
+
+    return csvContent;
+  };
+
+  const downloadFormatCSV = (csvContent) => {
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement("a");
+    link.setAttribute("href", encodedUri);
+    link.setAttribute("download", "format_tujuan_pemeliharaan.csv");
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
   };
 
   // Handle File Import
@@ -441,8 +468,13 @@ const handleDeleteTujuan = (row) => {  // Tambahkan state loading
             </Button>
           </Col>
           <Col>
+            <Button icon={<DownloadOutlined />} onClick={handleDownloadCSV} block>
+              Download Format CSV
+            </Button>
+          </Col>
+          <Col>
             <Button icon={<UploadOutlined />} block>
-              Export File
+              Export Data To CSV
             </Button>
           </Col>
         </Row>

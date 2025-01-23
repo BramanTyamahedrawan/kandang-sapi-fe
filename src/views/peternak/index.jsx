@@ -18,7 +18,7 @@ import {
 } from "@/api/user";
 import kandangSapi from "@/assets/images/kandangsapi.jpg";
 import TypingCard from "@/components/TypingCard";
-import { DeleteOutlined, EditOutlined, UploadOutlined } from "@ant-design/icons";
+import { DeleteOutlined, DownloadOutlined, EditOutlined, UploadOutlined } from "@ant-design/icons";
 import { Button, Card, Col, Divider, Input, message, Modal, Row, Table, Upload } from "antd";
 import moment from "moment";
 import React, { useEffect, useState } from "react";
@@ -153,7 +153,7 @@ const Peternak = () => {
             cancelText: "Tidak",
             onOk: async () => {
               try {
-                await deletePeternak( idPeternak );
+                await deletePeternak(idPeternak);
 
                 fetchPeternaks();
               } catch (error) {
@@ -161,9 +161,8 @@ const Peternak = () => {
                 message.error("Gagal menghapus peternak.");
               }
               try {
-                await deleteUser( userId );
+                await deleteUser(userId);
                 message.success("berhasil menghapus data peternak");
-
               } catch (error) {
                 console.error("Error deleting user:", error);
                 message.error("Gagal menghapus user.");
@@ -351,6 +350,7 @@ const Peternak = () => {
     let errorCount = 0;
     const dataPeternakToSaveArray = [];
     const dataUserToSaveArray = [];
+    const generateIdPeternak = uuidv4();
     try {
       for (const row of importedData) {
         const pecahAlamat = parseAddress(row[columnMapping["Alamat Pemilik Ternak**)"] || columnMapping["lokasi"]]);
@@ -364,22 +364,10 @@ const Peternak = () => {
           // Jika valid, kembalikan email
           return email;
         };
-        const role = "3";
-        const dataToSaveUser = {
-          id: row[columnMapping["ID Peternak"]],
-          name: row[columnMapping["Nama Pemilik Ternak**)"] || columnMapping["nama"]],
-          nik: row[columnMapping["NIK Peternak"]] || row[columnMapping["ID Peternak"]],
-          username: row[columnMapping["NIK Peternak"]] || row[columnMapping["ID Peternak"]],
-          email: `${row[columnMapping["Nama Pemilik Ternak**)"] || columnMapping["nama"]]}@gmail.com`,
-          password: `${row[columnMapping["NIK Peternak"]] || row[columnMapping["ID Peternak"]]}@123`,
-          alamat: row[columnMapping["Alamat Pemilik Ternak**)"] || columnMapping["lokasi"]],
-          role: role,
-          photo: kandangSapi,
-        };
 
         const dataToSavePeternak = {
-          idPeternak: row[columnMapping["ID Peternak"]],
-          nikPeternak: row[columnMapping["NIK Peternak"]] || row[columnMapping["ID Peternak"]],
+          idPeternak: generateIdPeternak,
+          nikPeternak: row[columnMapping["NIK Peternak"]],
           namaPeternak: row[columnMapping["Nama Pemilik Ternak**)"] || columnMapping["nama"]],
           noTelepon: row[columnMapping["No. Telp Pemilik Ternak*)"]] || generateDefaultPhoneNumber(),
           email: validateEmail(row[columnMapping["Email Pemilik Ternak"]]),
@@ -397,6 +385,19 @@ const Peternak = () => {
           longitude: row[columnMapping["longitude"]] || "-",
           namaPetugas: row[columnMapping["Petugas Pendaftar"]] || "-",
           tanggalPendaftaran: row[columnMapping["Tanggal Pendataan"]] || convertToJSDate(row[columnMapping["Tanggal Pendaftaran"]]),
+        };
+
+        const role = "3";
+        const dataToSaveUser = {
+          id: dataToSavePeternak.idPeternak,
+          name: dataToSavePeternak.namaPeternak,
+          nik: dataToSavePeternak.nikPeternak,
+          username: dataToSavePeternak.nikPeternak || dataToSavePeternak.namaPeternak,
+          email: `${dataToSavePeternak.email}`,
+          password: `${dataToSavePeternak.nikPeternak || dataToSavePeternak.namaPeternak}@123`,
+          alamat: dataToSavePeternak.alamat,
+          role: role,
+          photo: kandangSapi,
         };
 
         const existingPeternakIndex = peternaks.findIndex((p) => p.idPeternak === dataToSavePeternak.idPeternak);
@@ -452,6 +453,47 @@ const Peternak = () => {
 
     setUploading(true);
     saveImportedData().finally(() => setUploading(false));
+  };
+
+  const handleDownloadCSV = () => {
+    const csvContent = convertHeaderToCSV();
+    downloadFormatCSV(csvContent);
+  };
+
+  const convertHeaderToCSV = () => {
+    const columnTitlesLocal = [
+      "NIK Peternak",
+      "Nama Pemilik Ternak**)",
+      "No. Telp Pemilik Ternak*)",
+      "Email Pemilik Ternak",
+      "Jenis Kelamin",
+      "Tanggal Lahir Pemilik Ternak",
+      "Alamat Pemilik Ternak**)",
+      "ID iSIKHNAS",
+      "Lokasi",
+      "latitude",
+      "longitude",
+      "Petugas Pendaftar",
+      "Tanggal Pendaftaran",
+    ];
+    const rows = [columnTitlesLocal];
+    let csvContent = "data:text/csv;charset=utf-8,";
+    rows.forEach((rowArray) => {
+      const row = rowArray.join(";");
+      csvContent += row + "\r\n";
+    });
+
+    return csvContent;
+  };
+
+  const downloadFormatCSV = (csvContent) => {
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement("a");
+    link.setAttribute("href", encodedUri);
+    link.setAttribute("download", "format_peternak.csv");
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
   };
 
   // Handle export
@@ -577,19 +619,24 @@ const Peternak = () => {
     if (user && (user.role === "ROLE_ADMINISTRATOR" || user.role === "ROLE_PETUGAS")) {
       return (
         <Row gutter={[16, 16]} justify="start" style={{ paddingLeft: 9 }}>
-          <Col xs={24} sm={12} md={8} lg={8} xl={8}>
+          <Col>
             <Button type="primary" onClick={handleAddPeternak} block>
               Tambah Peternak
             </Button>
           </Col>
-          <Col xs={24} sm={12} md={8} lg={8} xl={8}>
+          <Col>
             <Button icon={<UploadOutlined />} onClick={handleImportModalOpen} block>
               Import File
             </Button>
           </Col>
-          <Col xs={24} sm={12} md={8} lg={8} xl={8}>
+          <Col>
+            <Button icon={<DownloadOutlined />} onClick={handleDownloadCSV} block>
+              Download Format CSV
+            </Button>
+          </Col>
+          <Col>
             <Button icon={<UploadOutlined />} onClick={handleExportData} block>
-              Export File
+              Export Data To CSV
             </Button>
           </Col>
         </Row>

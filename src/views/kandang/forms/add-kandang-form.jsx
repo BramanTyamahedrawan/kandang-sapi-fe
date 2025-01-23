@@ -294,7 +294,7 @@ const AddKandangForm = ({ visible, onCancel, onOk, confirmLoading }) => {
 
           <Col span={12}>
             <Form.Item label="Alamat" name="alamat">
-              <Input value={mergedLocation} readOnly />
+              <Input value={mergedLocation} readOnly placeholder="Alamat akan terisi otomatis" />
             </Form.Item>
           </Col>
 

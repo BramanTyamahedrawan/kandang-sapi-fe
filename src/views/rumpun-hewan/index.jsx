@@ -3,7 +3,7 @@
 import { getPetugas } from "@/api/petugas";
 import { addRumpunHewan, deleteRumpunHewan, editRumpunHewan, getRumpunHewan } from "@/api/rumpunhewan";
 import TypingCard from "@/components/TypingCard";
-import { DeleteOutlined, EditOutlined, UploadOutlined } from "@ant-design/icons";
+import { DeleteOutlined, DownloadOutlined, EditOutlined, UploadOutlined } from "@ant-design/icons";
 import { Button, Card, Col, Divider, Input, message, Modal, Row, Table, Upload } from "antd";
 import React, { useEffect, useRef, useState } from "react";
 import { read, utils } from "xlsx";
@@ -335,6 +335,33 @@ const RumpunHewan = () => {
     }
   };
 
+  const handleDownloadCSV = () => {
+    const csvContent = convertHeaderToCSV();
+    downloadFormatCSV(csvContent);
+  };
+
+  const convertHeaderToCSV = () => {
+    const columnTitlesLocal = ["Rumpun Hewan", "Deskripsi"];
+    const rows = [columnTitlesLocal];
+    let csvContent = "data:text/csv;charset=utf-8,";
+    rows.forEach((rowArray) => {
+      const row = rowArray.join(";");
+      csvContent += row + "\r\n";
+    });
+
+    return csvContent;
+  };
+
+  const downloadFormatCSV = (csvContent) => {
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement("a");
+    link.setAttribute("href", encodedUri);
+    link.setAttribute("download", "format_rumpun_hewan.csv");
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
   // Handle Exporting Data to CSV
   const handleExportData = () => {
     const csvContent = convertToCSV(rumpunHewans);
@@ -419,19 +446,24 @@ const RumpunHewan = () => {
     if (user && (user.role === "ROLE_ADMINISTRATOR" || user.role === "ROLE_PETUGAS")) {
       return (
         <Row gutter={[16, 16]} justify="start" style={{ paddingLeft: 9 }}>
-          <Col xs={24} sm={12} md={8} lg={8} xl={8}>
+          <Col>
             <Button type="primary" onClick={handleAddHewan} block>
               Tambah Rumpun
             </Button>
           </Col>
-          <Col xs={24} sm={12} md={8} lg={8} xl={8}>
+          <Col>
             <Button icon={<UploadOutlined />} onClick={handleImportModalOpen} block>
               Import File
             </Button>
           </Col>
-          <Col xs={24} sm={12} md={8} lg={8} xl={8}>
+          <Col>
+            <Button icon={<DownloadOutlined />} onClick={handleDownloadCSV} block>
+              Download Format CSV
+            </Button>
+          </Col>
+          <Col>
             <Button icon={<UploadOutlined />} onClick={handleExportData} block>
-              Export File
+              Export Data To CSV
             </Button>
           </Col>
         </Row>

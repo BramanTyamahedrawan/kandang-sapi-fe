@@ -139,7 +139,7 @@ const menuList = [
     roles: ["ROLE_ADMINISTRATOR", "ROLE_PETUGAS", "ROLE_PETERNAK"],
   },
   {
-    title: "Data User",
+    title: "Management User",
     path: "/users",
     icon: UsergroupAddOutlined,
     roles: ["ROLE_ADMINISTRATOR"],

@@ -5,7 +5,7 @@ import { Card, Button, Table, message, Row, Col, Divider, Modal, Upload, Input }
 import { getPengobatan, deletePengobatan, editPengobatan, addPengobatan, addPengobatanImport } from "@/api/pengobatan";
 import { getPetugas } from "@/api/petugas";
 import { read, utils } from "xlsx";
-import { UploadOutlined, EditOutlined, DeleteOutlined } from "@ant-design/icons";
+import { UploadOutlined, EditOutlined, DeleteOutlined, DownloadOutlined } from "@ant-design/icons";
 import AddPengobatanForm from "./forms/add-pengobatan-form";
 import EditPengobatanForm from "./forms/edit-pengobatan-form";
 import TypingCard from "@/components/TypingCard";
@@ -496,6 +496,34 @@ class Pengobatan extends Component {
         console.error("Terjadi kesalahan saat mengambil data user:", error);
       });
   }
+
+  handleDownloadCSV = () => {
+    const csvContent = convertHeaderToCSV();
+    downloadFormatCSV(csvContent);
+  };
+
+  convertHeaderToCSV = () => {
+    const columnTitlesLocal = ["tanggal_pengobatan", "tanggal_kasus", "ID Kasus", "Petugas", "Nama Infrasruktur", "Lokasi", "Dosis", "Tanda/Sindrom", "Diagnosa Banding"];
+    const rows = [columnTitlesLocal];
+    let csvContent = "data:text/csv;charset=utf-8,";
+    rows.forEach((rowArray) => {
+      const row = rowArray.join(";");
+      csvContent += row + "\r\n";
+    });
+
+    return csvContent;
+  };
+
+  downloadFormatCSV = (csvContent) => {
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement("a");
+    link.setAttribute("href", encodedUri);
+    link.setAttribute("download", "format_pengobatan.csv");
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
   // Fungsi Export dari database ke file csv
   handleExportData = () => {
     const { pengobatan } = this.state;
@@ -590,8 +618,13 @@ class Pengobatan extends Component {
               </Button>
             </Col>
             <Col>
+              <Button icon={<DownloadOutlined />} onClick={this.handleDownloadCSV} block>
+                Download Format CSV
+              </Button>
+            </Col>
+            <Col>
               <Button icon={<UploadOutlined />} onClick={this.handleExportData} block>
-                Export File
+                Export Data To CSV
               </Button>
             </Col>
           </Row>
