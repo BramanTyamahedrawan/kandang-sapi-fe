@@ -48,19 +48,10 @@ const EditTujuanPemeliharaanForm = forwardRef((props, ref) => {
           });
       }}
       confirmLoading={confirmLoading}
-      width={700}
       destroyOnClose
+      okText="Simpan"
     >
-      <Form
-        {...{
-          labelCol: { span: 6 },
-          wrapperCol: { span: 17 },
-        }}
-        form={form}
-        layout="vertical"
-        name="EditTujuanPemeliharaanForm"
-        onFinish={onFinish}
-      >
+      <Form form={form} layout="vertical" name="EditTujuanPemeliharaanForm" onFinish={onFinish}>
         <Form.Item name="idTujuanPemeliharaan" hidden>
           <Input placeholder="ID Tujuan Pemeliharaan" />
         </Form.Item>

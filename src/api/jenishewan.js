@@ -23,14 +23,10 @@ export function getJenisHewan() {
 }
 
 export function editJenisHewan(data, id) {
-  const formData = new FormData();
-  formData.append("jenis", data.jenis);
-  formData.append("deskripsi", data.deskripsi);
-
   return request({
     url: `/jenishewan/${id}`,
     method: "put",
-    data: formData,
+    data,
   });
 }
 

@@ -1,8 +1,8 @@
 /* eslint-disable react/prop-types */
 
-import { getPetugas } from '@/api/petugas'; // Import fungsi API untuk mengambil data petugas
-import { Col, Form, Input, Modal, Row, Select, message } from 'antd';
-import { useEffect, useState } from 'react';
+import { getPetugas } from "@/api/petugas"; // Import fungsi API untuk mengambil data petugas
+import { Col, Form, Input, Modal, Row, Select, message } from "antd";
+import { useEffect, useState } from "react";
 
 const AddPeternakForm = ({ visible, onCancel, onOk, confirmLoading }) => {
   const [form] = Form.useForm();
@@ -66,11 +66,11 @@ const AddPeternakForm = ({ visible, onCancel, onOk, confirmLoading }) => {
       kecamatan: undefined,
       desa: undefined,
       alamat: undefined,
-    })
-    setRegencies([])
-    setDistricts([])
-    setVillages([])
-  }
+    });
+    setRegencies([]);
+    setDistricts([]);
+    setVillages([]);
+  };
 
   // Handler perubahan kabupaten
   const handleRegencyChange = (value) => {
@@ -91,10 +91,10 @@ const AddPeternakForm = ({ visible, onCancel, onOk, confirmLoading }) => {
       kecamatan: undefined,
       desa: undefined,
       alamat: undefined,
-    })
-    setDistricts([])
-    setVillages([])
-  }
+    });
+    setDistricts([]);
+    setVillages([]);
+  };
 
   // Handler perubahan kecamatan
   const handleDistrictChange = (value) => {
@@ -114,10 +114,9 @@ const AddPeternakForm = ({ visible, onCancel, onOk, confirmLoading }) => {
     form.setFieldsValue({
       desa: undefined,
       alamat: undefined,
-    })
-    setVillages([])
-  }
-
+    });
+    setVillages([]);
+  };
 
   // Handler perubahan desa
   const handleVillageChange = (value) => {
@@ -130,8 +129,7 @@ const AddPeternakForm = ({ visible, onCancel, onOk, confirmLoading }) => {
       const mergedLocation = `${selectedVillage.name}, ${selectedDistrict.name}, ${selectedRegency.name}, ${selectedProvince.name}`;
       form.setFieldsValue({
         alamat: mergedLocation,
-      })
-
+      });
     }
   };
 
@@ -148,7 +146,7 @@ const AddPeternakForm = ({ visible, onCancel, onOk, confirmLoading }) => {
   };
 
   return (
-    <Modal title="Tambah Data Pemilik Ternak" visible={visible} onCancel={onCancel} onOk={handleOk} confirmLoading={confirmLoading} width={1000}>
+    <Modal title="Tambah Data Pemilik Ternak" visible={visible} onCancel={onCancel} onOk={handleOk} confirmLoading={confirmLoading} width={1000} okText="Simpan">
       <Form form={form} name="add_peternak_form" layout="vertical" autoComplete="off">
         <Row gutter={16}>
           <Col span={12}>
@@ -288,22 +286,13 @@ const AddPeternakForm = ({ visible, onCancel, onOk, confirmLoading }) => {
             </Form.Item>
           </Col>
           <Col span={12}>
-            <Form.Item
-              label="Alamat:"
-              name="alamat"
-              rules={[{ required: true, message: 'Silahkan isi alamat' }]}
-            >
+            <Form.Item label="Alamat:" name="alamat" rules={[{ required: true, message: "Silahkan isi alamat" }]}>
               <Input placeholder="Alamat akan terisi otomatis" readOnly />
             </Form.Item>
           </Col>
           <Col span={12}>
-            <Form.Item
-              label="Lokasi:"
-              name="lokasi"
-              rules={[{ required: true, message: 'Silahkan isi lokasi' }]}
-            >
+            <Form.Item label="Lokasi:" name="lokasi" rules={[{ required: true, message: "Silahkan isi lokasi" }]}>
               <Input placeholder="Masukan Lokasi" />
-
             </Form.Item>
           </Col>
           <Col span={12}>

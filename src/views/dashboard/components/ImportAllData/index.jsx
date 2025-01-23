@@ -1,4 +1,9 @@
-/* eslint-disable no-unused-vars */
+/**
+ * eslint-disable no-unused-vars
+ *
+ * @format
+ */
+
 import { UploadOutlined } from "@ant-design/icons";
 import { Button, message, Modal, Upload } from "antd";
 import React, { Component } from "react";
@@ -400,8 +405,8 @@ export default class ImportAllData extends Component {
         const generateIdJenisVaksin = uuidv4();
         const generateIdNamaVaksin = uuidv4();
 
-        const nikPeternak = cleanNik(
-          row[columnMapping["NIK Pemilik Ternak*)"]]
+        const nikPemilikTernak = cleanNik(
+          row[columnMapping["NIK Pemilik Ternak**)"]]
         );
         const nikPetugasPendataan = cleanNik(
           row[columnMapping["NIK Petugas Pendataan*)"]]
@@ -413,42 +418,41 @@ export default class ImportAllData extends Component {
         };
 
         const formatDateToString = (dateString) => {
+          // if (!dateString || typeof dateString !== "string") return "Invalid Date";
+        
           // Jika dateString adalah angka (seperti nilai dari Excel)
           if (!isNaN(dateString)) {
-            // Excel menganggap angka tersebut sebagai jumlah hari sejak 01/01/1900
-            // Konversi angka menjadi milidetik
-            const excelEpoch = new Date(1900, 0, 1).getTime(); // 1 Januari 1900
-            const milliseconds = dateString * 86400000; // 86400000 ms dalam 1 hari
+            const excelEpoch = new Date(1900, 0, 1).getTime();
+            const milliseconds = dateString * 86400000;
             const date = new Date(excelEpoch + milliseconds);
-
-            // Format tanggal dan waktu menjadi string
+        
             const day = String(date.getDate()).padStart(2, "0");
-            const month = String(date.getMonth() + 1).padStart(2, "0"); // Bulan dimulai dari 0
+            const month = String(date.getMonth() + 1).padStart(2, "0");
             const year = date.getFullYear();
-            const hours = String(date.getHours()).padStart(2, "0");
-            const minutes = String(date.getMinutes()).padStart(2, "0");
-            const seconds = String(date.getSeconds()).padStart(2, "0");
-
-            return `${day}/${month}/${year} ${hours}:${minutes}:${seconds}`;
+        
+            return `${day}/${month}/${year}`;
           }
-
-          // Jika dateString adalah string yang valid dengan format DD/MM/YYYY atau DD/MM/YYYY HH:mm:ss
-          if (typeof dateString === "string" && dateString.includes(" ")) {
-            const [datePart, timePart] = dateString.split(" ");
+        
+          // Jika dateString adalah string yang valid dengan format DD/MM/YYYY atau dengan waktu
+          if (typeof dateString === "string") {
+            // Pisahkan tanggal dan waktu, jika ada waktu
+            const datePart = dateString.split(" ")[0]; // Ambil bagian tanggal saja (sebelum spasi)
+        
+            // Pastikan tanggalnya memiliki format yang valid (DD/MM/YYYY)
             const [day, month, year] = datePart.split("/");
-
-            return `${year}-${month.padStart(2, "0")}-${day.padStart(
-              2,
-              "0"
-            )} ${timePart}`;
-          } else if (typeof dateString === "string") {
-            const [day, month, year] = dateString.split("/");
-            return `${year}-${month.padStart(2, "0")}-${day.padStart(2, "0")}`;
+        
+            // Pastikan hasil split memiliki 3 elemen (tanggal, bulan, tahun)
+            if (day && month && year) {
+              return `${year}-${month.padStart(2, "0")}-${day.padStart(2, "0")}`;
+            }
           }
-
+        
           // Jika format tidak dikenali
           return "Invalid Date";
         };
+        
+        
+        
 
         const validateEmail = (email) => {
           // Jika email tidak valid (null, undefined, atau bukan string), gunakan default
@@ -500,7 +504,6 @@ export default class ImportAllData extends Component {
           petugasPendataanBulk.push(dataPetugasPendataan);
           uniqueData.set(nikPetugasPendataan, true);
         }
-
         console.log("Petugas Pendataan Bulk api:", petugasPendataanBulk);
 
         // data petugas
@@ -511,32 +514,34 @@ export default class ImportAllData extends Component {
           email: row[columnMapping["Email Petugas Vaksinasi*)"]],
           job: "Vaksinasi",
         };
-
         // data peternak
-        const dataPeternak = {
-          idPeternak: generateIdPeternak,
-          nikPeternak: cleanNik(row[columnMapping["NIK Pemilik Ternak**)"]]),
-          namaPeternak: row[columnMapping["Nama Pemilik Ternak**)"]] || "-",
-          noTelepon:
-            row[columnMapping["No Telp. Pemilik Ternak**)"]] ||
-            generateDefaultPhoneNumber(),
-          email: validateEmail(row[columnMapping["Email Pemilik Ternak"]]),
-          nikPetugas: cleanNik(row[columnMapping["NIK Petugas Pendataan*)"]]),
-          alamat: row[columnMapping["Alamat Pemilik Ternak**)"]] || "-",
-          dusun: pecahAlamat.dusun,
-          desa: pecahAlamat.desa,
-          kecamatan: pecahAlamat.kecamatan,
-          kabupaten: pecahAlamat.kabupaten,
-          tanggalLahir: formatDateToString(
-            row[columnMapping["Tanggal Lahir Pemilik Ternak"]] || "_ "
-          ),
-          idIsikhnas: row[columnMapping["ID Isikhnas*)"]] || "-",
-          latitude: row[columnMapping["latitude"]],
-          longitude: row[columnMapping["longitude"]],
-          jenisKelamin: row[columnMapping["Jenis Kelamin Pemilik Ternak"]],
-        };
-        console.log("data peternak = ", dataPeternak);
-        // uniqueData.set(nikPeternak, true);
+
+        if (!uniqueData.has(nikPemilikTernak)) {
+          const dataPeternak = {
+            idPeternak: generateIdPeternak,
+            nikPeternak: cleanNik(row[columnMapping["NIK Pemilik Ternak**)"]]),
+            namaPeternak: row[columnMapping["Nama Pemilik Ternak**)"]] || "-",
+            noTelepon:
+              row[columnMapping["No Telp. Pemilik Ternak**)"]] ||
+              generateDefaultPhoneNumber(),
+            email: validateEmail(row[columnMapping["Email Pemilik Ternak"]]),
+            nikPetugas: cleanNik(row[columnMapping["NIK Petugas Pendataan*)"]]),
+            alamat: row[columnMapping["Alamat Pemilik Ternak**)"]] || "-",
+            dusun: pecahAlamat.dusun,
+            desa: pecahAlamat.desa,
+            kecamatan: pecahAlamat.kecamatan,
+            kabupaten: pecahAlamat.kabupaten,
+            tanggalLahir: formatDateToString(
+              row[columnMapping["Tanggal Lahir Pemilik Ternak"]] || "_ "
+            ),
+            idIsikhnas: row[columnMapping["ID Isikhnas*)"]] || "-",
+            latitude: row[columnMapping["latitude"]],
+            longitude: row[columnMapping["longitude"]],
+            jenisKelamin: row[columnMapping["Jenis Kelamin Pemilik Ternak"]],
+          };
+          peternakBulk.push(dataPeternak);
+          uniqueData.set(nikPemilikTernak, dataPeternak);
+        }
 
         // Jenis Hewan
         // if jenis hewan berulang kali dengan nama yang sama, maka hanya akan disimpan satu kali
@@ -571,14 +576,16 @@ export default class ImportAllData extends Component {
         }
 
         console.log("Peternak Bulk api:", peternakBulk);
-
         // data kandang
+        const namaKandang = `Kandang ${row[columnMapping["Jenis Ternak**)"]]} ${
+          uniqueData.get(nikPemilikTernak).namaPeternak
+        }`;
         const dataKandang = {
           idKandang: generateIdKandang,
-          peternak_id: dataPeternak.idPeternak,
-          idJenisHewan: uniqueData.idJenisHewan,
-          nikPeternak: dataPeternak.nikPeternak,
-          namaKandang: `Kandang ${dataPeternak.namaPeternak}`,
+          jenis: row[columnMapping["Jenis Ternak**)"]] || "_",
+          idPeternak: uniqueData.get(nikPemilikTernak).idPeternak,
+          nikPeternak: cleanNik(row[columnMapping["NIK Pemilik Ternak**)"]]),
+          namaKandang: namaKandang,
           alamat:
             row[columnMapping["Alamat Kandang**)"]] || "Alamat Tidak Valid",
           luas: row[columnMapping["Luas Kandang*)"]] || "_",
@@ -591,7 +598,7 @@ export default class ImportAllData extends Component {
           longitude: row[columnMapping["longitude"]] || null,
         };
 
-        console.log("Data Kandang:", dataKandang);
+        console.log("Data Kandang:", kandangBulk);
 
         // data rumpun hewan
         if (!uniqueData.has(row[columnMapping["Rumpun Ternak"]])) {
@@ -613,6 +620,8 @@ export default class ImportAllData extends Component {
             columnMapping,
             "No. Eartag***)"
           ),
+          noKartuTernak: row[columnMapping["No Kartu Ternak"]] || "-",
+          idIsikhnasTernak: row[columnMapping["IdIsikhnas"]] || "_",
           nikPetugas: cleanNik(row[columnMapping["NIK Petugas Pendataan*)"]]),
           tanggalLahir: formatDateToString(
             row[columnMapping["Tanggal Lahir Ternak**)"]] || "_"
@@ -624,8 +633,9 @@ export default class ImportAllData extends Component {
             row[columnMapping["Identifikasi Hewan*"]] ||
             row[columnMapping["Identifikasi Hewan"]] ||
             "_",
-          nikPeternak: dataPeternak.nikPeternak,
-          namaKandang: `Kandang ${dataPeternak.namaPeternak}`,
+          idPeternak: uniqueData.get(nikPemilikTernak).idPeternak,
+          nikPeternak: cleanNik(row[columnMapping["NIK Pemilik Ternak**)"]]),
+          namaKandang: dataKandang.namaKandang,
           jenis: row[columnMapping["Jenis Ternak**)"]] || "_",
           tujuanPemeliharaan:
             row[columnMapping["Tujuan Pemeliharaan Ternak**)"]] || "_",
@@ -634,6 +644,8 @@ export default class ImportAllData extends Component {
             row[columnMapping["Tanggal Pendataan"]] || "_"
           ),
         };
+        console.log("data ternak : ",ternakHewanBulk );
+        
 
         // Jenis Vaksin
         if (!uniqueData.has(row[columnMapping["Jenis Vaksin**)"]])) {
@@ -671,7 +683,7 @@ export default class ImportAllData extends Component {
             "No. Eartag***)"
           ),
           nikPetugas: cleanNik(row[columnMapping["NIK Petugas Vaksinasi*)"]]),
-          nikPeternak: dataPeternak.nikPeternak,
+          nikPeternak: cleanNik(row[columnMapping["NIK Pemilik Ternak**)"]]),
           batchVaksin: row[columnMapping["Batch Vaksin**)"]],
           vaksinKe: row[columnMapping["Vaksin ke-**)"]],
 
@@ -686,7 +698,6 @@ export default class ImportAllData extends Component {
         // petugasPendataanBulk.push(dataPetugasPendataan);
         petugasVaksinasiBulk.push(dataPetugasVaksinasi);
         // peternakBulk.push(dataPeternak);
-        peternakBulk.push(dataPeternak);
         kandangBulk.push(dataKandang);
         ternakHewanBulk.push(dataTernakHewan);
         // jenisVaksinBulk.push(dataJenisVaksin);
@@ -697,10 +708,10 @@ export default class ImportAllData extends Component {
       // Send bulk data to server
       try {
         await sendPetugasBulkData(petugasPendataanBulk);
-        await sendJenisHewanBulkData(jenisHewanBulk);
         await sendPeternakBulkData(peternakBulk);
-        await sendKandangBulkData(kandangBulk);
+        await sendJenisHewanBulkData(jenisHewanBulk);
         await sendRumpunHewanBulkData(rumpunHewanBulk);
+        await sendKandangBulkData(kandangBulk);
         await sendTujuanPemeliharaanBulkData(tujuanPemeliharaanBulk);
         await sendTernakHewanBulkData(ternakHewanBulk);
         await sendJenisVaksinBulkData(jenisVaksinBulk);
@@ -740,23 +751,21 @@ export default class ImportAllData extends Component {
           Import File
         </Button>
         <Modal
-          title="Import File"
+          title='Import File'
           visible={importModalVisible}
           onCancel={this.handleImportModalClose}
           footer={[
-            <Button key="cancel" onClick={this.handleImportModalClose}>
+            <Button key='cancel' onClick={this.handleImportModalClose}>
               Cancel
             </Button>,
             <Button
-              key="upload"
-              type="primary"
+              key='upload'
+              type='primary'
               loading={this.state.uploading}
-              onClick={this.handleUpload}
-            >
+              onClick={this.handleUpload}>
               Upload
             </Button>,
-          ]}
-        >
+          ]}>
           <Upload beforeUpload={this.handleFileImport}>
             <Button icon={<UploadOutlined />}>Pilih File</Button>
           </Upload>

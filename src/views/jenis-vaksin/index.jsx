@@ -160,6 +160,7 @@ const JenisVaksin = () => {
     };
     try {
       await addJenisVaksin(jenisData);
+      console.log("Jenis Vaksin Data:", jenisData);
       form.resetFields();
       setAddJenisVaksinModalVisible(false);
       setAddJenisVaksinModalLoading(false);
@@ -179,11 +180,10 @@ const JenisVaksin = () => {
   };
 
   // Handle Confirming the Edit Jenis Vaksin Modal
-  const handleEditJenisVaksinOk = async (values, form) => {
+  const handleEditJenisVaksinOk = async (values) => {
     setEditJenisVaksinModalLoading(true);
     try {
-      await editJenisVaksin(values, values.idJenisVaksin);
-      form.resetFields();
+      await editJenisVaksin(values, currentRowData.idJenisVaksin);
       setEditJenisVaksinModalVisible(false);
       setEditJenisVaksinModalLoading(false);
       message.success("Berhasil diedit!");
@@ -485,12 +485,12 @@ const JenisVaksin = () => {
     ) {
       return (
         <Row gutter={[16, 16]} justify="start" style={{ paddingLeft: 9 }}>
-          <Col xs={24} sm={12} md={8} lg={8} xl={8}>
+          <Col>
             <Button type="primary" onClick={handleAddJenisVaksin} block>
               Tambah Jenis Vaksin
             </Button>
           </Col>
-          <Col xs={24} sm={12} md={8} lg={8} xl={8}>
+          <Col>
             <Button
               icon={<UploadOutlined />}
               onClick={handleImportModalOpen}
@@ -499,7 +499,7 @@ const JenisVaksin = () => {
               Import File
             </Button>
           </Col>
-          <Col xs={24} sm={12} md={8} lg={8} xl={8}>
+          <Col>
             <Button icon={<UploadOutlined />} onClick={handleExportData} block>
               Export File
             </Button>
@@ -559,7 +559,7 @@ const JenisVaksin = () => {
       {/* Import Modal */}
       <Modal
         title="Import File"
-        visible={importModalVisible}
+        open={importModalVisible}
         onCancel={handleImportModalClose}
         footer={[
           <Button key="cancel" onClick={handleImportModalClose}>

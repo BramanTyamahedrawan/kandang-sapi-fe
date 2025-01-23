@@ -10,17 +10,16 @@ const EditNamaVaksinForm = forwardRef((props, ref) => {
   const { visible, onCancel, onOk, confirmLoading, currentRowData } = props;
   const [jenisVaksinList, setJenisVaksin] = useState([]);
 
+  useEffect(() => {
+    fetchJenisVaksinList();
+  }, []);
+
   const fetchJenisVaksinList = async () => {
     try {
       const result = await getJenisVaksin();
       const { content, statusCode } = result.data;
       if (statusCode === 200) {
-        setJenisVaksin(
-          content.map(({ idJenisVaksin, jenis }) => ({
-            idJenisVaksin,
-            jenis,
-          }))
-        );
+        setJenisVaksin(content);
       }
     } catch (error) {
       console.log("Error fetching jenis vaksin list", error);
@@ -36,7 +35,7 @@ const EditNamaVaksinForm = forwardRef((props, ref) => {
   useEffect(() => {
     if (visible) {
       form.setFieldsValue({
-        idJenisVaksin: currentRowData.idJenisVaksin,
+        idJenisVaksin: currentRowData.jenisVaksin?.idJenisVaksin,
         nama: currentRowData.nama,
         deskripsi: currentRowData.deskripsi,
       });
@@ -66,22 +65,13 @@ const EditNamaVaksinForm = forwardRef((props, ref) => {
           });
       }}
       confirmLoading={confirmLoading}
-      width={700}
       destroyOnClose
+      okText="Simpan"
     >
-      <Form
-        {...{
-          labelCol: { span: 6 },
-          wrapperCol: { span: 17 },
-        }}
-        form={form}
-        layout="vertical"
-        name="EditJenisVaksinForm"
-        onFinish={onFinish}
-      >
-         <Form.Item
+      <Form form={form} layout="vertical" name="EditJenisVaksinForm" onFinish={onFinish}>
+        <Form.Item
           label="Jenis Vaksin:"
-          name="jenisVaksinId"
+          name="idJenisVaksin"
           rules={[
             {
               required: true,
@@ -97,8 +87,8 @@ const EditNamaVaksinForm = forwardRef((props, ref) => {
             ))}
           </Select>
         </Form.Item>
-        <Form.Item name="jenis" label="Jenis Vaksin:" rules={[{ required: true, message: "Silahkan masukkan nama vaksin!" }]}>
-          <Input placeholder="Masukkan jenis vaksin" />
+        <Form.Item name="nama" label="Nama Vaksin:" rules={[{ required: true, message: "Silahkan masukkan nama vaksin!" }]}>
+          <Input placeholder="Masukkan nama vaksin" />
         </Form.Item>
 
         <Form.Item name="deskripsi" label="Deskripsi:" rules={[{ required: true, message: "Silahkan masukkan deskripsi!" }]}>

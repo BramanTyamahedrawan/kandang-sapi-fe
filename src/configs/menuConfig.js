@@ -1,18 +1,26 @@
 import {
   BuildOutlined,
-  CameraOutlined,
-  CopyOutlined,
   ExperimentOutlined,
-  EyeOutlined,
-  FileSearchOutlined,
   HomeOutlined,
-  ProjectOutlined,
-  RocketOutlined,
-  TableOutlined,
-  TagOutlined,
+  AimOutlined,
+  AppstoreOutlined,
+  ClusterOutlined,
+  TagsOutlined,
+  MedicineBoxOutlined,
+  UnorderedListOutlined,
+  DeploymentUnitOutlined,
+  AuditOutlined,
+  SolutionOutlined,
+  CameraOutlined,
+  TeamOutlined,
+  IdcardOutlined,
   UsergroupAddOutlined,
-  UserOutlined,
+  BarcodeOutlined,
+  ProjectOutlined,
+  DatabaseOutlined,
 } from "@ant-design/icons";
+import { color } from "echarts";
+import { icon } from "leaflet";
 
 const menuList = [
   {
@@ -28,76 +36,88 @@ const menuList = [
   //   roles:["ROLE_ADMINISTRATOR"]
   // },
   {
-    title: "Data Petugas",
-    path: "/petugas",
-    icon: UserOutlined,
-    roles: ["ROLE_ADMINISTRATOR"],
+    title: "Master Data",
+    icon: ProjectOutlined,
+    children: [
+      {
+        title: "Data Petugas",
+        path: "/petugas",
+        icon: IdcardOutlined,
+        roles: ["ROLE_ADMINISTRATOR"],
+      },
+      {
+        title: "Data Peternak",
+        path: "/peternak",
+        icon: TeamOutlined,
+        roles: ["ROLE_ADMINISTRATOR", "ROLE_PETUGAS"],
+      },
+      {
+        title: "Jenis Hewan",
+        path: "/jenis-hewan",
+        icon: AppstoreOutlined,
+        roles: ["ROLE_ADMINISTRATOR", "ROLE_PETUGAS", "ROLE_PETERNAK"],
+      },
+      {
+        title: "Data Kandang",
+        path: "/kandang",
+        icon: BuildOutlined,
+        roles: ["ROLE_ADMINISTRATOR", "ROLE_PETUGAS", "ROLE_PETERNAK"],
+      },
+      {
+        title: "Rumpun Hewan",
+        path: "/rumpun-hewan",
+        icon: ClusterOutlined,
+        roles: ["ROLE_ADMINISTRATOR", "ROLE_PETUGAS", "ROLE_PETERNAK"],
+      },
+      {
+        title: "Tujuan Ternak",
+        path: "/tujuan-pemeliharaan",
+        icon: AimOutlined,
+        roles: ["ROLE_ADMINISTRATOR", "ROLE_PETUGAS", "ROLE_PETERNAK"],
+      },
+      {
+        title: "Daftar Hewan",
+        path: "/hewan",
+        icon: TagsOutlined,
+        roles: ["ROLE_ADMINISTRATOR", "ROLE_PETUGAS", "ROLE_PETERNAK"],
+      },
+    ],
   },
   {
-    title: "Data Peternak",
-    path: "/peternak",
-    icon: UsergroupAddOutlined,
-    roles: ["ROLE_ADMINISTRATOR", "ROLE_PETUGAS"],
-  },
-  {
-    title: "Tujuan Pemeliharaan",
-    path: "/tujuan-pemeliharaan",
-    icon: RocketOutlined,
-    roles: ["ROLE_ADMINISTRATOR", "ROLE_PETUGAS", "ROLE_PETERNAK"],
-  },
-  {
-    title: "Jenis Hewan",
-    path: "/jenis-hewan",
-    icon: EyeOutlined,
-    roles: ["ROLE_ADMINISTRATOR", "ROLE_PETUGAS", "ROLE_PETERNAK"],
-  },
-  {
-    title: "Data Kandang",
-    path: "/kandang",
-    icon: BuildOutlined,
-    roles: ["ROLE_ADMINISTRATOR", "ROLE_PETUGAS", "ROLE_PETERNAK"],
+    title: "Master Vaksin",
+    icon: DatabaseOutlined,
+    children: [
+      {
+        title: "Jenis Vaksin",
+        path: "/jenis-vaksin",
+        icon: MedicineBoxOutlined,
+        roles: ["ROLE_ADMINISTRATOR", "ROLE_PETUGAS", "ROLE_PETERNAK"],
+      },
+      {
+        title: "Nama Vaksin",
+        path: "/nama-vaksin",
+        icon: BarcodeOutlined,
+        roles: ["ROLE_ADMINISTRATOR", "ROLE_PETUGAS", "ROLE_PETERNAK"],
+      },
+      {
+        title: "Daftar Vaksin",
+        path: "/vaksin",
+        icon: UnorderedListOutlined,
+        roles: ["ROLE_ADMINISTRATOR", "ROLE_PETUGAS", "ROLE_PETERNAK"],
+      },
+    ],
   },
 
   {
-    title: "Rumpun Hewan",
-    path: "/rumpun-hewan",
-    icon: EyeOutlined,
-    roles: ["ROLE_ADMINISTRATOR", "ROLE_PETUGAS", "ROLE_PETERNAK"],
-  },
-  {
-    title: "Daftar Hewan",
-    path: "/hewan",
-    icon: TagOutlined,
-    roles: ["ROLE_ADMINISTRATOR", "ROLE_PETUGAS", "ROLE_PETERNAK"],
-  },
-  {
-    title: "Jenis Vaksin",
-    path: "/jenis-vaksin",
-    icon: ProjectOutlined,
-    roles: ["ROLE_ADMINISTRATOR", "ROLE_PETUGAS", "ROLE_PETERNAK"],
-  },
-  {
-    title: "Nama Vaksin",
-    path: "/nama-vaksin",
-    icon: ProjectOutlined,
-    roles: ["ROLE_ADMINISTRATOR", "ROLE_PETUGAS", "ROLE_PETERNAK"],
-  },
-  {
-    title: "Daftar Vaksin",
-    path: "/vaksin",
-    icon: ProjectOutlined,
-    roles: ["ROLE_ADMINISTRATOR", "ROLE_PETUGAS", "ROLE_PETERNAK"],
-  },
-  {
     title: "Inseminasi Buatan",
     path: "/inseminasi-buatan",
-    icon: TableOutlined,
+    icon: DeploymentUnitOutlined,
     roles: ["ROLE_ADMINISTRATOR", "ROLE_PETUGAS", "ROLE_PETERNAK"],
   },
   {
     title: "Kelahiran",
     path: "/kelahiran",
-    icon: FileSearchOutlined,
+    icon: AuditOutlined,
     roles: ["ROLE_ADMINISTRATOR", "ROLE_PETUGAS", "ROLE_PETERNAK"],
   },
   {
@@ -109,7 +129,7 @@ const menuList = [
   {
     title: "PKB",
     path: "/pkb",
-    icon: CopyOutlined,
+    icon: SolutionOutlined,
     roles: ["ROLE_ADMINISTRATOR", "ROLE_PETUGAS", "ROLE_PETERNAK"],
   },
   {

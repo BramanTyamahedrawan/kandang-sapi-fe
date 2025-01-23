@@ -21,7 +21,7 @@ const AddJenisVaksinForm = forwardRef((props, ref) => {
   return (
     <Modal
       title="Tambah Jenis Vaksin"
-      visible={visible}
+      open={visible}
       onCancel={onCancel}
       onOk={() => {
         form
@@ -34,25 +34,34 @@ const AddJenisVaksinForm = forwardRef((props, ref) => {
           });
       }}
       confirmLoading={confirmLoading}
-      width={700}
       destroyOnClose
+      okText="Simpan"
     >
       <Form
-        {...{
-          labelCol: { span: 6 },
-          wrapperCol: { span: 17 },
-        }}
         form={form}
         layout="vertical"
         name="AddJenisVaksinForm"
         onFinish={onFinish}
       >
-        <Form.Item name="jenis" label="Jenis Vaksin:" rules={[{ required: true, message: "Silahkan masukkan jenis vaksin!" }]}>
+        <Form.Item
+          name="jenis"
+          label="Jenis Vaksin:"
+          rules={[
+            { required: true, message: "Silahkan masukkan jenis vaksin!" },
+          ]}
+        >
           <Input placeholder="Masukkan jenis vaksin" />
         </Form.Item>
 
-        <Form.Item name="deskripsi" label="Deskripsi:" rules={[{ required: true, message: "Silahkan masukkan deskripsi!" }]}>
-          <Input.TextArea placeholder="Masukkan deskripsi jenis vaksin" autoSize={{ minRows: 3, maxRows: 6 }} />
+        <Form.Item
+          name="deskripsi"
+          label="Deskripsi:"
+          rules={[{ required: true, message: "Silahkan masukkan deskripsi!" }]}
+        >
+          <Input.TextArea
+            placeholder="Masukkan deskripsi jenis vaksin"
+            autoSize={{ minRows: 3, maxRows: 6 }}
+          />
         </Form.Item>
       </Form>
     </Modal>

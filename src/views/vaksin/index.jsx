@@ -4,23 +4,8 @@
 import { getNamaVaksin } from "@/api/nama-vaksin";
 import { getPeternaks } from "@/api/peternak";
 import TypingCard from "@/components/TypingCard";
-import {
-  DeleteOutlined,
-  EditOutlined,
-  UploadOutlined,
-} from "@ant-design/icons";
-import {
-  Button,
-  Card,
-  Col,
-  Divider,
-  Input,
-  message,
-  Modal,
-  Row,
-  Table,
-  Upload,
-} from "antd";
+import { DeleteOutlined, EditOutlined, UploadOutlined } from "@ant-design/icons";
+import { Button, Card, Col, Divider, Input, message, Modal, Row, Table, Upload } from "antd";
 import React, { useEffect, useRef, useState } from "react";
 import { read, utils } from "xlsx";
 import AddVaksinForm from "./forms/add-vaksin-form";
@@ -84,25 +69,13 @@ const Vaksin = () => {
 
       if (statusCode === 200) {
         const filteredVaksin = content.filter((vaksin) => {
-          const {
-            idVaksin,
-            idPeternak,
-            namaPeternak,
-            kodeEartagNasional,
-            idPejantan,
-            idPembuatan,
-            bangsaPejantan,
-            produsen,
-            inseminator,
-            lokasi,
-          } = vaksin;
+          const { idVaksin, idPeternak, namaPeternak, kodeEartagNasional, idPejantan, idPembuatan, bangsaPejantan, produsen, inseminator, lokasi } = vaksin;
           const keyword = searchKeyword.toLowerCase();
 
           const isIdVaksinValid = typeof idVaksin === "string";
           const isIdPeternakValid = typeof idPeternak === "string";
           const isNamaPeternakValid = typeof namaPeternak === "string";
-          const isKodeEartagNasionalValid =
-            typeof kodeEartagNasional === "string";
+          const isKodeEartagNasionalValid = typeof kodeEartagNasional === "string";
           const isIdPejantanValid = typeof idPejantan === "string";
           const isIdPembuatanValid = typeof idPembuatan === "string";
           const isBangsaPejantanValid = typeof bangsaPejantan === "string";
@@ -113,18 +86,13 @@ const Vaksin = () => {
           return (
             (isIdVaksinValid && idVaksin.toLowerCase().includes(keyword)) ||
             (isIdPeternakValid && idPeternak.toLowerCase().includes(keyword)) ||
-            (isNamaPeternakValid &&
-              namaPeternak.toLowerCase().includes(keyword)) ||
-            (isKodeEartagNasionalValid &&
-              kodeEartagNasional.toLowerCase().includes(keyword)) ||
+            (isNamaPeternakValid && namaPeternak.toLowerCase().includes(keyword)) ||
+            (isKodeEartagNasionalValid && kodeEartagNasional.toLowerCase().includes(keyword)) ||
             (isIdPejantanValid && idPejantan.toLowerCase().includes(keyword)) ||
-            (isIdPembuatanValid &&
-              idPembuatan.toLowerCase().includes(keyword)) ||
-            (isBangsaPejantanValid &&
-              bangsaPejantan.toLowerCase().includes(keyword)) ||
+            (isIdPembuatanValid && idPembuatan.toLowerCase().includes(keyword)) ||
+            (isBangsaPejantanValid && bangsaPejantan.toLowerCase().includes(keyword)) ||
             (isProdusenValid && produsen.toLowerCase().includes(keyword)) ||
-            (isInseminatorValid &&
-              inseminator.toLowerCase().includes(keyword)) ||
+            (isInseminatorValid && inseminator.toLowerCase().includes(keyword)) ||
             (isLokasiValid && lokasi.toLowerCase().includes(keyword))
           );
         });
@@ -212,26 +180,18 @@ const Vaksin = () => {
   };
 
   // Handle confirming the add vaksin modal
-  const handleAddVaksinOk = () => {
-    const form = addVaksinFormRef.current?.props?.form;
-    if (form) {
-      form.validateFields(async (err, values) => {
-        if (err) {
-          return;
-        }
-        setAddVaksinModalLoading(true);
-        try {
-          await addVaksin(values);
-          form.resetFields();
-          setAddVaksinModalVisible(false);
-          setAddVaksinModalLoading(false);
-          message.success("Berhasil menambahkan!");
-          getVaksinsData();
-        } catch (e) {
-          setAddVaksinModalLoading(false);
-          message.error("Gagal menambahkan, harap coba lagi!");
-        }
-      });
+  const handleAddVaksinOk = async (values) => {
+    setAddVaksinModalLoading(true);
+    try {
+      await addVaksin(values);
+      setAddVaksinModalVisible(false);
+      setAddVaksinModalLoading(false);
+      message.success("Berhasil menambahkan!");
+      getVaksinsData();
+    } catch (e) {
+      setAddVaksinModalLoading(false);
+      message.error("Gagal menambahkan, harap coba lagi!");
+      console.log("error ", e);
     }
   };
 
@@ -242,33 +202,23 @@ const Vaksin = () => {
   };
 
   // Handle confirming the edit vaksin modal
-  const handleEditVaksinOk = () => {
-    const form = editVaksinFormRef.current?.props?.form;
-    if (form) {
-      form.validateFields(async (err, values) => {
-        if (err) {
-          return;
-        }
-        setEditVaksinModalLoading(true);
-        try {
-          await editVaksin(values, values.idVaksin);
-          form.resetFields();
-          setEditVaksinModalVisible(false);
-          setEditVaksinModalLoading(false);
-          message.success("Berhasil diedit!");
-          getVaksinsData();
-        } catch (e) {
-          setEditVaksinModalLoading(false);
-          message.error("Pengeditan gagal, harap coba lagi!");
-        }
-      });
+  const handleEditVaksinOk = async (values) => {
+    setEditVaksinModalLoading(true);
+    try {
+      await editVaksin(values, currentRowData.idVaksin);
+      setEditVaksinModalVisible(false);
+      setEditVaksinModalLoading(false);
+      message.success("Berhasil diedit!");
+      getVaksinsData();
+    } catch (e) {
+      setEditVaksinModalLoading(false);
+      message.error("Pengeditan gagal, harap coba lagi!");
     }
   };
 
   // Handle deleting a vaksin
   const handleDeleteVaksin = (row) => {
     const { idVaksin } = row;
-
     Modal.confirm({
       title: "Konfirmasi",
       content: "Apakah Anda yakin ingin menghapus data ini?",
@@ -301,11 +251,7 @@ const Vaksin = () => {
       const utcDays = Math.floor(input - 25569);
       const utcValue = utcDays * 86400;
       const dateInfo = new Date(utcValue * 1000);
-      date = new Date(
-        dateInfo.getFullYear(),
-        dateInfo.getMonth(),
-        dateInfo.getDate()
-      ).toString();
+      date = new Date(dateInfo.getFullYear(), dateInfo.getMonth(), dateInfo.getDate()).toString();
     } else if (typeof input === "string") {
       const [day, month, year] = input.split("/");
       date = new Date(`${year}-${month}-${day}`).toString();
@@ -377,15 +323,9 @@ const Vaksin = () => {
     try {
       for (const row of importedData) {
         const petugasNama = row[mapping["Inseminator"]]?.toLowerCase();
-        const petugasData = petugas.find(
-          (p) => p.namaPetugas.toLowerCase() === petugasNama
-        );
+        const petugasData = petugas.find((p) => p.namaPetugas.toLowerCase() === petugasNama);
         const petugasId = petugasData ? petugasData.nikPetugas : null;
-        console.log(
-          `Mencocokkan nama petugas: ${petugasNama}, Ditemukan: ${
-            petugasData ? "Ya" : "Tidak"
-          }, petugasId: ${petugasId}`
-        );
+        console.log(`Mencocokkan nama petugas: ${petugasNama}, Ditemukan: ${petugasData ? "Ya" : "Tidak"}, petugasId: ${petugasId}`);
         const dataToSave = {
           idVaksin: row[mapping["Batch Vaksin**)"]],
           namaVaksin: row[mapping["Nama Vaksin**)"]],
@@ -396,9 +336,7 @@ const Vaksin = () => {
           tglVaksin: convertToJSDate(row[mapping["Tanggal Vaksin**)"]]),
         };
 
-        const existingVaksinIndex = vaksins.findIndex(
-          (p) => p.idVaksin === dataToSave.idVaksin
-        );
+        const existingVaksinIndex = vaksins.findIndex((p) => p.idVaksin === dataToSave.idVaksin);
 
         try {
           if (existingVaksinIndex > -1) {
@@ -442,17 +380,7 @@ const Vaksin = () => {
 
   // Convert data to CSV format
   const convertToCSV = (data) => {
-    const columnTitles = [
-      "ID Vaksin",
-      "Nama Vaksin",
-      "Jenis Vaksin",
-      "Lokasi",
-      "Nama Peternak",
-      "NIK Peternak",
-      "Eartag Hewan",
-      "Inseminator",
-      "Tanggal Vaksin",
-    ];
+    const columnTitles = ["ID Vaksin", "Nama Vaksin", "Jenis Vaksin", "Lokasi", "Nama Peternak", "NIK Peternak", "Eartag Hewan", "Inseminator", "Tanggal Vaksin"];
 
     const rows = [columnTitles];
     data.forEach((item) => {
@@ -511,11 +439,6 @@ const Vaksin = () => {
         dataIndex: ["peternak", "namaPeternak"],
         key: "namaPeternak",
       },
-      {
-        title: "NIK Peternak",
-        dataIndex: ["peternak", "nikPeternak"],
-        key: "nikPeternak",
-      },
 
       { title: "Bacth Vaksin", dataIndex: "batchVaksin", key: "batchVaksin" },
       { title: "Dosis Vaksin", dataIndex: "vaksinKe", key: "vaksinKe" },
@@ -528,16 +451,13 @@ const Vaksin = () => {
 
       { title: "Tanggal Vaksin", dataIndex: "tglVaksin", key: "tglVaksin" },
       {
-        title: "Tanggal Pendataan",
+        title: "Tanggal Hewan Terdaftar",
         dataIndex: ["hewan", "tanggalTerdaftar"],
         key: "tanggalTerdaftar",
       },
     ];
 
-    if (
-      user &&
-      (user.role === "ROLE_ADMINISTRATOR" || user.role === "ROLE_PETUGAS")
-    ) {
+    if (user && (user.role === "ROLE_ADMINISTRATOR" || user.role === "ROLE_PETUGAS")) {
       baseColumns.push({
         title: "Operasi",
         key: "action",
@@ -545,22 +465,9 @@ const Vaksin = () => {
         align: "center",
         render: (text, row) => (
           <span>
-            <Button
-              type="primary"
-              shape="circle"
-              icon={<EditOutlined />}
-              title="Edit"
-              onClick={() => handleEditVaksin(row)}
-            />
+            <Button type="primary" shape="circle" icon={<EditOutlined />} title="Edit" onClick={() => handleEditVaksin(row)} />
             <Divider type="vertical" />
-            <Button
-              type="primary"
-              danger
-              shape="circle"
-              icon={<DeleteOutlined />}
-              title="Delete"
-              onClick={() => handleDeleteVaksin(row)}
-            />
+            <Button type="primary" danger shape="circle" icon={<DeleteOutlined />} title="Delete" onClick={() => handleDeleteVaksin(row)} />
           </span>
         ),
       });
@@ -572,26 +479,9 @@ const Vaksin = () => {
   // Render Table based on User Role
   const renderTable = () => {
     if (user && user.role === "ROLE_PETERNAK") {
-      return (
-        <Table
-          dataSource={vaksins}
-          bordered
-          columns={renderColumns()}
-          rowKey="idVaksin"
-        />
-      );
-    } else if (
-      user &&
-      (user.role === "ROLE_ADMINISTRATOR" || user.role === "ROLE_PETUGAS")
-    ) {
-      return (
-        <Table
-          dataSource={vaksins}
-          bordered
-          columns={renderColumns()}
-          rowKey="idVaksin"
-        />
-      );
+      return <Table dataSource={vaksins} bordered columns={renderColumns()} rowKey="idVaksin" />;
+    } else if (user && (user.role === "ROLE_ADMINISTRATOR" || user.role === "ROLE_PETUGAS")) {
+      return <Table dataSource={vaksins} bordered columns={renderColumns()} rowKey="idVaksin" />;
     } else {
       return null;
     }
@@ -599,10 +489,7 @@ const Vaksin = () => {
 
   // Render Buttons based on User Role
   const renderButtons = () => {
-    if (
-      user &&
-      (user.role === "ROLE_ADMINISTRATOR" || user.role === "ROLE_PETUGAS")
-    ) {
+    if (user && (user.role === "ROLE_ADMINISTRATOR" || user.role === "ROLE_PETUGAS")) {
       return (
         <Row gutter={[16, 16]} justify="start" style={{ paddingLeft: 9 }}>
           <Col xs={24} sm={12} md={8} lg={8} xl={8}>
@@ -611,11 +498,7 @@ const Vaksin = () => {
             </Button>
           </Col>
           <Col xs={24} sm={12} md={8} lg={8} xl={8}>
-            <Button
-              icon={<UploadOutlined />}
-              onClick={handleImportModalOpen}
-              block
-            >
+            <Button icon={<UploadOutlined />} onClick={handleImportModalOpen} block>
               Import File
             </Button>
           </Col>
@@ -636,12 +519,7 @@ const Vaksin = () => {
     <Row gutter={[16, 16]} justify="space-between">
       {renderButtons()}
       <Col xs={24} sm={12} md={8} lg={8} xl={8}>
-        <Input
-          placeholder="Cari data"
-          value={searchKeyword}
-          onChange={(e) => handleSearch(e.target.value)}
-          style={{ width: "100%" }}
-        />
+        <Input placeholder="Cari data" value={searchKeyword} onChange={(e) => handleSearch(e.target.value)} style={{ width: "100%" }} />
       </Col>
     </Row>
   );
@@ -658,23 +536,10 @@ const Vaksin = () => {
       </Card>
 
       {/* Edit Vaksin Modal */}
-      <EditVaksinForm
-        currentRowData={currentRowData}
-        wrappedComponentRef={editVaksinFormRef}
-        visible={editVaksinModalVisible}
-        confirmLoading={editVaksinModalLoading}
-        onCancel={handleCancel}
-        onOk={handleEditVaksinOk}
-      />
+      <EditVaksinForm currentRowData={currentRowData} wrappedComponentRef={editVaksinFormRef} visible={editVaksinModalVisible} confirmLoading={editVaksinModalLoading} onCancel={handleCancel} onOk={handleEditVaksinOk} />
 
       {/* Add Vaksin Modal */}
-      <AddVaksinForm
-        wrappedComponentRef={addVaksinFormRef}
-        visible={addVaksinModalVisible}
-        confirmLoading={addVaksinModalLoading}
-        onCancel={handleCancel}
-        onOk={handleAddVaksinOk}
-      />
+      <AddVaksinForm wrappedComponentRef={addVaksinFormRef} visible={addVaksinModalVisible} confirmLoading={addVaksinModalLoading} onCancel={handleCancel} onOk={handleAddVaksinOk} />
 
       {/* Import Modal */}
       <Modal
@@ -685,21 +550,12 @@ const Vaksin = () => {
           <Button key="cancel" onClick={handleImportModalClose}>
             Cancel
           </Button>,
-          <Button
-            key="upload"
-            type="primary"
-            loading={uploading}
-            onClick={handleUpload}
-          >
+          <Button key="upload" type="primary" loading={uploading} onClick={handleUpload}>
             Upload
           </Button>,
         ]}
       >
-        <Upload
-          beforeUpload={handleFileImport}
-          accept=".xlsx,.xls,.csv"
-          showUploadList={false}
-        >
+        <Upload beforeUpload={handleFileImport} accept=".xlsx,.xls,.csv" showUploadList={false}>
           <Button icon={<UploadOutlined />}>Pilih File</Button>
         </Upload>
       </Modal>

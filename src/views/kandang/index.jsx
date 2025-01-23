@@ -1,206 +1,162 @@
 /* eslint-disable no-constant-condition */
 /* eslint-disable no-unused-vars */
-import {
-  addKandang,
-  deleteKandang,
-  editKandang,
-  getKandang
-} from '@/api/kandang'
-import TypingCard from '@/components/TypingCard'
-import {
-  Button,
-  Card,
-  Col,
-  Divider,
-  Input,
-  message,
-  Modal,
-  Row,
-  Table,
-  Upload,
-} from 'antd'
-import React, { useEffect, useRef, useState } from 'react'
-import AddKandangForm from './forms/add-kandang-form'
-import EditKandangForm from './forms/edit-kandang-form'
+import { addKandang, deleteKandang, editKandang, getKandang } from "@/api/kandang";
+import TypingCard from "@/components/TypingCard";
+import { Button, Card, Col, Divider, Input, message, Modal, Row, Table, Upload } from "antd";
+import React, { useEffect, useRef, useState } from "react";
+import AddKandangForm from "./forms/add-kandang-form";
+import EditKandangForm from "./forms/edit-kandang-form";
 // import ViewKandangForm from "./forms/view-kandang-form";
-import { DeleteOutlined, EditOutlined, UploadOutlined } from '@ant-design/icons'
-import { read, utils } from 'xlsx'
-import { reqUserInfo } from '../../api/user'
-import imgUrl from '../../utils/imageURL'
+import { DeleteOutlined, EditOutlined, UploadOutlined } from "@ant-design/icons";
+import { read, utils } from "xlsx";
+import { reqUserInfo } from "../../api/user";
+import imgUrl from "../../utils/imageURL";
 
-import kandangSapi from '../../assets/images/kandangsapi.jpg'
+import kandangSapi from "../../assets/images/kandangsapi.jpg";
 
 const Kandang = () => {
-  const [kandangs, setKandangs] = useState([])
-  const [editKandangModalVisible, setEditKandangModalVisible] = useState(false)
-  const [editKandangModalLoading, setEditKandangModalLoading] = useState(false)
+  const [kandangs, setKandangs] = useState([]);
+  const [editKandangModalVisible, setEditKandangModalVisible] = useState(false);
+  const [editKandangModalLoading, setEditKandangModalLoading] = useState(false);
   // const [viewKandangModalVisible, setViewKandangModalVisible] = useState(false)
-  const [currentRowData, setCurrentRowData] = useState({})
-  const [addKandangModalVisible, setAddKandangModalVisible] = useState(false)
-  const [addKandangModalLoading, setAddKandangModalLoading] = useState(false)
-  const [importedData, setImportedData] = useState([])
-  const [columnTitles, setColumnTitles] = useState([])
-  const [fileName, setFileName] = useState('')
-  const [uploading, setUploading] = useState(false)
-  const [importModalVisible, setImportModalVisible] = useState(false)
-  const [columnMapping, setColumnMapping] = useState({})
-  const [searchKeyword, setSearchKeyword] = useState('')
-  const [user, setUser] = useState(null)
+  const [currentRowData, setCurrentRowData] = useState({});
+  const [addKandangModalVisible, setAddKandangModalVisible] = useState(false);
+  const [addKandangModalLoading, setAddKandangModalLoading] = useState(false);
+  const [importedData, setImportedData] = useState([]);
+  const [columnTitles, setColumnTitles] = useState([]);
+  const [fileName, setFileName] = useState("");
+  const [uploading, setUploading] = useState(false);
+  const [importModalVisible, setImportModalVisible] = useState(false);
+  const [columnMapping, setColumnMapping] = useState({});
+  const [searchKeyword, setSearchKeyword] = useState("");
+  const [user, setUser] = useState(null);
 
-  const editKandangFormRef = useRef(null)
-  const addKandangFormRef = useRef(null)
+  const editKandangFormRef = useRef(null);
+  const addKandangFormRef = useRef(null);
 
   useEffect(() => {
     reqUserInfo()
       .then((response) => {
-        const userData = response.data
-        setUser(userData)
-        if (userData.role === 'ROLE_PETERNAK') {
-          getKandangByPeternak(userData.username)
+        const userData = response.data;
+        setUser(userData);
+        if (userData.role === "ROLE_PETERNAK") {
+          getKandangByPeternak(userData.username);
         } else {
-          getKandangData()
+          getKandangData();
         }
       })
       .catch((error) => {
-        console.error('Terjadi kesalahan saat mengambil data user:', error)
-        message.error('Gagal mengambil data user.')
-      })
-  }, [])
+        console.error("Terjadi kesalahan saat mengambil data user:", error);
+        message.error("Gagal mengambil data user.");
+      });
+  }, []);
 
   const getKandangByPeternak = async (peternakID) => {
     try {
-      const result = await getKandangByPeternak(peternakID)
-      const { content, statusCode } = result.data
+      const result = await getKandangByPeternak(peternakID);
+      const { content, statusCode } = result.data;
       if (statusCode === 200) {
-        setKandangs(content)
+        setKandangs(content);
       }
     } catch (error) {
-      console.error('Failed to fetch data:', error)
-      message.error('Gagal mengambil data kandang.')
+      console.error("Failed to fetch data:", error);
+      message.error("Gagal mengambil data kandang.");
     }
-  }
+  };
 
   const getKandangData = async () => {
     try {
-      const result = await getKandang()
-      console.log(result)
-      const { content, statusCode } = result.data
+      const result = await getKandang();
+      console.log(result);
+      const { content, statusCode } = result.data;
 
       if (statusCode === 200) {
         const filteredKandang = content.filter((kandang) => {
-          const {
-            idKandang,
-            idPeternak,
-            namaPeternak,
-            luas,
-            jenisHewan,
-            kapasitas,
-            nilaiBangunan,
-            alamat,
-            provinsi,
-            kabupaten,
-            kecamatan,
-            desa,
-          } = kandang
-          const keyword = searchKeyword.toLowerCase()
+          const { idKandang, idPeternak, namaPeternak, luas, kapasitas, nilaiBangunan, alamat, provinsi, kabupaten, kecamatan, desa } = kandang;
+          const keyword = searchKeyword.toLowerCase();
 
-          const isIdKandangValid = typeof idKandang === 'string'
-          const isIdPeternakValid = typeof idPeternak === 'string'
-          const isNamaPeternakValid = typeof namaPeternak === 'string'
-          const isLuasValid = typeof luas === 'string'
-          const isJenisHewanValid = typeof jenisHewan === 'string'
-          const isKapasitasValid = typeof kapasitas === 'string'
-          const isNilaiBangunanValid = typeof nilaiBangunan === 'string'
-          const isAlamatValid = typeof alamat === 'string'
-          const isProvinsiValid = typeof provinsi === 'string'
-          const isKabupatenValid = typeof kabupaten === 'string'
-          const isKecamatanValid = typeof kecamatan === 'string'
-          const isDesaValid = typeof desa === 'string'
+          const isIdKandangValid = typeof idKandang === "string";
+          const isIdPeternakValid = typeof idPeternak === "string";
+          const isNamaPeternakValid = typeof namaPeternak === "string";
+          const isLuasValid = typeof luas === "string";
+          const isKapasitasValid = typeof kapasitas === "string";
+          const isNilaiBangunanValid = typeof nilaiBangunan === "string";
+          const isAlamatValid = typeof alamat === "string";
+          const isProvinsiValid = typeof provinsi === "string";
+          const isKabupatenValid = typeof kabupaten === "string";
+          const isKecamatanValid = typeof kecamatan === "string";
+          const isDesaValid = typeof desa === "string";
 
           return (
             (isIdKandangValid && idKandang.toLowerCase().includes(keyword)) ||
             (isIdPeternakValid && idPeternak.toLowerCase().includes(keyword)) ||
-            (isNamaPeternakValid &&
-              namaPeternak.toLowerCase().includes(keyword)) ||
+            (isNamaPeternakValid && namaPeternak.toLowerCase().includes(keyword)) ||
             (isLuasValid && luas.toLowerCase().includes(keyword)) ||
-            (isJenisHewanValid && jenisHewan.toLowerCase().includes(keyword)) ||
             (isKapasitasValid && kapasitas.toLowerCase().includes(keyword)) ||
-            (isNilaiBangunanValid &&
-              nilaiBangunan.toLowerCase().includes(keyword)) ||
+            (isNilaiBangunanValid && nilaiBangunan.toLowerCase().includes(keyword)) ||
             (isAlamatValid && alamat.toLowerCase().includes(keyword)) ||
             (isProvinsiValid && provinsi.toLowerCase().includes(keyword)) ||
             (isKabupatenValid && kabupaten.toLowerCase().includes(keyword)) ||
             (isKecamatanValid && kecamatan.toLowerCase().includes(keyword)) ||
             (isDesaValid && desa.toLowerCase().includes(keyword))
-          )
-        })
+          );
+        });
 
-        setKandangs(filteredKandang)
+        setKandangs(filteredKandang);
       }
     } catch (error) {
-      console.error('Gagal mengambil data kandang:', error)
-      message.error('Gagal mengambil data kandang.')
+      console.error("Gagal mengambil data kandang:", error);
+      message.error("Gagal mengambil data kandang.");
     }
-  }
+  };
 
   const handleSearch = (keyword) => {
-    setSearchKeyword(keyword)
+    setSearchKeyword(keyword);
     // Debounce atau delay jika diperlukan
-    getKandangData()
-  }
+    getKandangData();
+  };
 
   const handleEditKandang = (row) => {
-    setCurrentRowData({ ...row })
-    setEditKandangModalVisible(true)
-  }
+    setCurrentRowData({ ...row });
+    setEditKandangModalVisible(true);
+  };
 
   const handleDeleteKandang = (row) => {
-    const { idKandang } = row
+    const { idKandang } = row;
     Modal.confirm({
-      title: 'Konfirmasi',
-      content: 'Apakah Anda yakin ingin menghapus data ini?',
-      okText: 'Ya',
-      okType: 'danger',
-      cancelText: 'Tidak',
+      title: "Konfirmasi",
+      content: "Apakah Anda yakin ingin menghapus data ini?",
+      okText: "Ya",
+      okType: "danger",
+      cancelText: "Tidak",
       onOk: () => {
         deleteKandang(idKandang)
           .then(() => {
-            message.success('Berhasil dihapus')
-            getKandangData()
+            message.success("Berhasil dihapus");
+            getKandangData();
           })
           .catch((error) => {
-            console.error('Gagal menghapus kandang:', error)
-            message.error('Gagal menghapus kandang.')
-          })
+            console.error("Gagal menghapus kandang:", error);
+            message.error("Gagal menghapus kandang.");
+          });
       },
-    })
-  }
+    });
+  };
 
-  const handleEditKandangOk = () => {
-    const form = editKandangFormRef.current
-    if (form) {
-      form
-        .validateFields()
-        .then((values) => {
-          setEditKandangModalLoading(true)
-          editKandang(values, values.idKandang)
-            .then(() => {
-              form.resetFields()
-              setEditKandangModalVisible(false)
-              setEditKandangModalLoading(false)
-              message.success('Berhasil diedit!')
-              getKandangData()
-            })
-            .catch((e) => {
-              setEditKandangModalLoading(false)
-              message.error('Pengeditan gagal, harap coba lagi!')
-            })
-        })
-        .catch((err) => {
-          console.error('Validasi form gagal:', err)
-        })
+  const handleEditKandangOk = async (values) => {
+    setEditKandangModalLoading(true);
+    try {
+      await editKandang(values, currentRowData.idKandang);
+      setEditKandangModalVisible(false);
+      setEditKandangModalLoading(false);
+      message.success("Berhasil diedit!");
+      getKandangData();
+    } catch (error) {
+      console.error("Error editing peternak:", error);
+      message.error("Pengeditan gagal, harap coba lagi!");
+      setEditKandangModalLoading(false);
     }
-  }
+  };
 
   // const handleViewKandang = (row) => {
   //   setCurrentRowData({ ...row })
@@ -209,299 +165,253 @@ const Kandang = () => {
 
   // Fungsi Import File CSV
   const handleImportModalOpen = () => {
-    setImportModalVisible(true)
-  }
+    setImportModalVisible(true);
+  };
 
   const handleImportModalClose = () => {
-    setImportModalVisible(false)
-  }
+    setImportModalVisible(false);
+  };
 
   const handleFileImport = (file) => {
-    const reader = new FileReader()
+    const reader = new FileReader();
 
     reader.onload = (e) => {
-      const data = new Uint8Array(e.target.result)
-      const workbook = read(data, { type: 'array' })
+      const data = new Uint8Array(e.target.result);
+      const workbook = read(data, { type: "array" });
 
-      const worksheet = workbook.Sheets[workbook.SheetNames[0]]
-      const jsonData = utils.sheet_to_json(worksheet, { header: 1 })
+      const worksheet = workbook.Sheets[workbook.SheetNames[0]];
+      const jsonData = utils.sheet_to_json(worksheet, { header: 1 });
 
-      const importedDataLocal = jsonData.slice(1) // Exclude the first row (column titles)
-      const columnTitlesLocal = jsonData[0] // Assume the first row contains column titles
+      const importedDataLocal = jsonData.slice(1); // Exclude the first row (column titles)
+      const columnTitlesLocal = jsonData[0]; // Assume the first row contains column titles
 
-      const fileNameLocal = file.name.toLowerCase()
+      const fileNameLocal = file.name.toLowerCase();
 
-      setImportedData(importedDataLocal)
-      setColumnTitles(columnTitlesLocal)
-      setFileName(fileNameLocal)
+      setImportedData(importedDataLocal);
+      setColumnTitles(columnTitlesLocal);
+      setFileName(fileNameLocal);
 
       // Create column mapping
-      const columnMappingLocal = {}
+      const columnMappingLocal = {};
       columnTitlesLocal.forEach((title, index) => {
-        columnMappingLocal[title] = index
-      })
-      setColumnMapping(columnMappingLocal)
-    }
+        columnMappingLocal[title] = index;
+      });
+      setColumnMapping(columnMappingLocal);
+    };
 
-    reader.readAsArrayBuffer(file)
-    return false // Prevent automatic upload
-  }
+    reader.readAsArrayBuffer(file);
+    return false; // Prevent automatic upload
+  };
 
   const handleUpload = () => {
-    const { importedData, columnMapping } = { importedData, columnMapping }
+    const { importedData, columnMapping } = { importedData, columnMapping };
 
     if (importedData.length === 0) {
-      message.error('No data to import.')
-      return
+      message.error("No data to import.");
+      return;
     }
 
-    setUploading(true)
+    setUploading(true);
 
     saveImportedData(columnMapping)
       .then(() => {
-        setUploading(false)
-        setImportModalVisible(false)
+        setUploading(false);
+        setImportModalVisible(false);
       })
       .catch((error) => {
-        console.error('Gagal mengunggah data:', error)
-        setUploading(false)
-        message.error('Gagal mengunggah data, harap coba lagi.')
-      })
-  }
+        console.error("Gagal mengunggah data:", error);
+        setUploading(false);
+        message.error("Gagal mengunggah data, harap coba lagi.");
+      });
+  };
 
   const fetchCoordinates = async (address) => {
     try {
-      const response = await fetch(
-        `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(
-          address
-        )}&format=json`
-      )
-      const data = await response.json()
+      const response = await fetch(`https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(address)}&format=json`);
+      const data = await response.json();
       if (data && data.length > 0) {
-        return { lat: data[0].lat, lon: data[0].lon }
+        return { lat: data[0].lat, lon: data[0].lon };
       } else {
-        console.error('No coordinates found for the provided address:', address)
-        return { lat: null, lon: null }
+        console.error("No coordinates found for the provided address:", address);
+        return { lat: null, lon: null };
       }
     } catch (error) {
-      console.error('Error converting address to coordinates:', error)
-      return { lat: null, lon: null }
+      console.error("Error converting address to coordinates:", error);
+      return { lat: null, lon: null };
     }
-  }
+  };
 
   const saveImportedData = async (columnMappingLocal) => {
-    let errorCount = 0
+    let errorCount = 0;
 
     try {
       for (const row of importedData) {
-        const address = `${row[columnMappingLocal['Desa']]}, ${
-          row[columnMappingLocal['Kecamatan']]
-        }, ${row[columnMappingLocal['Kabupaten']]}, ${
-          row[columnMappingLocal['Provinsi']]
-        }`
-        const { lat, lon } = await fetchCoordinates(address)
+        const address = `${row[columnMappingLocal["Desa"]]}, ${row[columnMappingLocal["Kecamatan"]]}, ${row[columnMappingLocal["Kabupaten"]]}, ${row[columnMappingLocal["Provinsi"]]}`;
+        const { lat, lon } = await fetchCoordinates(address);
 
         const dataToSave = {
-          idKandang: row[columnMappingLocal['Id Kandang']],
-          peternak_id: row[columnMappingLocal['Id Peternak']],
-          luas: row[columnMappingLocal['Luas']],
-          jenis_id: row[columnMappingLocal['Jenis Hewan']],
-          kapasitas: row[columnMappingLocal['Kapasitas']],
-          nilaiBangunan: row[columnMappingLocal['Nilai Bangunan']],
-          alamat: row[columnMappingLocal['Alamat']],
-          latitude: lat || row[columnMappingLocal['Latitude']],
-          longitude: lon || row[columnMappingLocal['Longitude']],
+          idKandang: row[columnMappingLocal["Id Kandang"]],
+          idPeternak: row[columnMappingLocal["Id Peternak"]],
+          luas: row[columnMappingLocal["Luas"]],
+          kapasitas: row[columnMappingLocal["Kapasitas"]],
+          nilaiBangunan: row[columnMappingLocal["Nilai Bangunan"]],
+          alamat: row[columnMappingLocal["Alamat"]],
+          latitude: lat || row[columnMappingLocal["Latitude"]],
+          longitude: lon || row[columnMappingLocal["Longitude"]],
           file: kandangSapi,
-        }
+        };
 
-        const existingKandangIndex = kandangs.findIndex(
-          (p) => p.idKandang === dataToSave.idKandang
-        )
+        const existingKandangIndex = kandangs.findIndex((p) => p.idKandang === dataToSave.idKandang);
         try {
           if (existingKandangIndex > -1) {
             // Update existing data
-            await editKandang(dataToSave, dataToSave.idKandang)
+            await editKandang(dataToSave, dataToSave.idKandang);
             setKandangs((prevKandangs) => {
-              const updatedKandangs = [...prevKandangs]
-              updatedKandangs[existingKandangIndex] = dataToSave
-              return updatedKandangs
-            })
+              const updatedKandangs = [...prevKandangs];
+              updatedKandangs[existingKandangIndex] = dataToSave;
+              return updatedKandangs;
+            });
           } else {
             // Add new data
-            await addKandang(dataToSave)
-            setKandangs((prevKandangs) => [...prevKandangs, dataToSave])
+            await addKandang(dataToSave);
+            setKandangs((prevKandangs) => [...prevKandangs, dataToSave]);
           }
         } catch (error) {
-          errorCount++
-          console.error('Gagal menyimpan data:', error)
+          errorCount++;
+          console.error("Gagal menyimpan data:", error);
         }
 
         // Delay to avoid hitting rate limits
-        await new Promise((resolve) => setTimeout(resolve, 1000))
+        await new Promise((resolve) => setTimeout(resolve, 1000));
       }
 
       if (errorCount === 0) {
-        message.success(`Semua data berhasil disimpan.`)
+        message.success(`Semua data berhasil disimpan.`);
       } else {
-        message.error(`${errorCount} data gagal disimpan, harap coba lagi!`)
+        message.error(`${errorCount} data gagal disimpan, harap coba lagi!`);
       }
     } catch (error) {
-      console.error('Gagal memproses data:', error)
-      message.error('Gagal memproses data, harap coba lagi.')
+      console.error("Gagal memproses data:", error);
+      message.error("Gagal memproses data, harap coba lagi.");
     } finally {
-      setImportedData([])
-      setColumnTitles([])
-      setColumnMapping({})
+      setImportedData([]);
+      setColumnTitles([]);
+      setColumnMapping({});
     }
-  }
+  };
 
   // Fungsi Export dari database ke file CSV
   const handleExportData = () => {
-    const csvContent = convertToCSV(kandangs)
-    downloadCSV(csvContent)
-  }
+    const csvContent = convertToCSV(kandangs);
+    downloadCSV(csvContent);
+  };
 
   const convertToCSV = (data) => {
-    const columnTitlesLocal = [
-      'Id Kandang',
-      'Luas',
-      'Kapasitas',
-      'Nilai Bangunan',
-      'Alamat',
-    ]
+    const columnTitlesLocal = ["Id Kandang", "Luas", "Kapasitas", "Nilai Bangunan", "Alamat"];
 
-    const rows = [columnTitlesLocal]
+    const rows = [columnTitlesLocal];
     data.forEach((item) => {
-      const row = [
-        item.idKandang,
-        item.luas,
-        item.kapasitas,
-        item.nilaiBangunan,
-        item.alamat,
-      ]
-      rows.push(row)
-    })
+      const row = [item.idKandang, item.luas, item.kapasitas, item.nilaiBangunan, item.alamat];
+      rows.push(row);
+    });
 
-    let csvContent = 'data:text/csv;charset=utf-8,'
+    let csvContent = "data:text/csv;charset=utf-8,";
 
     rows.forEach((rowArray) => {
-      const row = rowArray.join(';')
-      csvContent += row + '\r\n'
-    })
+      const row = rowArray.join(";");
+      csvContent += row + "\r\n";
+    });
 
-    return csvContent
-  }
+    return csvContent;
+  };
 
   const downloadCSV = (csvContent) => {
-    const encodedUri = encodeURI(csvContent)
-    const link = document.createElement('a')
-    link.setAttribute('href', encodedUri)
-    link.setAttribute('download', 'Kandang.csv')
-    document.body.appendChild(link) // Required for Firefox
-    link.click()
-    document.body.removeChild(link)
-  }
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement("a");
+    link.setAttribute("href", encodedUri);
+    link.setAttribute("download", "Kandang.csv");
+    document.body.appendChild(link); // Required for Firefox
+    link.click();
+    document.body.removeChild(link);
+  };
 
   const handleCancel = () => {
-    setEditKandangModalVisible(false)
-    setAddKandangModalVisible(false)
+    setEditKandangModalVisible(false);
+    setAddKandangModalVisible(false);
     // setViewKandangModalVisible(false)
-  }
+  };
 
   const handleAddKandang = () => {
-    setAddKandangModalVisible(true)
-  }
+    setAddKandangModalVisible(true);
+  };
 
-  const handleAddKandangOk = (values, form) => {
-    setAddKandangModalLoading(true)
+  const handleAddKandangOk = async (values) => {
+    setAddKandangModalLoading(true);
     const kandangData = {
-      idKandang: values.idKandang,
-      peternak_id: values.peternak_id,
-      luas: values.luas + ' m2',
-      jenis_id: values.jenis_id,
-      kapasitas: values.kapasitas + ' ekor',
-      nilaiBangunan: 'Rp. ' + values.nilaiBangunan,
+      idPeternak: values.idPeternak,
+      idJenisHewan: values.idJenisHewan,
+      luas: values.luas + " m2",
+      kapasitas: values.kapasitas + " ekor",
+      nilaiBangunan: "Rp. " + values.nilaiBangunan,
       alamat: values.alamat,
       latitude: values.latitude,
       longitude: values.longitude,
       namaKandang: values.namaKandang,
       jenisKandang: values.jenisKandang,
       file: values.file,
-    }
+    };
 
-    addKandang(kandangData)
-      .then(() => {
-        form.resetFields()
-        setAddKandangModalVisible(false)
-        setAddKandangModalLoading(false)
-        message.success('Berhasil menambahkan!')
-        getKandangData()
-      })
-      .catch((e) => {
-        setAddKandangModalVisible(false)
-        setAddKandangModalLoading(false)
-        message.error('Gagal menambahkan, harap coba lagi!')
-      })
-  }
+    try {
+      await addKandang(kandangData);
+      setAddKandangModalVisible(false);
+      setAddKandangModalLoading(false);
+      message.success("Berhasil menambahkan!");
+      getKandangData();
+      console.log("berhasil menambahkan!");
+    } catch (e) {
+      setAddKandangModalVisible(false);
+      setAddKandangModalLoading(false);
+      message.error("Gagal menambahkan, harap coba lagi!");
+      console.log("error", e);
+    }
+  };
 
   const renderColumns = () => {
     const baseColumns = [
-      { title: 'Id Kandang', dataIndex: 'idKandang', key: 'idKandang' },
-      { title: 'Nama Pemilik Kandang', dataIndex: ['peternak', 'namaPeternak'], key: 'namaPeternak' },
-      { title: 'Nama Kandang', dataIndex: 'namaKandang', key: 'namaKandang' },
-      { title: 'Jenis Kandang', dataIndex: 'jenisKandang', key: 'jenisKandang' },
-      { title: 'Luas', dataIndex: 'luas', key: 'luas' },
-      { title: 'Kapasitas', dataIndex: 'kapasitas', key: 'kapasitas' },
+      { title: "Id Kandang", dataIndex: "idKandang", key: "idKandang" },
+      { title: "Nama Pemilik Kandang", dataIndex: ["peternak", "namaPeternak"], key: "namaPeternak" },
+      { title: "Nama Kandang", dataIndex: "namaKandang", key: "namaKandang" },
+      { title: "Jenis Kandang", dataIndex: "jenisKandang", key: "jenisKandang" },
+      { title: "Jenis Hewan", dataIndex: ["jenisHewan", "jenis"], key: "jenis" },
+      { title: "Luas", dataIndex: "luas", key: "luas" },
+      { title: "Kapasitas", dataIndex: "kapasitas", key: "kapasitas" },
       {
-        title: 'Nilai Bangunan',
-        dataIndex: 'nilaiBangunan',
-        key: 'nilaiBangunan',
+        title: "Nilai Bangunan",
+        dataIndex: "nilaiBangunan",
+        key: "nilaiBangunan",
       },
-      { title: 'Alamat', dataIndex: 'alamat', key: 'alamat' },
-      { title: 'Latitude', dataIndex: 'latitude', key: 'latitude' },
-      { title: 'Longitude', dataIndex: 'longitude', key: 'longitude' },
+      { title: "Alamat", dataIndex: "alamat", key: "alamat" },
+      { title: "Latitude", dataIndex: "latitude", key: "latitude" },
+      { title: "Longitude", dataIndex: "longitude", key: "longitude" },
       {
-        title: 'Foto Kandang',
-        dataIndex: 'file_path',
-        key: 'file_path',
-        render: (text, row) => (
-          <img
-            src={`${imgUrl + '/kandang/' + row.file_path}`}
-            alt="Foto Kandang"
-            width={200}
-            height={150}
-          />
-        ),
+        title: "Foto Kandang",
+        dataIndex: "file_path",
+        key: "file_path",
+        render: (text, row) => <img src={`${imgUrl + "/kandang/" + row.file_path}`} alt="Foto Kandang" width={200} height={150} />,
       },
-    ]
+    ];
 
-    if (
-      user &&
-      (user.role === 'ROLE_ADMINISTRATOR' || user.role === 'ROLE_PETUGAS')
-    ) {
+    if (user && (user.role === "ROLE_ADMINISTRATOR" || user.role === "ROLE_PETUGAS")) {
       baseColumns.push({
-        title: 'Operasi',
-        key: 'action',
+        title: "Operasi",
+        key: "action",
         width: 170,
-        align: 'center',
+        align: "center",
         render: (text, row) => (
           <span>
-            <Button
-              type="primary"
-              shape="circle"
-              icon={<EditOutlined />}
-              title="Edit"
-              onClick={() => handleEditKandang(row)}
-            />
+            <Button type="primary" shape="circle" icon={<EditOutlined />} title="Edit" onClick={() => handleEditKandang(row)} />
             <Divider type="vertical" />
-            <Button
-              danger
-              type="primary"
-              shape="circle"
-              icon={<DeleteOutlined />}
-              title="Delete"
-              onClick={() => handleDeleteKandang(row)}
-            />
+            <Button danger type="primary" shape="circle" icon={<DeleteOutlined />} title="Delete" onClick={() => handleDeleteKandang(row)} />
             {/* Tambahkan tombol view jika diperlukan */}
             {/* <Divider type="vertical" />
             <Button
@@ -513,44 +423,24 @@ const Kandang = () => {
             /> */}
           </span>
         ),
-      })
+      });
     }
 
-    return baseColumns
-  }
+    return baseColumns;
+  };
 
   const renderTable = () => {
-    if (user && user.role === 'ROLE_PETERNAK') {
-      return (
-        <Table
-          dataSource={kandangs}
-          bordered
-          columns={renderColumns()}
-          rowKey="idKandang"
-        />
-      )
-    } else if (
-      user &&
-      (user.role === 'ROLE_ADMINISTRATOR' || user.role === 'ROLE_PETUGAS')
-    ) {
-      return (
-        <Table
-          dataSource={kandangs}
-          bordered
-          columns={renderColumns()}
-          rowKey="idKandang"
-        />
-      )
+    if (user && user.role === "ROLE_PETERNAK") {
+      return <Table dataSource={kandangs} bordered columns={renderColumns()} rowKey="idKandang" />;
+    } else if (user && (user.role === "ROLE_ADMINISTRATOR" || user.role === "ROLE_PETUGAS")) {
+      return <Table dataSource={kandangs} bordered columns={renderColumns()} rowKey="idKandang" />;
     } else {
-      return null
+      return null;
     }
-  }
+  };
 
   const renderButtons = () => {
-    if (
-      user &&
-      (user.role === 'ROLE_ADMINISTRATOR' || user.role === 'ROLE_PETUGAS')
-    ) {
+    if (user && (user.role === "ROLE_ADMINISTRATOR" || user.role === "ROLE_PETUGAS")) {
       return (
         <Row gutter={[16, 16]} justify="start" style={{ paddingLeft: 9 }}>
           <Col xs={24} sm={12} md={8} lg={8} xl={8}>
@@ -559,11 +449,7 @@ const Kandang = () => {
             </Button>
           </Col>
           <Col xs={24} sm={12} md={8} lg={8} xl={8}>
-            <Button
-              icon={<UploadOutlined />}
-              onClick={handleImportModalOpen}
-              block
-            >
+            <Button icon={<UploadOutlined />} onClick={handleImportModalOpen} block>
               Import File
             </Button>
           </Col>
@@ -573,51 +459,32 @@ const Kandang = () => {
             </Button>
           </Col>
         </Row>
-      )
+      );
     } else {
-      return null
+      return null;
     }
-  }
+  };
 
   const title = (
     <Row gutter={[16, 16]} justify="space-between">
       {renderButtons()}
       <Col xs={24} sm={12} md={8} lg={8} xl={8}>
-        <Input
-          placeholder="Cari data"
-          value={searchKeyword}
-          onChange={(e) => handleSearch(e.target.value)}
-          style={{ width: '100%' }}
-        />
+        <Input placeholder="Cari data" value={searchKeyword} onChange={(e) => handleSearch(e.target.value)} style={{ width: "100%" }} />
       </Col>
     </Row>
-  )
+  );
 
-  const cardContent = `Di sini, Anda dapat mengelola daftar kandang di sistem.`
+  const cardContent = `Di sini, Anda dapat mengelola daftar kandang di sistem.`;
 
   return (
     <div className="app-container">
       <TypingCard title="Manajemen Data Kandang" source={cardContent} />
       <br />
-      <Card title={title} style={{ overflowX: 'scroll' }}>
-        {renderTable()}
-      </Card>
-      <EditKandangForm
-        currentRowData={currentRowData}
-        wrappedComponentRef={editKandangFormRef}
-        visible={editKandangModalVisible}
-        confirmLoading={editKandangModalLoading}
-        onCancel={handleCancel}
-        onOk={handleEditKandangOk}
-      />
+      <Card>{title}</Card>
+      <Card style={{ overflowX: "scroll" }}>{renderTable()}</Card>
+      <EditKandangForm currentRowData={currentRowData} wrappedComponentRef={editKandangFormRef} visible={editKandangModalVisible} confirmLoading={editKandangModalLoading} onCancel={handleCancel} onOk={handleEditKandangOk} />
 
-      <AddKandangForm
-        wrappedComponentRef={addKandangFormRef}
-        visible={addKandangModalVisible}
-        confirmLoading={addKandangModalLoading}
-        onCancel={handleCancel}
-        onOk={handleAddKandangOk}
-      />
+      <AddKandangForm wrappedComponentRef={addKandangFormRef} visible={addKandangModalVisible} confirmLoading={addKandangModalLoading} onCancel={handleCancel} onOk={handleAddKandangOk} />
 
       {/* <ViewKandangForm
         currentRowData={currentRowData}
@@ -633,12 +500,7 @@ const Kandang = () => {
           <Button key="cancel" onClick={handleImportModalClose}>
             Cancel
           </Button>,
-          <Button
-            key="upload"
-            type="primary"
-            loading={uploading}
-            onClick={handleUpload}
-          >
+          <Button key="upload" type="primary" loading={uploading} onClick={handleUpload}>
             Upload
           </Button>,
         ]}
@@ -648,7 +510,7 @@ const Kandang = () => {
         </Upload>
       </Modal>
     </div>
-  )
-}
+  );
+};
 
-export default Kandang
+export default Kandang;

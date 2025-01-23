@@ -23,16 +23,24 @@ export function getJenisVaksin() {
 }
 
 export function editJenisVaksin(data, id) {
-  const formData = new FormData();
-  formData.append("namaVaksin", data.jenis);
-  formData.append("deskripsi", data.deskripsi);
-
   return request({
     url: `/jenisvaksin/${id}`,
     method: "put",
-    data: formData,
+    data,
   });
 }
+
+// export function editJenisVaksin(data, id) {
+//   const formData = new FormData();
+//   formData.append("namaVaksin", data.jenis);
+//   formData.append("deskripsi", data.deskripsi);
+
+//   return request({
+//     url: `/jenisvaksin/${id}`,
+//     method: "put",
+//     data: formData,
+//   });
+// }
 
 export function deleteJenisVaksin(data) {
   return request({
