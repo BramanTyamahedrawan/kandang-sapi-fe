@@ -164,17 +164,15 @@ const Peternak = () => {
             cancelText: "Tidak",
             onOk: async () => {
               try {
-                await deletePeternak({ idPeternak });
-
+                await deletePeternak( idPeternak );
                 fetchPeternaks();
               } catch (error) {
                 console.error("Error deleting peternak:", error);
                 message.error("Gagal menghapus peternak.");
               }
-
               try {
-                await deleteUser({ userId });
-
+                await deleteUser( userId );
+                message.success("berhasil menghapus data peternak");
               } catch (error) {
                 console.error("Error deleting user:", error);
                 message.error("Gagal menghapus user.");
