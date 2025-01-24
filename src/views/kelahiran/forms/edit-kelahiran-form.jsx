@@ -40,14 +40,21 @@ const EditKelahiranForm = ({
         idKejadian: currentRowData.idKejadian,
         tanggalLaporan: currentRowData.tanggalLaporan,
         tanggalLahir: currentRowData.tanggalLahir,
-        peternak_id: currentRowData.peternak?.idPeternak,
-        hewan_id: currentRowData.hewan?.kodeEartagNasional,
-        inseminasi_id: currentRowData.inseminasi?.idInseminasi,
+        noKartuTernakAnak: currentRowData.noKartuTernakAnak,
         eartagAnak: currentRowData.eartagAnak,
         jenisKelaminAnak: currentRowData.jenisKelaminAnak,
+        idHewanAnak: currentRowData.idHewanAnak,
+        jumlah: currentRowData.jumlah,
+        urutanIB: currentRowData.urutanIB,
         spesies: currentRowData.spesies,
-        kandang_id: currentRowData.kandang?.idKandang,
-        petugas_id: currentRowData.petugas?.nikPetugas,
+        kategori: currentRowData.kategori,
+        idKandang: currentRowData.kandang?.idKandang,
+        petugasId: currentRowData.petugas?.petugasId,
+        idPeternak: currentRowData.peternak?.idPeternak,
+        idHewan: currentRowData.hewan?.idHewan,
+        idInseminasi: currentRowData.inseminasi?.idInseminasi,
+        idRumpunHewan: currentRowData.rumpunHewan?.idRumpunHewan,
+        idJenisHewan: currentRowData.jenisHewan?.idJenisHewan,
       });
     }
   }, [currentRowData, form]);
@@ -164,17 +171,17 @@ const EditKelahiranForm = ({
             <Form.Item
               name="idKejadian"
               label="ID Kejadian:"
-              initialValue={currentRowData?.idKejadian}
+              // initialValue={currentRowData?.idKejadian}
               rules={[{ required: true, message: "Silahkan isi ID kejadian!" }]}
             >
-              <Input placeholder="Masukkan ID kejadian" />
+              <Input disabled />
             </Form.Item>
           </Col>
           <Col xs={24} sm={24} md={12}>
             <Form.Item
               name="tanggalLaporan"
               label="Tanggal Laporan:"
-              initialValue={currentRowData?.tanggalLaporan}
+              // initialValue={currentRowData?.tanggalLaporan}
             >
               <Input type="date" placeholder="Masukkan tanggal laporan" />
             </Form.Item>
@@ -183,7 +190,7 @@ const EditKelahiranForm = ({
             <Form.Item
               name="tanggalLahir"
               label="Tanggal Lahir:"
-              initialValue={currentRowData?.tanggalLahir}
+              // initialValue={currentRowData?.tanggalLahir}
             >
               <Input type="date" placeholder="Masukkan tanggal lahir" />
             </Form.Item>
@@ -192,7 +199,7 @@ const EditKelahiranForm = ({
             <Form.Item
               name="idPeternak"
               label="Nama Peternak:"
-              initialValue={currentRowData?.peternak?.idPeternak}
+              // initialValue={currentRowData?.peternak?.idPeternak}
               rules={[
                 { required: true, message: "Silahkan isi nama peternak!" },
               ]}
@@ -210,7 +217,7 @@ const EditKelahiranForm = ({
             <Form.Item
               name="idHewan"
               label="Eartag Induk:"
-              initialValue={currentRowData?.hewan?.kodeEartagNasional}
+              // initialValue={currentRowData?.hewan?.kodeEartagNasional}
             >
               <Select placeholder="Pilih Kode Ternak Induk">
                 {hewanList.map(({ idHewan, kodeEartagNasional }) => (
@@ -225,7 +232,7 @@ const EditKelahiranForm = ({
             <Form.Item
               name="idHewan"
               label="Kartu Ternak Induk:"
-              initialValue={currentRowData?.hewan?.noKartuTernak}
+              // initialValue={currentRowData?.hewan?.noKartuTernak}
             >
               <Select placeholder="PilihKartu Ternak Induk">
                 {hewanList.map(({ idHewan, noKartuTernak }) => (
@@ -240,7 +247,7 @@ const EditKelahiranForm = ({
             <Form.Item
               name="idInseminasi"
               label="ID Pejantan"
-              initialValue={currentRowData?.inseminasi?.idInseminasi}
+              // initialValue={currentRowData?.inseminasi?.idInseminasi}
             >
               <Select placeholder="Pilih Inseminasi" allowClear>
                 {inseminasiList.map(({ idInseminasi, idPejantan }) => (
@@ -255,7 +262,7 @@ const EditKelahiranForm = ({
             <Form.Item
               name="idInseminasi"
               label="ID Inseminasi"
-              initialValue={currentRowData?.inseminasi?.idInseminasi}
+              // initialValue={currentRowData?.inseminasi?.idInseminasi}
             >
               <Select placeholder="Pilih Inseminasi" allowClear>
                 {inseminasiList.map(({ idInseminasi, bangsaPejantan }) => (
@@ -270,7 +277,7 @@ const EditKelahiranForm = ({
             <Form.Item
               name="idInseminasi"
               label="ID Pembuatan"
-              initialValue={currentRowData?.inseminasi?.idInseminasi}
+              // initialValue={currentRowData?.inseminasi?.idInseminasi}
             >
               <Select placeholder="Pilih Inseminasi" allowClear>
                 {inseminasiList.map(({ idInseminasi, idPembuatan }) => (
@@ -285,7 +292,7 @@ const EditKelahiranForm = ({
             <Form.Item
               name="idInseminasi"
               label="Produsen"
-              initialValue={currentRowData?.inseminasi?.idInseminasi}
+              // initialValue={currentRowData?.inseminasi?.idInseminasi}
             >
               <Select placeholder="Pilih Inseminasi" allowClear>
                 {inseminasiList.map(({ idInseminasi, produsen }) => (
@@ -300,7 +307,7 @@ const EditKelahiranForm = ({
             <Form.Item
               name="idHewanAnak"
               label="ID Hewan Anak:"
-              initialValue={currentRowData?.idHewanAnak}
+              // initialValue={currentRowData?.idHewanAnak}
               rules={[
                 { required: true, message: "Silahkan isi ID Hewan Anak" },
               ]}
@@ -312,7 +319,7 @@ const EditKelahiranForm = ({
             <Form.Item
               name="noKartuTernakAnak"
               label="No Kartu Ternak Anak:"
-              initialValue={currentRowData?.noKartuTernakAnak}
+              // initialValue={currentRowData?.noKartuTernakAnak}
             >
               <Input placeholder="Masukkan No Kartu Ternak Anak" />
             </Form.Item>
@@ -321,7 +328,7 @@ const EditKelahiranForm = ({
             <Form.Item
               name="eartagAnak"
               label="Eartag Anak:"
-              initialValue={currentRowData?.eartagAnak}
+              // initialValue={currentRowData?.eartagAnak}
             >
               <Input placeholder="Masukkan Eartag" />
             </Form.Item>
@@ -330,7 +337,7 @@ const EditKelahiranForm = ({
             <Form.Item
               name="jenisKelaminAnak"
               label="Jenis Kelamin Anak:"
-              initialValue={currentRowData?.jenisKelaminAnak}
+              // initialValue={currentRowData?.jenisKelaminAnak}
             >
               <Select>
                 <Option value="Betina">Betina</Option>
@@ -342,7 +349,7 @@ const EditKelahiranForm = ({
             <Form.Item
               name="idRumpunHewan"
               label="Species"
-              initialValue={currentRowData?.spesies}
+              // initialValue={currentRowData?.spesies}
             >
               <Select
                 placeholder="Pilih Spesies"
@@ -367,12 +374,15 @@ const EditKelahiranForm = ({
                 ))}
               </Select>
             </Form.Item>
+            <Form.Item name="spesies" style={{ display: "none" }}>
+              <Input />
+            </Form.Item>
           </Col>
           <Col xs={24} sm={24} md={12}>
             <Form.Item
               name="idJenisHewan"
               label="Kategori"
-              initialValue={currentRowData?.spesies}
+              // initialValue={currentRowData?.spesies}
             >
               <Select
                 placeholder="Pilih Kategori"
@@ -397,12 +407,15 @@ const EditKelahiranForm = ({
                 ))}
               </Select>
             </Form.Item>
+            <Form.Item name="kategori" style={{ display: "none" }}>
+              <Input />
+            </Form.Item>
           </Col>
           <Col xs={24} sm={24} md={12}>
             <Form.Item
               name="idKandang"
               label="Kandang"
-              initialValue={currentRowData?.kandang?.idKandang}
+              // initialValue={currentRowData?.kandang?.idKandang}
               rules={[{ required: true, message: "Silahkan isi ID Kandang" }]}
             >
               <Select placeholder="Pilih ID Kandang">
@@ -416,12 +429,14 @@ const EditKelahiranForm = ({
           </Col>
           <Col xs={24} sm={24} md={12}>
             <Form.Item
+              label="Petugas Pelapor"
               name="petugasId"
-              label="Petugas Pelapor:"
-              initialValue={currentRowData?.petugas?.nikPetugas}
-              rules={[{ required: true, message: "Silahkan isi Inseminator" }]}
+              // initialValue={currentRowData?.petugas?.petugasId}
+              rules={[
+                { required: true, message: "Silahkan pilih Petugas Pelapor" },
+              ]}
             >
-              <Select placeholder="Pilih Petugas">
+              <Select placeholder="Pilih Petugas Pelapor">
                 {petugasList.map(({ petugasId, namaPetugas }) => (
                   <Option key={petugasId} value={petugasId}>
                     {namaPetugas}
@@ -434,7 +449,7 @@ const EditKelahiranForm = ({
             <Form.Item
               name="jumlah"
               label="jumlah"
-              initialValue={currentRowData?.jumlah}
+              // initialValue={currentRowData?.jumlah}
             >
               <Input placeholder="Masukkan Jumlah" />
             </Form.Item>
@@ -443,7 +458,7 @@ const EditKelahiranForm = ({
             <Form.Item
               name="urutanIB"
               label="Urutan IB"
-              initialValue={currentRowData?.urutanIB}
+              // initialValue={currentRowData?.urutanIB}
             >
               <Input placeholder="Masukkan Urutan IB" />
             </Form.Item>

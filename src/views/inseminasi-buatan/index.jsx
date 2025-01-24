@@ -400,6 +400,7 @@ const InseminasiBuatan = () => {
   const handleEditInseminasiOk = async (values) => {
     setEditInseminasiModalLoading(true);
     try {
+      console.log("Data Inseminasi:", values);
       await editInseminasi(values, currentRowData.idInseminasi);
       setEditInseminasiModalVisible(false);
       setEditInseminasiModalLoading(false);

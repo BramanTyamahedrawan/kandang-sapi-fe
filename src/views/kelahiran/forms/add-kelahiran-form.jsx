@@ -301,6 +301,9 @@ const AddKelahiranForm = ({ visible, onCancel, onOk, confirmLoading }) => {
                 ))}
               </Select>
             </Form.Item>
+            <Form.Item name="spesies" style={{ display: "none" }}>
+              <Input />
+            </Form.Item>
           </Col>
           <Col xs={24} sm={24} md={12}>
             <Form.Item name="idJenisHewan" label="Kategori">
@@ -326,6 +329,9 @@ const AddKelahiranForm = ({ visible, onCancel, onOk, confirmLoading }) => {
                   </Select.Option>
                 ))}
               </Select>
+            </Form.Item>
+            <Form.Item name="kategori" style={{ display: "none" }}>
+              <Input />
             </Form.Item>
           </Col>
           <Col xs={24} sm={24} md={12}>

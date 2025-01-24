@@ -313,48 +313,44 @@ const Kelahiran = () => {
       const result = await getKelahiran();
       const { content, statusCode } = result.data;
       if (statusCode === 200) {
-        const filteredKelahiran = content.filter((kelahirans) => {
+        const filteredKelahiran = content.filter((kelahiran) => {
           const {
             idKejadian,
             tanggalLaporan,
             tanggalLahir,
             idPeternak,
-            kartuTernakInduk,
-            kartuTernakAnak,
-            eartagInduk,
-            eartagAnak,
-            kodeEartagNasional,
-            idHewanAnak,
-            spesiesInduk,
-            spesiesPejantan,
-            idPejantanStraw,
-            idBatchStraw,
-            jenisKelaminAnak,
+            petugasId,
+            idKandang,
+            idJenisHewan,
+            idRumpunHewan,
             kategori,
-            petugasPelapor,
-            produsenStraw,
-          } = kelahirans;
-          const keyword = searchKeyword.toLowerCase();
+            jumlah,
+            idHewanAnak,
+            eartagAnak,
+            jenisKelaminAnak,
+            noKartuTernakAnak,
+            spesies,
+            urutanIB,
+          } = kelahiran;
+          const keyword = searchKeyword?.toLowerCase();
 
           return (
-            idKejadian.toLowerCase().includes(keyword) ||
-            tanggalLaporan.toLowerCase().includes(keyword) ||
-            tanggalLahir.toLowerCase().includes(keyword) ||
-            idPeternak.toLowerCase().includes(keyword) ||
-            kartuTernakInduk.toLowerCase().includes(keyword) ||
-            kartuTernakAnak.toLowerCase().includes(keyword) ||
-            eartagInduk.toLowerCase().includes(keyword) ||
-            eartagAnak.toLowerCase().includes(keyword) ||
-            kodeEartagNasional.toLowerCase().includes(keyword) ||
-            idHewanAnak.toLowerCase().includes(keyword) ||
-            spesiesInduk.toLowerCase().includes(keyword) ||
-            spesiesPejantan.toLowerCase().includes(keyword) ||
-            idPejantanStraw.toLowerCase().includes(keyword) ||
-            idBatchStraw.toLowerCase().includes(keyword) ||
-            jenisKelaminAnak.toLowerCase().includes(keyword) ||
-            kategori.toLowerCase().includes(keyword) ||
-            petugasPelapor.toLowerCase().includes(keyword) ||
-            produsenStraw.toLowerCase().includes(keyword)
+            idKejadian?.toLowerCase()?.includes(keyword) ||
+            tanggalLaporan?.toLowerCase()?.includes(keyword) ||
+            tanggalLahir?.toLowerCase()?.includes(keyword) ||
+            kategori?.toLowerCase()?.includes(keyword) ||
+            jumlah?.toString().toLowerCase()?.includes(keyword) ||
+            idHewanAnak?.toLowerCase()?.includes(keyword) ||
+            eartagAnak?.toLowerCase()?.includes(keyword) ||
+            jenisKelaminAnak?.toLowerCase()?.includes(keyword) ||
+            noKartuTernakAnak?.toLowerCase()?.includes(keyword) ||
+            spesies?.toLowerCase()?.includes(keyword) ||
+            urutanIB?.toString().toLowerCase()?.includes(keyword) ||
+            idPeternak?.toLowerCase()?.includes(keyword) ||
+            petugasId?.toLowerCase()?.includes(keyword) ||
+            idKandang?.toLowerCase()?.includes(keyword) ||
+            idJenisHewan?.toLowerCase()?.includes(keyword) ||
+            idRumpunHewan?.toLowerCase()?.includes(keyword)
           );
         });
 
@@ -408,9 +404,8 @@ const Kelahiran = () => {
     getKelahiranData();
   };
 
-  const handleEditKelahiran = (row) => {
-    setCurrentRowData({ ...row });
-    setEditKelahiranModalVisible(true);
+  const handleAddKelahiran = () => {
+    setAddKelahiranModalVisible(true);
   };
 
   const handleAddKelahiranOk = async (values) => {
@@ -448,10 +443,16 @@ const Kelahiran = () => {
     });
   };
 
+  const handleEditKelahiran = (row) => {
+    setCurrentRowData({ ...row });
+    setEditKelahiranModalVisible(true);
+  };
+
   const handleEditKelahiranOk = async (values) => {
     setEditKelahiranModalLoading(true);
     try {
-      await editKelahiran(values);
+      console.log("Edit Kelahiran Values:", values);
+      await editKelahiran(values, currentRowData.idKejadian);
       setEditKelahiranModalVisible(false);
       setEditKelahiranModalLoading(false);
       message.success("Berhasil diubah!");
@@ -462,13 +463,10 @@ const Kelahiran = () => {
     }
   };
 
-  const handleCancel = (_) => {
+  const handleCancel = () => {
     setEditKelahiranModalVisible(false);
     setAddKelahiranModalVisible(false);
-  };
-
-  const handleAddKelahiran = () => {
-    setAddKelahiranModalVisible(true);
+    setImportModalVisible(false);
   };
 
   const handleImportModalOpen = () => {
@@ -623,8 +621,9 @@ const Kelahiran = () => {
           const dataRumpunHewan = {
             idRumpunHewan:
               row[columnMapping["ID Rumpun Hewan"]] || generateIdRumpunHewan,
-            rumpun: row[columnMapping["Spesies Induk"]],
-            deskripsi: "Deskripsi " + dataRumpunHewan.rumpun || "-",
+            rumpun: row[columnMapping["Spesies Induk"]] || "-",
+            deskripsi:
+              "Deskripsi " + row[columnMapping["Spesies Induk"]] || "-",
           };
           rumpunHewanBulk.push(dataRumpunHewan);
           uniqueData.set(row[columnMapping["Spesies Induk"]], true);
@@ -634,8 +633,8 @@ const Kelahiran = () => {
           const dataJenisHewan = {
             idJenisHewan:
               row[columnMapping["ID Jenis Hewan"]] || generateIdJenisHewan,
-            jenis: row[columnMapping["kategori"]],
-            deskripsi: "Deskripsi " + dataJenisHewan.jenis || "-",
+            jenis: row[columnMapping["kategori"]] || "-",
+            deskripsi: "Deskripsi " + row[columnMapping["kategori"]] || "-",
           };
           jenisHewanBulk.push(dataJenisHewan);
           uniqueData.set(row[columnMapping["kategori"]], true);
@@ -793,6 +792,7 @@ const Kelahiran = () => {
           jenisKelaminAnak: row[columnMapping["Jenis Kelamin Anak"]] || "_",
           nikPetugas: uniqueData.get(namaPetugasPelapor).nikPetugas,
           namaPetugas: uniqueData.get(namaPetugasPelapor).namaPetugas,
+          petugasId: uniqueData.get(namaPetugasPelapor).petugasId,
           jenis: row[columnMapping["kategori"]] || "-",
           rumpun: row[columnMapping["Spesies Induk"]] || "-",
           urutanIB: row[columnMapping["urutan_ib"]] || "_",
@@ -1014,10 +1014,25 @@ const Kelahiran = () => {
 
   const renderTable = () => {
     if (user && user.role === "ROLE_PETERNAK") {
-      return <Table dataSource={kelahirans} bordered columns={renderColumns} />;
-    } else if ((user && user.role === "ROLE_ADMINISTRATOR") || "ROLE_PETUGAS") {
       return (
-        <Table dataSource={kelahirans} bordered columns={renderColumns()} />
+        <Table
+          dataSource={kelahirans}
+          bordered
+          columns={renderColumns}
+          rowKey="idKejadian"
+        />
+      );
+    } else if (
+      user &&
+      (user.role === "ROLE_ADMINISTRATOR" || user.role === "ROLE_PETUGAS")
+    ) {
+      return (
+        <Table
+          dataSource={kelahirans}
+          bordered
+          columns={renderColumns()}
+          rowKey="idKejadian"
+        />
       );
     } else {
       return null;
@@ -1071,13 +1086,16 @@ const Kelahiran = () => {
     </Row>
   );
 
-  const { role } = user ? user.role : "";
-  console.log("peran pengguna:", role);
-  const cardContent = `Di sini, Anda dapat mengelola daftar kelahirans di sistem.`;
+  // const { role } = user ? user.role : "";
+  // console.log("peran pengguna:", role);
+  // const cardContent = `Di sini, Anda dapat mengelola daftar kelahirans di sistem.`;
 
   return (
     <div className="app-container">
-      <TypingCard title="Manajemen Kelahiran" source={cardContent} />
+      <TypingCard
+        title="Manajemen Kelahiran"
+        source="Di sini, Anda dapat mengelola daftar kelahirans di sistem."
+      />
       <br />
       <Card title={title} style={{ overflowX: "scroll" }}>
         {renderTable()}
