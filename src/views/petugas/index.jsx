@@ -4,30 +4,10 @@
  * @format
  */
 
-import {
-  addPetugas,
-  deletePetugas,
-  editPetugas,
-  getPetugas,
-} from "@/api/petugas";
+import { addPetugas, deletePetugas, editPetugas, getPetugas } from "@/api/petugas";
 import TypingCard from "@/components/TypingCard";
-import {
-  DeleteOutlined,
-  EditOutlined,
-  UploadOutlined,
-} from "@ant-design/icons";
-import {
-  Button,
-  Card,
-  Col,
-  Divider,
-  Input,
-  message,
-  Modal,
-  Row,
-  Table,
-  Upload,
-} from "antd";
+import { DeleteOutlined, DownloadOutlined, EditOutlined, UploadOutlined } from "@ant-design/icons";
+import { Button, Card, Col, Divider, Input, message, Modal, Row, Table, Upload } from "antd";
 import React, { useEffect, useRef, useState } from "react";
 import { read, utils } from "xlsx";
 import { reqUserInfo } from "../../api/user";
@@ -79,7 +59,7 @@ const Petugas = () => {
           // const isEmailValid = typeof email === "string";
 
           return (
-            (isPetugasIdValid && petugasId.toLowerCase().includes(keyword)) 
+            isPetugasIdValid && petugasId.toLowerCase().includes(keyword)
             // (isNikPetugasValid && nikPetugas.toLowerCase().includes(keyword)) ||
             // (isNamaPetugasValid &&
             //   namaPetugas.toLowerCase().includes(keyword)) |
@@ -162,7 +142,7 @@ const Petugas = () => {
         .then((values) => {
           setEditPetugasModalLoading(true);
           console.log("Data diterima:", values);
-          editPetugas(values, currentRowData.petugasId) 
+          editPetugas(values, currentRowData.petugasId)
             .then((response) => {
               console.log("Data berhasil diperbarui");
               form.resetFields();
@@ -244,16 +224,16 @@ const Petugas = () => {
     try {
       for (const row of importedData) {
         const dataToSave = {
-          nikPetugas: row[columnMappingLocal["NIK Petugas Pendataan*)"]],
-          namaPetugas: row[columnMappingLocal["Nama Petugas Pendataan*)"]],
-          noTelp: row[columnMappingLocal["No. Telp Petugas Pendataan*)"]],
-          email: row[columnMappingLocal["Email Petugas Pendataan"]],
+          nikPetugas: row[columnMappingLocal["NIK Petugas"]],
+          namaPetugas: row[columnMappingLocal["Nama Petugas"]],
+          noTelp: row[columnMappingLocal["No. Telp Petugas"]],
+          email: row[columnMappingLocal["Email Petugas"]],
+          wilayah: row[columnMappingLocal["Wilayah"]],
+          job: row[columnMappingLocal["Job"]],
         };
 
         // Check if data already exists
-        const existingPetugasIndex = petugas.findIndex(
-          (p) => p.nikPetugas === dataToSave.nikPetugas
-        );
+        const existingPetugasIndex = petugas.findIndex((p) => p.nikPetugas === dataToSave.nikPetugas);
 
         try {
           if (existingPetugasIndex > -1) {
@@ -290,18 +270,40 @@ const Petugas = () => {
     }
   };
 
+  const handleDownloadCSV = () => {
+    const csvContent = convertHeaderToCSV();
+    downloadFormatCSV(csvContent);
+  };
+
+  const convertHeaderToCSV = () => {
+    const columnTitlesLocal = ["NIK Petugas", "Nama Petugas", "No. Telp Petugas", "Email Petugas", "Wilayah", "Job"];
+    const rows = [columnTitlesLocal];
+    let csvContent = "data:text/csv;charset=utf-8,";
+    rows.forEach((rowArray) => {
+      const row = rowArray.join(";");
+      csvContent += row + "\r\n";
+    });
+
+    return csvContent;
+  };
+
+  const downloadFormatCSV = (csvContent) => {
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement("a");
+    link.setAttribute("href", encodedUri);
+    link.setAttribute("download", "format_petugas.csv");
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
   const handleExportData = () => {
     const csvContent = convertToCSV(petugas);
     downloadCSV(csvContent);
   };
 
   const convertToCSV = (data) => {
-    const columnTitlesLocal = [
-      "NIK Petugas",
-      "Nama Petugas",
-      "No. Telp Petugas",
-      "Email Petugas",
-    ];
+    const columnTitlesLocal = ["NIK Petugas", "Nama Petugas", "No. Telp Petugas", "Email Petugas", "Job"];
 
     const rows = [columnTitlesLocal];
     data.forEach((item) => {
@@ -349,22 +351,9 @@ const Petugas = () => {
         align: "center",
         render: (text, row) => (
           <span>
-            <Button
-              type='primary'
-              shape='circle'
-              icon={<EditOutlined />}
-              title='Edit'
-              onClick={() => handleEditPetugas(row)}
-            />
-            <Divider type='vertical' />
-            <Button
-              danger
-              type='primary'
-              shape='circle'
-              icon={<DeleteOutlined />}
-              title='Delete'
-              onClick={() => handleDeletePetugas(row)}
-            />
+            <Button type="primary" shape="circle" icon={<EditOutlined />} title="Edit" onClick={() => handleEditPetugas(row)} />
+            <Divider type="vertical" />
+            <Button danger type="primary" shape="circle" icon={<DeleteOutlined />} title="Delete" onClick={() => handleDeletePetugas(row)} />
           </span>
         ),
       });
@@ -375,23 +364,9 @@ const Petugas = () => {
 
   const renderTable = () => {
     if (user && user.role === "ROLE_PETUGAS") {
-      return (
-        <Table
-          dataSource={petugas}
-          bordered
-          columns={renderColumns()}
-          rowKey='petugasId'
-        />
-      );
+      return <Table dataSource={petugas} bordered columns={renderColumns()} rowKey="petugasId" />;
     } else if (user && user.role === "ROLE_ADMINISTRATOR") {
-      return (
-        <Table
-          dataSource={petugas}
-          bordered
-          columns={renderColumns()}
-          rowKey='petugasId'
-        />
-      );
+      return <Table dataSource={petugas} bordered columns={renderColumns()} rowKey="petugasId" />;
     } else {
       return null;
     }
@@ -400,23 +375,25 @@ const Petugas = () => {
   const renderButtons = () => {
     if (user && user.role === "ROLE_ADMINISTRATOR") {
       return (
-        <Row gutter={[16, 16]} justify='start' style={{ paddingLeft: 9 }}>
-          <Col xs={24} sm={12} md={8} lg={8} xl={8}>
-            <Button type='primary' onClick={handleAddPetugas} block>
+        <Row gutter={[16, 16]} justify="start" style={{ paddingLeft: 9 }}>
+          <Col>
+            <Button type="primary" onClick={handleAddPetugas} block>
               Tambah Petugas
             </Button>
           </Col>
-          <Col xs={24} sm={12} md={8} lg={8} xl={8}>
-            <Button
-              icon={<UploadOutlined />}
-              onClick={handleImportModalOpen}
-              block>
+          <Col>
+            <Button icon={<UploadOutlined />} onClick={handleImportModalOpen} block>
               Import File
             </Button>
           </Col>
-          <Col xs={24} sm={12} md={8} lg={8} xl={8}>
+          <Col>
+            <Button icon={<DownloadOutlined />} onClick={handleDownloadCSV} block>
+              Download Format CSV
+            </Button>
+          </Col>
+          <Col>
             <Button icon={<UploadOutlined />} onClick={handleExportData} block>
-              Export File
+              Export Data To CSV
             </Button>
           </Col>
         </Row>
@@ -427,15 +404,10 @@ const Petugas = () => {
   };
 
   const title = (
-    <Row gutter={[16, 16]} justify='space-between'>
+    <Row gutter={[16, 16]} justify="space-between">
       {renderButtons()}
       <Col xs={24} sm={12} md={8} lg={8} xl={8}>
-        <Input
-          placeholder='Cari data'
-          value={searchKeyword}
-          onChange={(e) => handleSearch(e.target.value)}
-          style={{ width: "100%" }}
-        />
+        <Input placeholder="Cari data" value={searchKeyword} onChange={(e) => handleSearch(e.target.value)} style={{ width: "100%" }} />
       </Col>
     </Row>
   );
@@ -443,8 +415,8 @@ const Petugas = () => {
   const cardContent = `Di sini, Anda dapat mengelola daftar petugas di sistem.`;
 
   return (
-    <div className='app-container'>
-      <TypingCard title='Manajemen Data Petugas' source={cardContent} />
+    <div className="app-container">
+      <TypingCard title="Manajemen Data Petugas" source={cardContent} />
       <br />
       <Card title={title} style={{ overflowX: "scroll" }}>
         {renderTable()}
@@ -457,29 +429,20 @@ const Petugas = () => {
         onCancel={() => setEditPetugasModalVisible(false)}
         onOk={handleEditPetugasOk}
       />
-      <AddPetugasForm
-        wrappedComponentRef={addPetugasFormRef}
-        visible={addPetugasModalVisible}
-        confirmLoading={addPetugasModalLoading}
-        onCancel={handleClosePetugas}
-        onOk={handleAddPetugasOk}
-      />
+      <AddPetugasForm wrappedComponentRef={addPetugasFormRef} visible={addPetugasModalVisible} confirmLoading={addPetugasModalLoading} onCancel={handleClosePetugas} onOk={handleAddPetugasOk} />
       <Modal
-        title='Import File'
+        title="Import File"
         visible={importModalVisible}
         onCancel={handleImportModalClose}
         footer={[
-          <Button key='cancel' onClick={handleImportModalClose}>
+          <Button key="cancel" onClick={handleImportModalClose}>
             Cancel
           </Button>,
-          <Button
-            key='upload'
-            type='primary'
-            loading={uploading}
-            onClick={handleUpload}>
+          <Button key="upload" type="primary" loading={uploading} onClick={handleUpload}>
             Upload
           </Button>,
-        ]}>
+        ]}
+      >
         <Upload beforeUpload={handleFileImport} showUploadList={false}>
           <Button icon={<UploadOutlined />}>Pilih File</Button>
         </Upload>

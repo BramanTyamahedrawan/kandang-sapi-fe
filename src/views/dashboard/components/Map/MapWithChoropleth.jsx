@@ -629,6 +629,9 @@ const MapWithChoropleth = () => {
                   </Descriptions.Item>
                   <Descriptions.Item label="Jenis Kandang">
                     {selectedKandang.jenisKandang || "-"}
+                    </Descriptions.Item>
+                  <Descriptions.Item label="Jenis Hewan">
+                    {selectedKandang.jenisHewan?.jenis || "-"}
                   </Descriptions.Item>
                   <Descriptions.Item label="Luas">
                     {selectedKandang.luas || "-"}

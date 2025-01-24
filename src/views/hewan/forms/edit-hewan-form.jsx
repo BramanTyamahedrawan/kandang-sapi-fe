@@ -277,7 +277,7 @@ const EditHewanForm = ({ visible, onCancel, onOk, confirmLoading, currentRowData
               <Select placeholder="Pilih Nama Kandang">
                 {kandangList.map((val) => (
                   <Option key={val.idKandang} value={val.idKandang}>
-                    {val.peternak != null ? `Kandang ${val.namaKandang} (${val.peternak.namaPeternak})` : `Kandang ${val.namaKandang}`}
+                    {val.peternak != null ? `${val.namaKandang} (${val.peternak.namaPeternak})` : `Kandang ${val.namaKandang}`}
                   </Option>
                 ))}
               </Select>

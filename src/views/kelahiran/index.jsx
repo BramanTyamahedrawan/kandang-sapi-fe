@@ -17,6 +17,7 @@ import {
   UploadOutlined,
   EditOutlined,
   DeleteOutlined,
+  DownloadOutlined,
 } from "@ant-design/icons";
 import {
   getKelahiran,
@@ -839,6 +840,54 @@ const Kelahiran = () => {
     }
   };
 
+  const handleDownloadCSV = () => {
+    const csvContent = convertHeaderToCSV();
+    downloadFormatCSV(csvContent);
+  };
+
+  const convertHeaderToCSV = () => {
+    const columnTitlesLocal = [
+      "id kejadian",
+      "Tanggal laporan",
+      "Tanggal lahir",
+      "Lokasi",
+      "Nama Peternak",
+      "kartu ternak induk",
+      "eartag_induk",
+      "Spesies Induk",
+      "ID Pejantan Straw",
+      "ID Batch Straw",
+      "Produsen Straw",
+      "Spesies Pejantan",
+      "Jumlah",
+      "kartu ternak anak",
+      "ID Hewan Anak",
+      "eartag_anak",
+      "Jenis Kelamin Anak",
+      "kategori",
+      "Petugas Pelapor",
+      "urutan_ib",
+    ];
+    const rows = [columnTitlesLocal];
+    let csvContent = "data:text/csv;charset=utf-8,";
+    rows.forEach((rowArray) => {
+      const row = rowArray.join(";");
+      csvContent += row + "\r\n";
+    });
+
+    return csvContent;
+  };
+
+  const downloadFormatCSV = (csvContent) => {
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement("a");
+    link.setAttribute("href", encodedUri);
+    link.setAttribute("download", "format_kelahiran.csv");
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
   const handleExportData = () => {
     const { kelahirans } = this.state;
     const csvContent = this.convertToCSV(kelahirans);
@@ -1046,12 +1095,12 @@ const Kelahiran = () => {
     ) {
       return (
         <Row gutter={[16, 16]} justify="start" style={{ paddingLeft: 9 }}>
-          <Col xs={24} sm={12} md={8} lg={8} xl={8}>
+          <Col>
             <Button type="primary" onClick={handleAddKelahiran} block>
               Tambah Kelahiran
             </Button>
           </Col>
-          <Col xs={24} sm={12} md={8} lg={8} xl={8}>
+          <Col>
             <Button
               icon={<UploadOutlined />}
               onClick={handleImportModalOpen}
@@ -1060,9 +1109,18 @@ const Kelahiran = () => {
               Import File
             </Button>
           </Col>
-          <Col xs={24} sm={12} md={8} lg={8} xl={8}>
+          <Col>
+            <Button
+              icon={<DownloadOutlined />}
+              onClick={handleDownloadCSV}
+              block
+            >
+              Download Format CSV
+            </Button>
+          </Col>
+          <Col>
             <Button icon={<UploadOutlined />} onClick={handleExportData} block>
-              Export File
+              Export Data To CSV
             </Button>
           </Col>
         </Row>
