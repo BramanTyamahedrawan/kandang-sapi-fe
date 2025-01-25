@@ -651,28 +651,53 @@ const InseminasiBuatan = () => {
     }
   };
 
+  // Download Format CSV
   const handleDownloadCSV = () => {
     const csvContent = convertHeaderToCSV();
     downloadFormatCSV(csvContent);
   };
 
   const convertHeaderToCSV = () => {
-    const columnTitlesLocal = ["Tanggal IB", "Lokasi", "Nama Peternak", "eartag", "IB 1", "IB 2", "IB 3", "IB lain", "ID Pejantan", "ID Pembuatan", "Bangsa Pejantan", "Produsen", "Inseminator"];
-    const rows = [columnTitlesLocal];
-    let csvContent = "data:text/csv;charset=utf-8,";
-    rows.forEach((rowArray) => {
-      const row = rowArray.join(";");
-      csvContent += row + "\r\n";
-    });
+    const columnTitlesLocal = ["No", "Tanggal IB", "Lokasi", "Nama Peternak", "eartag", "IB 1", "IB 2", "IB 3", "IB lain", "ID Pejantan", "ID Pembuatan", "Bangsa Pejantan", "Produsen", "Inseminator"];
+    const exampleRow = [
+      "1",
+      "Contoh 1/5/2023",
+      "Contoh Jawa Timur, Lumajang, Yosowilangun, Krai",
+      "Contoh Abdila",
+      "Contoh AAA350001317276",
+      "Contoh 1",
+      "Contoh 1",
+      "Contoh 1",
+      "Contoh 1",
+      "Contoh 617114",
+      "Contoh UU1208",
+      "Contoh sapi simental",
+      "Contoh BBIB Singosari",
+      "Contoh Seto Adjukri",
+    ];
 
+    // Gabungkan header dan contoh data
+    const rows = [columnTitlesLocal, exampleRow];
+
+    // Gabungkan semua baris dengan delimiter koma
+    const csvContent = rows
+      .map((row) =>
+        row
+          .map((item) => `"${item.replace(/"/g, '""')}"`) // Escaping kutip ganda jika ada
+          .join(",")
+      )
+      .join("\n");
     return csvContent;
   };
 
   const downloadFormatCSV = (csvContent) => {
-    const encodedUri = encodeURI(csvContent);
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
     const link = document.createElement("a");
-    link.setAttribute("href", encodedUri);
+    const url = URL.createObjectURL(blob);
+
+    link.href = url;
     link.setAttribute("download", "format_inseminasi.csv");
+    link.style.display = "none";
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);

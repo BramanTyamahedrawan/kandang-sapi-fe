@@ -4,15 +4,24 @@
  * @format
  */
 
-import { addPetugas, deletePetugas, editPetugas, getPetugas } from "@/api/petugas";
+import { addPetugas, deletePetugas, editPetugas, getPetugas, addPetugasBulk } from "@/api/petugas";
 import TypingCard from "@/components/TypingCard";
+import kandangSapi from "@/assets/images/kandangsapi.jpg";
 import { DeleteOutlined, DownloadOutlined, EditOutlined, UploadOutlined } from "@ant-design/icons";
 import { Button, Card, Col, Divider, Input, message, Modal, Row, Table, Upload } from "antd";
 import React, { useEffect, useRef, useState } from "react";
 import { read, utils } from "xlsx";
-import { reqUserInfo } from "../../api/user";
+import {
+  addUser,
+  // addUserBulk,
+  addUserBulk,
+  deleteUserByPetugas,
+  getUserByUsername,
+  reqUserInfo,
+} from "@/api/user";
 import AddPetugasForm from "./forms/add-petugas-form";
 import EditPetugasForm from "./forms/edit-petugas-form";
+import { v4 as uuidv4 } from "uuid";
 
 const Petugas = () => {
   const [petugas, setPetugas] = useState([]);
@@ -111,23 +120,36 @@ const Petugas = () => {
   };
 
   const handleDeletePetugas = (row) => {
-    const { petugasId } = row;
     Modal.confirm({
       title: "Konfirmasi",
       content: "Apakah Anda yakin ingin menghapus data ini?",
       okText: "Ya",
       okType: "danger",
       cancelText: "Tidak",
-      onOk: () => {
-        deletePetugas({ petugasId })
-          .then((res) => {
-            message.success("Berhasil dihapus");
-            getPetugasData();
-          })
-          .catch((error) => {
-            console.error("Gagal menghapus petugas:", error);
-            message.error("Gagal menghapus petugas.");
-          });
+      onOk: async () => {
+        const { petugasId, nikPetugas } = row;
+        getUserByUsername(nikPetugas).then((userResponse) => {
+          if (userResponse && userResponse.data) {
+            const userId = userResponse.data.id;
+            console.log("userId: " + userId);
+
+            try {
+              deletePetugas({ petugasId }).then((res) => {
+                getPetugasData();
+                deleteUserByPetugas(userId);
+                message.success("Berhasil menghapus data petugas");
+              });
+            } catch (error) {
+              console.error("Gagal menghapus petugas:", error);
+              message.error("Gagal menghapus petugas.");
+            }
+          } else {
+            deletePetugas({ petugasId }).then((res) => {
+              getPetugasData();
+              message.success("Berhasil menghapus data petugas");
+            });
+          }
+        });
       },
     });
   };
@@ -175,13 +197,16 @@ const Petugas = () => {
 
   const handleFileImport = (file) => {
     const reader = new FileReader();
+
     reader.onload = (e) => {
       const data = new Uint8Array(e.target.result);
       const workbook = read(data, { type: "array" });
       const worksheet = workbook.Sheets[workbook.SheetNames[0]];
-      const jsonData = utils.sheet_to_json(worksheet, { header: 1 });
+      const jsonData = utils.sheet_to_json(worksheet, { header: 1, blankrows: false, defval: null });
+
       const importedDataLocal = jsonData.slice(1); // Exclude the first row (column titles)
       const columnTitlesLocal = jsonData[0]; // Assume the first row contains column titles
+
       const fileNameLocal = file.name.toLowerCase();
 
       const columnMappingLocal = {};
@@ -195,7 +220,6 @@ const Petugas = () => {
       setColumnMapping(columnMappingLocal);
     };
     reader.readAsArrayBuffer(file);
-    return false; // Prevent automatic upload
   };
 
   const handleUpload = () => {
@@ -218,23 +242,40 @@ const Petugas = () => {
       });
   };
 
-  const saveImportedData = async (columnMappingLocal) => {
-    let errorCount = 0;
-
+  const saveImportedData = async () => {
+    const dataToSaveArray = [];
+    const dataToSaveArrayUser = [];
     try {
       for (const row of importedData) {
+        const petugasId = uuidv4();
         const dataToSave = {
-          nikPetugas: row[columnMappingLocal["NIK Petugas"]],
-          namaPetugas: row[columnMappingLocal["Nama Petugas"]],
-          noTelp: row[columnMappingLocal["No. Telp Petugas"]],
-          email: row[columnMappingLocal["Email Petugas"]],
-          wilayah: row[columnMappingLocal["Wilayah"]],
-          job: row[columnMappingLocal["Job"]],
+          petugasId: petugasId,
+          nikPetugas: row[columnMapping["NIK Petugas"]],
+          namaPetugas: row[columnMapping["Nama Petugas"]],
+          noTelp: row[columnMapping["No. Telp Petugas"]],
+          email: row[columnMapping["Email Petugas"]],
+          wilayah: row[columnMapping["Wilayah"]],
+          job: row[columnMapping["Job"]],
+        };
+
+        const role = "2";
+        const dataToSaveUser = {
+          id: dataToSave.petugasId,
+          name: dataToSave.namaPetugas,
+          nik: dataToSave.nikPetugas,
+          username: dataToSave.nikPetugas || dataToSave.namaPetugas,
+          email: `${dataToSave.email}`,
+          password: `${dataToSave.nikPetugas || dataToSave.namaPetugas}@123`,
+          alamat: dataToSave.wilayah,
+          role: role,
+          photo: kandangSapi,
         };
 
         // Check if data already exists
         const existingPetugasIndex = petugas.findIndex((p) => p.nikPetugas === dataToSave.nikPetugas);
 
+        dataToSaveArray.push(dataToSave);
+        dataToSaveArrayUser.push(dataToSaveUser);
         try {
           if (existingPetugasIndex > -1) {
             // Update existing data
@@ -246,19 +287,16 @@ const Petugas = () => {
             });
           } else {
             // Add new data
-            await addPetugas(dataToSave);
+            console.log("Data Save Petugas ", dataToSaveArray);
+            console.log("Data Save User ", dataToSaveArrayUser);
+
+            await addPetugasBulk(dataToSaveArray);
+            await addUserBulk(dataToSaveArrayUser);
             setPetugas((prevPetugas) => [...prevPetugas, dataToSave]);
           }
         } catch (error) {
-          errorCount++;
           console.error("Gagal menyimpan data:", error);
         }
-      }
-
-      if (errorCount === 0) {
-        message.success(`Semua data berhasil disimpan.`);
-      } else {
-        message.error(`${errorCount} data gagal disimpan, harap coba lagi!`);
       }
     } catch (error) {
       console.error("Gagal memproses data:", error);
@@ -276,22 +314,31 @@ const Petugas = () => {
   };
 
   const convertHeaderToCSV = () => {
-    const columnTitlesLocal = ["NIK Petugas", "Nama Petugas", "No. Telp Petugas", "Email Petugas", "Wilayah", "Job"];
-    const rows = [columnTitlesLocal];
-    let csvContent = "data:text/csv;charset=utf-8,";
-    rows.forEach((rowArray) => {
-      const row = rowArray.join(";");
-      csvContent += row + "\r\n";
-    });
+    const columnTitlesLocal = ["No", "NIK Petugas", "Nama Petugas", "No. Telp Petugas", "Email Petugas", "Wilayah", "Job"];
+    const exampleRow = ["1", "Contoh 3508070507040006", "Contoh Supardi", "Contoh 085432678654", "Contoh supardi@gmail.com", "Contoh Yosowilangun,Lumajang,Jawa Timur", "Contoh pendataan"];
 
+    // Gabungkan header dan contoh data
+    const rows = [columnTitlesLocal, exampleRow];
+
+    // Gabungkan semua baris dengan delimiter koma
+    const csvContent = rows
+      .map((row) =>
+        row
+          .map((item) => `"${item.replace(/"/g, '""')}"`) // Escaping kutip ganda jika ada
+          .join(",")
+      )
+      .join("\n");
     return csvContent;
   };
 
   const downloadFormatCSV = (csvContent) => {
-    const encodedUri = encodeURI(csvContent);
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
     const link = document.createElement("a");
-    link.setAttribute("href", encodedUri);
+    const url = URL.createObjectURL(blob);
+
+    link.href = url;
     link.setAttribute("download", "format_petugas.csv");
+    link.style.display = "none";
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -443,7 +490,7 @@ const Petugas = () => {
           </Button>,
         ]}
       >
-        <Upload beforeUpload={handleFileImport} showUploadList={false}>
+        <Upload beforeUpload={handleFileImport}>
           <Button icon={<UploadOutlined />}>Pilih File</Button>
         </Upload>
       </Modal>

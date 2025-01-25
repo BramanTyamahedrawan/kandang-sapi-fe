@@ -1,6 +1,6 @@
 /* eslint-disable no-constant-condition */
 /* eslint-disable no-unused-vars */
-import { addTujuanPemeliharaan, deleteTujuanPemeliharaan, editTujuanPemeliharaan, getTujuanPemeliharaan } from "@/api/tujuan-pemeliharaan";
+import { addTujuanPemeliharaan, deleteTujuanPemeliharaan, editTujuanPemeliharaan, getTujuanPemeliharaan, addTujuanPemeliharaanBulk } from "@/api/tujuan-pemeliharaan";
 import TypingCard from "@/components/TypingCard";
 import { DeleteOutlined, DownloadOutlined, EditOutlined, UploadOutlined } from "@ant-design/icons";
 import { Button, Card, Col, Divider, Input, message, Modal, Row, Table, Upload } from "antd";
@@ -8,6 +8,9 @@ import React, { useEffect, useRef, useState } from "react";
 import { reqUserInfo } from "../../api/user";
 import AddTujuanPemeliharaanForm from "./forms/add-tujuanpemeliharaan-form";
 import EditTujuanPemeliharaanForm from "./forms/edit-tujuanpemeliharaan-form";
+import { v4 as uuidv4 } from "uuid";
+import { read, utils } from "xlsx";
+import { data } from "react-router-dom";
 
 const TujuanPemeliharaan = () => {
   // State Variables
@@ -232,9 +235,149 @@ const TujuanPemeliharaan = () => {
   };
 
   const convertHeaderToCSV = () => {
-    const columnTitlesLocal = ["Tujuan Pemeliharaan", "Deskripsi"];
-    const rows = [columnTitlesLocal];
+    const columnTitlesLocal = ["No", "Tujuan Pemeliharaan", "Deskripsi"];
+    const exampleRow = ["1", "Contoh Pembibitan", "Contoh pembibitan sapi potong"];
+
+    // Gabungkan header dan contoh data
+    const rows = [columnTitlesLocal, exampleRow];
+
+    // Gabungkan semua baris dengan delimiter koma
+    const csvContent = rows.map((row) => row.join(",")).join("\n");
+    return csvContent;
+  };
+
+  const downloadFormatCSV = (csvContent) => {
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+    const link = document.createElement("a");
+    const url = URL.createObjectURL(blob);
+
+    link.href = url;
+    link.setAttribute("download", "format_tujuanpemeliharaan.csv");
+    link.style.display = "none";
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
+  // Handle File Import
+  const handleFileImport = (file) => {
+    const reader = new FileReader();
+
+    reader.onload = (e) => {
+      const data = new Uint8Array(e.target.result);
+      const workbook = read(data, { type: "array" });
+
+      const worksheet = workbook.Sheets[workbook.SheetNames[0]];
+      const jsonData = utils.sheet_to_json(worksheet, { header: 1, blankrows: false, defval: null });
+
+      const importedData = jsonData.slice(1); // Exclude the first row (column titles)
+      const columnTitles = jsonData[0]; // Assume the first row contains column titles
+
+      // Create column mapping
+      const mapping = {};
+      columnTitles.forEach((title, index) => {
+        mapping[title] = index;
+      });
+
+      // Iterate through importedData and process the address (if applicable)
+      // Note: For Jenis Hewan, address processing may not be necessary.
+      // If not needed, this part can be adjusted or removed.
+      const modifiedData = importedData.map((row) => {
+        // Example processing; adjust based on actual CSV structure
+        return {
+          ...row,
+          // Add any additional processing if needed
+        };
+      });
+
+      setImportedData(modifiedData);
+      setColumnTitles(columnTitles);
+      setFileName(file.name.toLowerCase());
+      setColumnMapping(mapping);
+    };
+
+    reader.readAsArrayBuffer(file);
+  };
+
+  // Handle Uploading the Imported Data
+  const handleUpload = async () => {
+    if (importedData.length === 0) {
+      message.error("No data to import.");
+      return;
+    }
+
+    setUploading(true);
+
+    try {
+      await saveImportedData(columnMapping);
+      setUploading(false);
+      setImportModalVisible(false);
+      message.success("Data berhasil diimport!");
+    } catch (error) {
+      console.error("Gagal mengunggah data:", error);
+      setUploading(false);
+      message.error("Gagal mengunggah data, harap coba lagi.");
+    }
+  };
+
+  // Save Imported Data to the Database
+  const saveImportedData = async (mapping) => {
+    let errorCount = 0;
+    const dataToSaveArray = [];
+    try {
+      for (const row of importedData) {
+        const generateId = uuidv4();
+        const dataToSave = {
+          idTujuanPemeliharaan: generateId,
+          tujuanPemeliharaan: row[mapping["Tujuan Pemeliharaan"]],
+          deskripsi: row[mapping["Deskripsi"]],
+        };
+        dataToSaveArray.push(dataToSave);
+      }
+
+      try {
+        if (dataToSaveArray.length > 0) {
+          // Add new data
+          await addTujuanPemeliharaanBulk(dataToSaveArray);
+        }
+      } catch (error) {
+        errorCount++;
+        console.error("Gagal menyimpan data:", error);
+      }
+
+      if (errorCount === 0) {
+        message.success(`Semua data berhasil disimpan.`);
+      } else {
+        message.error(`${errorCount} data gagal disimpan, harap coba lagi!`);
+      }
+    } catch (error) {
+      console.error("Gagal memproses data:", error);
+      message.error("Gagal memproses data, harap coba lagi!");
+    } finally {
+      setImportedData([]);
+      setColumnTitles([]);
+      setColumnMapping({});
+    }
+  };
+
+  // Handle Exporting Data to CSV
+  const handleExportData = () => {
+    const csvContent = convertToCSV(tujuanPemeliharaans);
+    downloadCSV(csvContent);
+  };
+
+  // Convert Data to CSV Format
+  const convertToCSV = (data) => {
+    const columnTitles = ["ID Tujuan Pemeliharaan", "Tujuan Pemeliharaan", "Deskripsi"];
+
+    const rows = [columnTitles];
+    data.forEach((item) => {
+      const row = [item.idTujuanPemeliharaan, item.tujuanPemeliharaan, item.deskripsi];
+      rows.push(row);
+    });
+
     let csvContent = "data:text/csv;charset=utf-8,";
+
     rows.forEach((rowArray) => {
       const row = rowArray.join(";");
       csvContent += row + "\r\n";
@@ -243,172 +386,16 @@ const TujuanPemeliharaan = () => {
     return csvContent;
   };
 
-  const downloadFormatCSV = (csvContent) => {
+  // Download CSV File
+  const downloadCSV = (csvContent) => {
     const encodedUri = encodeURI(csvContent);
     const link = document.createElement("a");
     link.setAttribute("href", encodedUri);
-    link.setAttribute("download", "format_tujuan_pemeliharaan.csv");
-    document.body.appendChild(link);
+    link.setAttribute("download", "TujuanPemeliharaan.csv");
+    document.body.appendChild(link); // Required for Firefox
     link.click();
-    document.body.removeChild(link);
+    document.body.removeChild(link); // Clean up
   };
-
-  // Handle File Import
-  // const handleFileImport = (file) => {
-  //   const reader = new FileReader()
-
-  //   reader.onload = (e) => {
-  //     const data = new Uint8Array(e.target.result)
-  //     const workbook = read(data, { type: 'array' })
-
-  //     const worksheet = workbook.Sheets[workbook.SheetNames[0]]
-  //     const jsonData = utils.sheet_to_json(worksheet, { header: 1 })
-
-  //     const importedData = jsonData.slice(1) // Exclude the first row (column titles)
-  //     const columnTitles = jsonData[0] // Assume the first row contains column titles
-
-  //     // Create column mapping
-  //     const mapping = {}
-  //     columnTitles.forEach((title, index) => {
-  //       mapping[title] = index
-  //     })
-
-  //     // Iterate through importedData and process the address (if applicable)
-  //     // Note: For Jenis Hewan, address processing may not be necessary.
-  //     // If not needed, this part can be adjusted or removed.
-  //     const modifiedData = importedData.map((row) => {
-  //       // Example processing; adjust based on actual CSV structure
-  //       return {
-  //         ...row,
-  //         // Add any additional processing if needed
-  //       }
-  //     })
-
-  //     setImportedData(modifiedData)
-  //     setColumnTitles(columnTitles)
-  //     setFileName(file.name.toLowerCase())
-  //     setColumnMapping(mapping)
-  //   }
-
-  //   reader.readAsArrayBuffer(file)
-  //   return false // Prevent upload
-  // }
-
-  // // Handle Uploading the Imported Data
-  // const handleUpload = async () => {
-  //   if (importedData.length === 0) {
-  //     message.error('No data to import.')
-  //     return
-  //   }
-
-  //   setUploading(true)
-
-  //   try {
-  //     await saveImportedData(columnMapping)
-  //     setUploading(false)
-  //     setImportModalVisible(false)
-  //     message.success('Data berhasil diimport!')
-  //   } catch (error) {
-  //     console.error('Gagal mengunggah data:', error)
-  //     setUploading(false)
-  //     message.error('Gagal mengunggah data, harap coba lagi.')
-  //   }
-  // }
-
-  // Save Imported Data to the Database
-  // const saveImportedData = async (mapping) => {
-  //   let errorCount = 0
-
-  //   try {
-  //     for (const row of importedData) {
-  //       const idJenisHewan = row[mapping['ID Jenis Hewan']]?.toLowerCase()
-  //       const jenis = row[mapping['Jenis']]?.toLowerCase()
-  //       const deskripsi = row[mapping['Deskripsi']]?.toLowerCase()
-
-  //       const dataToSave = {
-  //         idJenisHewan: row[mapping['ID Jenis Hewan']] || '',
-  //         jenis: row[mapping['Jenis']] || '',
-  //         deskripsi: row[mapping['Deskripsi']] || '',
-  //       }
-
-  //       const existingHewanIndex = jenisHewans.findIndex(
-  //         (p) => p.idJenisHewan === dataToSave.idJenisHewan
-  //       )
-
-  //       try {
-  //         if (existingHewanIndex > -1) {
-  //           // Update existing data
-  //           await editJenisHewan(dataToSave, dataToSave.idJenisHewan)
-  //           setJenisHewans((prevJenisHewans) => {
-  //             const updatedJenisHewans = [...prevJenisHewans]
-  //             updatedJenisHewans[existingHewanIndex] = dataToSave
-  //             return updatedJenisHewans
-  //           })
-  //         } else {
-  //           // Add new data
-  //           await addJenisHewan(dataToSave)
-  //           setJenisHewans((prevJenisHewans) => [
-  //             ...prevJenisHewans,
-  //             dataToSave,
-  //           ])
-  //         }
-  //       } catch (error) {
-  //         errorCount++
-  //         console.error('Gagal menyimpan data:', error)
-  //       }
-  //     }
-
-  //     if (errorCount === 0) {
-  //       message.success(`Semua data berhasil disimpan.`)
-  //     } else {
-  //       message.error(`${errorCount} data gagal disimpan, harap coba lagi!`)
-  //     }
-  //   } catch (error) {
-  //     console.error('Gagal memproses data:', error)
-  //     message.error('Gagal memproses data, harap coba lagi!')
-  //   } finally {
-  //     setImportedData([])
-  //     setColumnTitles([])
-  //     setColumnMapping({})
-  //   }
-  // }
-
-  // // Handle Exporting Data to CSV
-  // const handleExportData = () => {
-  //   const csvContent = convertToCSV(jenisHewans)
-  //   downloadCSV(csvContent)
-  // }
-
-  // // Convert Data to CSV Format
-  // const convertToCSV = (data) => {
-  //   const columnTitles = ['ID Jenis Hewan', 'Jenis', 'Deskripsi']
-
-  //   const rows = [columnTitles]
-  //   data.forEach((item) => {
-  //     const row = [item.idJenisHewan, item.jenis, item.deskripsi]
-  //     rows.push(row)
-  //   })
-
-  //   let csvContent = 'data:text/csv;charset=utf-8,'
-
-  //   rows.forEach((rowArray) => {
-  //     const row = rowArray.join(';')
-  //     csvContent += row + '\r\n'
-  //   })
-
-  //   return csvContent
-  // }
-
-  // // Download CSV File
-  // const downloadCSV = (csvContent) => {
-  //   const encodedUri = encodeURI(csvContent)
-  //   const link = document.createElement('a')
-  //   link.setAttribute('href', encodedUri)
-  //   link.setAttribute('download', 'JenisHewan.csv')
-  //   document.body.appendChild(link) // Required for Firefox
-  //   link.click()
-  //   document.body.removeChild(link) // Clean up
-  // }
 
   // Render Columns with Operations
   const renderColumns = () => {
@@ -473,7 +460,7 @@ const TujuanPemeliharaan = () => {
             </Button>
           </Col>
           <Col>
-            <Button icon={<UploadOutlined />} block>
+            <Button icon={<UploadOutlined />} onClick={handleExportData} block>
               Export Data To CSV
             </Button>
           </Col>
@@ -525,21 +512,12 @@ const TujuanPemeliharaan = () => {
           <Button key="cancel" onClick={handleImportModalClose}>
             Cancel
           </Button>,
-          <Button
-            key="upload"
-            type="primary"
-            loading={uploading}
-            // onClick={handleUpload}
-          >
+          <Button key="upload" type="primary" loading={uploading} onClick={handleUpload}>
             Upload
           </Button>,
         ]}
       >
-        <Upload
-          // beforeUpload={handleFileImport}
-          accept=".xlsx,.xls,.csv"
-          showUploadList={false}
-        >
+        <Upload beforeUpload={handleFileImport} accept=".xlsx,.xls,.csv">
           <Button icon={<UploadOutlined />}>Pilih File</Button>
         </Upload>
       </Modal>

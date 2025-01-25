@@ -1,7 +1,7 @@
 /* eslint-disable no-constant-condition */
 /* eslint-disable no-unused-vars */
 import { getPetugas } from "@/api/petugas";
-import { addRumpunHewan, deleteRumpunHewan, editRumpunHewan, getRumpunHewan } from "@/api/rumpunhewan";
+import { addRumpunHewan, deleteRumpunHewan, editRumpunHewan, getRumpunHewan, addRumpunHewanBulk } from "@/api/rumpunhewan";
 import TypingCard from "@/components/TypingCard";
 import { DeleteOutlined, DownloadOutlined, EditOutlined, UploadOutlined } from "@ant-design/icons";
 import { Button, Card, Col, Divider, Input, message, Modal, Row, Table, Upload } from "antd";
@@ -10,6 +10,7 @@ import { read, utils } from "xlsx";
 import { reqUserInfo } from "../../api/user";
 import AddHewanForm from "./forms/add-rumpunhewan-form";
 import EditHewanForm from "./forms/edit-rumpunhewan-form";
+import { v4 as uuidv4 } from "uuid";
 
 const RumpunHewan = () => {
   // State Variables
@@ -229,7 +230,7 @@ const RumpunHewan = () => {
       const workbook = read(data, { type: "array" });
 
       const worksheet = workbook.Sheets[workbook.SheetNames[0]];
-      const jsonData = utils.sheet_to_json(worksheet, { header: 1 });
+      const jsonData = utils.sheet_to_json(worksheet, { header: 1, blankrows: false, defval: null });
 
       const importedData = jsonData.slice(1); // Exclude the first row (column titles)
       const columnTitles = jsonData[0]; // Assume the first row contains column titles
@@ -258,7 +259,6 @@ const RumpunHewan = () => {
     };
 
     reader.readAsArrayBuffer(file);
-    return false; // Prevent upload
   };
 
   // Handle Uploading the Imported Data
@@ -285,39 +285,27 @@ const RumpunHewan = () => {
   // Save Imported Data to the Database
   const saveImportedData = async (mapping) => {
     let errorCount = 0;
-
+    const dataToSaveArray = [];
     try {
       for (const row of importedData) {
-        const idRumpunHewan = row[mapping["ID Rumpun Hewan"]]?.toLowerCase();
-        const rumpun = row[mapping["Rumpun"]]?.toLowerCase();
-        const deskripsi = row[mapping["Deskripsi"]]?.toLowerCase();
-
+        const generateId = uuidv4();
         const dataToSave = {
-          idRumpunHewan: row[mapping["ID Rumpun Hewan"]] || "",
-          rumpun: row[mapping["Rumpun"]] || "",
-          deskripsi: row[mapping["Deskripsi"]] || "",
+          idRumpunHewan: generateId,
+          rumpun: row[mapping["Rumpun Hewan"]],
+          deskripsi: row[mapping["Deskripsi"]],
         };
+        dataToSaveArray.push(dataToSave);
+      }
 
-        const existingHewanIndex = rumpunHewans.findIndex((p) => p.idRumpunHewan === dataToSave.idRumpunHewan);
-
-        try {
-          if (existingHewanIndex > -1) {
-            // Update existing data
-            await editRumpunHewan(dataToSave, dataToSave.idRumpunHewan);
-            setRumpunHewans((prevRumpunHewans) => {
-              const updatedRumpunHewans = [...prevRumpunHewans];
-              updatedRumpunHewans[existingHewanIndex] = dataToSave;
-              return updatedRumpunHewans;
-            });
-          } else {
-            // Add new data
-            await addRumpunHewan(dataToSave);
-            setRumpunHewans((prevRumpunHewans) => [...prevRumpunHewans, dataToSave]);
-          }
-        } catch (error) {
-          errorCount++;
-          console.error("Gagal menyimpan data:", error);
+      try {
+        if (dataToSaveArray.length > 0) {
+          // Add new data
+          console.log("Data to save ", dataToSaveArray);
+          await addRumpunHewanBulk(dataToSaveArray);
         }
+      } catch (error) {
+        errorCount++;
+        console.error("Gagal menyimpan data:", error);
       }
 
       if (errorCount === 0) {
@@ -336,27 +324,33 @@ const RumpunHewan = () => {
   };
 
   const handleDownloadCSV = () => {
-    const csvContent = convertHeaderToCSV();
+    const csvContent = createCSVTemplate();
     downloadFormatCSV(csvContent);
   };
 
-  const convertHeaderToCSV = () => {
-    const columnTitlesLocal = ["Rumpun Hewan", "Deskripsi"];
-    const rows = [columnTitlesLocal];
-    let csvContent = "data:text/csv;charset=utf-8,";
-    rows.forEach((rowArray) => {
-      const row = rowArray.join(";");
-      csvContent += row + "\r\n";
-    });
+  const createCSVTemplate = () => {
+    // Header kolom
+    const columnTitlesLocal = ["No", "Rumpun Hewan", "Deskripsi"];
 
+    // Baris data dummy (contoh)
+    const exampleRow = ["1", "Contoh Sapi Potong", "Contoh Rumpun Hewan Sapi Potong"];
+
+    // Gabungkan header dan contoh data
+    const rows = [columnTitlesLocal, exampleRow];
+
+    // Gabungkan semua baris dengan delimiter koma
+    const csvContent = rows.map((row) => row.join(",")).join("\n");
     return csvContent;
   };
 
   const downloadFormatCSV = (csvContent) => {
-    const encodedUri = encodeURI(csvContent);
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
     const link = document.createElement("a");
-    link.setAttribute("href", encodedUri);
-    link.setAttribute("download", "format_rumpun_hewan.csv");
+    const url = URL.createObjectURL(blob);
+
+    link.href = url;
+    link.setAttribute("download", "format_rumpunhewan.csv");
+    link.style.display = "none";
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -514,7 +508,7 @@ const RumpunHewan = () => {
           </Button>,
         ]}
       >
-        <Upload beforeUpload={handleFileImport} accept=".xlsx,.xls,.csv" showUploadList={false}>
+        <Upload beforeUpload={handleFileImport} accept=".xlsx,.xls,.csv">
           <Button icon={<UploadOutlined />}>Pilih File</Button>
         </Upload>
       </Modal>

@@ -695,27 +695,36 @@ class Pkb extends Component {
   };
 
   handleDownloadCSV = () => {
-    const csvContent = convertHeaderToCSV();
-    downloadFormatCSV(csvContent);
+    const csvContent = this.convertHeaderToCSV();
+    this.downloadFormatCSV(csvContent);
   };
 
   convertHeaderToCSV = () => {
-    const columnTitlesLocal = ["Nama Peternak", "Nik Peternak", "ID Hewan", "Spesies", "kategori", "Jumlah", "Umur Kebuntingan saat PKB (bulan)", "Pemeriksa Kebuntingan"];
-    const rows = [columnTitlesLocal];
-    let csvContent = "data:text/csv;charset=utf-8,";
-    rows.forEach((rowArray) => {
-      const row = rowArray.join(";");
-      csvContent += row + "\r\n";
-    });
+    const columnTitlesLocal = ["No", "ID Kejadian", "Nama Peternak", "Nik Peternak", "ID Hewan", "Spesies", "kategori", "Jumlah", "Umur Kebuntingan saat PKB (bulan)", "Pemeriksa Kebuntingan"];
+    const exampleRow = ["1", "Contoh 78210308", "Contoh Sugi", "Contoh 3508070507040006", "Contoh 090439", "Contoh sapi limosin", "Contoh sapi potong", "Contoh 1", "Contoh 5", "Contoh Irfan Setiyawan P."];
 
+    // Gabungkan header dan contoh data
+    const rows = [columnTitlesLocal, exampleRow];
+
+    // Gabungkan semua baris dengan delimiter koma
+    const csvContent = rows
+      .map((row) =>
+        row
+          .map((item) => `"${item.replace(/"/g, '""')}"`) // Escaping kutip ganda jika ada
+          .join(",")
+      )
+      .join("\n");
     return csvContent;
   };
 
   downloadFormatCSV = (csvContent) => {
-    const encodedUri = encodeURI(csvContent);
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
     const link = document.createElement("a");
-    link.setAttribute("href", encodedUri);
+    const url = URL.createObjectURL(blob);
+
+    link.href = url;
     link.setAttribute("download", "format_pkb.csv");
+    link.style.display = "none";
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);

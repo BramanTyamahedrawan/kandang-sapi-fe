@@ -8,14 +8,7 @@ import {
   getPeternaks,
 } from "@/api/peternak";
 import { getPetugas } from "@/api/petugas";
-import {
-  addUser,
-  // addUserBulk,
-  addUserBulk,
-  deleteUser,
-  getUserByUsername,
-  reqUserInfo,
-} from "@/api/user";
+import { addUser, deleteUserByPeternak, addUserBulk, getUserByUsername, reqUserInfo } from "@/api/user";
 import kandangSapi from "@/assets/images/kandangsapi.jpg";
 import TypingCard from "@/components/TypingCard";
 import { DeleteOutlined, DownloadOutlined, EditOutlined, UploadOutlined } from "@ant-design/icons";
@@ -27,6 +20,7 @@ import { read, utils } from "xlsx";
 import AddPeternakForm from "./forms/add-peternak-form";
 import EditPeternakForm from "./forms/edit-peternak-form";
 import ViewPeternakForm from "./forms/view-peternak-form";
+
 const Peternak = () => {
   const [petugas, setPetugas] = useState([]);
   const [peternaks, setPeternaks] = useState([]);
@@ -139,42 +133,36 @@ const Peternak = () => {
 
   // Handle delete peternak
   const handleDeletePeternak = (row) => {
-    const { idPeternak, nikPeternak } = row;
-    getUserByUsername(nikPeternak)
-      .then((userResponse) => {
-        if (userResponse && userResponse.data) {
-          const userId = userResponse.data.id;
-          console.log(userId);
-          Modal.confirm({
-            title: "Konfirmasi",
-            content: "Apakah Anda yakin ingin menghapus data ini?",
-            okText: "Ya",
-            okType: "danger",
-            cancelText: "Tidak",
-            onOk: async () => {
-              try {
-                await deletePeternak(idPeternak);
-
+    Modal.confirm({
+      title: "Konfirmasi",
+      content: "Apakah Anda yakin ingin menghapus data ini?",
+      okText: "Ya",
+      okType: "danger",
+      cancelText: "Tidak",
+      onOk: async () => {
+        const { idPeternak, nikPeternak } = row;
+        getUserByUsername(nikPeternak).then((userResponse) => {
+          if (userResponse && userResponse.data) {
+            const userId = userResponse.data.id;
+            try {
+              deletePeternak(idPeternak).then((res) => {
                 fetchPeternaks();
-              } catch (error) {
-                console.error("Error deleting peternak:", error);
-                message.error("Gagal menghapus peternak.");
-              }
-              try {
-                await deleteUser(userId);
-                message.success("berhasil menghapus data peternak");
-              } catch (error) {
-                console.error("Error deleting user:", error);
-                message.error("Gagal menghapus user.");
-              }
-            },
-          });
-        }
-      })
-      .catch((error) => {
-        console.error("Error fetching user by username:", error);
-        message.error("Gagal mengambil data user.");
-      });
+                deleteUserByPeternak(userId);
+                message.success("Berhasil menghapus data peternak");
+              });
+            } catch (error) {
+              console.error("Gagal menghapus peternak:", error);
+              message.error("Gagal menghapus peternak.");
+            }
+          } else {
+            deletePeternak(idPeternak).then((res) => {
+              fetchPeternaks();
+              message.success("Berhasil menghapus data peternak");
+            });
+          }
+        });
+      },
+    });
   };
 
   // Handle edit peternak OK
@@ -350,9 +338,9 @@ const Peternak = () => {
     let errorCount = 0;
     const dataPeternakToSaveArray = [];
     const dataUserToSaveArray = [];
-    const generateIdPeternak = uuidv4();
     try {
       for (const row of importedData) {
+        const generateIdPeternak = uuidv4();
         const pecahAlamat = parseAddress(row[columnMapping["Alamat Pemilik Ternak**)"] || columnMapping["lokasi"]]);
 
         const validateEmail = (email) => {
@@ -462,6 +450,7 @@ const Peternak = () => {
 
   const convertHeaderToCSV = () => {
     const columnTitlesLocal = [
+      "No",
       "NIK Peternak",
       "Nama Pemilik Ternak**)",
       "No. Telp Pemilik Ternak*)",
@@ -476,21 +465,45 @@ const Peternak = () => {
       "Petugas Pendaftar",
       "Tanggal Pendaftaran",
     ];
-    const rows = [columnTitlesLocal];
-    let csvContent = "data:text/csv;charset=utf-8,";
-    rows.forEach((rowArray) => {
-      const row = rowArray.join(";");
-      csvContent += row + "\r\n";
-    });
+    const exampleRow = [
+      "1",
+      "Contoh 3508070507040006",
+      "Contoh Supardi",
+      "Contoh 085432678654",
+      "Contoh supardi@gmail.com",
+      "Contoh Laki Laki",
+      "Contoh 5/7/1999",
+      "Contoh Kalipepe,Yosowilangun,Lumajang,Jawa Timur",
+      "Contoh 666677",
+      "Contoh -8.131851, 113.204225",
+      "Contoh -8.131851",
+      "Contoh 113.204225",
+      "Contoh Suparman",
+      "Contoh 4/5/2025",
+    ];
 
+    // Gabungkan header dan contoh data
+    const rows = [columnTitlesLocal, exampleRow];
+
+    // Gabungkan semua baris dengan delimiter koma
+    const csvContent = rows
+      .map((row) =>
+        row
+          .map((item) => `"${item.replace(/"/g, '""')}"`) // Escaping kutip ganda jika ada
+          .join(",")
+      )
+      .join("\n");
     return csvContent;
   };
 
   const downloadFormatCSV = (csvContent) => {
-    const encodedUri = encodeURI(csvContent);
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
     const link = document.createElement("a");
-    link.setAttribute("href", encodedUri);
+    const url = URL.createObjectURL(blob);
+
+    link.href = url;
     link.setAttribute("download", "format_peternak.csv");
+    link.style.display = "none";
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);

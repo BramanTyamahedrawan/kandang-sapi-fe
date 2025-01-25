@@ -497,28 +497,49 @@ class Pengobatan extends Component {
       });
   }
 
+  // Download Format CSV
   handleDownloadCSV = () => {
-    const csvContent = convertHeaderToCSV();
-    downloadFormatCSV(csvContent);
+    const csvContent = this.convertHeaderToCSV();
+    this.downloadFormatCSV(csvContent);
   };
 
   convertHeaderToCSV = () => {
-    const columnTitlesLocal = ["tanggal_pengobatan", "tanggal_kasus", "ID Kasus", "Petugas", "Nama Infrasruktur", "Lokasi", "Dosis", "Tanda/Sindrom", "Diagnosa Banding"];
-    const rows = [columnTitlesLocal];
-    let csvContent = "data:text/csv;charset=utf-8,";
-    rows.forEach((rowArray) => {
-      const row = rowArray.join(";");
-      csvContent += row + "\r\n";
-    });
+    const columnTitlesLocal = ["No", "tanggal_pengobatan", "tanggal_kasus", "ID Kasus", "Petugas", "Nama Infrasruktur", "Lokasi", "Dosis", "Tanda/Sindrom", "Diagnosa Banding"];
+    const exampleRow = [
+      "1",
+      "Contoh 1/5/2023",
+      "Contoh 16/05/2023",
+      "Contoh 37336427",
+      "Contoh Masrifah Fitromukti",
+      "Contoh UPT.Puskeswan Klakah",
+      "Contoh Jawa Timur, Lumajang, Randuagung, Banyuputih Lor",
+      "Contoh 15 ekor sapi @ 10.000 ml dengan INJECTAMIN",
+      "Contoh Lahir Normal",
+      "Contoh Bovine Ephemeral Fever",
+    ];
 
+    // Gabungkan header dan contoh data
+    const rows = [columnTitlesLocal, exampleRow];
+
+    // Gabungkan semua baris dengan delimiter koma
+    const csvContent = rows
+      .map((row) =>
+        row
+          .map((item) => `"${item.replace(/"/g, '""')}"`) // Escaping kutip ganda jika ada
+          .join(",")
+      )
+      .join("\n");
     return csvContent;
   };
 
   downloadFormatCSV = (csvContent) => {
-    const encodedUri = encodeURI(csvContent);
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
     const link = document.createElement("a");
-    link.setAttribute("href", encodedUri);
+    const url = URL.createObjectURL(blob);
+
+    link.href = url;
     link.setAttribute("download", "format_pengobatan.csv");
+    link.style.display = "none";
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);

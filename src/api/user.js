@@ -36,8 +36,16 @@ export function getUserByUsername(username) {
  * @param {string} id - ID dari user yang ingin dihapus.
  * @returns {Promise} - Axios response promise
  */
-export function deleteUser(id) {
-  console.log("id user ", id);
+export function deleteUser(data) {
+  return request.delete(`/user/${data.id}`);
+}
+
+export function deleteUserByPetugas(id) {
+  console.log("User Id Api ", id);
+
+  return request.delete(`/user/${id}`);
+}
+export function deleteUserByPeternak(id) {
   return request.delete(`/user/${id}`);
 }
 

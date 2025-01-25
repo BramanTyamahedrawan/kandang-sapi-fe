@@ -50,7 +50,7 @@ export function deleteVaksin(data) {
 
 export function addVaksinImport(data) {
   return request({
-    url: "/vaksin",
+    url: "/vaksin/import",
     method: "post",
     data,
   });

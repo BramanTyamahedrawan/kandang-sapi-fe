@@ -124,6 +124,9 @@ export function deleteKandang(idKandang) {
 export function addKandangBulk(data) {
   return request.post("/kandang/bulk", data);
 }
+export function addKandangImport(data) {
+  return request.post("/kandang/import", data);
+}
 
 export function addKandangBulkByNama(data) {
   return request.post("/kandang/bulkNama", data);
