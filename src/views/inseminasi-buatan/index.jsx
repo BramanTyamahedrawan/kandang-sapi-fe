@@ -1,9 +1,28 @@
 /* eslint-disable no-constant-condition */
 /* eslint-disable no-unused-vars */
 // import { Component, useState, useRef } from "react";
-import { Card, Button, Table, message, Row, Col, Divider, Modal, Upload, Input } from "antd";
+import {
+  Card,
+  Button,
+  Table,
+  message,
+  Row,
+  Col,
+  Divider,
+  Modal,
+  Upload,
+  Input,
+} from "antd";
 import { getPeternaks } from "@/api/peternak";
-import { getInseminasis, getInseminasiByPeternak, deleteInseminasi, editInseminasi, addInseminasi, addInseminasiImport, addInseminsasiBulk } from "@/api/inseminasi";
+import {
+  getInseminasis,
+  getInseminasiByPeternak,
+  deleteInseminasi,
+  editInseminasi,
+  addInseminasi,
+  addInseminasiImport,
+  addInseminsasiBulk,
+} from "@/api/inseminasi";
 import { addJenisHewanBulk } from "@/api/jenishewan";
 import { addRumpunHewanBulk } from "@/api/rumpunhewan";
 import { addHewanBulkImport } from "@/api/hewan";
@@ -11,7 +30,12 @@ import { addKandangBulkByNama } from "@/api/kandang";
 import { addPeternakBulkByNama } from "@/api/peternak";
 import { addPetugasBulkByNama } from "@/api/petugas";
 import { getPetugas } from "@/api/petugas";
-import { UploadOutlined, EditOutlined, DeleteOutlined, DownloadOutlined } from "@ant-design/icons";
+import {
+  UploadOutlined,
+  EditOutlined,
+  DeleteOutlined,
+  DownloadOutlined,
+} from "@ant-design/icons";
 import { read, utils } from "xlsx";
 import AddInseminasiBuatanForm from "./forms/add-inseminasi-form";
 import EditInseminasiBuatanForm from "./forms/edit-inseminasi-form";
@@ -30,9 +54,15 @@ const sendPetugasBulkData = async (data, batchSize = 7000) => {
     try {
       console.log(`Data Petugas (Batch ${i + 1}):`, batchData); // Log data yang dikirim
       const response = await addPetugasBulkByNama(batchData);
-      console.log(`Batch ${i + 1}/${totalBatches} berhasil dikirim`, response.data);
+      console.log(
+        `Batch ${i + 1}/${totalBatches} berhasil dikirim`,
+        response.data
+      );
     } catch (error) {
-      console.error(`Batch ${i + 1}/${totalBatches} gagal dikirim`, error.response?.data || error.message);
+      console.error(
+        `Batch ${i + 1}/${totalBatches} gagal dikirim`,
+        error.response?.data || error.message
+      );
       throw error; // Hentikan proses jika batch gagal
     }
   }
@@ -47,9 +77,15 @@ const sendPeternakBulkData = async (data, batchSize = 7000) => {
     try {
       console.log(`Data Peternak (Batch ${i + 1}):`, batchData); // Log data yang dikirim
       const response = await addPeternakBulkByNama(batchData);
-      console.log(`Batch ${i + 1}/${totalBatches} berhasil dikirim`, response.data);
+      console.log(
+        `Batch ${i + 1}/${totalBatches} berhasil dikirim`,
+        response.data
+      );
     } catch (error) {
-      console.error(`Batch ${i + 1}/${totalBatches} gagal dikirim`, error.response?.data || error.message);
+      console.error(
+        `Batch ${i + 1}/${totalBatches} gagal dikirim`,
+        error.response?.data || error.message
+      );
       throw error; // Hentikan proses jika batch gagal
     }
   }
@@ -64,9 +100,15 @@ const sendRumpunHewanBulkData = async (data, batchSize = 7000) => {
     try {
       console.log(`Data Rumpun Hewan (Batch ${i + 1}):`, batchData); // Log data yang dikirim
       const response = await addRumpunHewanBulk(batchData);
-      console.log(`Batch ${i + 1}/${totalBatches} berhasil dikirim`, response.data);
+      console.log(
+        `Batch ${i + 1}/${totalBatches} berhasil dikirim`,
+        response.data
+      );
     } catch (error) {
-      console.error(`Batch ${i + 1}/${totalBatches} gagal dikirim`, error.response?.data || error.message);
+      console.error(
+        `Batch ${i + 1}/${totalBatches} gagal dikirim`,
+        error.response?.data || error.message
+      );
       throw error;
     }
   }
@@ -81,9 +123,15 @@ const sendJenisHewanBulkData = async (data, batchSize = 7000) => {
     try {
       console.log(`Data Jenis Hewan (Batch ${i + 1}):`, batchData); // Log data yang dikirim
       const response = await addJenisHewanBulk(batchData);
-      console.log(`Batch ${i + 1}/${totalBatches} berhasil dikirim`, response.data);
+      console.log(
+        `Batch ${i + 1}/${totalBatches} berhasil dikirim`,
+        response.data
+      );
     } catch (error) {
-      console.error(`Batch ${i + 1}/${totalBatches} gagal dikirim`, error.response?.data || error.message);
+      console.error(
+        `Batch ${i + 1}/${totalBatches} gagal dikirim`,
+        error.response?.data || error.message
+      );
       throw error; // Hentikan proses jika batch gagal
     }
   }
@@ -98,9 +146,15 @@ const sendKandangBulkData = async (data, batchSize = 7000) => {
     try {
       console.log(`Data Kandang (Batch ${i + 1}):`, batchData); // Log data yang dikirim
       const response = await addKandangBulkByNama(batchData);
-      console.log(`Batch ${i + 1}/${totalBatches} berhasil dikirim`, response.data);
+      console.log(
+        `Batch ${i + 1}/${totalBatches} berhasil dikirim`,
+        response.data
+      );
     } catch (error) {
-      console.error(`Batch ${i + 1}/${totalBatches} gagal dikirim`, error.response?.data || error.message);
+      console.error(
+        `Batch ${i + 1}/${totalBatches} gagal dikirim`,
+        error.response?.data || error.message
+      );
       throw error; // Hentikan proses jika batch gagal
     }
   }
@@ -115,9 +169,15 @@ const sendTernakHewanBulkData = async (data, batchSize = 7000) => {
     try {
       console.log(`Data Ternak Hewan (Batch ${i + 1}):`, batchData); // Log data yang dikirim
       const response = await addHewanBulkImport(batchData);
-      console.log(`Batch ${i + 1}/${totalBatches} berhasil dikirim`, response.data);
+      console.log(
+        `Batch ${i + 1}/${totalBatches} berhasil dikirim`,
+        response.data
+      );
     } catch (error) {
-      console.error(`Batch ${i + 1}/${totalBatches} gagal dikirim`, error.response?.data || error.message);
+      console.error(
+        `Batch ${i + 1}/${totalBatches} gagal dikirim`,
+        error.response?.data || error.message
+      );
       throw error; // Hentikan proses jika batch gagal
     }
   }
@@ -132,9 +192,15 @@ const sendInseminasiBuatanImport = async (data, batchSize = 7000) => {
     try {
       console.log(`Data Inseminasi Buatan (Batch ${i + 1}):`, batchData); // Log data yang dikirim
       const response = await addInseminsasiBulk(batchData);
-      console.log(`Batch ${i + 1}/${totalBatches} berhasil dikirim`, response.data);
+      console.log(
+        `Batch ${i + 1}/${totalBatches} berhasil dikirim`,
+        response.data
+      );
     } catch (error) {
-      console.error(`Batch ${i + 1}/${totalBatches} gagal dikirim`, error.response?.data || error.message);
+      console.error(
+        `Batch ${i + 1}/${totalBatches} gagal dikirim`,
+        error.response?.data || error.message
+      );
       throw error; // Hentikan proses jika batch gagal
     }
   }
@@ -158,7 +224,12 @@ function parseAddress(address) {
   const provinsi = parts[0] || "-";
 
   // Validasi bahwa setidaknya satu bagian selain "-" harus terisi
-  const isValid = dusun !== "-" || desa !== "-" || kecamatan !== "-" || kabupaten !== "-" || provinsi !== "-";
+  const isValid =
+    dusun !== "-" ||
+    desa !== "-" ||
+    kecamatan !== "-" ||
+    kabupaten !== "-" ||
+    provinsi !== "-";
 
   if (!isValid) {
     console.warn(`Alamat tidak valid: ${address}`);
@@ -175,11 +246,15 @@ const InseminasiBuatan = () => {
   const [inseminasis, setInseminasis] = useState([]);
   const [peternaks, setPeternaks] = useState([]);
   const [petugas, setPetugas] = useState([]);
-  const [editInseminasiModalVisible, setEditInseminasiModalVisible] = useState(false);
-  const [editInseminasiModalLoading, setEditInseminasiModalLoading] = useState(false);
+  const [editInseminasiModalVisible, setEditInseminasiModalVisible] =
+    useState(false);
+  const [editInseminasiModalLoading, setEditInseminasiModalLoading] =
+    useState(false);
   const [currentRowData, setCurrentRowData] = useState({});
-  const [addInseminasiModalVisible, setAddInseminasiModalVisible] = useState(false);
-  const [addInseminasiModalLoading, setAddInseminasiModalLoading] = useState(false);
+  const [addInseminasiModalVisible, setAddInseminasiModalVisible] =
+    useState(false);
+  const [addInseminasiModalLoading, setAddInseminasiModalLoading] =
+    useState(false);
   const [importModalVisible, setImportModalVisible] = useState(false);
   const [importedData, setImportedData] = useState([]);
   const [columnTitles, setColumnTitles] = useState([]);
@@ -220,7 +295,18 @@ const InseminasiBuatan = () => {
 
       if (statusCode === 200) {
         const filteredInseminasi = content.filter((inseminasi) => {
-          const { idInseminasi, idPeternak, namaPeternak, kodeEartagNasional, idPejantan, idPembuatan, bangsaPejantan, produsen, inseminator, lokasi } = inseminasi;
+          const {
+            idInseminasi,
+            idPeternak,
+            namaPeternak,
+            kodeEartagNasional,
+            idPejantan,
+            idPembuatan,
+            bangsaPejantan,
+            produsen,
+            inseminator,
+            lokasi,
+          } = inseminasi;
           const keyword = searchKeyword.toLowerCase();
 
           return (
@@ -466,7 +552,10 @@ const InseminasiBuatan = () => {
             const [datePart, timePart] = dateString.split(" ");
             const [day, month, year] = datePart.split("/");
 
-            return `${year}-${month.padStart(2, "0")}-${day.padStart(2, "0")} ${timePart}`;
+            return `${year}-${month.padStart(2, "0")}-${day.padStart(
+              2,
+              "0"
+            )} ${timePart}`;
           } else if (typeof dateString === "string") {
             const [day, month, year] = dateString.split("/");
             return `${year}-${month.padStart(2, "0")}-${day.padStart(2, "0")}`;
@@ -479,14 +568,18 @@ const InseminasiBuatan = () => {
         const validateEmail = (email) => {
           // Jika email tidak valid (null, undefined, atau bukan string), gunakan default
           if (typeof email !== "string" || !email.includes("@")) {
-            console.warn(`Email tidak valid: ${email}. Menggunakan email default.`);
+            console.warn(
+              `Email tidak valid: ${email}. Menggunakan email default.`
+            );
             return "default@gmail.com"; // Email default
           }
           // Jika valid, kembalikan email
           return email;
         };
 
-        const pecahLokasi = parseAddress(row[columnMapping["Lokasi"]] || row[columnMapping["Alamat"]] || "-");
+        const pecahLokasi = parseAddress(
+          row[columnMapping["Lokasi"]] || row[columnMapping["Alamat"]] || "-"
+        );
 
         const generateJenisKandang = (jenisKandang) => {
           return jenisKandang || "Permanen";
@@ -497,9 +590,11 @@ const InseminasiBuatan = () => {
 
         if (!uniqueData.has(row[columnMapping["Bangsa Pejantan"]])) {
           const dataRumpunHewan = {
-            idRumpunHewan: row[columnMapping["ID Rumpun Hewan"]] || generateIdRumpunHewan,
+            idRumpunHewan:
+              row[columnMapping["ID Rumpun Hewan"]] || generateIdRumpunHewan,
             rumpun: row[columnMapping["Bangsa Pejantan"]] || "-",
-            deskripsi: "Deskripsi " + row[(columnMapping, ["Bangsa Pejantan"])] || "-",
+            deskripsi:
+              "Deskripsi " + row[(columnMapping, ["Bangsa Pejantan"])] || "-",
           };
           rumpunHewanBulk.push(dataRumpunHewan);
           uniqueData.set(row[columnMapping["Bangsa Pejantan"]], true);
@@ -507,7 +602,8 @@ const InseminasiBuatan = () => {
 
         if (!uniqueData.has(row[columnMapping["kategori"]])) {
           const dataJenisHewan = {
-            idJenisHewan: row[columnMapping["ID Jenis Hewan"]] || generateIdJenisHewan,
+            idJenisHewan:
+              row[columnMapping["ID Jenis Hewan"]] || generateIdJenisHewan,
             jenis: row[columnMapping["kategori"]] || "-",
             deskripsi: "Deskripsi " + row[(columnMapping, ["kategori"])] || "-",
           };
@@ -533,7 +629,8 @@ const InseminasiBuatan = () => {
           nikPeternak: cleanNik(row[columnMapping["NIK Peternak"]]) || "-",
           namaPeternak: row[columnMapping["Nama Peternak"]] || "-",
           noTelpPeternak: row[columnMapping["No Telp"]] || "-",
-          emailPeternak: validateEmail(row[columnMapping["Email Pemilik Ternak"]]) || "-",
+          emailPeternak:
+            validateEmail(row[columnMapping["Email Pemilik Ternak"]]) || "-",
           idPetugas: uniqueData.get(namaPetugasInseminator).petugasId,
           nikPetugas: uniqueData.get(namaPetugasInseminator).nikPetugas,
           namaPetugas: uniqueData.get(namaPetugasInseminator).namaPetugas,
@@ -543,11 +640,14 @@ const InseminasiBuatan = () => {
           kecamatan: pecahLokasi.kecamatan,
           kabupaten: pecahLokasi.kabupaten,
           provinsi: pecahLokasi.provinsi,
-          tanggalLahirPeternak: formatDateToString(row[columnMapping["Tanggal Lahir Pemilik Ternak"]] || "-"),
+          tanggalLahirPeternak: formatDateToString(
+            row[columnMapping["Tanggal Lahir Pemilik Ternak"]] || "-"
+          ),
           latitude: row[columnMapping["latitude"]] || "-",
           longitude: row[columnMapping["longitude"]] || "-",
           idIsikhnas: row[columnMapping["ID Isikhnas*)"]] || "-",
-          jenisKelaminPeternak: row[columnMapping["Jenis Kelamin Pemilik Ternak"]] || "-",
+          jenisKelaminPeternak:
+            row[columnMapping["Jenis Kelamin Pemilik Ternak"]] || "-",
         };
 
         const dataKandang = {
@@ -560,7 +660,9 @@ const InseminasiBuatan = () => {
           luas: row[columnMapping["Luas Kandang*)"]] || "_",
           kapasitas: row[columnMapping["Kapasitas Kandang*)"]] || "_",
           nilaiBangunan: row[columnMapping["Nilai Bangunan*)"]] || "_",
-          jenisKandang: generateJenisKandang(row[columnMapping["Jenis Kandang"]]),
+          jenisKandang: generateJenisKandang(
+            row[columnMapping["Jenis Kandang"]]
+          ),
           latitude: row[columnMapping["latitude"]] || "-",
           longitude: row[columnMapping["longitude"]] || "-",
         };
@@ -573,12 +675,19 @@ const InseminasiBuatan = () => {
           sex: row[columnMapping["Jenis Kelamin**)"]] || "_",
           tempatLahir: row[columnMapping["Tempat Lahir Ternak"]] || "_",
           umur: row[columnMapping["Umur"]] || "_",
-          identifikasiHewan: row[columnMapping["Identifikasi Hewan*"]] || row[columnMapping["Identifikasi Hewan"]] || "_",
-          tanggalTerdaftar: formatDateToString(row[columnMapping["Tanggal Pendataan"]] || "-"),
+          identifikasiHewan:
+            row[columnMapping["Identifikasi Hewan*"]] ||
+            row[columnMapping["Identifikasi Hewan"]] ||
+            "_",
+          tanggalTerdaftar: formatDateToString(
+            row[columnMapping["Tanggal Pendataan"]] || "-"
+          ),
           idPetugas: uniqueData.get(namaPetugasInseminator).petugasId,
           nikPetugas: uniqueData.get(namaPetugasInseminator).nikPetugas,
           namaPetugas: uniqueData.get(namaPetugasInseminator).namaPetugas,
-          tanggalLahir: formatDateToString(row[columnMapping["Tanggal Lahir Ternak**)"]] || "-"),
+          tanggalLahir: formatDateToString(
+            row[columnMapping["Tanggal Lahir Ternak**)"]] || "-"
+          ),
           nikPeternak: dataPeternak.nikPeternak,
           idKandang: dataKandang.idKandang,
           namaKandang: dataKandang.namaKandang,
@@ -586,13 +695,15 @@ const InseminasiBuatan = () => {
           rumpun: row[columnMapping["Bangsa Pejantan"]] || "-",
           idPeternak: dataPeternak.idPeternak,
           namaPeternak: dataPeternak.namaPeternak,
-          tujuanPemeliharaan: row[columnMapping["Tujuan Pemeliharaan Ternak"]] || "-",
+          tujuanPemeliharaan:
+            row[columnMapping["Tujuan Pemeliharaan Ternak"]] || "-",
         };
 
         // data inseminasi
         const dataInseminasi = {
           idInseminasi: row[columnMapping["ID"]] || generateIdInseminasi,
-          tanggalIB: formatDateToString(row[columnMapping["Tanggal IB"]]) || "-",
+          tanggalIB:
+            formatDateToString(row[columnMapping["Tanggal IB"]]) || "-",
           ib1: row[columnMapping["IB 1"]] || "-",
           ib2: row[columnMapping["IB 2"]] || "-",
           ib3: row[columnMapping["IB 3"]] || "-",
@@ -634,13 +745,19 @@ const InseminasiBuatan = () => {
         await sendTernakHewanBulkData(ternakHewanBulk);
         await sendInseminasiBuatanImport(inseminasiBuatan);
       } catch (error) {
-        console.error("Gagal menyimpan data secara bulk:", error, error.response?.data);
+        console.error(
+          "Gagal menyimpan data secara bulk:",
+          error,
+          error.response?.data
+        );
       }
 
       if (errorCount === 0) {
         message.success(`Semua data berhasil disimpan.`);
       } else {
-        message.error(`${errorCount} data gagal disimpan karena duplikasi data!`);
+        message.error(
+          `${errorCount} data gagal disimpan karena duplikasi data!`
+        );
       }
     } catch (error) {
       console.error("Gagal memproses data:", error);
@@ -658,7 +775,22 @@ const InseminasiBuatan = () => {
   };
 
   const convertHeaderToCSV = () => {
-    const columnTitlesLocal = ["No", "Tanggal IB", "Lokasi", "Nama Peternak", "eartag", "IB 1", "IB 2", "IB 3", "IB lain", "ID Pejantan", "ID Pembuatan", "Bangsa Pejantan", "Produsen", "Inseminator"];
+    const columnTitlesLocal = [
+      "No",
+      "Tanggal IB",
+      "Lokasi",
+      "Nama Peternak",
+      "eartag",
+      "IB 1",
+      "IB 2",
+      "IB 3",
+      "IB lain",
+      "ID Pejantan",
+      "ID Pembuatan",
+      "Bangsa Pejantan",
+      "Produsen",
+      "Inseminator",
+    ];
     const exampleRow = [
       "1",
       "Contoh 1/5/2023",
@@ -704,17 +836,43 @@ const InseminasiBuatan = () => {
   };
 
   const handleExportData = () => {
-    const { inseminasis } = this.state;
-    const csvContent = this.convertToCSV(inseminasis);
-    this.downloadCSV(csvContent);
+    const csvContent = convertToCSV(inseminasis);
+    downloadCSV(csvContent);
   };
 
   const convertToCSV = (data) => {
-    const columnTitles = ["ID Inseminasi", "Tanggal IB", "Lokasi", "Nama Peternak", "ID Peternak", "ID Hewan", "Eartag", "IB", "ID Pejantan", "ID Pembuatan", "Bangsa Pejantan", "Produsen", "Inseminator"];
+    const columnTitles = [
+      "ID Inseminasi",
+      "Tanggal IB",
+      "Lokasi",
+      "Nama Peternak",
+      "ID Peternak",
+      "ID Hewan",
+      "Eartag",
+      "IB",
+      "ID Pejantan",
+      "ID Pembuatan",
+      "Bangsa Pejantan",
+      "Produsen",
+      "Inseminator",
+    ];
 
     const rows = [columnTitles];
     data.forEach((item) => {
-      const row = [item.idInseminasi, item.tanggalIB, item.alamat, item.namaPeternak, item.idPeternak, item.kodeEartagNasional, item.ib, item.idPejantan, item.idPembuatan, item.bangsaPejantan, item.produsen, item.inseminator];
+      const row = [
+        item.idInseminasi,
+        item.tanggalIB,
+        item.alamat,
+        item.namaPeternak,
+        item.idPeternak,
+        item.kodeEartagNasional,
+        item.ib,
+        item.idPejantan,
+        item.idPembuatan,
+        item.bangsaPejantan,
+        item.produsen,
+        item.inseminator,
+      ];
       rows.push(row);
     });
 
@@ -782,7 +940,10 @@ const InseminasiBuatan = () => {
       },
     ];
 
-    if (user && (user.role === "ROLE_ADMINISTRATOR" || user.role === "ROLE_PETUGAS")) {
+    if (
+      user &&
+      (user.role === "ROLE_ADMINISTRATOR" || user.role === "ROLE_PETUGAS")
+    ) {
       baseColumns.push({
         title: "Operasi",
         key: "action",
@@ -790,9 +951,22 @@ const InseminasiBuatan = () => {
         align: "center",
         render: (text, row) => (
           <span>
-            <Button type="primary" shape="circle" icon={<EditOutlined />} title="Edit" onClick={() => handleEditInseminasi(row)} />
+            <Button
+              type="primary"
+              shape="circle"
+              icon={<EditOutlined />}
+              title="Edit"
+              onClick={() => handleEditInseminasi(row)}
+            />
             <Divider type="vertical" />
-            <Button type="primary" danger shape="circle" icon={<DeleteOutlined />} title="Delete" onClick={() => handleDeleteInseminasi(row)} />
+            <Button
+              type="primary"
+              danger
+              shape="circle"
+              icon={<DeleteOutlined />}
+              title="Delete"
+              onClick={() => handleDeleteInseminasi(row)}
+            />
           </span>
         ),
       });
@@ -803,16 +977,36 @@ const InseminasiBuatan = () => {
 
   const renderTable = () => {
     if (user && user.role === "ROLE_PETERNAK") {
-      return <Table dataSource={inseminasis} bordered columns={renderColumns()} rowKey="idInseminasi" />;
-    } else if (user && (user.role === "ROLE_ADMINISTRATOR" || user.role === "ROLE_PETUGAS")) {
-      return <Table dataSource={inseminasis} bordered columns={renderColumns()} rowKey="idInseminasi" />;
+      return (
+        <Table
+          dataSource={inseminasis}
+          bordered
+          columns={renderColumns()}
+          rowKey="idInseminasi"
+        />
+      );
+    } else if (
+      user &&
+      (user.role === "ROLE_ADMINISTRATOR" || user.role === "ROLE_PETUGAS")
+    ) {
+      return (
+        <Table
+          dataSource={inseminasis}
+          bordered
+          columns={renderColumns()}
+          rowKey="idInseminasi"
+        />
+      );
     } else {
       return null;
     }
   };
 
   const renderButtons = () => {
-    if (user && (user.role === "ROLE_ADMINISTRATOR" || user.role === "ROLE_PETUGAS")) {
+    if (
+      user &&
+      (user.role === "ROLE_ADMINISTRATOR" || user.role === "ROLE_PETUGAS")
+    ) {
       return (
         <Row gutter={[16, 16]} justify="start" style={{ paddingLeft: 9 }}>
           <Col>
@@ -821,17 +1015,29 @@ const InseminasiBuatan = () => {
             </Button>
           </Col>
           <Col>
-            <Button icon={<UploadOutlined />} onClick={handleImportModalOpen} block>
+            <Button
+              icon={<UploadOutlined />}
+              onClick={handleImportModalOpen}
+              block
+            >
               Import File
             </Button>
           </Col>
           <Col>
-            <Button icon={<DownloadOutlined />} onClick={handleDownloadCSV} block>
+            <Button
+              icon={<DownloadOutlined />}
+              onClick={handleDownloadCSV}
+              block
+            >
               Download Format CSV
             </Button>
           </Col>
           <Col>
-            <Button icon={<DownloadOutlined />} onClick={handleExportData} block>
+            <Button
+              icon={<DownloadOutlined />}
+              onClick={handleExportData}
+              block
+            >
               Export Data To CSV
             </Button>
           </Col>
@@ -846,14 +1052,22 @@ const InseminasiBuatan = () => {
     <Row gutter={[16, 16]} justify="space-between">
       {renderButtons()}
       <Col xs={24} sm={12} md={8} lg={8} xl={8}>
-        <Input placeholder="Cari data" value={searchKeyword} onChange={(e) => handleSearch(e.target.value)} style={{ width: "100%" }} />
+        <Input
+          placeholder="Cari data"
+          value={searchKeyword}
+          onChange={(e) => handleSearch(e.target.value)}
+          style={{ width: "100%" }}
+        />
       </Col>
     </Row>
   );
 
   return (
     <div className="app-container">
-      <TypingCard title="Manajemen Inseminasi Buatan" source="Di sini, Anda dapat mengelola daftar inseminasi di sistem." />
+      <TypingCard
+        title="Manajemen Inseminasi Buatan"
+        source="Di sini, Anda dapat mengelola daftar inseminasi di sistem."
+      />
       <br />
       <Card title={title} style={{ overflowX: "scroll" }}>
         {renderTable()}
@@ -868,7 +1082,13 @@ const InseminasiBuatan = () => {
         onOk={handleEditInseminasiOk}
       />
 
-      <AddInseminasiBuatanForm wrappedComponentRef={addInseminasiFormRef} visible={addInseminasiModalVisible} confirmLoading={addInseminasiModalLoading} onCancel={handleCancel} onOk={handleAddInseminasiOk} />
+      <AddInseminasiBuatanForm
+        wrappedComponentRef={addInseminasiFormRef}
+        visible={addInseminasiModalVisible}
+        confirmLoading={addInseminasiModalLoading}
+        onCancel={handleCancel}
+        onOk={handleAddInseminasiOk}
+      />
 
       <Modal
         title="Import File"
@@ -878,7 +1098,12 @@ const InseminasiBuatan = () => {
           <Button key="cancel" onClick={handleImportModalClose}>
             Cancel
           </Button>,
-          <Button key="upload" type="primary" loading={uploading} onClick={handleUpload}>
+          <Button
+            key="upload"
+            type="primary"
+            loading={uploading}
+            onClick={handleUpload}
+          >
             Upload
           </Button>,
         ]}

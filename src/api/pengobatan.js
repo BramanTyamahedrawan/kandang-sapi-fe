@@ -1,10 +1,17 @@
 import request from "@/utils/request";
+import { v4 as uuidv4 } from "uuid";
 
 export function addPengobatan(data) {
+  const updatedData = {
+    ...data,
+    idPengobatan: uuidv4(),
+  };
+
+  console.log("data yang dikirim", updatedData);
   return request({
     url: "/pengobatan",
     method: "post",
-    data,
+    data: updatedData,
   });
 }
 
@@ -25,7 +32,7 @@ export function editPengobatan(data, id) {
 
 export function deletePengobatan(data) {
   return request({
-    url: `/pengobatan/${data.idKasus}`,
+    url: `/pengobatan/${data.idPengobatan}`,
     method: "delete",
     data,
   });

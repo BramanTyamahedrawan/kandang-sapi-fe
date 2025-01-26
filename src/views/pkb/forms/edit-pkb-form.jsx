@@ -1,47 +1,60 @@
 /* eslint-disable react/prop-types */
 import { useState, useEffect } from "react";
-import { Form, Input, Modal, Select } from "antd";
+import { Form, Input, Modal, Select, Row, Col } from "antd";
 import { getPetugas } from "@/api/petugas";
 import { getPeternaks } from "@/api/peternak";
 import { getHewans } from "../../../api/hewan";
+import { getKandang } from "@/api/kandang";
+import { getRumpunHewan } from "@/api/rumpunhewan";
+import { getJenisHewan } from "@/api/jenishewan";
 
 const { Option } = Select;
 
-const EditPKBForm = ({ visible, onCancel, onOk, confirmLoading, currentRowData }) => {
+const EditPKBForm = ({
+  visible,
+  onCancel,
+  onOk,
+  confirmLoading,
+  currentRowData,
+}) => {
   const [form] = Form.useForm();
   const [hewanList, setHewanList] = useState([]);
   const [petugasList, setPetugasList] = useState([]);
   const [peternakList, setPeternakList] = useState([]);
+  const [kandangList, setKandangList] = useState([]);
+  const [rumpunHewanList, setRumpunHewanList] = useState([]);
+  const [jenisHewanList, setJenisHewanList] = useState([]);
 
   useEffect(() => {
     fetchPetugasList();
     fetchPeternakList();
     fetchHewanList();
+    fetchKandangList();
+    fetchRumpunHewanList();
+    fetchJenisHewanList();
 
     if (currentRowData) {
       form.setFieldsValue({
         idKejadian: currentRowData.idKejadian,
         tanggalPkb: currentRowData.tanggalPkb,
-        peternak_id: currentRowData.peternak?.idPeternak,
-        hewan_id: currentRowData.hewan?.kodeEartagNasional,
-        spesies: currentRowData.spesies,
+        jumlah: currentRowData.jumlah,
         umurKebuntingan: currentRowData.umurKebuntingan,
-        petugas_id: currentRowData.petugas?.nikPetugas,
+        idPeternak: currentRowData.peternak?.idPeternak,
+        idHewan: currentRowData.hewan?.idHewan,
+        petugasId: currentRowData.petugas?.petugasId,
+        idRumpunHewan: currentRowData.rumpunHewan?.idRumpunHewan,
+        idJenisHewan: currentRowData.jenisHewan?.idJenisHewan,
+        idKandang: currentRowData.kandang?.idKandang,
       });
     }
-  }, [currentRowData]);
+  }, [currentRowData, form]);
 
   const fetchPetugasList = async () => {
     try {
       const result = await getPetugas();
       const { content, statusCode } = result.data;
       if (statusCode === 200) {
-        setPetugasList(
-          content.map(({ nikPetugas, namaPetugas }) => ({
-            nikPetugas,
-            namaPetugas,
-          }))
-        );
+        setPetugasList(content);
       }
     } catch (error) {
       console.error("Error fetching petugas data:", error);
@@ -53,12 +66,7 @@ const EditPKBForm = ({ visible, onCancel, onOk, confirmLoading, currentRowData }
       const result = await getPeternaks();
       const { content, statusCode } = result.data;
       if (statusCode === 200) {
-        setPeternakList(
-          content.map(({ idPeternak, namaPeternak }) => ({
-            idPeternak,
-            namaPeternak,
-          }))
-        );
+        setPeternakList(content);
       }
     } catch (error) {
       console.error("Error fetching peternak data:", error);
@@ -70,10 +78,46 @@ const EditPKBForm = ({ visible, onCancel, onOk, confirmLoading, currentRowData }
       const result = await getHewans();
       const { content, statusCode } = result.data;
       if (statusCode === 200) {
-        setHewanList(content.map(({ kodeEartagNasional }) => kodeEartagNasional));
+        setHewanList(content);
       }
     } catch (error) {
       console.error("Error fetching hewan data:", error);
+    }
+  };
+
+  const fetchKandangList = async () => {
+    try {
+      const result = await getKandang();
+      const { content, statusCode } = result.data;
+      if (statusCode === 200) {
+        setKandangList(content);
+      }
+    } catch (error) {
+      console.error("Error fetching kandang data:", error);
+    }
+  };
+
+  const fetchRumpunHewanList = async () => {
+    try {
+      const result = await getRumpunHewan();
+      const { content, statusCode } = result.data;
+      if (statusCode === 200) {
+        setRumpunHewanList(content);
+      }
+    } catch (error) {
+      console.error("Error fetching rumpun hewan data:", error);
+    }
+  };
+
+  const fetchJenisHewanList = async () => {
+    try {
+      const result = await getJenisHewan();
+      const { content, statusCode } = result.data;
+      if (statusCode === 200) {
+        setJenisHewanList(content);
+      }
+    } catch (error) {
+      console.error("Error fetching jenis hewan data:", error);
     }
   };
 
@@ -89,62 +133,129 @@ const EditPKBForm = ({ visible, onCancel, onOk, confirmLoading, currentRowData }
   return (
     <Modal
       title="Edit PKB"
-      visible={visible}
+      open={visible}
       onCancel={() => {
         form.resetFields();
         onCancel();
       }}
       onOk={handleSubmit}
       confirmLoading={confirmLoading}
-      width={820}
+      width={1000}
       okText="Simpan"
     >
       <Form form={form} layout="vertical">
-        <Form.Item name="idKejadian" label="ID Kejadian">
-          <Input disabled />
-        </Form.Item>
-        <Form.Item name="tanggalPkb" label="Tanggal PKB" rules={[{ required: true, message: "Masukkan tanggal PKB!" }]}>
-          <Input type="date" placeholder="Masukkan tanggal PKB" />
-        </Form.Item>
-        <Form.Item name="peternak_id" label="Nama Peternak" rules={[{ required: true, message: "Silahkan pilih nama peternak!" }]}>
-          <Select placeholder="Pilih Nama Peternak">
-            {peternakList.map(({ idPeternak, namaPeternak }) => (
-              <Option key={idPeternak} value={idPeternak}>
-                {namaPeternak}
-              </Option>
-            ))}
-          </Select>
-        </Form.Item>
-        <Form.Item name="hewan_id" label="ID Hewan" rules={[{ required: true, message: "Silahkan pilih ID Hewan!" }]}>
-          <Select placeholder="Pilih ID Hewan">
-            {hewanList.map((eartag) => (
-              <Option key={eartag} value={eartag}>
-                {eartag}
-              </Option>
-            ))}
-          </Select>
-        </Form.Item>
-        <Form.Item name="spesies" label="Spesies">
-          <Select placeholder="Pilih Spesies">
-            <Option value="Sapi Limosin">Sapi Limosin</Option>
-            <Option value="Sapi Simental">Sapi Simental</Option>
-            <Option value="Sapi FH">Sapi FH</Option>
-            <Option value="Sapi PO">Sapi PO</Option>
-            <Option value="Sapi Brangus">Sapi Brangus</Option>
-          </Select>
-        </Form.Item>
-        <Form.Item name="umurKebuntingan" label="Umur Kebuntingan Saat PKB" rules={[{ required: true, message: "Masukkan umur kebuntingan!" }]}>
-          <Input placeholder="Masukkan umur kebuntingan" />
-        </Form.Item>
-        <Form.Item name="petugas_id" label="Pemeriksa Kebuntingan" rules={[{ required: true, message: "Pilih pemeriksa kebuntingan!" }]}>
-          <Select placeholder="Pilih Petugas">
-            {petugasList.map(({ nikPetugas, namaPetugas }) => (
-              <Option key={nikPetugas} value={nikPetugas}>
-                {namaPetugas}
-              </Option>
-            ))}
-          </Select>
-        </Form.Item>
+        <Row gutter={16}>
+          <Col xs={24} sm={24} md={12}>
+            <Form.Item
+              name="idKejadian"
+              label="ID Kejadian"
+              initialValue={currentRowData.idKejadian}
+            >
+              <Input disabled />
+            </Form.Item>
+          </Col>
+          <Col xs={24} sm={24} md={12}>
+            <Form.Item
+              name="tanggalPkb"
+              label="Tanggal PKB"
+              rules={[{ required: true, message: "Masukkan tanggal PKB!" }]}
+            >
+              <Input type="date" placeholder="Masukkan tanggal" />
+            </Form.Item>
+          </Col>
+          <Col xs={24} sm={24} md={12}>
+            <Form.Item
+              name="jumlah"
+              label="Jumlah"
+              rules={[{ required: true, message: "Masukkan Jumlah" }]}
+            >
+              <Input placeholder="Masukkan jumlah" />
+            </Form.Item>
+          </Col>
+          <Col xs={24} sm={24} md={12}>
+            <Form.Item
+              name="umurKebuntingan"
+              label="Umur Kebuntingan Saat PKB"
+              rules={[
+                { required: true, message: "Masukkan umur kebuntingan!" },
+              ]}
+            >
+              <Input placeholder="Masukkan umur kebuntingan" />
+            </Form.Item>
+          </Col>
+          <Col xs={24} sm={24} md={12}>
+            <Form.Item
+              name="idPeternak"
+              label="Nama Peternak"
+              rules={[
+                { required: true, message: "Silahkan isi nama peternak!" },
+              ]}
+            >
+              <Select placeholder="Pilih Nama Peternak">
+                {peternakList.map(({ idPeternak, namaPeternak }) => (
+                  <Option key={idPeternak} value={idPeternak}>
+                    {namaPeternak}
+                  </Option>
+                ))}
+              </Select>
+            </Form.Item>
+          </Col>
+          <Col xs={24} sm={24} md={12}>
+            <Form.Item name="petugasId" label="Pemeriksa Kebuntingan">
+              <Select placeholder="Pilih Petugas">
+                {petugasList.map(({ petugasId, namaPetugas }) => (
+                  <Option key={petugasId} value={petugasId}>
+                    {namaPetugas}
+                  </Option>
+                ))}
+              </Select>
+            </Form.Item>
+          </Col>
+          <Col xs={24} sm={24} md={12}>
+            <Form.Item name="idKandang" label="Kandang">
+              <Select placeholder="Pilih Kandang">
+                {kandangList.map(({ idKandang, namaKandang }) => (
+                  <Option key={idKandang} value={idKandang}>
+                    {namaKandang}
+                  </Option>
+                ))}
+              </Select>
+            </Form.Item>
+          </Col>
+          <Col xs={24} sm={24} md={12}>
+            <Form.Item name="idHewan" label="No Kartu Ternak">
+              <Select placeholder="Pilih No Kartu Ternak">
+                {hewanList.map(({ idHewan, noKartuTernak }) => (
+                  <Option key={idHewan} value={idHewan}>
+                    {noKartuTernak}
+                  </Option>
+                ))}
+              </Select>
+            </Form.Item>
+          </Col>
+          <Col xs={24} sm={24} md={12}>
+            <Form.Item name="idRumpunHewan" label="Spesies">
+              <Select placeholder="Pilih Spesies">
+                {rumpunHewanList.map(({ idRumpunHewan, rumpun }) => (
+                  <Option key={idRumpunHewan} value={idRumpunHewan}>
+                    {rumpun}
+                  </Option>
+                ))}
+              </Select>
+            </Form.Item>
+          </Col>
+          <Col xs={24} sm={24} md={12}>
+            <Form.Item name="idJenisHewan" label="Kategori">
+              <Select placeholder="Pilih Kategori">
+                {jenisHewanList.map(({ idJenisHewan, jenis }) => (
+                  <Option key={idJenisHewan} value={idJenisHewan}>
+                    {jenis}
+                  </Option>
+                ))}
+              </Select>
+            </Form.Item>
+          </Col>
+        </Row>
       </Form>
     </Modal>
   );
