@@ -499,42 +499,117 @@ const Pengobatan = () => {
     }
   };
 
+  // Download Format CSV
+  const handleDownloadCSV = () => {
+    const csvContent = convertHeaderToCSV();
+    downloadFormatCSV(csvContent);
+  };
+
+  function convertHeaderToCSV() {
+    const columnTitlesLocal = [
+      "No",
+      "tanggal_pengobatan",
+      "tanggal_kasus",
+      "ID Kasus",
+      "Petugas",
+      "Nama Infrasruktur",
+      "Lokasi",
+      "Dosis",
+      "Tanda/Sindrom",
+      "Diagnosa Banding",
+    ];
+    const exampleRow = [
+      "1",
+      "Contoh 1/5/2023",
+      "Contoh 16/05/2023",
+      "Contoh 37336427",
+      "Contoh Masrifah Fitromukti",
+      "Contoh UPT.Puskeswan Klakah",
+      "Contoh Jawa Timur, Lumajang, Randuagung, Banyuputih Lor",
+      "Contoh 15 ekor sapi @ 10.000 ml dengan INJECTAMIN",
+      "Contoh Lahir Normal",
+      "Contoh Bovine Ephemeral Fever",
+    ];
+
+    // Gabungkan header dan contoh data
+    const rows = [columnTitlesLocal, exampleRow];
+
+    // Gabungkan semua baris dengan delimiter koma
+    const csvContent = rows
+      .map((row) =>
+        row
+          .map((item) => `"${item.replace(/"/g, '""')}"`) // Escaping kutip ganda jika ada
+          .join(",")
+      )
+      .join("\n");
+    return csvContent;
+  }
+
+  const downloadFormatCSV = (csvContent) => {
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+    const link = document.createElement("a");
+    const url = URL.createObjectURL(blob);
+
+    link.href = url;
+    link.setAttribute("download", "format_pengobatan.csv");
+    link.style.display = "none";
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
+  // Fungsi Export dari database ke file csv
   const handleExportData = () => {
-    const csvData = [
-      convertHeaderToCSV(columnTitles),
-      ...importedData.map((row) => convertRowToCSV(row)),
-    ].join("\n");
-
-    const blob = new Blob([csvData], { type: "text/csv" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `import-pengobatan-${new Date().toISOString()}.csv`;
-    a.click();
-    URL.revokeObjectURL(url);
+    const csvContent = convertToCSV(pengobatan);
+    downloadCSV(csvContent);
   };
 
-  const convertHeaderToCSV = (header) => {
-    return header.map((title) => `"${title}"`).join(",");
+  const convertToCSV = (data) => {
+    const columnTitles = [
+      "Tanggal Pengobatan",
+      "Tanggal Kasus",
+      "ID Kasus",
+      "Petugas",
+      "Nama Infrastruktur",
+      "Lokasi",
+      "Dosis",
+      "Tanda atau Sindrom",
+      "Diagnosa Banding",
+    ];
+
+    const rows = [columnTitles];
+    data.forEach((item) => {
+      const row = [
+        item.tanggalPengobatan,
+        item.tanggalKasus,
+        item.idKasus,
+        item.namaPetugas,
+        item.namaInfrastruktur,
+        item.lokasi,
+        item.dosis,
+        item.sindrom,
+        item.diagnosaBanding,
+      ];
+      rows.push(row);
+    });
+
+    let csvContent = "data:text/csv;charset=utf-8,";
+
+    rows.forEach((rowArray) => {
+      const row = rowArray.join(";");
+      csvContent += row + "\r\n";
+    });
+
+    return csvContent;
   };
 
-  const convertRowToCSV = (row) => {
-    return row.map((data) => `"${data}"`).join(",");
-  };
-
-  const handleDownloadTemplate = () => {
-    const csvData = [
-      convertHeaderToCSV(columnTitles),
-      convertRowToCSV(columnTitles.map(() => "-")),
-    ].join("\n");
-
-    const blob = new Blob([csvData], { type: "text/csv" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `template-import-pengobatan.csv`;
-    a.click();
-    URL.revokeObjectURL(url);
+  const downloadCSV = (csvContent) => {
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement("a");
+    link.setAttribute("href", encodedUri);
+    link.setAttribute("download", "Pengobatan.csv");
+    document.body.appendChild(link); // Required for Firefox
+    link.click();
   };
 
   const renderColumns = () => {
@@ -652,7 +727,7 @@ const Pengobatan = () => {
           <Col>
             <Button
               icon={<DownloadOutlined />}
-              onClick={handleDownloadTemplate}
+              onClick={handleDownloadCSV}
               block
             >
               Download Format CSV

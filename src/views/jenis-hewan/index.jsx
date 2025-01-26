@@ -7,10 +7,10 @@ import { read, utils } from "xlsx";
 import AddHewanForm from "./forms/add-jenishewan-form";
 import EditHewanForm from "./forms/edit-jenishewan-form";
 import TypingCard from "@/components/TypingCard";
-import { getJenisHewan, deleteJenisHewan, editJenisHewan, addJenisHewan } from "@/api/jenishewan";
+import { getJenisHewan, deleteJenisHewan, editJenisHewan, addJenisHewan, addJenisHewanBulk } from "@/api/jenishewan";
 import { getPetugas } from "@/api/petugas";
 import { reqUserInfo } from "../../api/user";
-
+import { v4 as uuidv4 } from "uuid";
 import kandangSapi from "../../assets/images/kandangsapi.jpg"; // Assuming it's a default export
 
 const JenisHewan = () => {
@@ -260,7 +260,6 @@ const JenisHewan = () => {
     };
 
     reader.readAsArrayBuffer(file);
-    return false; // Prevent upload
   };
 
   // Handle Uploading the Imported Data
@@ -285,47 +284,27 @@ const JenisHewan = () => {
   };
 
   // Save Imported Data to the Database
-  const saveImportedData = async (mapping) => {
-    let errorCount = 0;
-
+  const saveImportedData = async () => {
+    const dataToSaveArray = [];
     try {
       for (const row of importedData) {
-        const idJenisHewan = row[mapping["ID Jenis Hewan"]]?.toLowerCase();
-        const jenis = row[mapping["Jenis"]]?.toLowerCase();
-        const deskripsi = row[mapping["Deskripsi"]]?.toLowerCase();
-
+        const generateId = uuidv4();
         const dataToSave = {
-          idJenisHewan: row[mapping["ID Jenis Hewan"]] || "",
-          jenis: row[mapping["Jenis"]] || "",
-          deskripsi: row[mapping["Deskripsi"]] || "",
+          idJenisHewan: generateId,
+          jenis: row[columnMapping["Jenis Hewan"]],
+          deskripsi: row[columnMapping["Deskripsi"]],
         };
-
-        const existingHewanIndex = jenisHewans.findIndex((p) => p.idJenisHewan === dataToSave.idJenisHewan);
-
-        try {
-          if (existingHewanIndex > -1) {
-            // Update existing data
-            await editJenisHewan(dataToSave, dataToSave.idJenisHewan);
-            setJenisHewans((prevJenisHewans) => {
-              const updatedJenisHewans = [...prevJenisHewans];
-              updatedJenisHewans[existingHewanIndex] = dataToSave;
-              return updatedJenisHewans;
-            });
-          } else {
-            // Add new data
-            await addJenisHewan(dataToSave);
-            setJenisHewans((prevJenisHewans) => [...prevJenisHewans, dataToSave]);
-          }
-        } catch (error) {
-          errorCount++;
-          console.error("Gagal menyimpan data:", error);
-        }
+        dataToSaveArray.push(dataToSave);
       }
+      try {
+        if (dataToSaveArray.length > 0) {
+          // Add new data
+          console.log("Data Jenis ", dataToSaveArray);
 
-      if (errorCount === 0) {
-        message.success(`Semua data berhasil disimpan.`);
-      } else {
-        message.error(`${errorCount} data gagal disimpan, harap coba lagi!`);
+          await addJenisHewanBulk(dataToSaveArray);
+        }
+      } catch (error) {
+        console.error("Gagal menyimpan data:", error);
       }
     } catch (error) {
       console.error("Gagal memproses data:", error);
@@ -343,22 +322,25 @@ const JenisHewan = () => {
   };
 
   const convertHeaderToCSV = () => {
-    const columnTitlesLocal = ["Jenis Hewan", "Deskripsi"];
-    const rows = [columnTitlesLocal];
-    let csvContent = "data:text/csv;charset=utf-8,";
-    rows.forEach((rowArray) => {
-      const row = rowArray.join(";");
-      csvContent += row + "\r\n";
-    });
+    const columnTitlesLocal = ["No", "Jenis Hewan", "Deskripsi"];
+    const exampleRow = ["1", "Contoh Sapi", "Contoh Jenis hewan sapi"];
 
+    // Gabungkan header dan contoh data
+    const rows = [columnTitlesLocal, exampleRow];
+
+    // Gabungkan semua baris dengan delimiter koma
+    const csvContent = rows.map((row) => row.join(",")).join("\n");
     return csvContent;
   };
 
   const downloadFormatCSV = (csvContent) => {
-    const encodedUri = encodeURI(csvContent);
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
     const link = document.createElement("a");
-    link.setAttribute("href", encodedUri);
-    link.setAttribute("download", "format_jenis_hewan.csv");
+    const url = URL.createObjectURL(blob);
+
+    link.href = url;
+    link.setAttribute("download", "format_jenishewan.csv");
+    link.style.display = "none";
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -516,7 +498,7 @@ const JenisHewan = () => {
           </Button>,
         ]}
       >
-        <Upload beforeUpload={handleFileImport} accept=".xlsx,.xls,.csv" showUploadList={false}>
+        <Upload beforeUpload={handleFileImport} accept=".xlsx,.xls,.csv">
           <Button icon={<UploadOutlined />}>Pilih File</Button>
         </Upload>
       </Modal>

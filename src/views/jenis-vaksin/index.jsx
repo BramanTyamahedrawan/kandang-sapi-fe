@@ -1,6 +1,6 @@
 /* eslint-disable no-constant-condition */
 /* eslint-disable no-unused-vars */
-import { addJenisVaksin, deleteJenisVaksin, editJenisVaksin, getJenisVaksin } from "@/api/jenis-vaksin";
+import { addJenisVaksin, deleteJenisVaksin, editJenisVaksin, getJenisVaksin, addJenisVaksinBulk } from "@/api/jenis-vaksin";
 import TypingCard from "@/components/TypingCard";
 import { DeleteOutlined, DownloadOutlined, EditOutlined, UploadOutlined } from "@ant-design/icons";
 import { Button, Card, Col, Divider, Input, message, Modal, Row, Table, Upload } from "antd";
@@ -9,6 +9,7 @@ import { read, utils } from "xlsx";
 import { reqUserInfo } from "../../api/user";
 import AddJenisVaksinForm from "./forms/add-jenisvaksin-form";
 import EditJenisVaksinForm from "./forms/edit-jenisvaksin-form";
+import { v4 as uuidv4 } from "uuid";
 
 const JenisVaksin = () => {
   // State Variables
@@ -221,7 +222,7 @@ const JenisVaksin = () => {
       const workbook = read(data, { type: "array" });
 
       const worksheet = workbook.Sheets[workbook.SheetNames[0]];
-      const jsonData = utils.sheet_to_json(worksheet, { header: 1 });
+      const jsonData = utils.sheet_to_json(worksheet, { header: 1, blankrows: false });
 
       const importedData = jsonData.slice(1); // Exclude the first row (column titles)
       const columnTitles = jsonData[0]; // Assume the first row contains column titles
@@ -250,7 +251,6 @@ const JenisVaksin = () => {
     };
 
     reader.readAsArrayBuffer(file);
-    return false; // Prevent upload
   };
 
   // Handle Uploading the Imported Data
@@ -277,41 +277,32 @@ const JenisVaksin = () => {
   // Save Imported Data to the Database
   const saveImportedData = async (mapping) => {
     let errorCount = 0;
-
+    const dataToSaveArray = [];
     try {
       for (const row of importedData) {
-        const idJenisVaksin = row[mapping["ID Jenis Vaksin"]]?.toLowerCase();
-        const jenis = row[mapping["Jenis Vaksin"]]?.toLowerCase();
-        const deskripsi = row[mapping["Deskripsi"]]?.toLowerCase();
+        const generateId = uuidv4();
 
         const dataToSave = {
-          idJenisVaksin: row[mapping["ID Jenis Hewan"]] || "",
-          jenis: row[mapping["Jenis Vaksin"]] || "",
-          deskripsi: row[mapping["Deskripsi"]] || "",
+          idJenisVaksin: generateId,
+          jenis: row[mapping["Jenis Vaksin"]],
+          deskripsi: row[mapping["Deskripsi"]],
         };
 
-        const existingJenisVaksinIndex = jenisVaksins.findIndex((p) => p.idJenisVaksin === dataToSave.idJenisVaksin);
-
-        try {
-          if (existingJenisVaksinIndex > -1) {
-            // Update existing data
-            await editJenisVaksin(dataToSave, dataToSave.idJenisVaksin);
-            setJenisVaksins((prevJenisVaksins) => {
-              const updatedJenisVaksins = [...prevJenisVaksins];
-              updatedJenisVaksins[existingJenisVaksinIndex] = dataToSave;
-              return updatedJenisVaksins;
-            });
-          } else {
-            // Add new data
-            await addJenisVaksin(dataToSave);
-            setJenisVaksins((prevJenisVaksins) => [...prevJenisVaksins, dataToSave]);
-          }
-        } catch (error) {
-          errorCount++;
-          console.error("Gagal menyimpan data:", error);
-        }
+        // const existingJenisVaksinIndex = jenisVaksins.findIndex((p) => p.idJenisVaksin === dataToSave.idJenisVaksin);
+        dataToSaveArray.push(dataToSave);
       }
+      try {
+        if (dataToSaveArray.length > 0) {
+          // Add new data
+          console.log("Data to save ", dataToSaveArray);
 
+          await addJenisVaksinBulk(dataToSaveArray);
+          // setJenisVaksins((prevJenisVaksins) => [...prevJenisVaksins, dataToSave]);
+        }
+      } catch (error) {
+        errorCount++;
+        console.error("Gagal menyimpan data:", error);
+      }
       if (errorCount === 0) {
         message.success(`Semua data berhasil disimpan.`);
       } else {
@@ -333,22 +324,25 @@ const JenisVaksin = () => {
   };
 
   const convertHeaderToCSV = () => {
-    const columnTitlesLocal = ["Jenis Vaksin", "Deskripsi"];
-    const rows = [columnTitlesLocal];
-    let csvContent = "data:text/csv;charset=utf-8,";
-    rows.forEach((rowArray) => {
-      const row = rowArray.join(";");
-      csvContent += row + "\r\n";
-    });
+    const columnTitlesLocal = ["No", "Jenis Vaksin", "Deskripsi"];
+    const exampleRow = ["1", "Contoh PMK", "Contoh jenis vaksin untuk penyakit PMK"];
 
+    // Gabungkan header dan contoh data
+    const rows = [columnTitlesLocal, exampleRow];
+
+    // Gabungkan semua baris dengan delimiter koma
+    const csvContent = rows.map((row) => row.join(",")).join("\n");
     return csvContent;
   };
 
   const downloadFormatCSV = (csvContent) => {
-    const encodedUri = encodeURI(csvContent);
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
     const link = document.createElement("a");
-    link.setAttribute("href", encodedUri);
-    link.setAttribute("download", "format_jenis_vaksin.csv");
+    const url = URL.createObjectURL(blob);
+
+    link.href = url;
+    link.setAttribute("download", "format_jenisvaksin.csv");
+    link.style.display = "none";
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -513,7 +507,7 @@ const JenisVaksin = () => {
           </Button>,
         ]}
       >
-        <Upload beforeUpload={handleFileImport} accept=".xlsx,.xls,.csv" showUploadList={false}>
+        <Upload beforeUpload={handleFileImport} accept=".xlsx,.xls,.csv">
           <Button icon={<UploadOutlined />}>Pilih File</Button>
         </Upload>
       </Modal>

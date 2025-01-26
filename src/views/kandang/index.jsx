@@ -1,6 +1,6 @@
 /* eslint-disable no-constant-condition */
 /* eslint-disable no-unused-vars */
-import { addKandang, deleteKandang, editKandang, getKandang } from "@/api/kandang";
+import { addKandang, deleteKandang, editKandang, getKandang, addKandangImport } from "@/api/kandang";
 import TypingCard from "@/components/TypingCard";
 import { Button, Card, Col, Divider, Input, message, Modal, Row, Table, Upload } from "antd";
 import React, { useEffect, useRef, useState } from "react";
@@ -10,6 +10,7 @@ import EditKandangForm from "./forms/edit-kandang-form";
 import { DeleteOutlined, DownloadOutlined, EditOutlined, UploadOutlined } from "@ant-design/icons";
 import { read, utils } from "xlsx";
 import { reqUserInfo } from "../../api/user";
+import { v4 as uuidv4 } from "uuid";
 import imgUrl from "../../utils/imageURL";
 
 import kandangSapi from "../../assets/images/kandangsapi.jpg";
@@ -180,7 +181,7 @@ const Kandang = () => {
       const workbook = read(data, { type: "array" });
 
       const worksheet = workbook.Sheets[workbook.SheetNames[0]];
-      const jsonData = utils.sheet_to_json(worksheet, { header: 1 });
+      const jsonData = utils.sheet_to_json(worksheet, { header: 1, blankrows: false, defval: null });
 
       const importedDataLocal = jsonData.slice(1); // Exclude the first row (column titles)
       const columnTitlesLocal = jsonData[0]; // Assume the first row contains column titles
@@ -200,12 +201,9 @@ const Kandang = () => {
     };
 
     reader.readAsArrayBuffer(file);
-    return false; // Prevent automatic upload
   };
 
   const handleUpload = () => {
-    const { importedData, columnMapping } = { importedData, columnMapping };
-
     if (importedData.length === 0) {
       message.error("No data to import.");
       return;
@@ -241,54 +239,40 @@ const Kandang = () => {
     }
   };
 
-  const saveImportedData = async (columnMappingLocal) => {
-    let errorCount = 0;
-
+  const saveImportedData = async () => {
+    const dataToSaveArrray = [];
     try {
       for (const row of importedData) {
-        const address = `${row[columnMappingLocal["Desa"]]}, ${row[columnMappingLocal["Kecamatan"]]}, ${row[columnMappingLocal["Kabupaten"]]}, ${row[columnMappingLocal["Provinsi"]]}`;
+        const generateIdKandang = uuidv4();
+        const address = `${row[columnMapping["Desa"]]}, ${row[columnMapping["Kecamatan"]]}, ${row[columnMapping["Kabupaten"]]}, ${row[columnMapping["Provinsi"]]}`;
         const { lat, lon } = await fetchCoordinates(address);
 
         const dataToSave = {
-          idKandang: row[columnMappingLocal["Id Kandang"]],
-          idPeternak: row[columnMappingLocal["Id Peternak"]],
-          luas: row[columnMappingLocal["Luas"]],
-          kapasitas: row[columnMappingLocal["Kapasitas"]],
-          nilaiBangunan: row[columnMappingLocal["Nilai Bangunan"]],
-          alamat: row[columnMappingLocal["Alamat"]],
-          latitude: lat || row[columnMappingLocal["Latitude"]],
-          longitude: lon || row[columnMappingLocal["Longitude"]],
+          idKandang: generateIdKandang,
+          namaPeternak: row[columnMapping["Nama Pemilik Ternak"]],
+          namaKandang: row[columnMapping["Nama Kandang"]],
+          jenis: row[columnMapping["Jenis Hewan"]],
+          luas: row[columnMapping["Luas Kandang"]],
+          kapasitas: row[columnMapping["Kapasitas Kandang"]],
+          nilaiBangunan: row[columnMapping["Nilai Bangunan"]],
+          jenisKandang: row[columnMapping["Jenis Kandang"]],
+          alamat: row[columnMapping["Alamat"]],
+          latitude: lat || row[columnMapping["latitude"]],
+          longitude: lon || row[columnMapping["longitude"]],
           file: kandangSapi,
         };
-
-        const existingKandangIndex = kandangs.findIndex((p) => p.idKandang === dataToSave.idKandang);
-        try {
-          if (existingKandangIndex > -1) {
-            // Update existing data
-            await editKandang(dataToSave, dataToSave.idKandang);
-            setKandangs((prevKandangs) => {
-              const updatedKandangs = [...prevKandangs];
-              updatedKandangs[existingKandangIndex] = dataToSave;
-              return updatedKandangs;
-            });
-          } else {
-            // Add new data
-            await addKandang(dataToSave);
-            setKandangs((prevKandangs) => [...prevKandangs, dataToSave]);
-          }
-        } catch (error) {
-          errorCount++;
-          console.error("Gagal menyimpan data:", error);
-        }
-
-        // Delay to avoid hitting rate limits
-        await new Promise((resolve) => setTimeout(resolve, 1000));
+        dataToSaveArrray.push(dataToSave);
       }
 
-      if (errorCount === 0) {
-        message.success(`Semua data berhasil disimpan.`);
-      } else {
-        message.error(`${errorCount} data gagal disimpan, harap coba lagi!`);
+      try {
+        if (dataToSaveArrray.length > 0) {
+          // Add new data
+          console.log("Data batch ", dataToSaveArrray);
+
+          await addKandangImport(dataToSaveArrray);
+        }
+      } catch (error) {
+        console.error("Gagal menyimpan data:", error);
       }
     } catch (error) {
       console.error("Gagal memproses data:", error);
@@ -300,28 +284,54 @@ const Kandang = () => {
     }
   };
 
+  // Download Format CSV
   const handleDownloadCSV = () => {
-    const csvContent = convertHeaderToCSV();
+    const csvContent = createCSVTemplate();
     downloadFormatCSV(csvContent);
   };
 
-  const convertHeaderToCSV = () => {
-    const columnTitlesLocal = ["Nama Pemelik Ternak", "Nama Kandang", "Jenis Hewan", "Nilai Bangunan", "Laas Kandang", "Kapasitas Kandang", "Jenis Kandang", "Alamat", "latitude", "longitude"];
-    const rows = [columnTitlesLocal];
-    let csvContent = "data:text/csv;charset=utf-8,";
-    rows.forEach((rowArray) => {
-      const row = rowArray.join(";");
-      csvContent += row + "\r\n";
-    });
+  const createCSVTemplate = () => {
+    // Header kolom
+    const columnTitlesLocal = ["No", "Nama Pemilik Ternak", "Nama Kandang", "Jenis Hewan", "Nilai Bangunan", "Luas Kandang", "Kapasitas Kandang", "Jenis Kandang", "Alamat", "latitude", "longitude"];
+
+    // Baris data dummy (contoh)
+    const exampleRow = [
+      "1",
+      "Contoh Pemilik",
+      "Contoh Kandang Sapi Supardi",
+      "Contoh Sapi",
+      "Contoh 1000000",
+      "Contoh 50",
+      "Contoh 100",
+      "Contoh permanen",
+      "Contoh Kalipepe,Yosowilangun,Lumajang,Jawa Timur",
+      "Contoh -6.1234",
+      "Contoh 106.1234",
+    ];
+
+    // Gabungkan header dan contoh data
+    const rows = [columnTitlesLocal, exampleRow];
+
+    // Escape karakter khusus (koma) dengan tanda kutip ganda
+    const csvContent = rows
+      .map((row) =>
+        row
+          .map((item) => `"${item.replace(/"/g, '""')}"`) // Escaping kutip ganda jika ada
+          .join(",")
+      )
+      .join("\n");
 
     return csvContent;
   };
 
   const downloadFormatCSV = (csvContent) => {
-    const encodedUri = encodeURI(csvContent);
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
     const link = document.createElement("a");
-    link.setAttribute("href", encodedUri);
+    const url = URL.createObjectURL(blob);
+
+    link.href = url;
     link.setAttribute("download", "format_kandang.csv");
+    link.style.display = "none";
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -537,7 +547,7 @@ const Kandang = () => {
           </Button>,
         ]}
       >
-        <Upload beforeUpload={handleFileImport} showUploadList={false}>
+        <Upload beforeUpload={handleFileImport}>
           <Button icon={<UploadOutlined />}>Pilih File</Button>
         </Upload>
       </Modal>

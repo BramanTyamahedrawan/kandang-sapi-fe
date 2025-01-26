@@ -10,11 +10,12 @@ import React, { useEffect, useRef, useState } from "react";
 import { read, utils } from "xlsx";
 import AddVaksinForm from "./forms/add-vaksin-form";
 import EditVaksinForm from "./forms/edit-vaksin-form";
-
-import { addVaksin, deleteVaksin, editVaksin, getVaksins } from "@/api/vaksin";
+import { v4 as uuidv4 } from "uuid";
+import { addVaksin, deleteVaksin, editVaksin, getVaksins, addVaksinImport } from "@/api/vaksin";
 
 import { getPetugas } from "@/api/petugas";
 import { reqUserInfo } from "../../api/user";
+import { data } from "react-router-dom";
 
 const Vaksin = () => {
   const [vaksins, setVaksins] = useState([]);
@@ -269,7 +270,7 @@ const Vaksin = () => {
       const workbook = read(data, { type: "array" });
 
       const worksheet = workbook.Sheets[workbook.SheetNames[0]];
-      const jsonData = utils.sheet_to_json(worksheet, { header: 1 });
+      const jsonData = utils.sheet_to_json(worksheet, { header: 1, blankrows: false });
 
       const importedData = jsonData.slice(1); // Exclude the first row (column titles)
       const columnTitles = jsonData[0]; // Assume the first row contains column titles
@@ -290,13 +291,10 @@ const Vaksin = () => {
     };
 
     reader.readAsArrayBuffer(file);
-    return false; // Prevent upload
   };
 
   // Handle uploading the imported data
   const handleUpload = async () => {
-    const { columnMapping, importedData } = { columnMapping, importedData };
-
     if (importedData.length === 0) {
       message.error("No data to import.");
       return;
@@ -317,45 +315,73 @@ const Vaksin = () => {
   };
 
   // Save imported data to the database
-  const saveImportedData = async (mapping) => {
+  const saveImportedData = async () => {
     let errorCount = 0;
+    const dataToSaveArray = [];
+    const formatDateToString = (dateString) => {
+      // Jika dateString adalah angka (seperti nilai dari Excel)
+      if (!isNaN(dateString)) {
+        // Excel menganggap angka tersebut sebagai jumlah hari sejak 01/01/1900
+        // Konversi angka menjadi milidetik
+        const excelEpoch = new Date(1900, 0, 1).getTime(); // 1 Januari 1900
+        const milliseconds = dateString * 86400000; // 86400000 ms dalam 1 hari
+        const date = new Date(excelEpoch + milliseconds);
+
+        // Format tanggal dan waktu menjadi string
+        const day = String(date.getDate()).padStart(2, "0");
+        const month = String(date.getMonth() + 1).padStart(2, "0"); // Bulan dimulai dari 0
+        const year = date.getFullYear();
+
+        return `${day}/${month}/${year}`;
+      }
+
+      // Jika dateString adalah string yang valid dengan format DD/MM/YYYY atau DD/MM/YYYY HH:mm:ss
+      if (typeof dateString === "string" && dateString.includes(" ")) {
+        const [datePart, timePart] = dateString.split(" ");
+        const [day, month, year] = datePart.split("/");
+
+        return `${year}-${month.padStart(2, "0")}-${day.padStart(2, "0")} ${timePart}`;
+      } else if (typeof dateString === "string") {
+        const [day, month, year] = dateString.split("/");
+        return `${year}-${month.padStart(2, "0")}-${day.padStart(2, "0")}`;
+      }
+
+      // Jika format tidak dikenali
+      return "Invalid Date";
+    };
 
     try {
       for (const row of importedData) {
-        const petugasNama = row[mapping["Inseminator"]]?.toLowerCase();
-        const petugasData = petugas.find((p) => p.namaPetugas.toLowerCase() === petugasNama);
-        const petugasId = petugasData ? petugasData.nikPetugas : null;
-        console.log(`Mencocokkan nama petugas: ${petugasNama}, Ditemukan: ${petugasData ? "Ya" : "Tidak"}, petugasId: ${petugasId}`);
+        const generateId = uuidv4();
         const dataToSave = {
-          idVaksin: row[mapping["Batch Vaksin**)"]],
-          namaVaksin: row[mapping["Nama Vaksin**)"]],
-          jenisVaksin: row[mapping["Jenis Vaksin**)"]],
-          peternak_id: row[mapping["NIK Pemilik Ternak**)"]],
-          hewan_id: row[mapping["No. Eartag***)"]],
-          petugas_id: row[mapping["NIK Petugas Pendataan*)"]],
-          tglVaksin: convertToJSDate(row[mapping["Tanggal Vaksin**)"]]),
+          idVaksin: generateId,
+          nama: row[columnMapping["Nama Vaksin"]],
+          jenis: row[columnMapping["Jenis Vaksin"]],
+          nikPeternak: row[columnMapping["Nik Peternak"]],
+          namaPeternak: row[columnMapping["Nama Peternak"]],
+          kodeEartagNasional: row[columnMapping["Kode Eartag Ternak"]],
+          noKartuTernak: row[columnMapping["No Kartu Ternak"]],
+          batchVaksin: row[columnMapping["Batch Vaksin"]],
+          vaksinKe: row[columnMapping["Vaksin Ke"]],
+          namaPetugas: row[columnMapping["Nama Petugas Vaksin"]],
+          tglVaksin: formatDateToString(row[columnMapping["Tanggal Vaksin"]]),
         };
 
-        const existingVaksinIndex = vaksins.findIndex((p) => p.idVaksin === dataToSave.idVaksin);
+        // const existingVaksinIndex = vaksins.findIndex((p) => p.idVaksin === dataToSave.idVaksin);
+        dataToSaveArray.push(dataToSave);
+      }
 
-        try {
-          if (existingVaksinIndex > -1) {
-            // Update existing data
-            await editVaksin(dataToSave, dataToSave.idVaksin);
-            setVaksins((prevVaksins) => {
-              const updatedVaksins = [...prevVaksins];
-              updatedVaksins[existingVaksinIndex] = dataToSave;
-              return updatedVaksins;
-            });
-          } else {
-            // Add new data
-            await addVaksin(dataToSave);
-            setVaksins((prevVaksins) => [...prevVaksins, dataToSave]);
-          }
-        } catch (error) {
-          errorCount++;
-          console.error("Gagal menyimpan data:", error);
+      try {
+        if (dataToSaveArray.length > 0) {
+          // Add new data
+          console.log("Data to save ", dataToSaveArray);
+
+          await addVaksinImport(dataToSaveArray);
+          // setVaksins((prevVaksins) => [...prevVaksins, dataToSave]);
         }
+      } catch (error) {
+        errorCount++;
+        console.error("Gagal menyimpan data:", error);
       }
 
       if (errorCount === 0) {
@@ -378,22 +404,25 @@ const Vaksin = () => {
   };
 
   const convertHeaderToCSV = () => {
-    const columnTitlesLocal = ["Nama Vaksin", "Jenis Vaksin", "Idisikhnas Ternak", "Nik Peternak", "Nama Peternak", "Kode Eartag Ternak", "Batch Vaksin", "Vaksin Ke", "Nama Petugas Vaksin", "Tanggal Vaksin", "Tanggal Hewan Terdaftar"];
-    const rows = [columnTitlesLocal];
-    let csvContent = "data:text/csv;charset=utf-8,";
-    rows.forEach((rowArray) => {
-      const row = rowArray.join(";");
-      csvContent += row + "\r\n";
-    });
+    const columnTitlesLocal = ["No", "Nama Vaksin", "Jenis Vaksin", "Nik Peternak", "Nama Peternak", "Kode Eartag Ternak", "No Kartu Ternak", "Batch Vaksin", "Vaksin Ke", "Nama Petugas Vaksin", "Tanggal Vaksin"];
+    const exampleRow = ["1", "Contoh ABC", "Contoh PMK", "Contoh 3508070507040006", "Contoh Supardi", "Contoh AAAA3451", "Contoh 667578", "Contoh 66677", "Contoh 1", "Contoh Suparman", "Contoh 3/4/2025"];
 
+    // Gabungkan header dan contoh data
+    const rows = [columnTitlesLocal, exampleRow];
+
+    // Gabungkan semua baris dengan delimiter koma
+    const csvContent = rows.map((row) => row.join(",")).join("\n");
     return csvContent;
   };
 
   const downloadFormatCSV = (csvContent) => {
-    const encodedUri = encodeURI(csvContent);
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
     const link = document.createElement("a");
-    link.setAttribute("href", encodedUri);
+    const url = URL.createObjectURL(blob);
+
+    link.href = url;
     link.setAttribute("download", "format_vaksin.csv");
+    link.style.display = "none";
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -587,7 +616,7 @@ const Vaksin = () => {
           </Button>,
         ]}
       >
-        <Upload beforeUpload={handleFileImport} accept=".xlsx,.xls,.csv" showUploadList={false}>
+        <Upload beforeUpload={handleFileImport} accept=".xlsx,.xls,.csv">
           <Button icon={<UploadOutlined />}>Pilih File</Button>
         </Upload>
       </Modal>

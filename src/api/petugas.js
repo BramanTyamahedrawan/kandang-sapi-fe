@@ -1,7 +1,6 @@
 import request from "@/utils/request";
 
 export function addPetugas(data) {
-  
   return request({
     url: "/petugas",
     method: "post",
@@ -18,7 +17,7 @@ export function getPetugas() {
 
 export function editPetugas(data, petugasId) {
   console.log(data, petugasId);
-  
+
   return request({
     url: `/petugas/${petugasId}`,
     method: "put",
@@ -27,8 +26,8 @@ export function editPetugas(data, petugasId) {
 }
 
 export function deletePetugas(data) {
-  console.log("Data Id ",data.petugasId);
-  
+  console.log("Data Id ", data.petugasId);
+
   return request({
     url: `/petugas/${data.petugasId}`,
     method: "delete",

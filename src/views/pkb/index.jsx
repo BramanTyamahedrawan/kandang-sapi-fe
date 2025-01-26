@@ -778,42 +778,117 @@ const Pkb = () => {
     }
   };
 
+  const handleDownloadCSV = () => {
+    const csvContent = convertHeaderToCSV();
+    downloadFormatCSV(csvContent);
+  };
+
+  const convertHeaderToCSV = () => {
+    const columnTitlesLocal = [
+      "No",
+      "ID Kejadian",
+      "Nama Peternak",
+      "Nik Peternak",
+      "ID Hewan",
+      "Spesies",
+      "kategori",
+      "Jumlah",
+      "Umur Kebuntingan saat PKB (bulan)",
+      "Pemeriksa Kebuntingan",
+    ];
+    const exampleRow = [
+      "1",
+      "Contoh 78210308",
+      "Contoh Sugi",
+      "Contoh 3508070507040006",
+      "Contoh 090439",
+      "Contoh sapi limosin",
+      "Contoh sapi potong",
+      "Contoh 1",
+      "Contoh 5",
+      "Contoh Irfan Setiyawan P.",
+    ];
+
+    // Gabungkan header dan contoh data
+    const rows = [columnTitlesLocal, exampleRow];
+
+    // Gabungkan semua baris dengan delimiter koma
+    const csvContent = rows
+      .map((row) =>
+        row
+          .map((item) => `"${item.replace(/"/g, '""')}"`) // Escaping kutip ganda jika ada
+          .join(",")
+      )
+      .join("\n");
+    return csvContent;
+  };
+
+  const downloadFormatCSV = (csvContent) => {
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+    const link = document.createElement("a");
+    const url = URL.createObjectURL(blob);
+
+    link.href = url;
+    link.setAttribute("download", "format_pkb.csv");
+    link.style.display = "none";
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
   const handleExportData = () => {
-    const csvData = [
-      convertHeaderToCSV(columnTitles),
-      ...importedData.map((row) => convertRowToCSV(row)),
-    ].join("\n");
-
-    const blob = new Blob([csvData], { type: "text/csv" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `import-pkb-${new Date().toISOString()}.csv`;
-    a.click();
-    URL.revokeObjectURL(url);
+    const csvContent = convertDataToCSV();
+    downloadCSV(csvContent);
   };
 
-  const convertHeaderToCSV = (header) => {
-    return header.map((title) => `"${title}"`).join(",");
+  const convertDataToCSV = (data) => {
+    const columnTitles = [
+      "ID Kejadian",
+      "Tanggal PKB",
+      "Nama Peternak",
+      "No Kartu Ternak",
+      "Species",
+      "Kategori",
+      "Jumlah",
+      "Umur Kebuntingan",
+      "Pemeriksa Kebuntingan",
+    ];
+
+    // Gabungkan header dan data
+    const rows = [columnTitles];
+    data.forEach((row) => {
+      const rowData = [
+        row.idKejadian,
+        row.tanggalPkb,
+        row.peternak.namaPeternak,
+        row.hewan.noKartuTernak,
+        row.rumpunHewan.rumpun,
+        row.jenisHewan.jenis,
+        row.jumlah,
+        row.umurKebuntingan,
+        row.petugas.namaPetugas,
+      ];
+      rows.push(rowData);
+    });
+
+    let csvContent = "data:text/csv;charset=utf-8,";
+
+    rows.forEach((rowArray) => {
+      const row = rowArray.join(";");
+      csvContent += row + "\r\n";
+    });
+
+    return csvContent;
   };
 
-  const convertRowToCSV = (row) => {
-    return row.map((data) => `"${data}"`).join(",");
-  };
-
-  const handleDownloadTemplate = () => {
-    const csvData = [
-      convertHeaderToCSV(columnTitles),
-      convertRowToCSV(columnTitles.map(() => "-")),
-    ].join("\n");
-
-    const blob = new Blob([csvData], { type: "text/csv" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `template-import-pkb.csv`;
-    a.click();
-    URL.revokeObjectURL(url);
+  const downloadCSV = (csvContent) => {
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement("a");
+    link.setAttribute("href", encodedUri);
+    link.setAttribute("download", "Hewan.csv");
+    document.body.appendChild(link); // Required for Firefox
+    link.click();
+    document.body.removeChild(link); // Clean up
   };
 
   const renderColumns = () => {
@@ -940,7 +1015,7 @@ const Pkb = () => {
           <Col>
             <Button
               icon={<DownloadOutlined />}
-              onClick={handleDownloadTemplate}
+              onClick={handleDownloadCSV}
               block
             >
               Download Format CSV

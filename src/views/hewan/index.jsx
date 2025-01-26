@@ -435,6 +435,7 @@ const Hewan = () => {
 
   const convertHeaderToCSV = () => {
     const columnTitlesLocal = [
+      "No",
       "Kode Eartag Nasional",
       "No Kartu Ternak",
       "Idisikhnas Ternak",
@@ -443,7 +444,6 @@ const Hewan = () => {
       "Jenis Ternak",
       "Rumpun Ternak",
       "Jenis Kelamin**",
-      "Tempat Lahir Ternak",
       "Tanggal Lahir Ternak",
       "umur",
       "latitude",
@@ -456,21 +456,50 @@ const Hewan = () => {
       "Identifikasi Hewan*",
       "Tanggal Terdaftar",
     ];
-    const rows = [columnTitlesLocal];
-    let csvContent = "data:text/csv;charset=utf-8,";
-    rows.forEach((rowArray) => {
-      const row = rowArray.join(";");
-      csvContent += row + "\r\n";
-    });
+    const exampleRow = [
+      "1",
+      "Contoh AAA350001324286",
+      "Contoh 65953440",
+      "Contoh 666777",
+      "Contoh 3508070507040006",
+      "Contoh Supardi",
+      "Contoh Sapi",
+      "Contoh sapi potong",
+      "Contoh betina",
+      "Contoh 5/7/1999",
+      "Contoh 0 Tahun,8 bulan,25 Hari",
+      "Contoh -8.131851",
+      "Contoh 113.204225",
+      "Contoh Kalipepe",
+      "Contoh Yosowilangun",
+      "Contoh Lumajang",
+      "Contoh Jawa Timur",
+      "Contoh Suparman",
+      "Contoh SUM13",
+      "Contoh 4/5/2025",
+    ];
+    // Gabungkan header dan contoh data
+    const rows = [columnTitlesLocal, exampleRow];
 
+    // Gabungkan semua baris dengan delimiter koma
+    const csvContent = rows
+      .map((row) =>
+        row
+          .map((item) => `"${item.replace(/"/g, '""')}"`) // Escaping kutip ganda jika ada
+          .join(",")
+      )
+      .join("\n");
     return csvContent;
   };
 
   const downloadFormatCSV = (csvContent) => {
-    const encodedUri = encodeURI(csvContent);
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
     const link = document.createElement("a");
-    link.setAttribute("href", encodedUri);
+    const url = URL.createObjectURL(blob);
+
+    link.href = url;
     link.setAttribute("download", "format_hewan.csv");
+    link.style.display = "none";
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -625,22 +654,22 @@ const Hewan = () => {
     if (user && (user.role === "ROLE_ADMINISTRATOR" || user.role === "ROLE_PETUGAS")) {
       return (
         <Row gutter={[16, 16]} justify="start" style={{ paddingLeft: 9 }}>
-          <Col xs={24} sm={12} md={8} lg={8} xl={8}>
+          <Col>
             <Button type="primary" onClick={handleAddHewan} block>
               Tambah Hewan
             </Button>
           </Col>
-          <Col xs={24} sm={12} md={8} lg={8} xl={8}>
+          <Col>
             <Button icon={<UploadOutlined />} onClick={handleImportModalOpen} block>
               Import File
             </Button>
           </Col>
-          <Col xs={24} sm={12} md={8} lg={8} xl={8}>
+          <Col>
             <Button icon={<DownloadOutlined />} onClick={handleDownloadCSV} block>
               Download Format CSV
             </Button>
           </Col>
-          <Col xs={24} sm={12} md={8} lg={8} xl={8}>
+          <Col>
             <Button icon={<UploadOutlined />} onClick={handleExportData} block>
               Export Data To CSV
             </Button>

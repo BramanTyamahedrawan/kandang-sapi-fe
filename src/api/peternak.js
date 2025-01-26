@@ -42,8 +42,6 @@ export function editPeternak(data, id) {
  * @returns {Promise} - Axios response
  */
 export function deletePeternak(idPeternak) {
-  console.log("id peternak: " + idPeternak);
-
   return request.delete(`/peternak/${idPeternak}`);
 }
 

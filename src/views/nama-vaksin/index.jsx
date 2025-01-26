@@ -1,6 +1,6 @@
 /* eslint-disable no-constant-condition */
 /* eslint-disable no-unused-vars */
-import { addNamaVaksin, deleteNamaVaksin, editNamaVaksin, getNamaVaksin } from "@/api/nama-vaksin";
+import { addNamaVaksin, deleteNamaVaksin, editNamaVaksin, getNamaVaksin, addNamaVaksinBulk } from "@/api/nama-vaksin";
 import { reqUserInfo } from "@/api/user"; // Adjust the import path as necessary
 import TypingCard from "@/components/TypingCard";
 import { DeleteOutlined, DownloadOutlined, EditOutlined, UploadOutlined } from "@ant-design/icons";
@@ -9,6 +9,7 @@ import React, { useEffect, useRef, useState } from "react";
 import { read, utils } from "xlsx";
 import AddNamaVaksinForm from "./forms/add-namavaksin-form";
 import EditNamaVaksinForm from "./forms/edit-namavaksin-form";
+import { v4 as uuidv4 } from "uuid";
 
 const NamaVaksin = () => {
   // State Variables
@@ -215,7 +216,7 @@ const NamaVaksin = () => {
       const workbook = read(data, { type: "array" });
 
       const worksheet = workbook.Sheets[workbook.SheetNames[0]];
-      const jsonData = utils.sheet_to_json(worksheet, { header: 1 });
+      const jsonData = utils.sheet_to_json(worksheet, { header: 1, blankrows: false });
 
       const importedData = jsonData.slice(1); // Exclude the first row (column titles)
       const columnTitles = jsonData[0]; // Assume the first row contains column titles
@@ -244,7 +245,6 @@ const NamaVaksin = () => {
     };
 
     reader.readAsArrayBuffer(file);
-    return false; // Prevent upload
   };
 
   // Handle Uploading the Imported Data
@@ -271,54 +271,47 @@ const NamaVaksin = () => {
   // Save Imported Data to the Database
   const saveImportedData = async (mapping) => {
     let errorCount = 0;
+    const dataToSaveArray = [];
+    try {
+      for (const row of importedData) {
+        const generateId = uuidv4();
+        const dataToSave = {
+          idNamaVaksin: generateId,
+          jenis: row[mapping["Jenis Vaksin"]],
+          nama: row[columnMapping["Nama Vaksin"]],
+          deskripsi: row[mapping["Deskripsi"]],
+        };
 
-    // try {
-    //   for (const row of importedData) {
-    //     const idJenisVaksin = row[mapping["ID Jenis Vaksin"]]?.toLowerCase();
-    //     const jenis = row[mapping["Jenis Vaksin"]]?.toLowerCase();
-    //     const deskripsi = row[mapping["Deskripsi"]]?.toLowerCase();
+        // const existingJenisVaksinIndex = jenisVaksins.findIndex((p) => p.idJenisVaksin === dataToSave.idJenisVaksin);
 
-    //     const dataToSave = {
-    //       idJenisVaksin: row[mapping["ID Jenis Hewan"]] || "",
-    //       jenis: row[mapping["Jenis Vaksin"]] || "",
-    //       deskripsi: row[mapping["Deskripsi"]] || "",
-    //     };
+        dataToSaveArray.push(dataToSave);
+      }
+      try {
+        if (dataToSaveArray.length > 0) {
+          // Add new data
+          console.log("Data to save ", dataToSaveArray);
 
-    //     const existingJenisVaksinIndex = jenisVaksins.findIndex((p) => p.idJenisVaksin === dataToSave.idJenisVaksin);
+          await addNamaVaksinBulk(dataToSaveArray);
+          // setJenisVaksins((prevJenisVaksins) => [...prevJenisVaksins, dataToSave]);
+        }
+      } catch (error) {
+        errorCount++;
+        console.error("Gagal menyimpan data:", error);
+      }
 
-    //     try {
-    //       if (existingJenisVaksinIndex > -1) {
-    //         // Update existing data
-    //         await editJenisVaksin(dataToSave, dataToSave.idJenisVaksin);
-    //         setJenisVaksins((prevJenisVaksins) => {
-    //           const updatedJenisVaksins = [...prevJenisVaksins];
-    //           updatedJenisVaksins[existingJenisVaksinIndex] = dataToSave;
-    //           return updatedJenisVaksins;
-    //         });
-    //       } else {
-    //         // Add new data
-    //         await addJenisVaksin(dataToSave);
-    //         setJenisVaksins((prevJenisVaksins) => [...prevJenisVaksins, dataToSave]);
-    //       }
-    //     } catch (error) {
-    //       errorCount++;
-    //       console.error("Gagal menyimpan data:", error);
-    //     }
-    //   }
-
-    //   if (errorCount === 0) {
-    //     message.success(`Semua data berhasil disimpan.`);
-    //   } else {
-    //     message.error(`${errorCount} data gagal disimpan, harap coba lagi!`);
-    //   }
-    // } catch (error) {
-    //   console.error("Gagal memproses data:", error);
-    //   message.error("Gagal memproses data, harap coba lagi!");
-    // } finally {
-    //   setImportedData([]);
-    //   setColumnTitles([]);
-    //   setColumnMapping({});
-    // }
+      if (errorCount === 0) {
+        message.success(`Semua data berhasil disimpan.`);
+      } else {
+        message.error(`${errorCount} data gagal disimpan, harap coba lagi!`);
+      }
+    } catch (error) {
+      console.error("Gagal memproses data:", error);
+      message.error("Gagal memproses data, harap coba lagi!");
+    } finally {
+      setImportedData([]);
+      setColumnTitles([]);
+      setColumnMapping({});
+    }
   };
 
   const handleDownloadCSV = () => {
@@ -327,22 +320,25 @@ const NamaVaksin = () => {
   };
 
   const convertHeaderToCSV = () => {
-    const columnTitlesLocal = ["Jenis Vaksin", "Nama Vaksin", "Deskripsi"];
-    const rows = [columnTitlesLocal];
-    let csvContent = "data:text/csv;charset=utf-8,";
-    rows.forEach((rowArray) => {
-      const row = rowArray.join(";");
-      csvContent += row + "\r\n";
-    });
+    const columnTitlesLocal = ["No", "Jenis Vaksin", "Nama Vaksin", "Deskripsi"];
+    const exampleRow = ["1", "Contoh PMK", "Contoh PMK ABC", "Nama Vaksin penyakit PMK 1"];
 
+    // Gabungkan header dan contoh data
+    const rows = [columnTitlesLocal, exampleRow];
+
+    // Gabungkan semua baris dengan delimiter koma
+    const csvContent = rows.map((row) => row.join(",")).join("\n");
     return csvContent;
   };
 
   const downloadFormatCSV = (csvContent) => {
-    const encodedUri = encodeURI(csvContent);
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
     const link = document.createElement("a");
-    link.setAttribute("href", encodedUri);
-    link.setAttribute("download", "format_nama_vaksin.csv");
+    const url = URL.createObjectURL(blob);
+
+    link.href = url;
+    link.setAttribute("download", "format_namavaksin.csv");
+    link.style.display = "none";
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -356,18 +352,18 @@ const NamaVaksin = () => {
 
   // Convert Data to CSV Format
   const convertToCSV = (data) => {
-    // const columnTitles = ["ID Jenis Vaksin", "Jenis Vaksin", "Deskripsi"];
-    // const rows = [columnTitles];
-    // data.forEach((item) => {
-    //   const row = [item.idJenisVaksin, item.jenis, item.deskripsi];
-    //   rows.push(row);
-    // });
-    // let csvContent = "data:text/csv;charset=utf-8,";
-    // rows.forEach((rowArray) => {
-    //   const row = rowArray.join(";");
-    //   csvContent += row + "\r\n";
-    // });
-    // return csvContent;
+    const columnTitles = ["ID Nama Vaksin", "Jenis Vaksin", "Nama Vaksin", "Deskripsi"];
+    const rows = [columnTitles];
+    data.forEach((item) => {
+      const row = [item.idNamaVaksin, item.jenisVaksin?.jenis, item.nama, item.deskripsi];
+      rows.push(row);
+    });
+    let csvContent = "data:text/csv;charset=utf-8,";
+    rows.forEach((rowArray) => {
+      const row = rowArray.join(";");
+      csvContent += row + "\r\n";
+    });
+    return csvContent;
   };
 
   // Download CSV File
@@ -501,7 +497,7 @@ const NamaVaksin = () => {
           </Button>,
         ]}
       >
-        <Upload beforeUpload={handleFileImport} accept=".xlsx,.xls,.csv" showUploadList={false}>
+        <Upload beforeUpload={handleFileImport} accept=".xlsx,.xls,.csv">
           <Button icon={<UploadOutlined />}>Pilih File</Button>
         </Upload>
       </Modal>
