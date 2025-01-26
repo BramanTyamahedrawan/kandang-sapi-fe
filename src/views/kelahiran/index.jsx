@@ -1,4 +1,3 @@
-/* eslint-disable no-constant-condition */
 /* eslint-disable no-unused-vars */
 import { Component } from "react";
 import {
@@ -44,7 +43,7 @@ import { reqUserInfo } from "../../api/user";
 import { v4 as uuidv4 } from "uuid";
 import { set } from "nprogress";
 
-export const sendPetugasBulkData = async (data, batchSize = 7000) => {
+const sendPetugasBulkData = async (data, batchSize = 7000) => {
   const totalBatches = Math.ceil(data.length / batchSize);
 
   for (let i = 0; i < totalBatches; i++) {
@@ -67,7 +66,7 @@ export const sendPetugasBulkData = async (data, batchSize = 7000) => {
   }
 };
 
-export const sendPeternakBulkData = async (data, batchSize = 7000) => {
+const sendPeternakBulkData = async (data, batchSize = 7000) => {
   const totalBatches = Math.ceil(data.length / batchSize);
 
   for (let i = 0; i < totalBatches; i++) {
@@ -136,7 +135,7 @@ const sendJenisHewanBulkData = async (data, batchSize = 7000) => {
   }
 };
 
-export const sendKandangBulkData = async (data, batchSize = 7000) => {
+const sendKandangBulkData = async (data, batchSize = 7000) => {
   const totalBatches = Math.ceil(data.length / batchSize);
 
   for (let i = 0; i < totalBatches; i++) {
@@ -182,7 +181,7 @@ const sendTernakHewanBulkData = async (data, batchSize = 7000) => {
   }
 };
 
-export const sendInseminasiBulkData = async (data, batchSize = 7000) => {
+const sendInseminasiBulkData = async (data, batchSize = 7000) => {
   const totalBatches = Math.ceil(data.length / batchSize);
 
   for (let i = 0; i < totalBatches; i++) {
@@ -205,7 +204,7 @@ export const sendInseminasiBulkData = async (data, batchSize = 7000) => {
   }
 };
 
-export const sendKelahiranBulkData = async (data, batchSize = 7000) => {
+const sendKelahiranBulkData = async (data, batchSize = 7000) => {
   const totalBatches = Math.ceil(data.length / batchSize);
 
   for (let i = 0; i < totalBatches; i++) {

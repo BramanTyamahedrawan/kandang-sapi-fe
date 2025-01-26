@@ -6,7 +6,7 @@
 
 import { UploadOutlined } from "@ant-design/icons";
 import { Button, message, Modal, Upload } from "antd";
-import React, { Component } from "react";
+import { Component } from "react";
 import { v4 as uuidv4 } from "uuid";
 import { read, utils } from "xlsx";
 
@@ -412,47 +412,42 @@ export default class ImportAllData extends Component {
           row[columnMapping["NIK Petugas Pendataan*)"]]
         );
 
-        const generateEmailFromName = (name) => {
-          if (!name) return "default@gmail.com"; // Jika nama tidak ada, beri default
-          return name.toLowerCase().replace(/\s+/g, "") + "@gmail.com";
-        };
-
         const formatDateToString = (dateString) => {
           // if (!dateString || typeof dateString !== "string") return "Invalid Date";
-        
+
           // Jika dateString adalah angka (seperti nilai dari Excel)
           if (!isNaN(dateString)) {
             const excelEpoch = new Date(1900, 0, 1).getTime();
             const milliseconds = dateString * 86400000;
             const date = new Date(excelEpoch + milliseconds);
-        
+
             const day = String(date.getDate()).padStart(2, "0");
             const month = String(date.getMonth() + 1).padStart(2, "0");
             const year = date.getFullYear();
-        
+
             return `${day}/${month}/${year}`;
           }
-        
+
           // Jika dateString adalah string yang valid dengan format DD/MM/YYYY atau dengan waktu
           if (typeof dateString === "string") {
             // Pisahkan tanggal dan waktu, jika ada waktu
             const datePart = dateString.split(" ")[0]; // Ambil bagian tanggal saja (sebelum spasi)
-        
+
             // Pastikan tanggalnya memiliki format yang valid (DD/MM/YYYY)
             const [day, month, year] = datePart.split("/");
-        
+
             // Pastikan hasil split memiliki 3 elemen (tanggal, bulan, tahun)
             if (day && month && year) {
-              return `${year}-${month.padStart(2, "0")}-${day.padStart(2, "0")}`;
+              return `${year}-${month.padStart(2, "0")}-${day.padStart(
+                2,
+                "0"
+              )}`;
             }
           }
-        
+
           // Jika format tidak dikenali
           return "Invalid Date";
         };
-        
-        
-        
 
         const validateEmail = (email) => {
           // Jika email tidak valid (null, undefined, atau bukan string), gunakan default
@@ -471,15 +466,6 @@ export default class ImportAllData extends Component {
             1000000000 + Math.random() * 9000000000
           ); // 10 digit dimulai dengan 8
           return `8${randomNumber.toString().substring(1)}`; // Tambahkan 8 di depan
-        };
-
-        const generateDefaultTanggalLahir = () => {
-          const randomDate = new Date(
-            Math.floor(Math.random() * 100) + 1920,
-            Math.floor(Math.random() * 12),
-            Math.floor(Math.random() * 28)
-          );
-          return randomDate.toISOString().split("T")[0];
         };
 
         const generateJenisKandang = (jenisKandang) => {
@@ -644,8 +630,7 @@ export default class ImportAllData extends Component {
             row[columnMapping["Tanggal Pendataan"]] || "_"
           ),
         };
-        console.log("data ternak : ",ternakHewanBulk );
-        
+        console.log("data ternak : ", ternakHewanBulk);
 
         // Jenis Vaksin
         if (!uniqueData.has(row[columnMapping["Jenis Vaksin**)"]])) {
@@ -751,21 +736,23 @@ export default class ImportAllData extends Component {
           Import File
         </Button>
         <Modal
-          title='Import File'
+          title="Import File"
           visible={importModalVisible}
           onCancel={this.handleImportModalClose}
           footer={[
-            <Button key='cancel' onClick={this.handleImportModalClose}>
+            <Button key="cancel" onClick={this.handleImportModalClose}>
               Cancel
             </Button>,
             <Button
-              key='upload'
-              type='primary'
+              key="upload"
+              type="primary"
               loading={this.state.uploading}
-              onClick={this.handleUpload}>
+              onClick={this.handleUpload}
+            >
               Upload
             </Button>,
-          ]}>
+          ]}
+        >
           <Upload beforeUpload={this.handleFileImport}>
             <Button icon={<UploadOutlined />}>Pilih File</Button>
           </Upload>

@@ -1,18 +1,67 @@
 /* eslint-disable no-constant-condition */
 /* eslint-disable no-unused-vars */
 import { Component } from "react";
-import { Card, Button, Table, message, Row, Col, Divider, Modal, Upload, Input } from "antd";
-import { getPengobatan, deletePengobatan, editPengobatan, addPengobatan, addPengobatanImport } from "@/api/pengobatan";
+import {
+  Card,
+  Button,
+  Table,
+  message,
+  Row,
+  Col,
+  Divider,
+  Modal,
+  Upload,
+  Input,
+} from "antd";
+import {
+  getPengobatan,
+  deletePengobatan,
+  editPengobatan,
+  addPengobatan,
+  addPengobatanImport,
+} from "@/api/pengobatan";
 import { getPetugas } from "@/api/petugas";
 import { read, utils } from "xlsx";
-import { UploadOutlined, EditOutlined, DeleteOutlined, DownloadOutlined } from "@ant-design/icons";
+import React, { useEffect, useRef, useState } from "react";
+import {
+  UploadOutlined,
+  EditOutlined,
+  DeleteOutlined,
+  DownloadOutlined,
+} from "@ant-design/icons";
 import AddPengobatanForm from "./forms/add-pengobatan-form";
+import { addPetugasBulkByNama } from "@/api/petugas";
 import EditPengobatanForm from "./forms/edit-pengobatan-form";
 import TypingCard from "@/components/TypingCard";
 import { reqUserInfo } from "../../api/user";
 import { v4 as uuidv4 } from "uuid";
+import { use } from "react";
+import { set } from "nprogress";
 
-export const sendPengobatanImport = async (data, batchSize = 7000) => {
+const sendPetugasImport = async (data, batchSize = 7000) => {
+  const totalBatches = Math.ceil(data.length / batchSize);
+
+  for (let i = 0; i < totalBatches; i++) {
+    const batchData = data.slice(i * batchSize, (i + 1) * batchSize);
+
+    try {
+      console.log(`Data Petugas (Batch ${i + 1}):`, batchData); // Log data yang dikirim
+      const response = await addPetugasBulkByNama(batchData);
+      console.log(
+        `Batch ${i + 1}/${totalBatches} berhasil dikirim`,
+        response.data
+      );
+    } catch (error) {
+      console.error(
+        `Batch ${i + 1}/${totalBatches} gagal dikirim`,
+        error.response?.data || error.message
+      );
+      throw error; // Hentikan proses jika batch gagal
+    }
+  }
+};
+
+const sendPengobatanImport = async (data, batchSize = 7000) => {
   const totalBatches = Math.ceil(data.length / batchSize);
 
   for (let i = 0; i < totalBatches; i++) {
@@ -21,132 +70,245 @@ export const sendPengobatanImport = async (data, batchSize = 7000) => {
     try {
       console.log(`Data Pengobatan (Batch ${i + 1}):`, batchData); // Log data yang dikirim
       const response = await addPengobatanImport(batchData);
-      console.log(`Batch ${i + 1}/${totalBatches} berhasil dikirim`, response.data);
+      console.log(
+        `Batch ${i + 1}/${totalBatches} berhasil dikirim`,
+        response.data
+      );
     } catch (error) {
-      console.error(`Batch ${i + 1}/${totalBatches} gagal dikirim`, error.response?.data || error.message);
+      console.error(
+        `Batch ${i + 1}/${totalBatches} gagal dikirim`,
+        error.response?.data || error.message
+      );
       throw error; // Hentikan proses jika batch gagal
     }
   }
 };
 
-function parseLocation(lokasi) {
-  // Pastikan lokasi berupa string, jika tidak kembalikan "lokasi tidak valid"
-  if (typeof lokasi !== "string" || !lokasi) {
-    console.warn(`Alamat tidak valid: ${lokasi}`);
+function parseAddress(address) {
+  // Pastikan alamat berupa string, jika tidak kembalikan "alamat tidak valid"
+  if (typeof address !== "string" || !address) {
+    console.warn(`Alamat tidak valid: ${address}`);
     return "alamat tidak valid";
   }
 
   // Pecah alamat berdasarkan koma
-  const parts = lokasi.split(",").map((part) => part.trim());
+  const parts = address.split(",").map((part) => part.trim());
 
   // Ambil masing-masing bagian sesuai urutan, isi dengan "-" jika tidak ada
-  const provinsi = parts[0] || "-";
-  const kabupaten = parts[1]?.replace(/KAB\. /i, "") || "-"; // Hapus "KAB." jika ada
-  const kecamatan = parts[2] || "-";
+  const dusun = parts[4] || "-";
   const desa = parts[3] || "-";
+  const kecamatan = parts[2] || "-";
+  const kabupaten = parts[1]?.replace(/KAB\. /i, "") || "-"; // Hapus "KAB." jika ada
+  const provinsi = parts[0] || "-";
 
   // Validasi bahwa setidaknya satu bagian selain "-" harus terisi
-  const isValid = desa !== "-" || kecamatan !== "-" || kabupaten !== "-" || provinsi !== "-";
+  const isValid =
+    dusun !== "-" ||
+    desa !== "-" ||
+    kecamatan !== "-" ||
+    kabupaten !== "-" ||
+    provinsi !== "-";
 
   if (!isValid) {
-    console.warn(`Lokasi tidak valid: ${lokasi}`);
-    return "lokasi tidak valid";
+    console.warn(`Alamat tidak valid: ${address}`);
+    return "alamat tidak valid";
   }
 
   // Return dalam bentuk object
-  return { provinsi, kabupaten, kecamatan, desa };
+  return { dusun, desa, kecamatan, kabupaten, provinsi };
 }
 
-class Pengobatan extends Component {
-  state = {
-    pengobatan: [],
-    editPengobatanModalVisible: false,
-    editPengobatanModalLoading: false,
-    currentRowData: {},
-    addPengobatanModalVisible: false,
-    addPengobatanModalLoading: false,
-    importModalVisible: false,
-    importedData: [],
-    columnTitles: [],
-    fileName: "",
-    uploading: false,
-    columnMapping: {},
-    searchKeyword: "",
-    user: null,
-  };
+const cleanNik = (nik) => (nik ? nik.replace(/'/g, "").trim() : "-");
 
-  // Fungsi ambil data dari database
-  getPengobatan = async () => {
-    const result = await getPengobatan();
-    console.log(result);
-    const { content, statusCode } = result.data;
+const Pengobatan = () => {
+  const [pengobatan, setPengobatan] = useState([]);
+  const [petugas, setPetugas] = useState([]);
+  const [editPengobatanModalVisible, setEditPengobatanModalVisible] =
+    useState(false);
+  const [editPengobatanModalLoading, setEditPengobatanModalLoading] =
+    useState(false);
+  const [currentRowData, setCurrentRowData] = useState({});
+  const [addPengobatanModalVisible, setAddPengobatanModalVisible] =
+    useState(false);
+  const [addPengobatanModalLoading, setAddPengobatanModalLoading] =
+    useState(false);
+  const [importModalVisible, setImportModalVisible] = useState(false);
+  const [importedData, setImportedData] = useState([]);
+  const [columnTitles, setColumnTitles] = useState([]);
+  const [fileName, setFileName] = useState("");
+  const [uploading, setUploading] = useState(false);
+  const [columnMapping, setColumnMapping] = useState({});
+  const [searchKeyword, setSearchKeyword] = useState("");
+  const [user, setUser] = useState(null);
 
-    if (statusCode === 200) {
-      const filteredPengobatan = content.filter((pengobatan) => {
-        const { idKasus, tanggalPengobatan, tanggalKasus, namaPetugas, namaInfrastruktur, lokasi, dosis, sindrom, diagnosaBanding } = pengobatan;
-        const keyword = this.state.searchKeyword.toLowerCase();
+  const editPengobatanFormRef = useRef();
+  const addPengobatanFormRef = useRef();
 
-        const isIdKasusValid = typeof idKasus === "string";
-        const isTanggalPengobatanValid = typeof tanggalPengobatan === "string";
-        const isTanggalKasusValid = typeof tanggalKasus === "string";
-        const isNamaPetugasValid = typeof namaPetugas === "string";
-        const isNamaInfrastrukturValid = typeof namaInfrastruktur === "string";
-        const isLokasiValid = typeof lokasi === "string";
-        const isDosisValid = typeof dosis === "string";
-        const isSindromValid = typeof sindrom === "string";
-        const isDiagnosaBandingValid = typeof diagnosaBanding === "string";
+  useEffect(() => {
+    const fetchInitialData = async () => {
+      await getPetugasData();
 
-        return (
-          (isIdKasusValid && idKasus.toLowerCase().includes(keyword)) ||
-          (isTanggalPengobatanValid && tanggalPengobatan.toLowerCase().includes(keyword)) ||
-          (isTanggalKasusValid && tanggalKasus.toLowerCase().includes(keyword)) ||
-          (isNamaPetugasValid && namaPetugas.toLowerCase().includes(keyword)) ||
-          (isNamaInfrastrukturValid && namaInfrastruktur.toLowerCase().includes(keyword)) ||
-          (isLokasiValid && lokasi.toLowerCase().includes(keyword)) ||
-          (isDosisValid && dosis.toLowerCase().includes(keyword)) ||
-          (isSindromValid && sindrom.toLowerCase().includes(keyword)) ||
-          (isDiagnosaBandingValid && diagnosaBanding.toLowerCase().includes(keyword))
-        );
-      });
+      try {
+        const response = await reqUserInfo();
+        const userData = response.data;
+        setUser(userData);
 
-      this.setState({
-        pengobatan: filteredPengobatan,
-      });
-    }
-  };
-
-  getPetugas = async () => {
-    const result = await getPetugas();
-    const { content, statusCode } = result.data;
-
-    if (statusCode === 200) {
-      this.setState({
-        petugas: content,
-      });
-    }
-  };
-
-  handleSearch = (keyword) => {
-    this.setState(
-      {
-        searchKeyword: keyword,
-      },
-      () => {
-        this.getPengobatan();
+        await getPengobatanData();
+      } catch (error) {
+        console.error("Terjadi kesalahan saat mengambil data user:", error);
       }
-    );
+    };
+
+    fetchInitialData();
+  }, []);
+
+  const getPengobatanData = async () => {
+    try {
+      const result = await getPengobatan();
+      const { content, statusCode } = result.data;
+
+      if (statusCode === 200) {
+        const filteredPengobatan = content
+          .filter((pengobatan) => {
+            const {
+              idPengobatan,
+              idKasus,
+              tanggalPengobatan,
+              tanggalKasus,
+              namaInfrastruktur,
+              lokasi,
+              dosis,
+              sindrom,
+              diagnosaBanding,
+              provinsiPengobatan,
+              kabupatenPengobatan,
+              kecamatanPengobatan,
+              desaPengobatan,
+              petugasId,
+            } = pengobatan;
+            const keyword = searchKeyword.toLowerCase();
+
+            return (
+              idPengobatan.toLowerCase().includes(keyword) ||
+              idKasus.toLowerCase().includes(keyword) ||
+              tanggalPengobatan.toLowerCase().includes(keyword) ||
+              tanggalKasus.toLowerCase().includes(keyword) ||
+              namaInfrastruktur.toLowerCase().includes(keyword) ||
+              lokasi.toLowerCase().includes(keyword) ||
+              dosis.toLowerCase().includes(keyword) ||
+              sindrom.toLowerCase().includes(keyword) ||
+              diagnosaBanding.toLowerCase().includes(keyword) ||
+              provinsiPengobatan.toLowerCase().includes(keyword) ||
+              kabupatenPengobatan.toLowerCase().includes(keyword) ||
+              kecamatanPengobatan.toLowerCase().includes(keyword) ||
+              desaPengobatan.toLowerCase().includes(keyword) ||
+              petugasId.toLowerCase().includes(keyword)
+            );
+          })
+          .sort(
+            (a, b) =>
+              new Date(b.tanggalPengobatan) - new Date(a.tanggalPengobatan)
+          ); // Urutkan dari terbaru
+
+        setPengobatan(filteredPengobatan);
+      }
+    } catch (error) {
+      console.error("Terjadi kesalahan saat mengambil data pengobatan:", error);
+    }
   };
 
-  // Fungsi Import File Csv
-  handleImportModalOpen = () => {
-    this.setState({ importModalVisible: true });
+  const getPetugasData = async () => {
+    try {
+      const result = await getPetugas();
+      const { content, statusCode } = result.data;
+
+      if (statusCode === 200) {
+        setPetugas(content);
+      }
+    } catch (error) {
+      console.error("Terjadi kesalahan saat mengambil data petugas:", error);
+    }
   };
 
-  handleImportModalClose = () => {
-    this.setState({ importModalVisible: false });
+  const handleSearch = (keyword) => {
+    setSearchKeyword(keyword);
+    getPengobatanData();
   };
 
-  handleFileImport = (file) => {
+  const handleImportModalOpen = () => {
+    setImportModalVisible(true);
+  };
+
+  const handleImportModalClose = () => {
+    setImportModalVisible(false);
+  };
+
+  const handleCancel = () => {
+    setEditPengobatanModalVisible(false);
+    setAddPengobatanModalVisible(false);
+    setImportModalVisible(false);
+  };
+
+  const handleAddPengobatan = () => {
+    setAddPengobatanModalVisible(true);
+  };
+
+  const handleAddPengobatanOk = async (values) => {
+    setAddPengobatanModalLoading(true);
+    try {
+      await addPengobatan(values);
+      setAddPengobatanModalVisible(false);
+      setAddPengobatanModalLoading(false);
+      message.success("Berhasil menambahkan data pengobatan!");
+      getPengobatanData();
+    } catch (error) {
+      console.error("Gagal menambahkan data pengobatan:", error);
+      message.error("Gagal menambahkan data pengobatan, harap coba lagi!");
+    }
+  };
+
+  const handleEditPengobatan = (row) => {
+    setCurrentRowData({ ...row });
+    setEditPengobatanModalVisible(true);
+  };
+
+  const handleEditPengobatanOk = async (values) => {
+    setEditPengobatanModalLoading(true);
+    try {
+      console.log("Data yang akan diubah:", values);
+      // await editPengobatan(values, currentRowData.idPengobatan);
+      setEditPengobatanModalVisible(false);
+      setEditPengobatanModalLoading(false);
+      message.success("Berhasil mengubah data pengobatan!");
+      getPengobatanData();
+    } catch (error) {
+      console.error("Gagal mengubah data pengobatan:", error);
+      message.error("Gagal mengubah data pengobatan, harap coba lagi!");
+    }
+  };
+
+  const handleDeletePengobatan = (row) => {
+    const { idPengobatan } = row;
+    Modal.confirm({
+      title: "Konfirmasi",
+      content: "Apakah Anda yakin ingin menghapus data ini?",
+      okText: "Ya",
+      okType: "danger",
+      cancelText: "Tidak",
+      onOk: async () => {
+        try {
+          await deletePengobatan({ idPengobatan });
+          message.success("Berhasil menghapus data pengobatan!");
+          getPengobatanData();
+        } catch (error) {
+          console.error("Gagal menghapus data pengobatan:", error);
+          message.error("Gagal menghapus data pengobatan, harap coba lagi!");
+        }
+      },
+    });
+  };
+
+  const handleFileImport = (file) => {
     const reader = new FileReader();
 
     reader.onload = (e) => {
@@ -154,82 +316,62 @@ class Pengobatan extends Component {
       const workbook = read(data, { type: "array" });
 
       const worksheet = workbook.Sheets[workbook.SheetNames[0]];
-      const jsonData = utils.sheet_to_json(worksheet, { header: 1 });
+      const jsonData = utils.sheet_to_json(worksheet, {
+        header: 1,
+        blankrows: false,
+        defval: null,
+      });
 
       const importedData = jsonData.slice(1); // Exclude the first row (column titles)
-
       const columnTitles = jsonData[0]; // Assume the first row contains column titles
 
-      // Get the file name from the imported file
-      const fileName = file.name.toLowerCase();
-
-      this.setState({
-        importedData,
-        columnTitles,
-        fileName, // Set the fileName in the state
-      });
-
-      // Create column mapping
       const columnMapping = {};
       columnTitles.forEach((title, index) => {
-        columnMapping[title] = index;
+        columnMapping[title.trim()] = index;
       });
-      this.setState({ columnMapping });
+
+      setImportedData(importedData);
+      setColumnTitles(columnTitles);
+      setFileName(file.name);
+      setColumnMapping(columnMapping);
     };
+
     reader.readAsArrayBuffer(file);
   };
 
-  handleUpload = () => {
-    const { importedData, columnMapping } = this.state;
-
+  const handleUpload = () => {
     if (importedData.length === 0) {
       message.error("No data to import.");
       return;
     }
 
-    this.setState({ uploading: true });
+    setUploading(true);
 
-    this.saveImportedData(columnMapping)
+    saveImportedData(columnMapping)
       .then(() => {
-        this.setState({
-          uploading: false,
-          importModalVisible: false,
-        });
+        setUploading(false);
+        setImportModalVisible(false);
+        message.success("Berhasil mengunggah data.");
       })
       .catch((error) => {
         console.error("Gagal mengunggah data:", error);
-        this.setState({ uploading: false });
+        setUploading(false);
         message.error("Gagal mengunggah data, harap coba lagi.");
       });
   };
 
-  convertToJSDate(input) {
-    let date;
-
-    if (typeof input === "number") {
-      const utcDays = Math.floor(input - 25569);
-      const utcValue = utcDays * 86400;
-      const dateInfo = new Date(utcValue * 1000);
-      date = new Date(dateInfo.getFullYear(), dateInfo.getMonth(), dateInfo.getDate()).toString();
-    } else if (typeof input === "string") {
-      const [day, month, year] = input.split("/");
-      date = new Date(`${year}-${month}-${day}`).toString();
-    }
-
-    return date;
-  }
-
-  saveImportedData = async (columnMapping) => {
-    const { importedData } = this.state;
+  const saveImportedData = async (columnMapping) => {
     let errorCount = 0;
 
     try {
       const uniqueData = new Map();
 
       const pengobatan = [];
+      const petugasPengobatan = [];
 
       for (const row of importedData) {
-        const generateIdKasus = uuidv4();
+        const generateIdPetugas = uuidv4();
+        const generateIdPengobatan = uuidv4();
 
         const formatDateToString = (dateString) => {
           // Jika dateString adalah angka (seperti nilai dari Excel)
@@ -256,7 +398,10 @@ class Pengobatan extends Component {
             const [datePart, timePart] = dateString.split(" ");
             const [day, month, year] = datePart.split("/");
 
-            return `${year}-${month.padStart(2, "0")}-${day.padStart(2, "0")} ${timePart}`;
+            return `${year}-${month.padStart(2, "0")}-${day.padStart(
+              2,
+              "0"
+            )} ${timePart}`;
           } else if (typeof dateString === "string") {
             const [day, month, year] = dateString.split("/");
             return `${year}-${month.padStart(2, "0")}-${day.padStart(2, "0")}`;
@@ -269,23 +414,43 @@ class Pengobatan extends Component {
         const validateEmail = (email) => {
           // Jika email tidak valid (null, undefined, atau bukan string), gunakan default
           if (typeof email !== "string" || !email.includes("@")) {
-            console.warn(`Email tidak valid: ${email}. Menggunakan email default.`);
+            console.warn(
+              `Email tidak valid: ${email}. Menggunakan email default.`
+            );
             return "default@gmail.com"; // Email default
           }
           // Jika valid, kembalikan email
           return email;
         };
 
-        const pecahLokasi = parseLocation(row[columnMapping["Lokasi"]] || row[columnMapping["Alamat"]] || "-");
+        const pecahLokasi = parseAddress(
+          row[columnMapping["Lokasi"]] || row[columnMapping["Alamat"]] || "-"
+        );
         // const setEmail =;
 
-        console.log("Row Data:", row);
+        const namaPetugasPengobatan = row[columnMapping["Petugas"]] || "-";
+        if (!uniqueData.has(namaPetugasPengobatan)) {
+          const dataPetugasPengobatan = {
+            petugasId: generateIdPetugas,
+            nikPetugas: cleanNik(row[columnMapping["NIK Petugas"]]) || "-",
+            namaPetugas: row[columnMapping["Petugas"]] || "-",
+            noTelp: row[columnMapping["No. Telp Petugas"]] || "-",
+            email: validateEmail(row[columnMapping["Email Petugas"]]) || "-",
+            job: "Petugas Pengobatan",
+          };
+          petugasPengobatan.push(dataPetugasPengobatan);
+          uniqueData.set(namaPetugasPengobatan, dataPetugasPengobatan);
+        }
 
         // data vaksin
         const dataPengobatan = {
-          idKasus: row[columnMapping["ID Kasus"]] || generateIdKasus,
-          tanggalPengobatan: formatDateToString(row[columnMapping["tanggal_pengobatan"]] || "-"),
-          tanggalKasus: formatDateToString(row[columnMapping["tanggal_kasus"]]) || "-",
+          idPengobatan: generateIdPengobatan,
+          idKasus: row[columnMapping["ID Kasus"]] || "-",
+          tanggalPengobatan: formatDateToString(
+            row[columnMapping["tanggal_pengobatan"]] || "-"
+          ),
+          tanggalKasus:
+            formatDateToString(row[columnMapping["tanggal_kasus"]]) || "-",
           namaInfrastruktur: row[columnMapping["Nama Infrasruktur"]] || "-",
           lokasi: row[columnMapping["Lokasi"]] || "-",
           provinsiPengobatan: pecahLokasi.provinsi,
@@ -295,7 +460,9 @@ class Pengobatan extends Component {
           dosis: row[columnMapping["Dosis"]] || "-",
           sindrom: row[columnMapping["Tanda/Sindrom"]] || "-",
           diagnosaBanding: row[columnMapping["Diagnosa Banding"]] || "-",
-          namaPetugas: row[columnMapping["Petugas"]] || "-",
+          idPetugas: uniqueData.get(namaPetugasPengobatan).petugasId,
+          nikPetugas: uniqueData.get(namaPetugasPengobatan).nikPetugas,
+          namaPetugas: uniqueData.get(namaPetugasPengobatan).namaPetugas,
         };
 
         console.log("Data Pengobatan:", dataPengobatan);
@@ -305,263 +472,73 @@ class Pengobatan extends Component {
 
       // Send bulk data to server
       try {
+        await sendPetugasImport(petugasPengobatan);
         await sendPengobatanImport(pengobatan);
       } catch (error) {
-        console.error("Gagal menyimpan data secara bulk:", error, error.response?.data);
+        console.error(
+          "Gagal menyimpan data secara bulk:",
+          error,
+          error.response?.data
+        );
       }
 
       if (errorCount === 0) {
         message.success(`Semua data berhasil disimpan.`);
       } else {
-        message.error(`${errorCount} data gagal disimpan karena duplikasi data!`);
+        message.error(
+          `${errorCount} data gagal disimpan karena duplikasi data!`
+        );
       }
     } catch (error) {
       console.error("Gagal memproses data:", error);
     } finally {
-      this.setState({
-        importedData: [],
-        columnTitles: [],
-        columnMapping: {},
-      });
+      setImportedData([]);
+      setColumnTitles([]);
+      setFileName("");
+      setColumnMapping({});
     }
   };
 
-  // saveImportedData = async (columnMapping) => {
-  //   const { importedData, pengobatan, petugas } = this.state
-  //   let errorCount = 0
+  const handleExportData = () => {
+    const csvData = [
+      convertHeaderToCSV(columnTitles),
+      ...importedData.map((row) => convertRowToCSV(row)),
+    ].join("\n");
 
-  //   try {
-  //     for (const row of importedData) {
-  //       const petugasNama = row[columnMapping['Petugas']].toLowerCase()
-  //       const petugasData = petugas.find(
-  //         (p) => p.namaPetugas.toLowerCase() === petugasNama
-  //       )
-  //       const petugasId = petugasData ? petugasData.nikPetugas : null
-  //       console.log(
-  //         `Mencocokkan nama petugas: ${petugasNama}, Ditemukan: ${
-  //           petugasData ? 'Ya' : 'Tidak'
-  //         }, petugasId: ${petugasId}`
-  //       )
-  //       const dataToSave = {
-  //         idKasus: row[columnMapping['ID Kasus']],
-  //         tanggalPengobatan: this.convertToJSDate(
-  //           row[columnMapping['tanggal_pengobatan']]
-  //         ),
-  //         tanggalKasus: this.convertToJSDate(
-  //           row[columnMapping['tanggal_kasus']]
-  //         ),
-  //         namaInfrastruktur: row[columnMapping['Nama Infrasruktur']],
-  //         lokasi: row[columnMapping['Lokasi']],
-  //         dosis: row[columnMapping['Dosis']],
-  //         sindrom: row[columnMapping['Tanda/Sindrom']],
-  //         diagnosaBanding: row[columnMapping['Diagnosa Banding']],
-  //       }
-
-  //       const existingPengobatanIndex = pengobatan.findIndex(
-  //         (p) => p.idKasus === dataToSave.idKasus
-  //       )
-
-  //       try {
-  //         if (existingPengobatanIndex > -1) {
-  //           // Update existing data
-  //           await editPengobatan(dataToSave, dataToSave.idKasus)
-  //           this.setState((prevState) => {
-  //             const updatedPengobatan = [...prevState.pengobatan]
-  //             updatedPengobatan[existingPengobatanIndex] = dataToSave
-  //             return { pengobatan: updatedPengobatan }
-  //           })
-  //         } else {
-  //           // Add new data
-  //           await addPengobatan(dataToSave)
-  //           this.setState((prevState) => ({
-  //             pengobatan: [...prevState.pengobatan, dataToSave],
-  //           }))
-  //         }
-  //       } catch (error) {
-  //         errorCount++
-  //         console.error('Gagal menyimpan data:', error)
-  //       }
-  //     }
-
-  //     if (errorCount === 0) {
-  //       message.success(`Semua data berhasil disimpan.`)
-  //     } else {
-  //       message.error(`${errorCount} data gagal disimpan, harap coba lagi!`)
-  //     }
-  //   } catch (error) {
-  //     console.error('Gagal memproses data:', error)
-  //   } finally {
-  //     this.setState({
-  //       importedData: [],
-  //       columnTitles: [],
-  //       columnMapping: {},
-  //     })
-  //   }
-  // }
-
-  // Fungsi Edit Pengobatan
-  handleEditPengobatan = (row) => {
-    this.setState({
-      currentRowData: Object.assign({}, row),
-      editPengobatanModalVisible: true,
-    });
+    const blob = new Blob([csvData], { type: "text/csv" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `import-pengobatan-${new Date().toISOString()}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
   };
 
-  handleEditPengobatanOk = (_) => {
-    const { form } = this.editPengobatanFormRef.props;
-    form.validateFields((err, values) => {
-      if (err) {
-        return;
-      }
-      this.setState({ editModalLoading: true });
-      editPengobatan(values, values.idKasus)
-        .then((response) => {
-          form.resetFields();
-          this.setState({
-            editPengobatanModalVisible: false,
-            editPengobatanModalLoading: false,
-          });
-          message.success("Berhasil diedit!");
-          this.getPengobatan();
-        })
-        .catch((e) => {
-          message.success("Pengeditan gagal, harap coba lagi!");
-        });
-    });
+  const convertHeaderToCSV = (header) => {
+    return header.map((title) => `"${title}"`).join(",");
   };
 
-  handleDeletePengobatan = (row) => {
-    const { idKasus } = row;
-    Modal.confirm({
-      title: "Konfirmasi",
-      content: "Apakah Anda yakin ingin menghapus data ini?",
-      okText: "Ya",
-      okType: "danger",
-      cancelText: "Tidak",
-      onOk: () => {
-        deletePengobatan({ idKasus }).then((res) => {
-          message.success("Berhasil dihapus");
-          this.getPengobatan();
-        });
-      },
-    });
+  const convertRowToCSV = (row) => {
+    return row.map((data) => `"${data}"`).join(",");
   };
 
-  handleCancel = (_) => {
-    this.setState({
-      editPengobatanModalVisible: false,
-      addPengobatanModalVisible: false,
-    });
+  const handleDownloadTemplate = () => {
+    const csvData = [
+      convertHeaderToCSV(columnTitles),
+      convertRowToCSV(columnTitles.map(() => "-")),
+    ].join("\n");
+
+    const blob = new Blob([csvData], { type: "text/csv" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `template-import-pengobatan.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
   };
 
-  // Fungsi Tambahkan Pengobatan
-  handleAddPengobatan = (row) => {
-    this.setState({
-      addPengobatanModalVisible: true,
-    });
-  };
-
-  handleAddPengobatanOk = (_) => {
-    const { form } = this.addPengobatanFormRef.props;
-    form.validateFields((err, values) => {
-      if (err) {
-        return;
-      }
-      this.setState({ addPengobatanModalLoading: true });
-      addPengobatan(values)
-        .then((response) => {
-          form.resetFields();
-          this.setState({
-            addPengobatanModalVisible: false,
-            addPengobatanModalLoading: false,
-          });
-          message.success("Berhasil menambahkan!");
-          this.getPengobatan();
-        })
-        .catch((e) => {
-          message.success("Gagal menambahkan, harap coba lagi!");
-        });
-    });
-  };
-
-  componentDidMount() {
-    this.getPetugas();
-    this.getPengobatan();
-
-    reqUserInfo()
-      .then((response) => {
-        this.setState({ user: response.data });
-      })
-      .catch((error) => {
-        console.error("Terjadi kesalahan saat mengambil data user:", error);
-      });
-  }
-
-  handleDownloadCSV = () => {
-    const csvContent = convertHeaderToCSV();
-    downloadFormatCSV(csvContent);
-  };
-
-  convertHeaderToCSV = () => {
-    const columnTitlesLocal = ["tanggal_pengobatan", "tanggal_kasus", "ID Kasus", "Petugas", "Nama Infrasruktur", "Lokasi", "Dosis", "Tanda/Sindrom", "Diagnosa Banding"];
-    const rows = [columnTitlesLocal];
-    let csvContent = "data:text/csv;charset=utf-8,";
-    rows.forEach((rowArray) => {
-      const row = rowArray.join(";");
-      csvContent += row + "\r\n";
-    });
-
-    return csvContent;
-  };
-
-  downloadFormatCSV = (csvContent) => {
-    const encodedUri = encodeURI(csvContent);
-    const link = document.createElement("a");
-    link.setAttribute("href", encodedUri);
-    link.setAttribute("download", "format_pengobatan.csv");
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-  };
-
-  // Fungsi Export dari database ke file csv
-  handleExportData = () => {
-    const { pengobatan } = this.state;
-    const csvContent = this.convertToCSV(pengobatan);
-    this.downloadCSV(csvContent);
-  };
-
-  convertToCSV = (data) => {
-    const columnTitles = ["Tanggal Pengobatan", "Tanggal Kasus", "ID Kasus", "Petugas", "Nama Infrastruktur", "Lokasi", "Dosis", "Tanda atau Sindrom", "Diagnosa Banding"];
-
-    const rows = [columnTitles];
-    data.forEach((item) => {
-      const row = [item.tanggalPengobatan, item.tanggalKasus, item.idKasus, item.namaPetugas, item.namaInfrastruktur, item.lokasi, item.dosis, item.sindrom, item.diagnosaBanding];
-      rows.push(row);
-    });
-
-    let csvContent = "data:text/csv;charset=utf-8,";
-
-    rows.forEach((rowArray) => {
-      const row = rowArray.join(";");
-      csvContent += row + "\r\n";
-    });
-
-    return csvContent;
-  };
-
-  downloadCSV = (csvContent) => {
-    const encodedUri = encodeURI(csvContent);
-    const link = document.createElement("a");
-    link.setAttribute("href", encodedUri);
-    link.setAttribute("download", "Pengobatan.csv");
-    document.body.appendChild(link); // Required for Firefox
-    link.click();
-  };
-
-  render() {
-    const { pengobatan, importModalVisible, searchKeyword, user } = this.state;
-    const columns = [
+  const renderColumns = () => {
+    const baseColumns = [
       { title: "ID Kasus", dataIndex: "idKasus", key: "idKasus" },
       {
         title: "Tanggal Pengobatan",
@@ -593,120 +570,171 @@ class Pengobatan extends Component {
       },
     ];
 
-    const renderTable = () => {
-      if (user && user.role === "ROLE_PETERNAK") {
-        return <Table dataSource={pengobatan} bordered columns={columns} />;
-      } else if ((user && user.role === "ROLE_ADMINISTRATOR") || "ROLE_PETUGAS") {
-        return <Table dataSource={pengobatan} bordered columns={columns && renderColumns()} />;
-      } else {
-        return null;
-      }
-    };
+    if (user && (user.role === "ROLE_ADMINISTRATOR" || "ROLE_PETUGAS")) {
+      baseColumns.push({
+        title: "Operasi",
+        key: "action",
+        width: 120,
+        align: "center",
+        render: (text, row) => (
+          <span>
+            <Button
+              type="primary"
+              shape="circle"
+              icon={<EditOutlined />}
+              onClick={() => handleEditPengobatan(row)}
+            />
+            <Divider type="vertical" />
+            <Button
+              type="primary"
+              danger
+              shape="circle"
+              title="Delete"
+              icon={<DeleteOutlined />}
+              onClick={() => handleDeletePengobatan(row)}
+            />
+          </span>
+        ),
+      });
+    }
 
-    const renderButtons = () => {
-      if (user && (user.role === "ROLE_ADMINISTRATOR" || user.role === "ROLE_PETUGAS")) {
-        return (
-          <Row gutter={[16, 16]} justify="start" style={{ paddingLeft: 9 }}>
-            <Col>
-              <Button type="primary" onClick={this.handleAddPengobatan} block>
-                Tambah Pengobatan
-              </Button>
-            </Col>
-            <Col>
-              <Button icon={<UploadOutlined />} onClick={this.handleImportModalOpen} block>
-                Import File
-              </Button>
-            </Col>
-            <Col>
-              <Button icon={<DownloadOutlined />} onClick={this.handleDownloadCSV} block>
-                Download Format CSV
-              </Button>
-            </Col>
-            <Col>
-              <Button icon={<UploadOutlined />} onClick={this.handleExportData} block>
-                Export Data To CSV
-              </Button>
-            </Col>
-          </Row>
-        );
-      } else {
-        return null;
-      }
-    };
+    return baseColumns;
+  };
 
-    const renderColumns = () => {
-      if ((user && user.role === "ROLE_ADMINISTRATOR") || "ROLE_PETUGAS") {
-        columns.push({
-          title: "Operasi",
-          key: "action",
-          width: 120,
-          align: "center",
-          render: (text, row) => (
-            <span>
-              <Button type="primary" shape="circle" icon={<EditOutlined />} title="Edit" onClick={() => this.handleEditPengobatan(row)} />
-              <Divider type="vertical" />
-              <Button type="primary" shape="circle" icon={<DeleteOutlined />} title="Delete" onClick={() => this.handleDeletePengobatan(row)} />
-            </span>
-          ),
-        });
-      }
-      return columns;
-    };
-
-    const title = (
-      <Row gutter={[16, 16]} justify="start">
-        {renderButtons()}
-        <Col xs={24} sm={12} md={8} lg={8} xl={8}>
-          <Input placeholder="Cari data" value={searchKeyword} onChange={(e) => this.handleSearch(e.target.value)} style={{ width: 235, marginLeft: 10 }} />
-        </Col>
-      </Row>
-    );
-
-    const { role } = user ? user.role : "";
-    console.log("peran pengguna:", role);
-    const cardContent = `Di sini, Anda dapat mengelola daftar pengobatan di sistem.`;
-    return (
-      <div className="app-container">
-        <TypingCard title="Manajemen Data Pengobatan" source={cardContent} />
-        <br />
-        <Card title={title} style={{ overflowX: "scroll" }}>
-          {renderTable()}
-        </Card>
-        <EditPengobatanForm
-          currentRowData={this.state.currentRowData}
-          wrappedComponentRef={(formRef) => (this.editPengobatanFormRef = formRef)}
-          visible={this.state.editPengobatanModalVisible}
-          confirmLoading={this.state.editPengobatanModalLoading}
-          onCancel={this.handleCancel}
-          onOk={this.handleEditPengobatanOk}
+  const renderTable = () => {
+    if (user && user.role === "ROLE_PETERNAK") {
+      return (
+        <Table
+          dataSource={pengobatan}
+          bordered
+          columns={renderColumns()}
+          rowKey="idPengobatan"
         />
-        <AddPengobatanForm
-          wrappedComponentRef={(formRef) => (this.addPengobatanFormRef = formRef)}
-          visible={this.state.addPengobatanModalVisible}
-          confirmLoading={this.state.addPengobatanModalLoading}
-          onCancel={this.handleCancel}
-          onOk={this.handleAddPengobatanOk}
+      );
+    } else if (
+      user &&
+      (user.role === "ROLE_ADMINISTRATOR" || user.role === "ROLE_PETUGAS")
+    ) {
+      return (
+        <Table
+          dataSource={pengobatan}
+          bordered
+          columns={renderColumns()}
+          rowKey="idPengobatan"
         />
-        <Modal
-          title="Import File"
-          visible={importModalVisible}
-          onCancel={this.handleImportModalClose}
-          footer={[
-            <Button key="cancel" onClick={this.handleImportModalClose}>
-              Cancel
-            </Button>,
-            <Button key="upload" type="primary" loading={this.state.uploading} onClick={this.handleUpload}>
-              Upload
-            </Button>,
-          ]}
-        >
-          <Upload beforeUpload={this.handleFileImport}>
-            <Button icon={<UploadOutlined />}>Pilih File</Button>
-          </Upload>
-        </Modal>
-      </div>
-    );
-  }
-}
+      );
+    } else {
+      return null;
+    }
+  };
+
+  const renderButtons = () => {
+    if (
+      user &&
+      (user.role === "ROLE_ADMINISTRATOR" || user.role === "ROLE_PETUGAS")
+    ) {
+      return (
+        <Row gutter={[16, 16]} justify="start" style={{ paddingLeft: 9 }}>
+          <Col>
+            <Button type="primary" onClick={handleAddPengobatan} block>
+              Tambah Pengobatan
+            </Button>
+          </Col>
+          <Col>
+            <Button
+              icon={<UploadOutlined />}
+              onClick={handleImportModalOpen}
+              block
+            >
+              Import File
+            </Button>
+          </Col>
+          <Col>
+            <Button
+              icon={<DownloadOutlined />}
+              onClick={handleDownloadTemplate}
+              block
+            >
+              Download Format CSV
+            </Button>
+          </Col>
+          <Col>
+            <Button icon={<UploadOutlined />} onClick={handleExportData} block>
+              Export Data To CSV
+            </Button>
+          </Col>
+        </Row>
+      );
+    } else {
+      return null;
+    }
+  };
+
+  const title = (
+    <Row gutter={[16, 16]} justify="start">
+      {renderButtons()}
+      <Col xs={24} sm={12} md={8} lg={8} xl={8}>
+        <Input
+          placeholder="Cari data"
+          value={searchKeyword}
+          onChange={(e) => handleSearch(e.target.value)}
+          style={{ width: 235, marginLeft: 10 }}
+        />
+      </Col>
+    </Row>
+  );
+
+  return (
+    <div className="app-container">
+      <TypingCard
+        title="Manajemen Data Pengobatan"
+        source="Di sini, Anda dapat mengelola daftar pengobatan di sistem."
+      />
+      <br />
+      <Card title={title} style={{ overflowX: "scroll" }}>
+        {renderTable()}
+      </Card>
+
+      <EditPengobatanForm
+        currentRowData={currentRowData}
+        wrappedComponentRef={editPengobatanFormRef}
+        visible={editPengobatanModalVisible}
+        confirmLoading={editPengobatanModalLoading}
+        onCancel={handleCancel}
+        onOk={handleEditPengobatanOk}
+      />
+
+      <AddPengobatanForm
+        wrappedComponentRef={addPengobatanFormRef}
+        visible={addPengobatanModalVisible}
+        confirmLoading={addPengobatanModalLoading}
+        onCancel={handleCancel}
+        onOk={handleAddPengobatanOk}
+      />
+      <Modal
+        title="Import File"
+        open={importModalVisible}
+        onCancel={handleCancel}
+        footer={[
+          <Button key="cancel" onClick={handleCancel}>
+            Cancel
+          </Button>,
+          <Button
+            key="upload"
+            type="primary"
+            loading={uploading}
+            onClick={handleUpload}
+          >
+            Upload
+          </Button>,
+        ]}
+      >
+        <Upload beforeUpload={handleFileImport} accept=".xls,.xlsx,.csv">
+          <Button icon={<UploadOutlined />}>Pilih File</Button>
+        </Upload>
+      </Modal>
+    </div>
+  );
+};
 
 export default Pengobatan;
