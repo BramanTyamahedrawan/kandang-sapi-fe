@@ -24,6 +24,7 @@ export function getNamaVaksin() {
 }
 
 export function editNamaVaksin(data, id) {
+  console.log("data yang akan diedit", data);
   return request({
     url: `/namavaksin/${id}`,
     method: "put",
