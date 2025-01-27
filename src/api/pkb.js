@@ -1,10 +1,16 @@
 import request from "@/utils/request";
+import { v4 as uuidv4 } from "uuid";
 
 export function addPkb(data) {
+  const updatedData = {
+    ...data,
+    idPkb: uuidv4(),
+  };
+
   return request({
     url: "/pkb",
     method: "post",
-    data,
+    data: updatedData,
   });
 }
 
@@ -33,7 +39,7 @@ export function editPkb(data, id) {
 
 export function deletePkb(data) {
   return request({
-    url: `/pkb/${data.idKejadian}`,
+    url: `/pkb/${data.idPkb}`,
     method: "delete",
     data,
   });

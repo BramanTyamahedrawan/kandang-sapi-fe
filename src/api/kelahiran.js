@@ -1,10 +1,16 @@
 import request from "@/utils/request";
+import { v4 as uuidv4 } from "uuid";
 
 export function addKelahiran(data) {
+  const updatedData = {
+    ...data,
+    idKelahiran: uuidv4(),
+  };
+
   return request({
     url: "/kelahiran",
     method: "post",
-    data,
+    data: updatedData,
   });
 }
 
@@ -33,7 +39,7 @@ export function editKelahiran(data, id) {
 
 export function deleteKelahiran(data) {
   return request({
-    url: `/kelahiran/${data.idKejadian}`,
+    url: `/kelahiran/${data.idKelahiran}`,
     method: "delete",
     data,
   });
