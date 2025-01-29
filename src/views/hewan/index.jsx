@@ -13,6 +13,7 @@ import {
   DownloadOutlined,
   EditOutlined,
   UploadOutlined,
+  SearchOutlined,
 } from "@ant-design/icons";
 import {
   Button,
@@ -25,6 +26,7 @@ import {
   Row,
   Table,
   Upload,
+  Space,
 } from "antd";
 import React, { useEffect, useRef, useState } from "react";
 import { v4 as uuidv4 } from "uuid";
@@ -34,6 +36,8 @@ import kandangSapi from "../../assets/images/kandangsapi.jpg";
 import imgUrl from "../../utils/imageURL";
 import AddHewanForm from "./forms/add-hewan-form";
 import EditHewanForm from "./forms/edit-hewan-form";
+import { Skeleton } from "antd";
+import Highlighter from "react-highlight-words";
 
 const { Column } = Table;
 
@@ -53,7 +57,11 @@ const Hewan = () => {
   const [columnTitles, setColumnTitles] = useState([]);
   const [columnMapping, setColumnMapping] = useState({});
   const [fileName, setFileName] = useState("");
+  const [loading, setLoading] = useState(true);
+  const [searchText, setSearchText] = useState("");
+  const [searchedColumn, setSearchedColumn] = useState("");
 
+  const searchInput = useRef(null);
   const editHewanFormRef = useRef(null);
   const addHewanFormRef = useRef(null);
 
@@ -90,6 +98,7 @@ const Hewan = () => {
   };
 
   const getHewansData = async () => {
+    setLoading(true);
     try {
       const result = await getHewans();
       const { content, statusCode } = result.data;
@@ -142,6 +151,8 @@ const Hewan = () => {
       }
     } catch (error) {
       console.error("Failed to fetch hewans:", error);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -156,6 +167,17 @@ const Hewan = () => {
     } catch (error) {
       console.error("Failed to fetch petugas:", error);
     }
+  };
+
+  const handleSearchTable = (selectedKeys, confirm, dataIndex) => {
+    confirm();
+    setSearchText(selectedKeys[0]);
+    setSearchedColumn(dataIndex);
+  };
+
+  const handleReset = (clearFilters) => {
+    clearFilters();
+    setSearchText("");
   };
 
   const handleSearch = (keyword) => {
@@ -180,6 +202,7 @@ const Hewan = () => {
 
   const handleEditHewanOk = async (values) => {
     setEditHewanModalLoading(true);
+    setLoading(true);
     try {
       await editHewan(values, currentRowData.idHewan);
       setEditHewanModalVisible(false);
@@ -189,6 +212,8 @@ const Hewan = () => {
     } catch (e) {
       setEditHewanModalLoading(false);
       message.error("Pengeditan gagal, harap coba lagi!");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -202,12 +227,15 @@ const Hewan = () => {
       okType: "danger",
       cancelText: "Tidak",
       onOk: async () => {
+        setLoading(true);
         try {
           await deleteHewan({ idHewan });
           message.success("Berhasil dihapus");
           getHewansData();
         } catch (error) {
           message.error("Gagal menghapus data, harap coba lagi!");
+        } finally {
+          setLoading(false);
         }
       },
     });
@@ -241,6 +269,8 @@ const Hewan = () => {
       idTujuanPemeliharaan: values.idTujuanPemeliharaan,
       file: values.file,
     };
+
+    setLoading(true);
     try {
       await addHewan(hewanData);
       setAddHewanModalVisible(false);
@@ -250,6 +280,8 @@ const Hewan = () => {
     } catch (e) {
       setAddHewanModalLoading(false);
       message.error("Gagal menambahkan, harap coba lagi!");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -462,6 +494,7 @@ const Hewan = () => {
       }
 
       // Setelah selesai mengumpulkan semua data, lakukan proses simpan dalam batch
+      setLoading(true);
       if (dataToSaveArray.length > 0) {
         try {
           // Menyimpan data secara batch, misalnya dengan API
@@ -484,6 +517,7 @@ const Hewan = () => {
       setImportedData([]); // Reset state setelah pemrosesan selesai
       setColumnTitles([]);
       setColumnMapping({});
+      setLoading(false);
     }
   };
 
@@ -625,6 +659,97 @@ const Hewan = () => {
     document.body.removeChild(link); // Clean up
   };
 
+  const getColumnSearchProps = (dataIndex, nestedPath) => ({
+    filterDropdown: ({
+      setSelectedKeys,
+      selectedKeys,
+      confirm,
+      clearFilters,
+      close,
+    }) => (
+      <div style={{ padding: 8 }} onKeyDown={(e) => e.stopPropagation()}>
+        <Input
+          ref={searchInput}
+          placeholder={`Search ${dataIndex}`}
+          value={selectedKeys[0]}
+          onChange={(e) =>
+            setSelectedKeys(e.target.value ? [e.target.value] : [])
+          }
+          onPressEnter={() =>
+            handleSearchTable(selectedKeys, confirm, dataIndex)
+          }
+          style={{ marginBottom: 8, display: "block" }}
+        />
+        <Space>
+          <Button
+            type="primary"
+            onClick={() => handleSearchTable(selectedKeys, confirm, dataIndex)}
+            icon={<SearchOutlined />}
+            size="small"
+            style={{ width: 90 }}
+          >
+            Search
+          </Button>
+          <Button
+            onClick={() => clearFilters && handleReset(clearFilters)}
+            size="small"
+            style={{ width: 90 }}
+          >
+            Reset
+          </Button>
+          <Button
+            type="link"
+            size="small"
+            onClick={() => {
+              confirm({ closeDropdown: false });
+              setSearchText(selectedKeys[0]);
+              setSearchedColumn(dataIndex);
+            }}
+          >
+            Filter
+          </Button>
+          <Button type="link" size="small" onClick={() => close()}>
+            Close
+          </Button>
+        </Space>
+      </div>
+    ),
+    filterIcon: (filtered) => (
+      <SearchOutlined style={{ color: filtered ? "#1677ff" : undefined }} />
+    ),
+    onFilter: (value, record) => {
+      if (nestedPath) {
+        const nestedValue = nestedPath
+          .split(".")
+          .reduce((obj, key) => obj?.[key], record);
+        return nestedValue
+          ?.toString()
+          .toLowerCase()
+          .includes(value.toLowerCase());
+      }
+      return record[dataIndex]
+        ?.toString()
+        .toLowerCase()
+        .includes(value.toLowerCase());
+    },
+    filterDropdownProps: {
+      onOpenChange(open) {
+        if (open) setTimeout(() => searchInput.current?.select(), 100);
+      },
+    },
+    render: (text) =>
+      searchedColumn === dataIndex ? (
+        <Highlighter
+          highlightStyle={{ backgroundColor: "#ffc069", padding: 0 }}
+          searchWords={[searchText]}
+          autoEscape
+          textToHighlight={text?.toString() || ""}
+        />
+      ) : (
+        text
+      ),
+  });
+
   // Render Columns with Operations
   const renderColumns = () => {
     const baseColumns = [
@@ -637,66 +762,118 @@ const Hewan = () => {
         title: "Id Isikhnas Ternak",
         dataIndex: "idIsikhnasTernak",
         key: "idIsikhnasTernak",
+        ...getColumnSearchProps("idIsikhnasTernak"),
+        sorter: (a, b) => a.idIsikhnasTernak.localeCompare(b.idIsikhnasTernak),
       },
       {
         title: "Kode Eartag Nasional",
         dataIndex: "kodeEartagNasional",
         key: "kodeEartagNasional",
+        ...getColumnSearchProps("kodeEartagNasional"),
+        sorter: (a, b) =>
+          a.kodeEartagNasional.localeCompare(b.kodeEartagNasional),
       },
       {
         title: "No Kartu Ternak",
         dataIndex: "noKartuTernak",
         key: "noKartuTernak",
+        ...getColumnSearchProps("noKartuTernak"),
+        sorter: (a, b) => a.noKartuTernak.localeCompare(b.noKartuTernak),
       },
 
       {
         title: "Nama Peternak",
         dataIndex: ["peternak", "namaPeternak"],
         key: "namaPeternak",
+        ...getColumnSearchProps("peternak.namaPeternak"),
+        sorter: (a, b) =>
+          a.peternak.namaPeternak.localeCompare(b.peternak.namaPeternak),
       },
       {
         title: "Nama Kandang",
         dataIndex: ["kandang", "namaKandang"],
         key: "namaKandang",
+        ...getColumnSearchProps("kandang.namaKandang"),
+        sorter: (a, b) =>
+          a.kandang.namaKandang.localeCompare(b.kandang.namaKandang),
       },
       {
         title: "Jenis Hewan",
         dataIndex: ["jenisHewan", "jenis"],
         key: "jenis",
+        ...getColumnSearchProps("jenisHewan.jenis"),
+        sorter: (a, b) => a.jenisHewan.jenis.localeCompare(b.jenisHewan.jenis),
       },
       {
         title: "Rumpun Hewan",
         dataIndex: ["rumpunHewan", "rumpun"],
         key: "rumpun",
+        ...getColumnSearchProps("rumpunHewan.rumpun"),
+        sorter: (a, b) =>
+          a.rumpunHewan.rumpun.localeCompare(b.rumpunHewan.rumpun),
       },
-      { title: "Jenis Kelamin", dataIndex: "sex", key: "sex" },
-      { title: "Tempat Lahir", dataIndex: "tempatLahir", key: "tempatLahir" },
+      {
+        title: "Jenis Kelamin",
+        dataIndex: "sex",
+        key: "sex",
+        ...getColumnSearchProps("sex"),
+        sorter: (a, b) => a.sex.localeCompare(b.sex),
+      },
+      {
+        title: "Tempat Lahir",
+        dataIndex: "tempatLahir",
+        key: "tempatLahir",
+        ...getColumnSearchProps("tempatLahir"),
+        sorter: (a, b) => a.tempatLahir.localeCompare(b.tempatLahir),
+      },
       {
         title: "Tanggal Lahir",
         dataIndex: "tanggalLahir",
         key: "tanggalLahir",
+        ...getColumnSearchProps("tanggalLahir"),
+        sorter: (a, b) => a.tanggalLahir.localeCompare(b.tanggalLahir),
       },
-      { title: "Umur", dataIndex: "umur", key: "umur" },
+      {
+        title: "Umur",
+        dataIndex: "umur",
+        key: "umur",
+        ...getColumnSearchProps("umur"),
+        sorter: (a, b) => a.umur.localeCompare(b.umur),
+      },
 
       {
         title: "Identifikasi Hewan",
         dataIndex: "identifikasiHewan",
         key: "identifikasiHewan",
+        ...getColumnSearchProps("identifikasiHewan"),
+        sorter: (a, b) =>
+          a.identifikasiHewan.localeCompare(b.identifikasiHewan),
       },
       {
         title: "Tujuan Pemeliharaan",
         dataIndex: ["tujuanPemeliharaan", "tujuanPemeliharaan"],
         key: "tujuanPemeliharaan",
+        ...getColumnSearchProps("tujuanPemeliharaan.tujuanPemeliharaan"),
+        sorter: (a, b) =>
+          a.tujuanPemeliharaan.tujuanPemeliharaan.localeCompare(
+            b.tujuanPemeliharaan.tujuanPemeliharaan
+          ),
       },
       {
         title: "Petugas Pendaftar",
         dataIndex: ["petugas", "namaPetugas"],
         key: "namaPetugas",
+        ...getColumnSearchProps("petugas.namaPetugas"),
+        sorter: (a, b) =>
+          a.petugas.namaPetugas.localeCompare(b.petugas.namaPetugas),
       },
       {
         title: "Tanggal Terdaftar",
         dataIndex: "tanggalTerdaftar",
         key: "tanggalTerdaftar",
+        ...getColumnSearchProps("tanggalTerdaftar"),
+        sorter: (a, b) =>
+          new Date(a.tanggalTerdaftar) - new Date(b.tanggalTerdaftar),
       },
       {
         title: "Foto Hewan",
@@ -841,7 +1018,15 @@ const Hewan = () => {
       <TypingCard title="Manajemen Hewan" source={cardContent} />
       <br />
       <Card>{title}</Card>
-      <Card style={{ overflowX: "scroll" }}>{renderTable()}</Card>
+      {loading ? (
+        <Card>
+          <Skeleton active paragraph={{ rows: 10 }} />
+        </Card>
+      ) : (
+        <Card title={title} style={{ overflowX: "scroll" }}>
+          {renderTable()}
+        </Card>
+      )}
 
       <EditHewanForm
         currentRowData={currentRowData}

@@ -1,16 +1,42 @@
 /* eslint-disable no-constant-condition */
 /* eslint-disable no-unused-vars */
 import React, { useState, useEffect, useRef } from "react";
-import { Card, Button, Table, message, Upload, Row, Col, Divider, Modal, Input } from "antd";
-import { UploadOutlined, EditOutlined, DeleteOutlined, DownloadOutlined } from "@ant-design/icons";
+import {
+  Card,
+  Button,
+  Table,
+  message,
+  Upload,
+  Row,
+  Col,
+  Divider,
+  Modal,
+  Input,
+  Space,
+} from "antd";
+import {
+  UploadOutlined,
+  EditOutlined,
+  DeleteOutlined,
+  DownloadOutlined,
+  SearchOutlined,
+} from "@ant-design/icons";
 import { read, utils } from "xlsx";
 import AddHewanForm from "./forms/add-jenishewan-form";
 import EditHewanForm from "./forms/edit-jenishewan-form";
 import TypingCard from "@/components/TypingCard";
-import { getJenisHewan, deleteJenisHewan, editJenisHewan, addJenisHewan, addJenisHewanBulk } from "@/api/jenishewan";
+import {
+  getJenisHewan,
+  deleteJenisHewan,
+  editJenisHewan,
+  addJenisHewan,
+  addJenisHewanBulk,
+} from "@/api/jenishewan";
 import { getPetugas } from "@/api/petugas";
 import { reqUserInfo } from "../../api/user";
 import { v4 as uuidv4 } from "uuid";
+import { Skeleton } from "antd";
+import Highlighter from "react-highlight-words";
 import kandangSapi from "../../assets/images/kandangsapi.jpg"; // Assuming it's a default export
 
 const JenisHewan = () => {
@@ -30,8 +56,11 @@ const JenisHewan = () => {
   const [columnTitles, setColumnTitles] = useState([]);
   const [fileName, setFileName] = useState("");
   const [columnMapping, setColumnMapping] = useState({});
+  const [loading, setLoading] = useState(true);
+  const [searchText, setSearchText] = useState("");
+  const [searchedColumn, setSearchedColumn] = useState("");
 
-  // Form References
+  const searchInput = useRef(null);
   const editHewanFormRef = useRef(null);
   const addHewanFormRef = useRef(null);
 
@@ -58,6 +87,7 @@ const JenisHewan = () => {
 
   // Fetch All Jenis Hewan with Optional Filtering
   const getJenisHewanData = async () => {
+    setLoading(true);
     try {
       const result = await getJenisHewan();
       const { content, statusCode } = result.data;
@@ -71,7 +101,12 @@ const JenisHewan = () => {
           const isJenisValid = typeof jenis === "string";
           const isDeskripsiValid = typeof deskripsi === "string";
 
-          return (isIdJenisHewanValid && idJenisHewan.toLowerCase().includes(keyword)) || (isJenisValid && jenis.toLowerCase().includes(keyword)) || (isDeskripsiValid && deskripsi.toLowerCase().includes(keyword));
+          return (
+            (isIdJenisHewanValid &&
+              idJenisHewan.toLowerCase().includes(keyword)) ||
+            (isJenisValid && jenis.toLowerCase().includes(keyword)) ||
+            (isDeskripsiValid && deskripsi.toLowerCase().includes(keyword))
+          );
         });
 
         setJenisHewans(filteredJenisHewan);
@@ -79,6 +114,8 @@ const JenisHewan = () => {
     } catch (error) {
       console.error("Failed to fetch jenis hewan:", error);
       message.error("Gagal mengambil data jenis hewan, harap coba lagi!");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -88,7 +125,9 @@ const JenisHewan = () => {
       const result = await getJenisHewan(); // Assuming similar API structure
       const { content, statusCode } = result.data;
       if (statusCode === 200) {
-        const filteredHewans = content.filter((hewan) => hewan.peternak_id === peternakID);
+        const filteredHewans = content.filter(
+          (hewan) => hewan.peternak_id === peternakID
+        );
         setJenisHewans(filteredHewans);
       }
     } catch (error) {
@@ -110,6 +149,17 @@ const JenisHewan = () => {
       console.error("Failed to fetch petugas:", error);
       message.error("Gagal mengambil data petugas, harap coba lagi!");
     }
+  };
+
+  const handleSearchTable = (selectedKeys, confirm, dataIndex) => {
+    confirm();
+    setSearchText(selectedKeys[0]);
+    setSearchedColumn(dataIndex);
+  };
+
+  const handleReset = (clearFilters) => {
+    clearFilters();
+    setSearchText("");
   };
 
   // Handle Search Input Change
@@ -140,6 +190,7 @@ const JenisHewan = () => {
       jenis: values.jenis,
       deskripsi: values.deskripsi,
     };
+    setLoading(true);
     try {
       await addJenisHewan(hewanData);
       form.resetFields();
@@ -151,6 +202,8 @@ const JenisHewan = () => {
       setAddHewanModalLoading(false);
       console.error("Failed to add jenis hewan:", e);
       message.error("Gagal menambahkan, harap coba lagi!");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -163,6 +216,7 @@ const JenisHewan = () => {
   // Handle Confirming the Edit Jenis Hewan Modal
   const handleEditHewanOk = async (values) => {
     setEditHewanModalLoading(true);
+    setLoading(true);
     try {
       await editJenisHewan(values, currentRowData.idJenisHewan);
       setEditHewanModalVisible(false);
@@ -173,6 +227,8 @@ const JenisHewan = () => {
       setEditHewanModalLoading(false);
       console.error("Failed to edit jenis hewan:", e);
       message.error("Pengeditan gagal, harap coba lagi!");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -187,6 +243,7 @@ const JenisHewan = () => {
       okType: "danger",
       cancelText: "Tidak",
       onOk: async () => {
+        setLoading(true);
         try {
           await deleteJenisHewan({ idJenisHewan });
           message.success("Berhasil dihapus");
@@ -194,6 +251,8 @@ const JenisHewan = () => {
         } catch (error) {
           console.error("Failed to delete jenis hewan:", error);
           message.error("Gagal menghapus data, harap coba lagi!");
+        } finally {
+          setLoading(false);
         }
       },
     });
@@ -213,7 +272,11 @@ const JenisHewan = () => {
       const utcDays = Math.floor(input - 25569);
       const utcValue = utcDays * 86400;
       const dateInfo = new Date(utcValue * 1000);
-      date = new Date(dateInfo.getFullYear(), dateInfo.getMonth(), dateInfo.getDate()).toString();
+      date = new Date(
+        dateInfo.getFullYear(),
+        dateInfo.getMonth(),
+        dateInfo.getDate()
+      ).toString();
     } else if (typeof input === "string") {
       const [day, month, year] = input.split("/");
       date = new Date(`${year}-${month}-${day}`).toString();
@@ -296,6 +359,7 @@ const JenisHewan = () => {
         };
         dataToSaveArray.push(dataToSave);
       }
+      setLoading(true);
       try {
         if (dataToSaveArray.length > 0) {
           // Add new data
@@ -306,6 +370,8 @@ const JenisHewan = () => {
       } catch (error) {
         console.error("Gagal menyimpan data:", error);
       }
+      message.success("Data berhasil diimport!");
+      getJenisHewanData();
     } catch (error) {
       console.error("Gagal memproses data:", error);
       message.error("Gagal memproses data, harap coba lagi!");
@@ -313,6 +379,8 @@ const JenisHewan = () => {
       setImportedData([]);
       setColumnTitles([]);
       setColumnMapping({});
+      setFileName("");
+      setLoading(false);
     }
   };
 
@@ -383,6 +451,97 @@ const JenisHewan = () => {
     document.body.removeChild(link); // Clean up
   };
 
+  const getColumnSearchProps = (dataIndex, nestedPath) => ({
+    filterDropdown: ({
+      setSelectedKeys,
+      selectedKeys,
+      confirm,
+      clearFilters,
+      close,
+    }) => (
+      <div style={{ padding: 8 }} onKeyDown={(e) => e.stopPropagation()}>
+        <Input
+          ref={searchInput}
+          placeholder={`Search ${dataIndex}`}
+          value={selectedKeys[0]}
+          onChange={(e) =>
+            setSelectedKeys(e.target.value ? [e.target.value] : [])
+          }
+          onPressEnter={() =>
+            handleSearchTable(selectedKeys, confirm, dataIndex)
+          }
+          style={{ marginBottom: 8, display: "block" }}
+        />
+        <Space>
+          <Button
+            type="primary"
+            onClick={() => handleSearchTable(selectedKeys, confirm, dataIndex)}
+            icon={<SearchOutlined />}
+            size="small"
+            style={{ width: 90 }}
+          >
+            Search
+          </Button>
+          <Button
+            onClick={() => clearFilters && handleReset(clearFilters)}
+            size="small"
+            style={{ width: 90 }}
+          >
+            Reset
+          </Button>
+          <Button
+            type="link"
+            size="small"
+            onClick={() => {
+              confirm({ closeDropdown: false });
+              setSearchText(selectedKeys[0]);
+              setSearchedColumn(dataIndex);
+            }}
+          >
+            Filter
+          </Button>
+          <Button type="link" size="small" onClick={() => close()}>
+            Close
+          </Button>
+        </Space>
+      </div>
+    ),
+    filterIcon: (filtered) => (
+      <SearchOutlined style={{ color: filtered ? "#1677ff" : undefined }} />
+    ),
+    onFilter: (value, record) => {
+      if (nestedPath) {
+        const nestedValue = nestedPath
+          .split(".")
+          .reduce((obj, key) => obj?.[key], record);
+        return nestedValue
+          ?.toString()
+          .toLowerCase()
+          .includes(value.toLowerCase());
+      }
+      return record[dataIndex]
+        ?.toString()
+        .toLowerCase()
+        .includes(value.toLowerCase());
+    },
+    filterDropdownProps: {
+      onOpenChange(open) {
+        if (open) setTimeout(() => searchInput.current?.select(), 100);
+      },
+    },
+    render: (text) =>
+      searchedColumn === dataIndex ? (
+        <Highlighter
+          highlightStyle={{ backgroundColor: "#ffc069", padding: 0 }}
+          searchWords={[searchText]}
+          autoEscape
+          textToHighlight={text?.toString() || ""}
+        />
+      ) : (
+        text
+      ),
+  });
+
   // Render Columns with Operations
   const renderColumns = () => {
     const baseColumns = [
@@ -390,12 +549,29 @@ const JenisHewan = () => {
         title: "ID Jenis Hewan",
         dataIndex: "idJenisHewan",
         key: "idJenisHewan",
+        ...getColumnSearchProps("idJenisHewan"),
+        sorter: (a, b) => a.idJenisHewan.localeCompare(b.idJenisHewan),
       },
-      { title: "Jenis", dataIndex: "jenis", key: "jenis" },
-      { title: "Deskripsi", dataIndex: "deskripsi", key: "deskripsi" },
+      {
+        title: "Jenis",
+        dataIndex: "jenis",
+        key: "jenis",
+        ...getColumnSearchProps("jenis"),
+        sorter: (a, b) => a.jenis.localeCompare(b.jenis),
+      },
+      {
+        title: "Deskripsi",
+        dataIndex: "deskripsi",
+        key: "deskripsi",
+        ...getColumnSearchProps("deskripsi"),
+        sorter: (a, b) => a.deskripsi.localeCompare(b.deskripsi),
+      },
     ];
 
-    if (user && (user.role === "ROLE_ADMINISTRATOR" || user.role === "ROLE_PETUGAS")) {
+    if (
+      user &&
+      (user.role === "ROLE_ADMINISTRATOR" || user.role === "ROLE_PETUGAS")
+    ) {
       baseColumns.push({
         title: "Operasi",
         key: "action",
@@ -403,9 +579,22 @@ const JenisHewan = () => {
         align: "center",
         render: (text, row) => (
           <span>
-            <Button type="primary" shape="circle" icon={<EditOutlined />} title="Edit" onClick={() => handleEditHewan(row)} />
+            <Button
+              type="primary"
+              shape="circle"
+              icon={<EditOutlined />}
+              title="Edit"
+              onClick={() => handleEditHewan(row)}
+            />
             <Divider type="vertical" />
-            <Button type="primary" danger shape="circle" icon={<DeleteOutlined />} title="Delete" onClick={() => handleDeleteHewan(row)} />
+            <Button
+              type="primary"
+              danger
+              shape="circle"
+              icon={<DeleteOutlined />}
+              title="Delete"
+              onClick={() => handleDeleteHewan(row)}
+            />
           </span>
         ),
       });
@@ -417,9 +606,26 @@ const JenisHewan = () => {
   // Render Table based on User Role
   const renderTable = () => {
     if (user && user.role === "ROLE_PETERNAK") {
-      return <Table dataSource={jenisHewans} bordered columns={renderColumns()} rowKey="idJenisHewan" />;
-    } else if (user && (user.role === "ROLE_ADMINISTRATOR" || user.role === "ROLE_PETUGAS")) {
-      return <Table dataSource={jenisHewans} bordered columns={renderColumns()} rowKey="idJenisHewan" />;
+      return (
+        <Table
+          dataSource={jenisHewans}
+          bordered
+          columns={renderColumns()}
+          rowKey="idJenisHewan"
+        />
+      );
+    } else if (
+      user &&
+      (user.role === "ROLE_ADMINISTRATOR" || user.role === "ROLE_PETUGAS")
+    ) {
+      return (
+        <Table
+          dataSource={jenisHewans}
+          bordered
+          columns={renderColumns()}
+          rowKey="idJenisHewan"
+        />
+      );
     } else {
       return null;
     }
@@ -427,7 +633,10 @@ const JenisHewan = () => {
 
   // Render Buttons based on User Role
   const renderButtons = () => {
-    if (user && (user.role === "ROLE_ADMINISTRATOR" || user.role === "ROLE_PETUGAS")) {
+    if (
+      user &&
+      (user.role === "ROLE_ADMINISTRATOR" || user.role === "ROLE_PETUGAS")
+    ) {
       return (
         <Row gutter={[16, 16]} justify="start" style={{ paddingLeft: 9 }}>
           <Col>
@@ -436,12 +645,20 @@ const JenisHewan = () => {
             </Button>
           </Col>
           <Col>
-            <Button icon={<UploadOutlined />} onClick={handleImportModalOpen} block>
+            <Button
+              icon={<UploadOutlined />}
+              onClick={handleImportModalOpen}
+              block
+            >
               Import File
             </Button>
           </Col>
           <Col>
-            <Button icon={<DownloadOutlined />} onClick={handleDownloadCSV} block>
+            <Button
+              icon={<DownloadOutlined />}
+              onClick={handleDownloadCSV}
+              block
+            >
               Download Format CSV
             </Button>
           </Col>
@@ -462,7 +679,12 @@ const JenisHewan = () => {
     <Row gutter={[16, 16]} justify="space-between">
       {renderButtons()}
       <Col xs={24} sm={12} md={8} lg={8} xl={8}>
-        <Input placeholder="Cari data" value={searchKeyword} onChange={(e) => handleSearch(e.target.value)} style={{ width: "100%" }} />
+        <Input
+          placeholder="Cari data"
+          value={searchKeyword}
+          onChange={(e) => handleSearch(e.target.value)}
+          style={{ width: "100%" }}
+        />
       </Col>
     </Row>
   );
@@ -474,15 +696,33 @@ const JenisHewan = () => {
       {/* TypingCard component */}
       <TypingCard title="Manajemen Jenis Hewan" source={cardContent} />
       <br />
-      <Card title={title} style={{ overflowX: "scroll" }}>
-        {renderTable()}
-      </Card>
-
+      {loading ? (
+        <Card>
+          <Skeleton active paragraph={{ rows: 10 }} />
+        </Card>
+      ) : (
+        <Card title={title} style={{ overflowX: "scroll" }}>
+          {renderTable()}
+        </Card>
+      )}
       {/* Edit Jenis Hewan Modal */}
-      <EditHewanForm currentRowData={currentRowData} wrappedComponentRef={editHewanFormRef} visible={editHewanModalVisible} confirmLoading={editHewanModalLoading} onCancel={handleCancel} onOk={handleEditHewanOk} />
+      <EditHewanForm
+        currentRowData={currentRowData}
+        wrappedComponentRef={editHewanFormRef}
+        visible={editHewanModalVisible}
+        confirmLoading={editHewanModalLoading}
+        onCancel={handleCancel}
+        onOk={handleEditHewanOk}
+      />
 
       {/* Add Jenis Hewan Modal */}
-      <AddHewanForm wrappedComponentRef={addHewanFormRef} visible={addHewanModalVisible} confirmLoading={addHewanModalLoading} onCancel={handleCancel} onOk={handleAddHewanOk} />
+      <AddHewanForm
+        wrappedComponentRef={addHewanFormRef}
+        visible={addHewanModalVisible}
+        confirmLoading={addHewanModalLoading}
+        onCancel={handleCancel}
+        onOk={handleAddHewanOk}
+      />
 
       {/* Import Modal */}
       <Modal
@@ -493,7 +733,12 @@ const JenisHewan = () => {
           <Button key="cancel" onClick={handleImportModalClose}>
             Cancel
           </Button>,
-          <Button key="upload" type="primary" loading={uploading} onClick={handleUpload}>
+          <Button
+            key="upload"
+            type="primary"
+            loading={uploading}
+            onClick={handleUpload}
+          >
             Upload
           </Button>,
         ]}

@@ -434,11 +434,12 @@ const Pkb = () => {
       setAddPkbModalVisible(false);
       setAddPkbModalLoading(false);
       message.success("Berhasil menambahkan!");
-      setLoading(false);
       getPkbData();
     } catch (error) {
       console.error("Gagal menambahkan, harap coba lagi!", error);
       message.error("Gagal menambahkan, harap coba lagi!");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -456,11 +457,12 @@ const Pkb = () => {
       setEditPkbModalVisible(false);
       setEditPkbModalLoading(false);
       message.success("Berhasil diedit!");
-      setLoading(false);
       getPkbData();
     } catch (error) {
       console.error("Pengeditan gagal, harap coba lagi!", error);
       message.error("Pengeditan gagal, harap coba lagi!");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -477,11 +479,12 @@ const Pkb = () => {
         try {
           await deletePkb({ idPkb });
           message.success("Berhasil dihapus");
-          setLoading(false);
           getPkbData();
         } catch (error) {
           console.error("Gagal menghapus data:", error);
           message.error("Gagal menghapus data, harap coba lagi.");
+        } finally {
+          setLoading(false);
         }
       },
     });
@@ -802,7 +805,6 @@ const Pkb = () => {
 
       if (errorCount === 0) {
         message.success(`Semua data berhasil disimpan.`);
-        setLoading(false);
         getPkbData();
       } else {
         message.error(
@@ -816,6 +818,7 @@ const Pkb = () => {
       setColumnTitles([]);
       setFileName("");
       setColumnMapping({});
+      setLoading(false);
     }
   };
 

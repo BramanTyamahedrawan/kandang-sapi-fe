@@ -277,11 +277,12 @@ const Pengobatan = () => {
       setAddPengobatanModalVisible(false);
       setAddPengobatanModalLoading(false);
       message.success("Berhasil menambahkan data pengobatan!");
-      setLoading(false);
       getPengobatanData();
     } catch (error) {
       console.error("Gagal menambahkan data pengobatan:", error);
       message.error("Gagal menambahkan data pengobatan, harap coba lagi!");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -299,11 +300,12 @@ const Pengobatan = () => {
       setEditPengobatanModalVisible(false);
       setEditPengobatanModalLoading(false);
       message.success("Berhasil mengubah data pengobatan!");
-      setLoading(false);
       getPengobatanData();
     } catch (error) {
       console.error("Gagal mengubah data pengobatan:", error);
       message.error("Gagal mengubah data pengobatan, harap coba lagi!");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -320,11 +322,12 @@ const Pengobatan = () => {
         try {
           await deletePengobatan({ idPengobatan });
           message.success("Berhasil menghapus data pengobatan!");
-          setLoading(false);
           getPengobatanData();
         } catch (error) {
           console.error("Gagal menghapus data pengobatan:", error);
           message.error("Gagal menghapus data pengobatan, harap coba lagi!");
+        } finally {
+          setLoading(false);
         }
       },
     });
@@ -507,7 +510,6 @@ const Pengobatan = () => {
 
       if (errorCount === 0) {
         message.success(`Semua data berhasil disimpan.`);
-        setLoading(false);
         getPengobatanData();
       } else {
         message.error(
@@ -521,6 +523,7 @@ const Pengobatan = () => {
       setColumnTitles([]);
       setFileName("");
       setColumnMapping({});
+      setLoading(false);
     }
   };
 

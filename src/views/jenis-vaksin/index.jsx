@@ -1,24 +1,54 @@
 /* eslint-disable no-constant-condition */
 /* eslint-disable no-unused-vars */
-import { addJenisVaksin, deleteJenisVaksin, editJenisVaksin, getJenisVaksin, addJenisVaksinBulk } from "@/api/jenis-vaksin";
+import {
+  addJenisVaksin,
+  deleteJenisVaksin,
+  editJenisVaksin,
+  getJenisVaksin,
+  addJenisVaksinBulk,
+} from "@/api/jenis-vaksin";
 import TypingCard from "@/components/TypingCard";
-import { DeleteOutlined, DownloadOutlined, EditOutlined, UploadOutlined } from "@ant-design/icons";
-import { Button, Card, Col, Divider, Input, message, Modal, Row, Table, Upload } from "antd";
+import {
+  DeleteOutlined,
+  DownloadOutlined,
+  EditOutlined,
+  UploadOutlined,
+  SearchOutlined,
+} from "@ant-design/icons";
+import {
+  Button,
+  Card,
+  Col,
+  Divider,
+  Input,
+  message,
+  Modal,
+  Row,
+  Table,
+  Upload,
+  Space,
+} from "antd";
 import React, { useEffect, useRef, useState } from "react";
 import { read, utils } from "xlsx";
 import { reqUserInfo } from "../../api/user";
 import AddJenisVaksinForm from "./forms/add-jenisvaksin-form";
 import EditJenisVaksinForm from "./forms/edit-jenisvaksin-form";
 import { v4 as uuidv4 } from "uuid";
+import { Skeleton } from "antd";
+import Highlighter from "react-highlight-words";
 
 const JenisVaksin = () => {
   // State Variables
   const [jenisVaksins, setJenisVaksins] = useState([]);
-  const [editJenisVaksinModalVisible, setEditJenisVaksinModalVisible] = useState(false);
-  const [editJenisVaksinModalLoading, setEditJenisVaksinModalLoading] = useState(false);
+  const [editJenisVaksinModalVisible, setEditJenisVaksinModalVisible] =
+    useState(false);
+  const [editJenisVaksinModalLoading, setEditJenisVaksinModalLoading] =
+    useState(false);
   const [currentRowData, setCurrentRowData] = useState({});
-  const [addJenisVaksinModalVisible, setAddJenisVaksinModalVisible] = useState(false);
-  const [addJenisVaksinModalLoading, setAddJenisVaksinModalLoading] = useState(false);
+  const [addJenisVaksinModalVisible, setAddJenisVaksinModalVisible] =
+    useState(false);
+  const [addJenisVaksinModalLoading, setAddJenisVaksinModalLoading] =
+    useState(false);
   const [importModalVisible, setImportModalVisible] = useState(false);
   const [importedData, setImportedData] = useState([]);
   const [searchKeyword, setSearchKeyword] = useState("");
@@ -27,8 +57,11 @@ const JenisVaksin = () => {
   const [columnTitles, setColumnTitles] = useState([]);
   const [fileName, setFileName] = useState("");
   const [columnMapping, setColumnMapping] = useState({});
+  const [loading, setLoading] = useState(true);
+  const [searchText, setSearchText] = useState("");
+  const [searchedColumn, setSearchedColumn] = useState("");
 
-  // Form References
+  const searchInput = useRef(null);
   const editJenisVaksinFormRef = useRef(null);
   const addJenisVaksinFormRef = useRef(null);
 
@@ -46,6 +79,7 @@ const JenisVaksin = () => {
 
   // Fetch All Jenis Vaksin with Optional Filtering
   const getJenisVaksinData = async () => {
+    setLoading(true);
     try {
       const result = await getJenisVaksin();
       const { content, statusCode } = result.data;
@@ -59,7 +93,12 @@ const JenisVaksin = () => {
           const isJenisValid = typeof jenis === "string";
           const isDeskripsiValid = typeof deskripsi === "string";
 
-          return (isIdJenisVaksinValid && idJenisVaksin.toLowerCase().includes(keyword)) || (isJenisValid && jenis.toLowerCase().includes(keyword)) || (isDeskripsiValid && deskripsi.toLowerCase().includes(keyword));
+          return (
+            (isIdJenisVaksinValid &&
+              idJenisVaksin.toLowerCase().includes(keyword)) ||
+            (isJenisValid && jenis.toLowerCase().includes(keyword)) ||
+            (isDeskripsiValid && deskripsi.toLowerCase().includes(keyword))
+          );
         });
 
         setJenisVaksins(filteredJenisVaksin);
@@ -67,6 +106,8 @@ const JenisVaksin = () => {
     } catch (error) {
       console.error("Failed to fetch jenis vaksin:", error);
       message.error("Gagal mengambil data jenis vaksin, harap coba lagi!");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -102,6 +143,17 @@ const JenisVaksin = () => {
   //   }
   // }
 
+  const handleSearchTable = (selectedKeys, confirm, dataIndex) => {
+    confirm();
+    setSearchText(selectedKeys[0]);
+    setSearchedColumn(dataIndex);
+  };
+
+  const handleReset = (clearFilters) => {
+    clearFilters();
+    setSearchText("");
+  };
+
   // Handle Search Input Change
   const handleSearch = (keyword) => {
     setSearchKeyword(keyword);
@@ -130,6 +182,7 @@ const JenisVaksin = () => {
       jenis: values.jenis,
       deskripsi: values.deskripsi,
     };
+    setLoading(true);
     try {
       await addJenisVaksin(jenisData);
       console.log("Jenis Vaksin Data:", jenisData);
@@ -142,6 +195,8 @@ const JenisVaksin = () => {
       setAddJenisVaksinModalLoading(false);
       console.error("Failed to add jenis vaksin:", e);
       message.error("Gagal menambahkan, harap coba lagi!");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -154,6 +209,7 @@ const JenisVaksin = () => {
   // Handle Confirming the Edit Jenis Vaksin Modal
   const handleEditJenisVaksinOk = async (values) => {
     setEditJenisVaksinModalLoading(true);
+    setLoading(true);
     try {
       await editJenisVaksin(values, currentRowData.idJenisVaksin);
       setEditJenisVaksinModalVisible(false);
@@ -164,6 +220,8 @@ const JenisVaksin = () => {
       setEditJenisVaksinModalLoading(false);
       console.error("Failed to edit jenis vaksin:", e);
       message.error("Pengeditan gagal, harap coba lagi!");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -178,6 +236,7 @@ const JenisVaksin = () => {
       okType: "danger",
       cancelText: "Tidak",
       onOk: async () => {
+        setLoading(true);
         try {
           await deleteJenisVaksin({ idJenisVaksin });
           message.success("Berhasil dihapus");
@@ -185,6 +244,8 @@ const JenisVaksin = () => {
         } catch (error) {
           console.error("Failed to delete jenis vaksin:", error);
           message.error("Gagal menghapus data, harap coba lagi!");
+        } finally {
+          setLoading(false);
         }
       },
     });
@@ -204,7 +265,11 @@ const JenisVaksin = () => {
       const utcDays = Math.floor(input - 25569);
       const utcValue = utcDays * 86400;
       const dateInfo = new Date(utcValue * 1000);
-      date = new Date(dateInfo.getFullYear(), dateInfo.getMonth(), dateInfo.getDate()).toString();
+      date = new Date(
+        dateInfo.getFullYear(),
+        dateInfo.getMonth(),
+        dateInfo.getDate()
+      ).toString();
     } else if (typeof input === "string") {
       const [day, month, year] = input.split("/");
       date = new Date(`${year}-${month}-${day}`).toString();
@@ -222,7 +287,10 @@ const JenisVaksin = () => {
       const workbook = read(data, { type: "array" });
 
       const worksheet = workbook.Sheets[workbook.SheetNames[0]];
-      const jsonData = utils.sheet_to_json(worksheet, { header: 1, blankrows: false });
+      const jsonData = utils.sheet_to_json(worksheet, {
+        header: 1,
+        blankrows: false,
+      });
 
       const importedData = jsonData.slice(1); // Exclude the first row (column titles)
       const columnTitles = jsonData[0]; // Assume the first row contains column titles
@@ -278,6 +346,7 @@ const JenisVaksin = () => {
   const saveImportedData = async (mapping) => {
     let errorCount = 0;
     const dataToSaveArray = [];
+
     try {
       for (const row of importedData) {
         const generateId = uuidv4();
@@ -291,6 +360,8 @@ const JenisVaksin = () => {
         // const existingJenisVaksinIndex = jenisVaksins.findIndex((p) => p.idJenisVaksin === dataToSave.idJenisVaksin);
         dataToSaveArray.push(dataToSave);
       }
+
+      setLoading(true);
       try {
         if (dataToSaveArray.length > 0) {
           // Add new data
@@ -305,6 +376,7 @@ const JenisVaksin = () => {
       }
       if (errorCount === 0) {
         message.success(`Semua data berhasil disimpan.`);
+        getJenisVaksinData();
       } else {
         message.error(`${errorCount} data gagal disimpan, harap coba lagi!`);
       }
@@ -315,6 +387,8 @@ const JenisVaksin = () => {
       setImportedData([]);
       setColumnTitles([]);
       setColumnMapping({});
+      setFileName("");
+      setLoading(false);
     }
   };
 
@@ -325,7 +399,11 @@ const JenisVaksin = () => {
 
   const convertHeaderToCSV = () => {
     const columnTitlesLocal = ["No", "Jenis Vaksin", "Deskripsi"];
-    const exampleRow = ["1", "Contoh PMK", "Contoh jenis vaksin untuk penyakit PMK"];
+    const exampleRow = [
+      "1",
+      "Contoh PMK",
+      "Contoh jenis vaksin untuk penyakit PMK",
+    ];
 
     // Gabungkan header dan contoh data
     const rows = [columnTitlesLocal, exampleRow];
@@ -385,6 +463,97 @@ const JenisVaksin = () => {
     document.body.removeChild(link); // Clean up
   };
 
+  const getColumnSearchProps = (dataIndex, nestedPath) => ({
+    filterDropdown: ({
+      setSelectedKeys,
+      selectedKeys,
+      confirm,
+      clearFilters,
+      close,
+    }) => (
+      <div style={{ padding: 8 }} onKeyDown={(e) => e.stopPropagation()}>
+        <Input
+          ref={searchInput}
+          placeholder={`Search ${dataIndex}`}
+          value={selectedKeys[0]}
+          onChange={(e) =>
+            setSelectedKeys(e.target.value ? [e.target.value] : [])
+          }
+          onPressEnter={() =>
+            handleSearchTable(selectedKeys, confirm, dataIndex)
+          }
+          style={{ marginBottom: 8, display: "block" }}
+        />
+        <Space>
+          <Button
+            type="primary"
+            onClick={() => handleSearchTable(selectedKeys, confirm, dataIndex)}
+            icon={<SearchOutlined />}
+            size="small"
+            style={{ width: 90 }}
+          >
+            Search
+          </Button>
+          <Button
+            onClick={() => clearFilters && handleReset(clearFilters)}
+            size="small"
+            style={{ width: 90 }}
+          >
+            Reset
+          </Button>
+          <Button
+            type="link"
+            size="small"
+            onClick={() => {
+              confirm({ closeDropdown: false });
+              setSearchText(selectedKeys[0]);
+              setSearchedColumn(dataIndex);
+            }}
+          >
+            Filter
+          </Button>
+          <Button type="link" size="small" onClick={() => close()}>
+            Close
+          </Button>
+        </Space>
+      </div>
+    ),
+    filterIcon: (filtered) => (
+      <SearchOutlined style={{ color: filtered ? "#1677ff" : undefined }} />
+    ),
+    onFilter: (value, record) => {
+      if (nestedPath) {
+        const nestedValue = nestedPath
+          .split(".")
+          .reduce((obj, key) => obj?.[key], record);
+        return nestedValue
+          ?.toString()
+          .toLowerCase()
+          .includes(value.toLowerCase());
+      }
+      return record[dataIndex]
+        ?.toString()
+        .toLowerCase()
+        .includes(value.toLowerCase());
+    },
+    filterDropdownProps: {
+      onOpenChange(open) {
+        if (open) setTimeout(() => searchInput.current?.select(), 100);
+      },
+    },
+    render: (text) =>
+      searchedColumn === dataIndex ? (
+        <Highlighter
+          highlightStyle={{ backgroundColor: "#ffc069", padding: 0 }}
+          searchWords={[searchText]}
+          autoEscape
+          textToHighlight={text?.toString() || ""}
+        />
+      ) : (
+        text
+      ),
+  });
+
   // Render Columns with Operations
   const renderColumns = () => {
     const baseColumns = [
@@ -393,11 +562,26 @@ const JenisVaksin = () => {
         dataIndex: "idJenisVaksin",
         key: "idJenisVaksin",
       },
-      { title: "Jenis", dataIndex: "jenis", key: "jenis" },
-      { title: "Deskripsi", dataIndex: "deskripsi", key: "deskripsi" },
+      {
+        title: "Jenis",
+        dataIndex: "jenis",
+        key: "jenis",
+        ...getColumnSearchProps("jenis"),
+        sorter: (a, b) => a.jenis.localeCompare(b.jenis),
+      },
+      {
+        title: "Deskripsi",
+        dataIndex: "deskripsi",
+        key: "deskripsi",
+        ...getColumnSearchProps("deskripsi"),
+        sorter: (a, b) => a.deskripsi.localeCompare(b.deskripsi),
+      },
     ];
 
-    if (user && (user.role === "ROLE_ADMINISTRATOR" || user.role === "ROLE_PETUGAS")) {
+    if (
+      user &&
+      (user.role === "ROLE_ADMINISTRATOR" || user.role === "ROLE_PETUGAS")
+    ) {
       baseColumns.push({
         title: "Operasi",
         key: "action",
@@ -405,9 +589,22 @@ const JenisVaksin = () => {
         align: "center",
         render: (text, row) => (
           <span>
-            <Button type="primary" shape="circle" icon={<EditOutlined />} title="Edit" onClick={() => handleEditJenisVaksin(row)} />
+            <Button
+              type="primary"
+              shape="circle"
+              icon={<EditOutlined />}
+              title="Edit"
+              onClick={() => handleEditJenisVaksin(row)}
+            />
             <Divider type="vertical" />
-            <Button type="primary" danger shape="circle" icon={<DeleteOutlined />} title="Delete" onClick={() => handleDeleteJenisVaksin(row)} />
+            <Button
+              type="primary"
+              danger
+              shape="circle"
+              icon={<DeleteOutlined />}
+              title="Delete"
+              onClick={() => handleDeleteJenisVaksin(row)}
+            />
           </span>
         ),
       });
@@ -419,9 +616,26 @@ const JenisVaksin = () => {
   // Render Table based on User Role
   const renderTable = () => {
     if (user && user.role === "ROLE_PETERNAK") {
-      return <Table dataSource={jenisVaksins} bordered columns={renderColumns()} rowKey="idJenisVaksin" />;
-    } else if (user && (user.role === "ROLE_ADMINISTRATOR" || user.role === "ROLE_PETUGAS")) {
-      return <Table dataSource={jenisVaksins} bordered columns={renderColumns()} rowKey="idJenisVaksin" />;
+      return (
+        <Table
+          dataSource={jenisVaksins}
+          bordered
+          columns={renderColumns()}
+          rowKey="idJenisVaksin"
+        />
+      );
+    } else if (
+      user &&
+      (user.role === "ROLE_ADMINISTRATOR" || user.role === "ROLE_PETUGAS")
+    ) {
+      return (
+        <Table
+          dataSource={jenisVaksins}
+          bordered
+          columns={renderColumns()}
+          rowKey="idJenisVaksin"
+        />
+      );
     } else {
       return null;
     }
@@ -429,7 +643,10 @@ const JenisVaksin = () => {
 
   // Render Buttons based on User Role
   const renderButtons = () => {
-    if (user && (user.role === "ROLE_ADMINISTRATOR" || user.role === "ROLE_PETUGAS")) {
+    if (
+      user &&
+      (user.role === "ROLE_ADMINISTRATOR" || user.role === "ROLE_PETUGAS")
+    ) {
       return (
         <Row gutter={[16, 16]} justify="start" style={{ paddingLeft: 9 }}>
           <Col>
@@ -438,12 +655,20 @@ const JenisVaksin = () => {
             </Button>
           </Col>
           <Col>
-            <Button icon={<UploadOutlined />} onClick={handleImportModalOpen} block>
+            <Button
+              icon={<UploadOutlined />}
+              onClick={handleImportModalOpen}
+              block
+            >
               Import File
             </Button>
           </Col>
           <Col>
-            <Button icon={<DownloadOutlined />} onClick={handleDownloadCSV} block>
+            <Button
+              icon={<DownloadOutlined />}
+              onClick={handleDownloadCSV}
+              block
+            >
               Download Format CSV
             </Button>
           </Col>
@@ -464,7 +689,12 @@ const JenisVaksin = () => {
     <Row gutter={[16, 16]} justify="space-between">
       {renderButtons()}
       <Col xs={24} sm={12} md={8} lg={8} xl={8}>
-        <Input placeholder="Cari data" value={searchKeyword} onChange={(e) => handleSearch(e.target.value)} style={{ width: "100%" }} />
+        <Input
+          placeholder="Cari data"
+          value={searchKeyword}
+          onChange={(e) => handleSearch(e.target.value)}
+          style={{ width: "100%" }}
+        />
       </Col>
     </Row>
   );
@@ -476,9 +706,15 @@ const JenisVaksin = () => {
       {/* TypingCard component */}
       <TypingCard title="Manajemen Jenis Vaksin" source={cardContent} />
       <br />
-      <Card title={title} style={{ overflowX: "scroll" }}>
-        {renderTable()}
-      </Card>
+      {loading ? (
+        <Card>
+          <Skeleton active paragraph={{ rows: 10 }} />
+        </Card>
+      ) : (
+        <Card title={title} style={{ overflowX: "scroll" }}>
+          {renderTable()}
+        </Card>
+      )}
 
       {/* Edit Jenis Vaksin Modal */}
       <EditJenisVaksinForm
@@ -491,7 +727,13 @@ const JenisVaksin = () => {
       />
 
       {/* Add Jenis Vaksin Modal */}
-      <AddJenisVaksinForm wrappedComponentRef={addJenisVaksinFormRef} visible={addJenisVaksinModalVisible} confirmLoading={addJenisVaksinModalLoading} onCancel={handleCancel} onOk={handleAddJenisVaksinOk} />
+      <AddJenisVaksinForm
+        wrappedComponentRef={addJenisVaksinFormRef}
+        visible={addJenisVaksinModalVisible}
+        confirmLoading={addJenisVaksinModalLoading}
+        onCancel={handleCancel}
+        onOk={handleAddJenisVaksinOk}
+      />
 
       {/* Import Modal */}
       <Modal
@@ -502,7 +744,12 @@ const JenisVaksin = () => {
           <Button key="cancel" onClick={handleImportModalClose}>
             Cancel
           </Button>,
-          <Button key="upload" type="primary" loading={uploading} onClick={handleUpload}>
+          <Button
+            key="upload"
+            type="primary"
+            loading={uploading}
+            onClick={handleUpload}
+          >
             Upload
           </Button>,
         ]}

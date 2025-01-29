@@ -1,24 +1,53 @@
-/* eslint-disable no-constant-condition */
 /* eslint-disable no-unused-vars */
-import { addNamaVaksin, deleteNamaVaksin, editNamaVaksin, getNamaVaksin, addNamaVaksinBulk } from "@/api/nama-vaksin";
+import {
+  addNamaVaksin,
+  deleteNamaVaksin,
+  editNamaVaksin,
+  getNamaVaksin,
+  addNamaVaksinBulk,
+} from "@/api/nama-vaksin";
 import { reqUserInfo } from "@/api/user"; // Adjust the import path as necessary
 import TypingCard from "@/components/TypingCard";
-import { DeleteOutlined, DownloadOutlined, EditOutlined, UploadOutlined } from "@ant-design/icons";
-import { Button, Card, Col, Divider, Input, message, Modal, Row, Table, Upload } from "antd";
+import {
+  DeleteOutlined,
+  DownloadOutlined,
+  EditOutlined,
+  UploadOutlined,
+  SearchOutlined,
+} from "@ant-design/icons";
+import {
+  Button,
+  Card,
+  Col,
+  Divider,
+  Input,
+  message,
+  Modal,
+  Row,
+  Table,
+  Upload,
+  Space,
+} from "antd";
 import React, { useEffect, useRef, useState } from "react";
 import { read, utils } from "xlsx";
 import AddNamaVaksinForm from "./forms/add-namavaksin-form";
 import EditNamaVaksinForm from "./forms/edit-namavaksin-form";
 import { v4 as uuidv4 } from "uuid";
+import { Skeleton } from "antd";
+import Highlighter from "react-highlight-words";
 
 const NamaVaksin = () => {
   // State Variables
   const [namaVaksins, setNamaVaksins] = useState([]);
-  const [editNamaVaksinModalVisible, setEditNamaVaksinModalVisible] = useState(false);
-  const [editNamaVaksinModalLoading, setEditNamaVaksinModalLoading] = useState(false);
+  const [editNamaVaksinModalVisible, setEditNamaVaksinModalVisible] =
+    useState(false);
+  const [editNamaVaksinModalLoading, setEditNamaVaksinModalLoading] =
+    useState(false);
   const [currentRowData, setCurrentRowData] = useState({});
-  const [addNamaVaksinModalVisible, setAddNamaVaksinModalVisible] = useState(false);
-  const [addNamaVaksinModalLoading, setAddNamaVaksinModalLoading] = useState(false);
+  const [addNamaVaksinModalVisible, setAddNamaVaksinModalVisible] =
+    useState(false);
+  const [addNamaVaksinModalLoading, setAddNamaVaksinModalLoading] =
+    useState(false);
   const [importModalVisible, setImportModalVisible] = useState(false);
   const [importedData, setImportedData] = useState([]);
   const [searchKeyword, setSearchKeyword] = useState("");
@@ -27,8 +56,11 @@ const NamaVaksin = () => {
   const [columnTitles, setColumnTitles] = useState([]);
   const [fileName, setFileName] = useState("");
   const [columnMapping, setColumnMapping] = useState({});
+  const [loading, setLoading] = useState(true);
+  const [searchText, setSearchText] = useState("");
+  const [searchedColumn, setSearchedColumn] = useState("");
 
-  // Form References
+  const searchInput = useRef(null);
   const editNamaVaksinFormRef = useRef(null);
   const addNamaVaksinFormRef = useRef(null);
 
@@ -45,6 +77,7 @@ const NamaVaksin = () => {
 
   // Fetch All Jenis Vaksin with Optional Filtering
   const getNamaVaksinData = async () => {
+    setLoading(true);
     try {
       const result = await getNamaVaksin();
       const { content, statusCode } = result.data;
@@ -58,7 +91,12 @@ const NamaVaksin = () => {
           const isNamaValid = typeof namaVaksin === "string";
           const isDeskripsiValid = typeof deskripsi === "string";
 
-          return (isIdNamaVaksinValid && idNamaVaksin.toLowerCase().includes(keyword)) || (isNamaValid && namaVaksin.toLowerCase().includes(keyword)) || (isDeskripsiValid && deskripsi.toLowerCase().includes(keyword));
+          return (
+            (isIdNamaVaksinValid &&
+              idNamaVaksin.toLowerCase().includes(keyword)) ||
+            (isNamaValid && namaVaksin.toLowerCase().includes(keyword)) ||
+            (isDeskripsiValid && deskripsi.toLowerCase().includes(keyword))
+          );
         });
 
         setNamaVaksins(filteredNamaVaksin);
@@ -66,6 +104,8 @@ const NamaVaksin = () => {
     } catch (error) {
       console.error("Failed to fetch jenis vaksin:", error);
       message.error("Gagal mengambil data nama vaksin, harap coba lagi!");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -103,6 +143,17 @@ const NamaVaksin = () => {
 
   // Handle Search Input Change
 
+  const handleSearchTable = (selectedKeys, confirm, dataIndex) => {
+    confirm();
+    setSearchText(selectedKeys[0]);
+    setSearchedColumn(dataIndex);
+  };
+
+  const handleReset = (clearFilters) => {
+    clearFilters();
+    setSearchText("");
+  };
+
   const handleSearch = (keyword) => {
     setSearchKeyword(keyword);
     getNamaVaksinData();
@@ -126,6 +177,7 @@ const NamaVaksin = () => {
   // Handle Confirming the Add Nama Vaksin Modal
   const handleAddNamaVaksinOk = async (values) => {
     setAddNamaVaksinModalLoading(true);
+    setLoading(true);
     try {
       await addNamaVaksin(values);
       setAddNamaVaksinModalVisible(false);
@@ -136,6 +188,8 @@ const NamaVaksin = () => {
       setAddNamaVaksinModalLoading(false);
       console.error("Failed to add Nama vaksin:", e);
       message.error("Gagal menambahkan, harap coba lagi!");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -148,6 +202,7 @@ const NamaVaksin = () => {
   // Handle Confirming the Edit Jenis Vaksin Modal
   const handleEditNamaVaksinOk = async (values) => {
     setEditNamaVaksinModalLoading(true);
+    setLoading(true);
     try {
       await editNamaVaksin(values, currentRowData.idNamaVaksin);
       setEditNamaVaksinModalVisible(false);
@@ -158,6 +213,8 @@ const NamaVaksin = () => {
       setEditNamaVaksinModalLoading(false);
       console.error("Failed to edit Nama vaksin:", e);
       message.error("Pengeditan gagal, harap coba lagi!");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -172,6 +229,7 @@ const NamaVaksin = () => {
       okType: "danger",
       cancelText: "Tidak",
       onOk: async () => {
+        setLoading(true);
         try {
           await deleteNamaVaksin({ idNamaVaksin });
           message.success("Berhasil dihapus");
@@ -179,6 +237,8 @@ const NamaVaksin = () => {
         } catch (error) {
           console.error("Failed to delete Nama vaksin:", error);
           message.error("Gagal menghapus data, harap coba lagi!");
+        } finally {
+          setLoading(false);
         }
       },
     });
@@ -198,7 +258,11 @@ const NamaVaksin = () => {
       const utcDays = Math.floor(input - 25569);
       const utcValue = utcDays * 86400;
       const dateInfo = new Date(utcValue * 1000);
-      date = new Date(dateInfo.getFullYear(), dateInfo.getMonth(), dateInfo.getDate()).toString();
+      date = new Date(
+        dateInfo.getFullYear(),
+        dateInfo.getMonth(),
+        dateInfo.getDate()
+      ).toString();
     } else if (typeof input === "string") {
       const [day, month, year] = input.split("/");
       date = new Date(`${year}-${month}-${day}`).toString();
@@ -216,7 +280,10 @@ const NamaVaksin = () => {
       const workbook = read(data, { type: "array" });
 
       const worksheet = workbook.Sheets[workbook.SheetNames[0]];
-      const jsonData = utils.sheet_to_json(worksheet, { header: 1, blankrows: false });
+      const jsonData = utils.sheet_to_json(worksheet, {
+        header: 1,
+        blankrows: false,
+      });
 
       const importedData = jsonData.slice(1); // Exclude the first row (column titles)
       const columnTitles = jsonData[0]; // Assume the first row contains column titles
@@ -272,6 +339,7 @@ const NamaVaksin = () => {
   const saveImportedData = async (mapping) => {
     let errorCount = 0;
     const dataToSaveArray = [];
+
     try {
       for (const row of importedData) {
         const generateId = uuidv4();
@@ -286,6 +354,8 @@ const NamaVaksin = () => {
 
         dataToSaveArray.push(dataToSave);
       }
+
+      setLoading(true);
       try {
         if (dataToSaveArray.length > 0) {
           // Add new data
@@ -301,6 +371,7 @@ const NamaVaksin = () => {
 
       if (errorCount === 0) {
         message.success(`Semua data berhasil disimpan.`);
+        getNamaVaksinData();
       } else {
         message.error(`${errorCount} data gagal disimpan, harap coba lagi!`);
       }
@@ -311,6 +382,8 @@ const NamaVaksin = () => {
       setImportedData([]);
       setColumnTitles([]);
       setColumnMapping({});
+      setFileName("");
+      setLoading(false);
     }
   };
 
@@ -320,8 +393,18 @@ const NamaVaksin = () => {
   };
 
   const convertHeaderToCSV = () => {
-    const columnTitlesLocal = ["No", "Jenis Vaksin", "Nama Vaksin", "Deskripsi"];
-    const exampleRow = ["1", "Contoh PMK", "Contoh PMK ABC", "Nama Vaksin penyakit PMK 1"];
+    const columnTitlesLocal = [
+      "No",
+      "Jenis Vaksin",
+      "Nama Vaksin",
+      "Deskripsi",
+    ];
+    const exampleRow = [
+      "1",
+      "Contoh PMK",
+      "Contoh PMK ABC",
+      "Nama Vaksin penyakit PMK 1",
+    ];
 
     // Gabungkan header dan contoh data
     const rows = [columnTitlesLocal, exampleRow];
@@ -352,10 +435,20 @@ const NamaVaksin = () => {
 
   // Convert Data to CSV Format
   const convertToCSV = (data) => {
-    const columnTitles = ["ID Nama Vaksin", "Jenis Vaksin", "Nama Vaksin", "Deskripsi"];
+    const columnTitles = [
+      "ID Nama Vaksin",
+      "Jenis Vaksin",
+      "Nama Vaksin",
+      "Deskripsi",
+    ];
     const rows = [columnTitles];
     data.forEach((item) => {
-      const row = [item.idNamaVaksin, item.jenisVaksin?.jenis, item.nama, item.deskripsi];
+      const row = [
+        item.idNamaVaksin,
+        item.jenisVaksin?.jenis,
+        item.nama,
+        item.deskripsi,
+      ];
       rows.push(row);
     });
     let csvContent = "data:text/csv;charset=utf-8,";
@@ -377,6 +470,97 @@ const NamaVaksin = () => {
     document.body.removeChild(link); // Clean up
   };
 
+  const getColumnSearchProps = (dataIndex, nestedPath) => ({
+    filterDropdown: ({
+      setSelectedKeys,
+      selectedKeys,
+      confirm,
+      clearFilters,
+      close,
+    }) => (
+      <div style={{ padding: 8 }} onKeyDown={(e) => e.stopPropagation()}>
+        <Input
+          ref={searchInput}
+          placeholder={`Search ${dataIndex}`}
+          value={selectedKeys[0]}
+          onChange={(e) =>
+            setSelectedKeys(e.target.value ? [e.target.value] : [])
+          }
+          onPressEnter={() =>
+            handleSearchTable(selectedKeys, confirm, dataIndex)
+          }
+          style={{ marginBottom: 8, display: "block" }}
+        />
+        <Space>
+          <Button
+            type="primary"
+            onClick={() => handleSearchTable(selectedKeys, confirm, dataIndex)}
+            icon={<SearchOutlined />}
+            size="small"
+            style={{ width: 90 }}
+          >
+            Search
+          </Button>
+          <Button
+            onClick={() => clearFilters && handleReset(clearFilters)}
+            size="small"
+            style={{ width: 90 }}
+          >
+            Reset
+          </Button>
+          <Button
+            type="link"
+            size="small"
+            onClick={() => {
+              confirm({ closeDropdown: false });
+              setSearchText(selectedKeys[0]);
+              setSearchedColumn(dataIndex);
+            }}
+          >
+            Filter
+          </Button>
+          <Button type="link" size="small" onClick={() => close()}>
+            Close
+          </Button>
+        </Space>
+      </div>
+    ),
+    filterIcon: (filtered) => (
+      <SearchOutlined style={{ color: filtered ? "#1677ff" : undefined }} />
+    ),
+    onFilter: (value, record) => {
+      if (nestedPath) {
+        const nestedValue = nestedPath
+          .split(".")
+          .reduce((obj, key) => obj?.[key], record);
+        return nestedValue
+          ?.toString()
+          .toLowerCase()
+          .includes(value.toLowerCase());
+      }
+      return record[dataIndex]
+        ?.toString()
+        .toLowerCase()
+        .includes(value.toLowerCase());
+    },
+    filterDropdownProps: {
+      onOpenChange(open) {
+        if (open) setTimeout(() => searchInput.current?.select(), 100);
+      },
+    },
+    render: (text) =>
+      searchedColumn === dataIndex ? (
+        <Highlighter
+          highlightStyle={{ backgroundColor: "#ffc069", padding: 0 }}
+          searchWords={[searchText]}
+          autoEscape
+          textToHighlight={text?.toString() || ""}
+        />
+      ) : (
+        text
+      ),
+  });
+
   // Render Columns with Operations
   const renderColumns = () => {
     const baseColumns = [
@@ -389,12 +573,30 @@ const NamaVaksin = () => {
         title: "Jenis Vaksin",
         dataIndex: ["jenisVaksin", "jenis"],
         key: "jenis",
+        ...getColumnSearchProps("jenisVaksin.jenis", "jenisVaksin.jenis"),
+        sorter: (a, b) =>
+          a.jenisVaksin.jenis.localeCompare(b.jenisVaksin.jenis),
       },
-      { title: "Nama Vaksin", dataIndex: "nama", key: "nama" },
-      { title: "Deskripsi", dataIndex: "deskripsi", key: "deskripsi" },
+      {
+        title: "Nama Vaksin",
+        dataIndex: "nama",
+        key: "nama",
+        ...getColumnSearchProps("nama"),
+        sorter: (a, b) => a.nama.localeCompare(b.nama),
+      },
+      {
+        title: "Deskripsi",
+        dataIndex: "deskripsi",
+        key: "deskripsi",
+        ...getColumnSearchProps("deskripsi"),
+        sorter: (a, b) => a.deskripsi.localeCompare(b.deskripsi),
+      },
     ];
 
-    if (user && (user.role === "ROLE_ADMINISTRATOR" || user.role === "ROLE_PETUGAS")) {
+    if (
+      user &&
+      (user.role === "ROLE_ADMINISTRATOR" || user.role === "ROLE_PETUGAS")
+    ) {
       baseColumns.push({
         title: "Operasi",
         key: "action",
@@ -402,9 +604,22 @@ const NamaVaksin = () => {
         align: "center",
         render: (text, row) => (
           <span>
-            <Button type="primary" shape="circle" icon={<EditOutlined />} title="Edit" onClick={() => handleEditNamaVaksin(row)} />
+            <Button
+              type="primary"
+              shape="circle"
+              icon={<EditOutlined />}
+              title="Edit"
+              onClick={() => handleEditNamaVaksin(row)}
+            />
             <Divider type="vertical" />
-            <Button type="primary" danger shape="circle" icon={<DeleteOutlined />} title="Delete" onClick={() => handleDeleteNamaVaksin(row)} />
+            <Button
+              type="primary"
+              danger
+              shape="circle"
+              icon={<DeleteOutlined />}
+              title="Delete"
+              onClick={() => handleDeleteNamaVaksin(row)}
+            />
           </span>
         ),
       });
@@ -416,9 +631,26 @@ const NamaVaksin = () => {
   // Render Table based on User Role
   const renderTable = () => {
     if (user && user.role === "ROLE_PETERNAK") {
-      return <Table dataSource={namaVaksins} bordered columns={renderColumns()} rowKey="idNamaVaksin" />;
-    } else if (user && (user.role === "ROLE_ADMINISTRATOR" || user.role === "ROLE_PETUGAS")) {
-      return <Table dataSource={namaVaksins} bordered columns={renderColumns()} rowKey="idNamaVaksin" />;
+      return (
+        <Table
+          dataSource={namaVaksins}
+          bordered
+          columns={renderColumns()}
+          rowKey="idNamaVaksin"
+        />
+      );
+    } else if (
+      user &&
+      (user.role === "ROLE_ADMINISTRATOR" || user.role === "ROLE_PETUGAS")
+    ) {
+      return (
+        <Table
+          dataSource={namaVaksins}
+          bordered
+          columns={renderColumns()}
+          rowKey="idNamaVaksin"
+        />
+      );
     } else {
       return null;
     }
@@ -426,7 +658,10 @@ const NamaVaksin = () => {
 
   // Render Buttons based on User Role
   const renderButtons = () => {
-    if (user && (user.role === "ROLE_ADMINISTRATOR" || user.role === "ROLE_PETUGAS")) {
+    if (
+      user &&
+      (user.role === "ROLE_ADMINISTRATOR" || user.role === "ROLE_PETUGAS")
+    ) {
       return (
         <Row gutter={[16, 16]} justify="start" style={{ paddingLeft: 9 }}>
           <Col>
@@ -435,12 +670,20 @@ const NamaVaksin = () => {
             </Button>
           </Col>
           <Col>
-            <Button icon={<UploadOutlined />} onClick={handleImportModalOpen} block>
+            <Button
+              icon={<UploadOutlined />}
+              onClick={handleImportModalOpen}
+              block
+            >
               Import File
             </Button>
           </Col>
           <Col>
-            <Button icon={<DownloadOutlined />} onClick={handleDownloadCSV} block>
+            <Button
+              icon={<DownloadOutlined />}
+              onClick={handleDownloadCSV}
+              block
+            >
               Download Format CSV
             </Button>
           </Col>
@@ -461,7 +704,12 @@ const NamaVaksin = () => {
     <Row gutter={[16, 16]} justify="space-between">
       {renderButtons()}
       <Col xs={24} sm={12} md={8} lg={8} xl={8}>
-        <Input placeholder="Cari data" value={searchKeyword} onChange={(e) => handleSearch(e.target.value)} style={{ width: "100%" }} />
+        <Input
+          placeholder="Cari data"
+          value={searchKeyword}
+          onChange={(e) => handleSearch(e.target.value)}
+          style={{ width: "100%" }}
+        />
       </Col>
     </Row>
   );
@@ -473,15 +721,34 @@ const NamaVaksin = () => {
       {/* TypingCard component */}
       <TypingCard title="Manajemen Nama Vaksin" source={cardContent} />
       <br />
-      <Card title={title} style={{ overflowX: "scroll" }}>
-        {renderTable()}
-      </Card>
+      {loading ? (
+        <Card>
+          <Skeleton active paragraph={{ rows: 10 }} />
+        </Card>
+      ) : (
+        <Card title={title} style={{ overflowX: "scroll" }}>
+          {renderTable()}
+        </Card>
+      )}
 
       {/* Edit Nama vaksin Modal */}
-      <EditNamaVaksinForm currentRowData={currentRowData} wrappedComponentRef={editNamaVaksinFormRef} visible={editNamaVaksinModalVisible} confirmLoading={editNamaVaksinModalLoading} onCancel={handleCancel} onOk={handleEditNamaVaksinOk} />
+      <EditNamaVaksinForm
+        currentRowData={currentRowData}
+        wrappedComponentRef={editNamaVaksinFormRef}
+        visible={editNamaVaksinModalVisible}
+        confirmLoading={editNamaVaksinModalLoading}
+        onCancel={handleCancel}
+        onOk={handleEditNamaVaksinOk}
+      />
 
       {/* Add Nama Vaksin Modal */}
-      <AddNamaVaksinForm wrappedComponentRef={addNamaVaksinFormRef} visible={addNamaVaksinModalVisible} confirmLoading={addNamaVaksinModalLoading} onCancel={handleCancel} onOk={handleAddNamaVaksinOk} />
+      <AddNamaVaksinForm
+        wrappedComponentRef={addNamaVaksinFormRef}
+        visible={addNamaVaksinModalVisible}
+        confirmLoading={addNamaVaksinModalLoading}
+        onCancel={handleCancel}
+        onOk={handleAddNamaVaksinOk}
+      />
 
       {/* Import Modal */}
       <Modal
@@ -492,7 +759,12 @@ const NamaVaksin = () => {
           <Button key="cancel" onClick={handleImportModalClose}>
             Cancel
           </Button>,
-          <Button key="upload" type="primary" loading={uploading} onClick={handleUpload}>
+          <Button
+            key="upload"
+            type="primary"
+            loading={uploading}
+            onClick={handleUpload}
+          >
             Upload
           </Button>,
         ]}

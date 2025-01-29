@@ -446,11 +446,12 @@ const Kelahiran = () => {
       setAddKelahiranModalVisible(false);
       setAddKelahiranModalLoading(false);
       message.success("Berhasil ditambahkan!");
-      setLoading(false);
       getKelahiranData();
     } catch (error) {
       console.error("Failed to add data:", error);
       message.error("Gagal menambahkan data, harap coba lagi!");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -467,10 +468,11 @@ const Kelahiran = () => {
         try {
           await deleteKelahiran({ idKelahiran });
           message.success("Berhasil dihapus!");
-          setLoading(false);
           getKelahiranData();
         } catch (error) {
           message.error("Gagal menghapus data, harap coba lagi!");
+        } finally {
+          setLoading(false);
         }
       },
     });
@@ -490,11 +492,12 @@ const Kelahiran = () => {
       setEditKelahiranModalVisible(false);
       setEditKelahiranModalLoading(false);
       message.success("Berhasil diubah!");
-      setLoading(false);
       getKelahiranData();
     } catch (error) {
       console.error("Failed to edit data:", error);
       message.error("Gagal mengubah data, harap coba lagi!");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -866,7 +869,6 @@ const Kelahiran = () => {
 
       if (errorCount === 0) {
         message.success(`Semua data berhasil disimpan.`);
-        setLoading(false);
         getKelahiranData();
       } else {
         message.error(
@@ -880,6 +882,7 @@ const Kelahiran = () => {
       setColumnTitles([]);
       setFileName("");
       setColumnMapping({});
+      setLoading(false);
     }
   };
 

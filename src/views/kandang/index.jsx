@@ -1,17 +1,43 @@
 /* eslint-disable no-constant-condition */
 /* eslint-disable no-unused-vars */
-import { addKandang, deleteKandang, editKandang, getKandang, addKandangImport } from "@/api/kandang";
+import {
+  addKandang,
+  deleteKandang,
+  editKandang,
+  getKandang,
+  addKandangImport,
+} from "@/api/kandang";
 import TypingCard from "@/components/TypingCard";
-import { Button, Card, Col, Divider, Input, message, Modal, Row, Table, Upload } from "antd";
+import {
+  Button,
+  Card,
+  Col,
+  Divider,
+  Input,
+  message,
+  Modal,
+  Row,
+  Table,
+  Upload,
+  Space,
+} from "antd";
 import React, { useEffect, useRef, useState } from "react";
 import AddKandangForm from "./forms/add-kandang-form";
 import EditKandangForm from "./forms/edit-kandang-form";
 // import ViewKandangForm from "./forms/view-kandang-form";
-import { DeleteOutlined, DownloadOutlined, EditOutlined, UploadOutlined } from "@ant-design/icons";
+import {
+  DeleteOutlined,
+  DownloadOutlined,
+  EditOutlined,
+  UploadOutlined,
+  SearchOutlined,
+} from "@ant-design/icons";
 import { read, utils } from "xlsx";
 import { reqUserInfo } from "../../api/user";
 import { v4 as uuidv4 } from "uuid";
 import imgUrl from "../../utils/imageURL";
+import { Skeleton } from "antd";
+import Highlighter from "react-highlight-words";
 
 import kandangSapi from "../../assets/images/kandangsapi.jpg";
 
@@ -31,7 +57,11 @@ const Kandang = () => {
   const [columnMapping, setColumnMapping] = useState({});
   const [searchKeyword, setSearchKeyword] = useState("");
   const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [searchText, setSearchText] = useState("");
+  const [searchedColumn, setSearchedColumn] = useState("");
 
+  const searchInput = useRef(null);
   const editKandangFormRef = useRef(null);
   const addKandangFormRef = useRef(null);
 
@@ -66,6 +96,7 @@ const Kandang = () => {
   };
 
   const getKandangData = async () => {
+    setLoading(true);
     try {
       const result = await getKandang();
       console.log(result);
@@ -73,7 +104,19 @@ const Kandang = () => {
 
       if (statusCode === 200) {
         const filteredKandang = content.filter((kandang) => {
-          const { idKandang, idPeternak, namaPeternak, luas, kapasitas, nilaiBangunan, alamat, provinsi, kabupaten, kecamatan, desa } = kandang;
+          const {
+            idKandang,
+            idPeternak,
+            namaPeternak,
+            luas,
+            kapasitas,
+            nilaiBangunan,
+            alamat,
+            provinsi,
+            kabupaten,
+            kecamatan,
+            desa,
+          } = kandang;
           const keyword = searchKeyword.toLowerCase();
 
           const isIdKandangValid = typeof idKandang === "string";
@@ -91,10 +134,12 @@ const Kandang = () => {
           return (
             (isIdKandangValid && idKandang.toLowerCase().includes(keyword)) ||
             (isIdPeternakValid && idPeternak.toLowerCase().includes(keyword)) ||
-            (isNamaPeternakValid && namaPeternak.toLowerCase().includes(keyword)) ||
+            (isNamaPeternakValid &&
+              namaPeternak.toLowerCase().includes(keyword)) ||
             (isLuasValid && luas.toLowerCase().includes(keyword)) ||
             (isKapasitasValid && kapasitas.toLowerCase().includes(keyword)) ||
-            (isNilaiBangunanValid && nilaiBangunan.toLowerCase().includes(keyword)) ||
+            (isNilaiBangunanValid &&
+              nilaiBangunan.toLowerCase().includes(keyword)) ||
             (isAlamatValid && alamat.toLowerCase().includes(keyword)) ||
             (isProvinsiValid && provinsi.toLowerCase().includes(keyword)) ||
             (isKabupatenValid && kabupaten.toLowerCase().includes(keyword)) ||
@@ -108,7 +153,20 @@ const Kandang = () => {
     } catch (error) {
       console.error("Gagal mengambil data kandang:", error);
       message.error("Gagal mengambil data kandang.");
+    } finally {
+      setLoading(false);
     }
+  };
+
+  const handleSearchTable = (selectedKeys, confirm, dataIndex) => {
+    confirm();
+    setSearchText(selectedKeys[0]);
+    setSearchedColumn(dataIndex);
+  };
+
+  const handleReset = (clearFilters) => {
+    clearFilters();
+    setSearchText("");
   };
 
   const handleSearch = (keyword) => {
@@ -131,9 +189,11 @@ const Kandang = () => {
       okType: "danger",
       cancelText: "Tidak",
       onOk: () => {
+        setLoading(true);
         deleteKandang(idKandang)
           .then(() => {
             message.success("Berhasil dihapus");
+            setLoading(false);
             getKandangData();
           })
           .catch((error) => {
@@ -146,11 +206,13 @@ const Kandang = () => {
 
   const handleEditKandangOk = async (values) => {
     setEditKandangModalLoading(true);
+    setLoading(true);
     try {
       await editKandang(values, currentRowData.idKandang);
       setEditKandangModalVisible(false);
       setEditKandangModalLoading(false);
       message.success("Berhasil diedit!");
+      setLoading(false);
       getKandangData();
     } catch (error) {
       console.error("Error editing peternak:", error);
@@ -181,7 +243,11 @@ const Kandang = () => {
       const workbook = read(data, { type: "array" });
 
       const worksheet = workbook.Sheets[workbook.SheetNames[0]];
-      const jsonData = utils.sheet_to_json(worksheet, { header: 1, blankrows: false, defval: null });
+      const jsonData = utils.sheet_to_json(worksheet, {
+        header: 1,
+        blankrows: false,
+        defval: null,
+      });
 
       const importedDataLocal = jsonData.slice(1); // Exclude the first row (column titles)
       const columnTitlesLocal = jsonData[0]; // Assume the first row contains column titles
@@ -225,12 +291,19 @@ const Kandang = () => {
 
   const fetchCoordinates = async (address) => {
     try {
-      const response = await fetch(`https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(address)}&format=json`);
+      const response = await fetch(
+        `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(
+          address
+        )}&format=json`
+      );
       const data = await response.json();
       if (data && data.length > 0) {
         return { lat: data[0].lat, lon: data[0].lon };
       } else {
-        console.error("No coordinates found for the provided address:", address);
+        console.error(
+          "No coordinates found for the provided address:",
+          address
+        );
         return { lat: null, lon: null };
       }
     } catch (error) {
@@ -244,7 +317,11 @@ const Kandang = () => {
     try {
       for (const row of importedData) {
         const generateIdKandang = uuidv4();
-        const address = `${row[columnMapping["Desa"]]}, ${row[columnMapping["Kecamatan"]]}, ${row[columnMapping["Kabupaten"]]}, ${row[columnMapping["Provinsi"]]}`;
+        const address = `${row[columnMapping["Desa"]]}, ${
+          row[columnMapping["Kecamatan"]]
+        }, ${row[columnMapping["Kabupaten"]]}, ${
+          row[columnMapping["Provinsi"]]
+        }`;
         const { lat, lon } = await fetchCoordinates(address);
 
         const dataToSave = {
@@ -264,6 +341,7 @@ const Kandang = () => {
         dataToSaveArrray.push(dataToSave);
       }
 
+      setLoading(true);
       try {
         if (dataToSaveArrray.length > 0) {
           // Add new data
@@ -271,6 +349,9 @@ const Kandang = () => {
 
           await addKandangImport(dataToSaveArrray);
         }
+        message.success("Data berhasil diunggah.");
+        setLoading(false);
+        getKandangData();
       } catch (error) {
         console.error("Gagal menyimpan data:", error);
       }
@@ -292,7 +373,19 @@ const Kandang = () => {
 
   const createCSVTemplate = () => {
     // Header kolom
-    const columnTitlesLocal = ["No", "Nama Pemilik Ternak", "Nama Kandang", "Jenis Hewan", "Nilai Bangunan", "Luas Kandang", "Kapasitas Kandang", "Jenis Kandang", "Alamat", "latitude", "longitude"];
+    const columnTitlesLocal = [
+      "No",
+      "Nama Pemilik Ternak",
+      "Nama Kandang",
+      "Jenis Hewan",
+      "Nilai Bangunan",
+      "Luas Kandang",
+      "Kapasitas Kandang",
+      "Jenis Kandang",
+      "Alamat",
+      "latitude",
+      "longitude",
+    ];
 
     // Baris data dummy (contoh)
     const exampleRow = [
@@ -344,11 +437,23 @@ const Kandang = () => {
   };
 
   const convertToCSV = (data) => {
-    const columnTitlesLocal = ["Id Kandang", "Luas", "Kapasitas", "Nilai Bangunan", "Alamat"];
+    const columnTitlesLocal = [
+      "Id Kandang",
+      "Luas",
+      "Kapasitas",
+      "Nilai Bangunan",
+      "Alamat",
+    ];
 
     const rows = [columnTitlesLocal];
     data.forEach((item) => {
-      const row = [item.idKandang, item.luas, item.kapasitas, item.nilaiBangunan, item.alamat];
+      const row = [
+        item.idKandang,
+        item.luas,
+        item.kapasitas,
+        item.nilaiBangunan,
+        item.alamat,
+      ];
       rows.push(row);
     });
 
@@ -398,11 +503,13 @@ const Kandang = () => {
       file: values.file,
     };
 
+    setLoading(true);
     try {
       await addKandang(kandangData);
       setAddKandangModalVisible(false);
       setAddKandangModalLoading(false);
       message.success("Berhasil menambahkan!");
+      setLoading(false);
       getKandangData();
       console.log("berhasil menambahkan!");
     } catch (e) {
@@ -413,32 +520,182 @@ const Kandang = () => {
     }
   };
 
+  const getColumnSearchProps = (dataIndex, nestedPath) => ({
+    filterDropdown: ({
+      setSelectedKeys,
+      selectedKeys,
+      confirm,
+      clearFilters,
+      close,
+    }) => (
+      <div style={{ padding: 8 }} onKeyDown={(e) => e.stopPropagation()}>
+        <Input
+          ref={searchInput}
+          placeholder={`Search ${dataIndex}`}
+          value={selectedKeys[0]}
+          onChange={(e) =>
+            setSelectedKeys(e.target.value ? [e.target.value] : [])
+          }
+          onPressEnter={() =>
+            handleSearchTable(selectedKeys, confirm, dataIndex)
+          }
+          style={{ marginBottom: 8, display: "block" }}
+        />
+        <Space>
+          <Button
+            type="primary"
+            onClick={() => handleSearchTable(selectedKeys, confirm, dataIndex)}
+            icon={<SearchOutlined />}
+            size="small"
+            style={{ width: 90 }}
+          >
+            Search
+          </Button>
+          <Button
+            onClick={() => clearFilters && handleReset(clearFilters)}
+            size="small"
+            style={{ width: 90 }}
+          >
+            Reset
+          </Button>
+          <Button
+            type="link"
+            size="small"
+            onClick={() => {
+              confirm({ closeDropdown: false });
+              setSearchText(selectedKeys[0]);
+              setSearchedColumn(dataIndex);
+            }}
+          >
+            Filter
+          </Button>
+          <Button type="link" size="small" onClick={() => close()}>
+            Close
+          </Button>
+        </Space>
+      </div>
+    ),
+    filterIcon: (filtered) => (
+      <SearchOutlined style={{ color: filtered ? "#1677ff" : undefined }} />
+    ),
+    onFilter: (value, record) => {
+      if (nestedPath) {
+        const nestedValue = nestedPath
+          .split(".")
+          .reduce((obj, key) => obj?.[key], record);
+        return nestedValue
+          ?.toString()
+          .toLowerCase()
+          .includes(value.toLowerCase());
+      }
+      return record[dataIndex]
+        ?.toString()
+        .toLowerCase()
+        .includes(value.toLowerCase());
+    },
+    filterDropdownProps: {
+      onOpenChange(open) {
+        if (open) setTimeout(() => searchInput.current?.select(), 100);
+      },
+    },
+    render: (text) =>
+      searchedColumn === dataIndex ? (
+        <Highlighter
+          highlightStyle={{ backgroundColor: "#ffc069", padding: 0 }}
+          searchWords={[searchText]}
+          autoEscape
+          textToHighlight={text?.toString() || ""}
+        />
+      ) : (
+        text
+      ),
+  });
+
   const renderColumns = () => {
     const baseColumns = [
-      { title: "Id Kandang", dataIndex: "idKandang", key: "idKandang" },
-      { title: "Nama Pemilik Kandang", dataIndex: ["peternak", "namaPeternak"], key: "namaPeternak" },
-      { title: "Nama Kandang", dataIndex: "namaKandang", key: "namaKandang" },
-      { title: "Jenis Kandang", dataIndex: "jenisKandang", key: "jenisKandang" },
-      { title: "Jenis Hewan", dataIndex: ["jenisHewan", "jenis"], key: "jenis" },
-      { title: "Luas", dataIndex: "luas", key: "luas" },
-      { title: "Kapasitas", dataIndex: "kapasitas", key: "kapasitas" },
+      {
+        title: "Id Kandang",
+        dataIndex: "idKandang",
+        key: "idKandang",
+        ...getColumnSearchProps("idKandang"),
+        sorter: (a, b) => a.idKandang.localeCompare(b.idKandang),
+      },
+      {
+        title: "Nama Pemilik Kandang",
+        dataIndex: ["peternak", "namaPeternak"],
+        key: "namaPeternak",
+        ...getColumnSearchProps("namaPeternak", "peternak.namaPeternak"),
+      },
+      {
+        title: "Nama Kandang",
+        dataIndex: "namaKandang",
+        key: "namaKandang",
+        ...getColumnSearchProps("namaKandang"),
+        sorter: (a, b) => a.namaKandang.localeCompare(b.namaKandang),
+      },
+      {
+        title: "Jenis Kandang",
+        dataIndex: "jenisKandang",
+        key: "jenisKandang",
+        ...getColumnSearchProps("jenisKandang"),
+        sorter: (a, b) => a.jenisKandang.localeCompare(b.jenisKandang),
+      },
+      {
+        title: "Jenis Hewan",
+        dataIndex: ["jenisHewan", "jenis"],
+        key: "jenis",
+        ...getColumnSearchProps("jenis", "jenisHewan.jenis"),
+        sorter: (a, b) => a.jenisHewan.jenis.localeCompare(b.jenisHewan.jenis),
+      },
+      {
+        title: "Luas",
+        dataIndex: "luas",
+        key: "luas",
+        ...getColumnSearchProps("luas"),
+        sorter: (a, b) => a.luas.localeCompare(b.luas),
+      },
+      {
+        title: "Kapasitas",
+        dataIndex: "kapasitas",
+        key: "kapasitas",
+        ...getColumnSearchProps("kapasitas"),
+        sorter: (a, b) => a.kapasitas.localeCompare(b.kapasitas),
+      },
       {
         title: "Nilai Bangunan",
         dataIndex: "nilaiBangunan",
         key: "nilaiBangunan",
+        ...getColumnSearchProps("nilaiBangunan"),
+        sorter: (a, b) => a.nilaiBangunan.localeCompare(b.nilaiBangunan),
       },
-      { title: "Alamat", dataIndex: "alamat", key: "alamat" },
+      {
+        title: "Alamat",
+        dataIndex: "alamat",
+        key: "alamat",
+        ...getColumnSearchProps("alamat"),
+        sorter: (a, b) => a.alamat.localeCompare(b.alamat),
+      },
       { title: "Latitude", dataIndex: "latitude", key: "latitude" },
       { title: "Longitude", dataIndex: "longitude", key: "longitude" },
       {
         title: "Foto Kandang",
         dataIndex: "file_path",
         key: "file_path",
-        render: (text, row) => <img src={`${imgUrl + "/kandang/" + row.file_path}`} alt="Foto Kandang" width={200} height={150} />,
+        render: (text, row) => (
+          <img
+            src={`${imgUrl + "/kandang/" + row.file_path}`}
+            alt="Foto Kandang"
+            width={200}
+            height={150}
+          />
+        ),
       },
     ];
 
-    if (user && (user.role === "ROLE_ADMINISTRATOR" || user.role === "ROLE_PETUGAS")) {
+    if (
+      user &&
+      (user.role === "ROLE_ADMINISTRATOR" || user.role === "ROLE_PETUGAS")
+    ) {
       baseColumns.push({
         title: "Operasi",
         key: "action",
@@ -446,9 +703,22 @@ const Kandang = () => {
         align: "center",
         render: (text, row) => (
           <span>
-            <Button type="primary" shape="circle" icon={<EditOutlined />} title="Edit" onClick={() => handleEditKandang(row)} />
+            <Button
+              type="primary"
+              shape="circle"
+              icon={<EditOutlined />}
+              title="Edit"
+              onClick={() => handleEditKandang(row)}
+            />
             <Divider type="vertical" />
-            <Button danger type="primary" shape="circle" icon={<DeleteOutlined />} title="Delete" onClick={() => handleDeleteKandang(row)} />
+            <Button
+              danger
+              type="primary"
+              shape="circle"
+              icon={<DeleteOutlined />}
+              title="Delete"
+              onClick={() => handleDeleteKandang(row)}
+            />
             {/* Tambahkan tombol view jika diperlukan */}
             {/* <Divider type="vertical" />
             <Button
@@ -468,16 +738,36 @@ const Kandang = () => {
 
   const renderTable = () => {
     if (user && user.role === "ROLE_PETERNAK") {
-      return <Table dataSource={kandangs} bordered columns={renderColumns()} rowKey="idKandang" />;
-    } else if (user && (user.role === "ROLE_ADMINISTRATOR" || user.role === "ROLE_PETUGAS")) {
-      return <Table dataSource={kandangs} bordered columns={renderColumns()} rowKey="idKandang" />;
+      return (
+        <Table
+          dataSource={kandangs}
+          bordered
+          columns={renderColumns()}
+          rowKey="idKandang"
+        />
+      );
+    } else if (
+      user &&
+      (user.role === "ROLE_ADMINISTRATOR" || user.role === "ROLE_PETUGAS")
+    ) {
+      return (
+        <Table
+          dataSource={kandangs}
+          bordered
+          columns={renderColumns()}
+          rowKey="idKandang"
+        />
+      );
     } else {
       return null;
     }
   };
 
   const renderButtons = () => {
-    if (user && (user.role === "ROLE_ADMINISTRATOR" || user.role === "ROLE_PETUGAS")) {
+    if (
+      user &&
+      (user.role === "ROLE_ADMINISTRATOR" || user.role === "ROLE_PETUGAS")
+    ) {
       return (
         <Row gutter={[16, 16]} justify="start" style={{ paddingLeft: 9 }}>
           <Col>
@@ -486,12 +776,20 @@ const Kandang = () => {
             </Button>
           </Col>
           <Col>
-            <Button icon={<UploadOutlined />} onClick={handleImportModalOpen} block>
+            <Button
+              icon={<UploadOutlined />}
+              onClick={handleImportModalOpen}
+              block
+            >
               Import File
             </Button>
           </Col>
           <Col>
-            <Button icon={<DownloadOutlined />} onClick={handleDownloadCSV} block>
+            <Button
+              icon={<DownloadOutlined />}
+              onClick={handleDownloadCSV}
+              block
+            >
               Download Format CSV
             </Button>
           </Col>
@@ -511,7 +809,12 @@ const Kandang = () => {
     <Row gutter={[16, 16]} justify="space-between">
       {renderButtons()}
       <Col xs={24} sm={12} md={8} lg={8} xl={8}>
-        <Input placeholder="Cari data" value={searchKeyword} onChange={(e) => handleSearch(e.target.value)} style={{ width: "100%" }} />
+        <Input
+          placeholder="Cari data"
+          value={searchKeyword}
+          onChange={(e) => handleSearch(e.target.value)}
+          style={{ width: "100%" }}
+        />
       </Col>
     </Row>
   );
@@ -523,10 +826,31 @@ const Kandang = () => {
       <TypingCard title="Manajemen Data Kandang" source={cardContent} />
       <br />
       <Card>{title}</Card>
-      <Card style={{ overflowX: "scroll" }}>{renderTable()}</Card>
-      <EditKandangForm currentRowData={currentRowData} wrappedComponentRef={editKandangFormRef} visible={editKandangModalVisible} confirmLoading={editKandangModalLoading} onCancel={handleCancel} onOk={handleEditKandangOk} />
+      {loading ? (
+        <Card>
+          <Skeleton active paragraph={{ rows: 10 }} />
+        </Card>
+      ) : (
+        <Card title={title} style={{ overflowX: "scroll" }}>
+          {renderTable()}
+        </Card>
+      )}
+      <EditKandangForm
+        currentRowData={currentRowData}
+        wrappedComponentRef={editKandangFormRef}
+        visible={editKandangModalVisible}
+        confirmLoading={editKandangModalLoading}
+        onCancel={handleCancel}
+        onOk={handleEditKandangOk}
+      />
 
-      <AddKandangForm wrappedComponentRef={addKandangFormRef} visible={addKandangModalVisible} confirmLoading={addKandangModalLoading} onCancel={handleCancel} onOk={handleAddKandangOk} />
+      <AddKandangForm
+        wrappedComponentRef={addKandangFormRef}
+        visible={addKandangModalVisible}
+        confirmLoading={addKandangModalLoading}
+        onCancel={handleCancel}
+        onOk={handleAddKandangOk}
+      />
 
       {/* <ViewKandangForm
         currentRowData={currentRowData}
@@ -542,7 +866,12 @@ const Kandang = () => {
           <Button key="cancel" onClick={handleImportModalClose}>
             Cancel
           </Button>,
-          <Button key="upload" type="primary" loading={uploading} onClick={handleUpload}>
+          <Button
+            key="upload"
+            type="primary"
+            loading={uploading}
+            onClick={handleUpload}
+          >
             Upload
           </Button>,
         ]}

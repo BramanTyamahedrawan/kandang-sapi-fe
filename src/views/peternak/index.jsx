@@ -8,24 +8,52 @@ import {
   getPeternaks,
 } from "@/api/peternak";
 import { getPetugas } from "@/api/petugas";
-import { addUser, deleteUserByPeternak, addUserBulk, getUserByUsername, reqUserInfo } from "@/api/user";
+import {
+  addUser,
+  deleteUserByPeternak,
+  addUserBulk,
+  getUserByUsername,
+  reqUserInfo,
+} from "@/api/user";
 import kandangSapi from "@/assets/images/kandangsapi.jpg";
 import TypingCard from "@/components/TypingCard";
-import { DeleteOutlined, DownloadOutlined, EditOutlined, UploadOutlined } from "@ant-design/icons";
-import { Button, Card, Col, Divider, Input, message, Modal, Row, Table, Upload } from "antd";
+import {
+  DeleteOutlined,
+  DownloadOutlined,
+  EditOutlined,
+  UploadOutlined,
+  SearchOutlined,
+} from "@ant-design/icons";
+import {
+  Button,
+  Card,
+  Col,
+  Divider,
+  Input,
+  message,
+  Modal,
+  Row,
+  Table,
+  Upload,
+  Space,
+} from "antd";
 import moment from "moment";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { v4 as uuidv4 } from "uuid";
 import { read, utils } from "xlsx";
 import AddPeternakForm from "./forms/add-peternak-form";
 import EditPeternakForm from "./forms/edit-peternak-form";
 import ViewPeternakForm from "./forms/view-peternak-form";
+import { Skeleton } from "antd";
+import Highlighter from "react-highlight-words";
 
 const Peternak = () => {
   const [petugas, setPetugas] = useState([]);
   const [peternaks, setPeternaks] = useState([]);
-  const [editPeternakModalVisible, setEditPeternakModalVisible] = useState(false);
-  const [editPeternakModalLoading, setEditPeternakModalLoading] = useState(false);
+  const [editPeternakModalVisible, setEditPeternakModalVisible] =
+    useState(false);
+  const [editPeternakModalLoading, setEditPeternakModalLoading] =
+    useState(false);
   const [currentRowData, setCurrentRowData] = useState({});
   const [addPeternakModalVisible, setAddPeternakModalVisible] = useState(false);
   const [addPeternakModalLoading, setAddPeternakModalLoading] = useState(false);
@@ -36,19 +64,33 @@ const Peternak = () => {
   const [columnMapping, setColumnMapping] = useState({});
   const [searchKeyword, setSearchKeyword] = useState("");
   const [user, setUser] = useState(null);
-  const [viewPeternakModalVisible, setViewPeternakModalVisible] = useState(false);
+  const [viewPeternakModalVisible, setViewPeternakModalVisible] =
+    useState(false);
   const [viewRowData, setViewRowData] = useState({});
   const [uploading, setUploading] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [searchText, setSearchText] = useState("");
+  const [searchedColumn, setSearchedColumn] = useState("");
+
+  const searchInput = useRef(null);
 
   // Fetch peternaks
   const fetchPeternaks = async () => {
+    setLoading(true);
     try {
       const result = await getPeternaks();
       const { content, statusCode } = result.data;
 
       if (statusCode === 200) {
         const filteredPeternaks = content.filter((peternak) => {
-          const { petugasId, namaPeternak, nikPeternak, idPeternak, petugasPendaftar, lokasi } = peternak;
+          const {
+            petugasId,
+            namaPeternak,
+            nikPeternak,
+            idPeternak,
+            petugasPendaftar,
+            lokasi,
+          } = peternak;
 
           const keyword = searchKeyword.toLowerCase();
 
@@ -60,11 +102,14 @@ const Peternak = () => {
           const isPetugasIdValid = typeof petugasId === "string";
 
           return (
-            (isNamaPeternakValid && namaPeternak.toLowerCase().includes(keyword)) ||
+            (isNamaPeternakValid &&
+              namaPeternak.toLowerCase().includes(keyword)) ||
             (isPetugasIdValid && petugasId.toLowerCase().includes(keyword)) ||
-            (isNikPeternakValid && nikPeternak.toLowerCase().includes(keyword)) ||
+            (isNikPeternakValid &&
+              nikPeternak.toLowerCase().includes(keyword)) ||
             (isIdPeternakValid && idPeternak.toLowerCase().includes(keyword)) ||
-            (isPetugasPendaftarValid && petugasPendaftar.toLowerCase().includes(keyword)) ||
+            (isPetugasPendaftarValid &&
+              petugasPendaftar.toLowerCase().includes(keyword)) ||
             (isLokasiValid && lokasi.toLowerCase().includes(keyword))
           );
         });
@@ -74,6 +119,8 @@ const Peternak = () => {
     } catch (error) {
       console.error("Error fetching peternaks:", error);
       message.error("Gagal mengambil data peternak.");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -110,6 +157,17 @@ const Peternak = () => {
     fetchUserInfo();
   }, []);
 
+  const handleSearchTable = (selectedKeys, confirm, dataIndex) => {
+    confirm();
+    setSearchText(selectedKeys[0]);
+    setSearchedColumn(dataIndex);
+  };
+
+  const handleReset = (clearFilters) => {
+    clearFilters();
+    setSearchText("");
+  };
+
   // Handle search
   const handleSearch = (keyword) => {
     setSearchKeyword(keyword);
@@ -141,6 +199,7 @@ const Peternak = () => {
       cancelText: "Tidak",
       onOk: async () => {
         const { idPeternak, nikPeternak } = row;
+        setLoading(true);
         getUserByUsername(nikPeternak).then((userResponse) => {
           if (userResponse && userResponse.data) {
             const userId = userResponse.data.id;
@@ -161,6 +220,8 @@ const Peternak = () => {
             });
           }
         });
+        setLoading(false);
+        fetchPeternaks();
       },
     });
   };
@@ -168,6 +229,7 @@ const Peternak = () => {
   // Handle edit peternak OK
   const handleEditPeternakOk = async (values) => {
     setEditPeternakModalLoading(true);
+    setLoading(true);
     try {
       await editPeternak(values, currentRowData.idPeternak);
       setEditPeternakModalVisible(false);
@@ -178,6 +240,8 @@ const Peternak = () => {
       console.error("Error editing peternak:", error);
       message.error("Pengeditan gagal, harap coba lagi!");
       setEditPeternakModalLoading(false);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -203,6 +267,7 @@ const Peternak = () => {
       photo: kandangSapi, // Assuming you want to set a default photo
     };
 
+    setLoading(true);
     try {
       await addPeternak(values).then(async (response) => {
         await addUser(userData).then((response) => {
@@ -217,6 +282,8 @@ const Peternak = () => {
       console.error("Error adding peternak:", error);
       message.error("Gagal menambahkan, harap coba lagi!");
       setAddPeternakModalLoading(false);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -272,7 +339,11 @@ const Peternak = () => {
       const utcDays = Math.floor(input - 25569);
       const utcValue = utcDays * 86400;
       const dateInfo = new Date(utcValue * 1000);
-      date = new Date(dateInfo.getFullYear(), dateInfo.getMonth(), dateInfo.getDate()).toString();
+      date = new Date(
+        dateInfo.getFullYear(),
+        dateInfo.getMonth(),
+        dateInfo.getDate()
+      ).toString();
     } else if (typeof input === "string") {
       const [day, month, year] = input.split("/");
       date = new Date(`${year}-${month}-${day}`).toString();
@@ -299,7 +370,11 @@ const Peternak = () => {
     const provinsi = parts[0] || "-";
 
     // Validasi bahwa setidaknya satu bagian selain "-" harus terisi
-    const isValid = desa !== "-" || kecamatan !== "-" || kabupaten !== "-" || provinsi !== "-";
+    const isValid =
+      desa !== "-" ||
+      kecamatan !== "-" ||
+      kabupaten !== "-" ||
+      provinsi !== "-";
 
     if (!isValid) {
       console.warn(`Alamat tidak valid: ${address}`);
@@ -311,7 +386,11 @@ const Peternak = () => {
   }
 
   const generateDefaultTanggalLahir = () => {
-    const randomDate = new Date(Math.floor(Math.random() * 100) + 1920, Math.floor(Math.random() * 12), Math.floor(Math.random() * 28));
+    const randomDate = new Date(
+      Math.floor(Math.random() * 100) + 1920,
+      Math.floor(Math.random() * 12),
+      Math.floor(Math.random() * 28)
+    );
     return randomDate.toISOString().split("T")[0];
   };
 
@@ -338,16 +417,27 @@ const Peternak = () => {
     let errorCount = 0;
     const dataPeternakToSaveArray = [];
     const dataUserToSaveArray = [];
+
     try {
       for (const row of importedData) {
         const generateIdPeternak = uuidv4();
-        const pecahAlamat = parseAddress(row[columnMapping["Alamat Pemilik Ternak**)"] || columnMapping["lokasi"]]);
+        const pecahAlamat = parseAddress(
+          row[
+            columnMapping["Alamat Pemilik Ternak**)"] || columnMapping["lokasi"]
+          ]
+        );
 
         const validateEmail = (email) => {
           // Jika email tidak valid (null, undefined, atau bukan string), gunakan default
           if (typeof email !== "string" || !email.includes("@")) {
-            console.warn(`Email tidak valid: ${email}. Menggunakan email default.`);
-            return `${row[columnMapping["Nama Pemilik Ternak**)"] || columnMapping["nama"]]}@gmail.com`; // Email default
+            console.warn(
+              `Email tidak valid: ${email}. Menggunakan email default.`
+            );
+            return `${
+              row[
+                columnMapping["Nama Pemilik Ternak**)"] || columnMapping["nama"]
+              ]
+            }@gmail.com`; // Email default
           }
           // Jika valid, kembalikan email
           return email;
@@ -356,8 +446,13 @@ const Peternak = () => {
         const dataToSavePeternak = {
           idPeternak: generateIdPeternak,
           nikPeternak: row[columnMapping["NIK Peternak"]],
-          namaPeternak: row[columnMapping["Nama Pemilik Ternak**)"] || columnMapping["nama"]],
-          noTelepon: row[columnMapping["No. Telp Pemilik Ternak*)"]] || generateDefaultPhoneNumber(),
+          namaPeternak:
+            row[
+              columnMapping["Nama Pemilik Ternak**)"] || columnMapping["nama"]
+            ],
+          noTelepon:
+            row[columnMapping["No. Telp Pemilik Ternak*)"]] ||
+            generateDefaultPhoneNumber(),
           email: validateEmail(row[columnMapping["Email Pemilik Ternak"]]),
           // dusun: pecahAlamat.dusun,
           desa: pecahAlamat.desa,
@@ -365,14 +460,26 @@ const Peternak = () => {
           kabupaten: pecahAlamat.kabupaten,
           provinsi: pecahAlamat.provinsi,
           jenisKelamin: row[columnMapping["Jenis Kelamin"]] || "-",
-          tanggalLahir: row[columnMapping["Tanggal Lahir Pemilik Ternak"]] || generateDefaultTanggalLahir(),
-          lokasi: row[columnMapping["Alamat Pemilik Ternak**)"] || columnMapping["lokasi"]],
-          alamat: row[columnMapping["Alamat Pemilik Ternak**)"] || columnMapping["lokasi"]],
+          tanggalLahir:
+            row[columnMapping["Tanggal Lahir Pemilik Ternak"]] ||
+            generateDefaultTanggalLahir(),
+          lokasi:
+            row[
+              columnMapping["Alamat Pemilik Ternak**)"] ||
+                columnMapping["lokasi"]
+            ],
+          alamat:
+            row[
+              columnMapping["Alamat Pemilik Ternak**)"] ||
+                columnMapping["lokasi"]
+            ],
           idIsikhnas: row[columnMapping["ID iSIKHNAS"]] || "-",
           latitude: row[columnMapping["latitude"]] || "-",
           longitude: row[columnMapping["longitude"]] || "-",
           namaPetugas: row[columnMapping["Petugas Pendaftar"]] || "-",
-          tanggalPendaftaran: row[columnMapping["Tanggal Pendataan"]] || convertToJSDate(row[columnMapping["Tanggal Pendaftaran"]]),
+          tanggalPendaftaran:
+            row[columnMapping["Tanggal Pendataan"]] ||
+            convertToJSDate(row[columnMapping["Tanggal Pendaftaran"]]),
         };
 
         const role = "3";
@@ -380,25 +487,34 @@ const Peternak = () => {
           id: dataToSavePeternak.idPeternak,
           name: dataToSavePeternak.namaPeternak,
           nik: dataToSavePeternak.nikPeternak,
-          username: dataToSavePeternak.nikPeternak || dataToSavePeternak.namaPeternak,
+          username:
+            dataToSavePeternak.nikPeternak || dataToSavePeternak.namaPeternak,
           email: `${dataToSavePeternak.email}`,
-          password: `${dataToSavePeternak.nikPeternak || dataToSavePeternak.namaPeternak}@123`,
+          password: `${
+            dataToSavePeternak.nikPeternak || dataToSavePeternak.namaPeternak
+          }@123`,
           alamat: dataToSavePeternak.alamat,
           role: role,
           photo: kandangSapi,
         };
 
-        const existingPeternakIndex = peternaks.findIndex((p) => p.idPeternak === dataToSavePeternak.idPeternak);
+        const existingPeternakIndex = peternaks.findIndex(
+          (p) => p.idPeternak === dataToSavePeternak.idPeternak
+        );
 
         dataPeternakToSaveArray.push(dataToSavePeternak);
         dataUserToSaveArray.push(dataToSaveUser);
         console.log("DATA PETERNAK TO SAVE : ", dataPeternakToSaveArray);
         console.log("Data User : ", dataUserToSaveArray);
 
+        setLoading(true);
         try {
           if (existingPeternakIndex > -1) {
             // Update existing data
-            await editPeternak(dataToSavePeternak, dataToSavePeternak.idPeternak);
+            await editPeternak(
+              dataToSavePeternak,
+              dataToSavePeternak.idPeternak
+            );
             setPeternaks((prevPeternaks) => {
               const updatedPeternaks = [...prevPeternaks];
               updatedPeternaks[existingPeternakIndex] = dataToSavePeternak;
@@ -408,7 +524,10 @@ const Peternak = () => {
             // Add new data
             await addPeternakImport(dataPeternakToSaveArray);
             await addUserBulk(dataUserToSaveArray);
-            setPeternaks((prevPeternaks) => [...prevPeternaks, dataToSavePeternak]);
+            setPeternaks((prevPeternaks) => [
+              ...prevPeternaks,
+              dataToSavePeternak,
+            ]);
           }
         } catch (error) {
           errorCount++;
@@ -418,6 +537,7 @@ const Peternak = () => {
 
       if (errorCount === 0) {
         message.success("Semua data berhasil disimpan.");
+        fetchPeternaks();
       } else {
         message.error(`${errorCount} data gagal disimpan, harap coba lagi!`);
       }
@@ -428,6 +548,8 @@ const Peternak = () => {
       setImportedData([]);
       setColumnTitles([]);
       setColumnMapping({});
+      setFileName("");
+      setLoading(false);
       setImportModalVisible(false);
     }
   };
@@ -517,11 +639,25 @@ const Peternak = () => {
 
   // Convert to CSV
   const convertToCSV = (data) => {
-    const columnTitles = ["ID Peternak", "Nama Peternak", "NIK Peternak", "Lokasi", "Petugas Pendaftar", "Tanggal Pendaftaran"];
+    const columnTitles = [
+      "ID Peternak",
+      "Nama Peternak",
+      "NIK Peternak",
+      "Lokasi",
+      "Petugas Pendaftar",
+      "Tanggal Pendaftaran",
+    ];
 
     const rows = [columnTitles];
     data.forEach((item) => {
-      const row = [item.idPeternak, item.namaPeternak, item.nikPeternak, item.lokasi, item.petugas ? item.petugas.namaPetugas : "", moment(item.tanggalPendaftaran).format("DD/MM/YYYY")];
+      const row = [
+        item.idPeternak,
+        item.namaPeternak,
+        item.nikPeternak,
+        item.lokasi,
+        item.petugas ? item.petugas.namaPetugas : "",
+        moment(item.tanggalPendaftaran).format("DD/MM/YYYY"),
+      ];
       rows.push(row);
     });
 
@@ -546,6 +682,97 @@ const Peternak = () => {
     document.body.removeChild(link);
   };
 
+  const getColumnSearchProps = (dataIndex, nestedPath) => ({
+    filterDropdown: ({
+      setSelectedKeys,
+      selectedKeys,
+      confirm,
+      clearFilters,
+      close,
+    }) => (
+      <div style={{ padding: 8 }} onKeyDown={(e) => e.stopPropagation()}>
+        <Input
+          ref={searchInput}
+          placeholder={`Search ${dataIndex}`}
+          value={selectedKeys[0]}
+          onChange={(e) =>
+            setSelectedKeys(e.target.value ? [e.target.value] : [])
+          }
+          onPressEnter={() =>
+            handleSearchTable(selectedKeys, confirm, dataIndex)
+          }
+          style={{ marginBottom: 8, display: "block" }}
+        />
+        <Space>
+          <Button
+            type="primary"
+            onClick={() => handleSearchTable(selectedKeys, confirm, dataIndex)}
+            icon={<SearchOutlined />}
+            size="small"
+            style={{ width: 90 }}
+          >
+            Search
+          </Button>
+          <Button
+            onClick={() => clearFilters && handleReset(clearFilters)}
+            size="small"
+            style={{ width: 90 }}
+          >
+            Reset
+          </Button>
+          <Button
+            type="link"
+            size="small"
+            onClick={() => {
+              confirm({ closeDropdown: false });
+              setSearchText(selectedKeys[0]);
+              setSearchedColumn(dataIndex);
+            }}
+          >
+            Filter
+          </Button>
+          <Button type="link" size="small" onClick={() => close()}>
+            Close
+          </Button>
+        </Space>
+      </div>
+    ),
+    filterIcon: (filtered) => (
+      <SearchOutlined style={{ color: filtered ? "#1677ff" : undefined }} />
+    ),
+    onFilter: (value, record) => {
+      if (nestedPath) {
+        const nestedValue = nestedPath
+          .split(".")
+          .reduce((obj, key) => obj?.[key], record);
+        return nestedValue
+          ?.toString()
+          .toLowerCase()
+          .includes(value.toLowerCase());
+      }
+      return record[dataIndex]
+        ?.toString()
+        .toLowerCase()
+        .includes(value.toLowerCase());
+    },
+    filterDropdownProps: {
+      onOpenChange(open) {
+        if (open) setTimeout(() => searchInput.current?.select(), 100);
+      },
+    },
+    render: (text) =>
+      searchedColumn === dataIndex ? (
+        <Highlighter
+          highlightStyle={{ backgroundColor: "#ffc069", padding: 0 }}
+          searchWords={[searchText]}
+          autoEscape
+          textToHighlight={text?.toString() || ""}
+        />
+      ) : (
+        text
+      ),
+  });
+
   // Render columns with actions
   const renderColumns = () => {
     const actionColumn = {
@@ -555,7 +782,13 @@ const Peternak = () => {
       align: "center",
       render: (text, row) => (
         <span>
-          <Button type="primary" shape="circle" icon={<EditOutlined />} title="Edit" onClick={() => handleEditPeternak(row)} />
+          <Button
+            type="primary"
+            shape="circle"
+            icon={<EditOutlined />}
+            title="Edit"
+            onClick={() => handleEditPeternak(row)}
+          />
           {/* <Divider type="vertical" />
           <Button
             type="primary"
@@ -565,51 +798,104 @@ const Peternak = () => {
             onClick={() => handleViewPeternak(row)}
           /> */}
           <Divider type="vertical" />
-          <Button type="primary" danger shape="circle" icon={<DeleteOutlined />} title="Delete" onClick={() => handleDeletePeternak(row)} />
+          <Button
+            type="primary"
+            danger
+            shape="circle"
+            icon={<DeleteOutlined />}
+            title="Delete"
+            onClick={() => handleDeletePeternak(row)}
+          />
         </span>
       ),
     };
 
     // Clone columns to prevent mutation
     const clonedColumns = [
-      { title: "ID Peternak", dataIndex: "idPeternak", key: "idPeternak" },
-      { title: "NIK Peternak", dataIndex: "nikPeternak", key: "nikPeternak" },
+      {
+        title: "ID Peternak",
+        dataIndex: "idPeternak",
+        key: "idPeternak",
+        ...getColumnSearchProps("idPeternak"),
+        sorter: (a, b) => a.idPeternak.localeCompare(b.idPeternak),
+      },
+      {
+        title: "NIK Peternak",
+        dataIndex: "nikPeternak",
+        key: "nikPeternak",
+        ...getColumnSearchProps("nikPeternak"),
+        sorter: (a, b) => a.nikPeternak.localeCompare(b.nikPeternak),
+      },
       {
         title: "Id Isikhnas",
         dataIndex: "idIsikhnas",
         key: "idIsikhnas",
+        ...getColumnSearchProps("idIsikhnas"),
+        sorter: (a, b) => a.idIsikhnas.localeCompare(b.idIsikhnas),
       },
       {
         title: "Nama Peternak",
         dataIndex: "namaPeternak",
         key: "namaPeternak",
+        ...getColumnSearchProps("namaPeternak"),
+        sorter: (a, b) => a.namaPeternak.localeCompare(b.namaPeternak),
       },
       {
         title: "Tanggal Lahir",
         dataIndex: "tanggalLahir",
         key: "tanggalLahir",
+        ...getColumnSearchProps("tanggalLahir"),
+        sorter: (a, b) => new Date(a.tanggalLahir) - new Date(b.tanggalLahir),
       },
       {
         title: "Jenis Kelamin",
         dataIndex: "jenisKelamin",
         key: "jenisKelamin",
+        ...getColumnSearchProps("jenisKelamin"),
+        sorter: (a, b) => a.jenisKelamin.localeCompare(b.jenisKelamin),
       },
       {
         title: "Email",
         dataIndex: "email",
         key: "email",
+        ...getColumnSearchProps("email"),
+        sorter: (a, b) => a.email.localeCompare(b.email),
       },
-      { title: "No Telepon", dataIndex: "noTelepon", key: "noTelepon" },
-      { title: "Alamat", dataIndex: "alamat", key: "alamat" },
-      { title: "Lokasi", dataIndex: "lokasi", key: "lokasi" },
+      {
+        title: "No Telepon",
+        dataIndex: "noTelepon",
+        key: "noTelepon",
+        ...getColumnSearchProps("noTelepon"),
+        sorter: (a, b) => a.noTelepon.localeCompare(b.noTelepon),
+      },
+      {
+        title: "Alamat",
+        dataIndex: "alamat",
+        key: "alamat",
+        ...getColumnSearchProps("alamat"),
+        sorter: (a, b) => a.alamat.localeCompare(b.alamat),
+      },
+      {
+        title: "Lokasi",
+        dataIndex: "lokasi",
+        key: "lokasi",
+        ...getColumnSearchProps("lokasi"),
+        sorter: (a, b) => a.lokasi.localeCompare(b.lokasi),
+      },
       {
         title: "Petugas Pendaftar",
         dataIndex: ["petugas", "namaPetugas"],
         key: "namaPetugas",
+        ...getColumnSearchProps("namaPetugas", "petugas.namaPetugas"),
+        sorter: (a, b) =>
+          a.petugas.namaPetugas.localeCompare(b.petugas.namaPetugas),
       },
     ];
 
-    if (user && (user.role === "ROLE_ADMINISTRATOR" || user.role === "ROLE_PETUGAS")) {
+    if (
+      user &&
+      (user.role === "ROLE_ADMINISTRATOR" || user.role === "ROLE_PETUGAS")
+    ) {
       clonedColumns.push(actionColumn);
     }
 
@@ -619,9 +905,26 @@ const Peternak = () => {
   // Render table
   const renderTable = () => {
     if (user && user.role === "ROLE_PETERNAK") {
-      return <Table dataSource={peternaks} bordered columns={renderColumns()} rowKey="idPeternak" />;
-    } else if (user && (user.role === "ROLE_ADMINISTRATOR" || user.role === "ROLE_PETUGAS")) {
-      return <Table dataSource={peternaks} bordered columns={renderColumns()} rowKey="idPeternak" />;
+      return (
+        <Table
+          dataSource={peternaks}
+          bordered
+          columns={renderColumns()}
+          rowKey="idPeternak"
+        />
+      );
+    } else if (
+      user &&
+      (user.role === "ROLE_ADMINISTRATOR" || user.role === "ROLE_PETUGAS")
+    ) {
+      return (
+        <Table
+          dataSource={peternaks}
+          bordered
+          columns={renderColumns()}
+          rowKey="idPeternak"
+        />
+      );
     } else {
       return null;
     }
@@ -629,7 +932,10 @@ const Peternak = () => {
 
   // Render buttons
   const renderButtons = () => {
-    if (user && (user.role === "ROLE_ADMINISTRATOR" || user.role === "ROLE_PETUGAS")) {
+    if (
+      user &&
+      (user.role === "ROLE_ADMINISTRATOR" || user.role === "ROLE_PETUGAS")
+    ) {
       return (
         <Row gutter={[16, 16]} justify="start" style={{ paddingLeft: 9 }}>
           <Col>
@@ -638,12 +944,20 @@ const Peternak = () => {
             </Button>
           </Col>
           <Col>
-            <Button icon={<UploadOutlined />} onClick={handleImportModalOpen} block>
+            <Button
+              icon={<UploadOutlined />}
+              onClick={handleImportModalOpen}
+              block
+            >
               Import File
             </Button>
           </Col>
           <Col>
-            <Button icon={<DownloadOutlined />} onClick={handleDownloadCSV} block>
+            <Button
+              icon={<DownloadOutlined />}
+              onClick={handleDownloadCSV}
+              block
+            >
               Download Format CSV
             </Button>
           </Col>
@@ -663,7 +977,12 @@ const Peternak = () => {
     <Row gutter={[16, 16]} justify="space-between">
       {renderButtons()}
       <Col xs={24} sm={12} md={8} lg={8} xl={8}>
-        <Input placeholder="Cari data" value={searchKeyword} onChange={(e) => handleSearch(e.target.value)} style={{ width: "100%" }} />
+        <Input
+          placeholder="Cari data"
+          value={searchKeyword}
+          onChange={(e) => handleSearch(e.target.value)}
+          style={{ width: "100%" }}
+        />
       </Col>
     </Row>
   );
@@ -674,15 +993,36 @@ const Peternak = () => {
     <div className="app-container">
       <TypingCard title="Manajemen Peternak" source={cardContent} />
       <br />
-      <Card title={title} style={{ overflowX: "scroll" }}>
-        {renderTable()}
-      </Card>
+      {loading ? (
+        <Card>
+          <Skeleton active paragraph={{ rows: 10 }} />
+        </Card>
+      ) : (
+        <Card title={title} style={{ overflowX: "scroll" }}>
+          {renderTable()}
+        </Card>
+      )}
       {/* Edit Peternak Modal */}
-      <EditPeternakForm currentRowData={currentRowData} visible={editPeternakModalVisible} confirmLoading={editPeternakModalLoading} onCancel={() => setEditPeternakModalVisible(false)} onOk={handleEditPeternakOk} />
+      <EditPeternakForm
+        currentRowData={currentRowData}
+        visible={editPeternakModalVisible}
+        confirmLoading={editPeternakModalLoading}
+        onCancel={() => setEditPeternakModalVisible(false)}
+        onOk={handleEditPeternakOk}
+      />
       {/* Add Peternak Modal */}
-      <AddPeternakForm visible={addPeternakModalVisible} confirmLoading={addPeternakModalLoading} onCancel={() => setAddPeternakModalVisible(false)} onOk={handleAddPeternakOk} />
+      <AddPeternakForm
+        visible={addPeternakModalVisible}
+        confirmLoading={addPeternakModalLoading}
+        onCancel={() => setAddPeternakModalVisible(false)}
+        onOk={handleAddPeternakOk}
+      />
       {/* View Peternak Modal */}
-      <ViewPeternakForm visible={viewPeternakModalVisible} onCancel={() => setViewPeternakModalVisible(false)} rowData={viewRowData} />
+      <ViewPeternakForm
+        visible={viewPeternakModalVisible}
+        onCancel={() => setViewPeternakModalVisible(false)}
+        rowData={viewRowData}
+      />
       {/* Import Modal */}
 
       <Modal
@@ -693,7 +1033,12 @@ const Peternak = () => {
           <Button key="cancel" onClick={handleImportModalClose}>
             Cancel
           </Button>,
-          <Button key="upload" type="primary" loading={uploading} onClick={handleUpload}>
+          <Button
+            key="upload"
+            type="primary"
+            loading={uploading}
+            onClick={handleUpload}
+          >
             Upload
           </Button>,
         ]}

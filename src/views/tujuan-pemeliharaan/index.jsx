@@ -1,15 +1,40 @@
-/* eslint-disable no-constant-condition */
 /* eslint-disable no-unused-vars */
-import { addTujuanPemeliharaan, deleteTujuanPemeliharaan, editTujuanPemeliharaan, getTujuanPemeliharaan, addTujuanPemeliharaanBulk } from "@/api/tujuan-pemeliharaan";
+import {
+  addTujuanPemeliharaan,
+  deleteTujuanPemeliharaan,
+  editTujuanPemeliharaan,
+  getTujuanPemeliharaan,
+  addTujuanPemeliharaanBulk,
+} from "@/api/tujuan-pemeliharaan";
 import TypingCard from "@/components/TypingCard";
-import { DeleteOutlined, DownloadOutlined, EditOutlined, UploadOutlined } from "@ant-design/icons";
-import { Button, Card, Col, Divider, Input, message, Modal, Row, Table, Upload } from "antd";
+import {
+  DeleteOutlined,
+  DownloadOutlined,
+  EditOutlined,
+  UploadOutlined,
+  SearchOutlined,
+} from "@ant-design/icons";
+import {
+  Button,
+  Card,
+  Col,
+  Divider,
+  Input,
+  message,
+  Modal,
+  Row,
+  Table,
+  Upload,
+  Space,
+} from "antd";
 import React, { useEffect, useRef, useState } from "react";
 import { reqUserInfo } from "../../api/user";
 import AddTujuanPemeliharaanForm from "./forms/add-tujuanpemeliharaan-form";
 import EditTujuanPemeliharaanForm from "./forms/edit-tujuanpemeliharaan-form";
 import { v4 as uuidv4 } from "uuid";
 import { read, utils } from "xlsx";
+import { Skeleton } from "antd";
+import Highlighter from "react-highlight-words";
 import { data } from "react-router-dom";
 
 const TujuanPemeliharaan = () => {
@@ -29,9 +54,11 @@ const TujuanPemeliharaan = () => {
   const [columnTitles, setColumnTitles] = useState([]);
   const [fileName, setFileName] = useState("");
   const [columnMapping, setColumnMapping] = useState({});
+  const [loading, setLoading] = useState(true);
+  const [searchText, setSearchText] = useState("");
+  const [searchedColumn, setSearchedColumn] = useState("");
 
-  const [loading, setLoading] = useState(false);
-  // Form References
+  const searchInput = useRef(null);
   const editTujuanFormRef = useRef(null);
   const addTujuanFormRef = useRef(null);
 
@@ -49,22 +76,28 @@ const TujuanPemeliharaan = () => {
 
   // Fetch All Jenis Hewan with Optional Filtering
   const getTujuanPemeliharaanData = async () => {
+    setLoading(true);
     try {
       const result = await getTujuanPemeliharaan();
       const { content, statusCode } = result.data;
 
       if (statusCode === 200) {
         const filteredTujuanPemeliharaan = content.filter((tujuan) => {
-          const { idTujuanPemeliharaan, tujuanPemeliharaan, deskripsi } = tujuan;
+          const { idTujuanPemeliharaan, tujuanPemeliharaan, deskripsi } =
+            tujuan;
           const keyword = searchKeyword.toLowerCase();
 
-          const isIdTujuanPemeliharaanValid = typeof idTujuanPemeliharaan === "string";
-          const isTujuanPemeliharaanValid = typeof tujuanPemeliharaan === "string";
+          const isIdTujuanPemeliharaanValid =
+            typeof idTujuanPemeliharaan === "string";
+          const isTujuanPemeliharaanValid =
+            typeof tujuanPemeliharaan === "string";
           const isDeskripsiValid = typeof deskripsi === "string";
 
           return (
-            (isIdTujuanPemeliharaanValid && idTujuanPemeliharaan.toLowerCase().includes(keyword)) ||
-            (isTujuanPemeliharaanValid && tujuanPemeliharaan.toLowerCase().includes(keyword)) ||
+            (isIdTujuanPemeliharaanValid &&
+              idTujuanPemeliharaan.toLowerCase().includes(keyword)) ||
+            (isTujuanPemeliharaanValid &&
+              tujuanPemeliharaan.toLowerCase().includes(keyword)) ||
             (isDeskripsiValid && deskripsi.toLowerCase().includes(keyword))
           );
         });
@@ -73,7 +106,11 @@ const TujuanPemeliharaan = () => {
       }
     } catch (error) {
       console.error("Failed to fetch tujuan pemeliharaan:", error);
-      message.error("Gagal mengambil data tujuan pemeliharaan, harap coba lagi!");
+      message.error(
+        "Gagal mengambil data tujuan pemeliharaan, harap coba lagi!"
+      );
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -115,6 +152,17 @@ const TujuanPemeliharaan = () => {
   //   getJenisHewanData()
   // }
 
+  const handleSearchTable = (selectedKeys, confirm, dataIndex) => {
+    confirm();
+    setSearchText(selectedKeys[0]);
+    setSearchedColumn(dataIndex);
+  };
+
+  const handleReset = (clearFilters) => {
+    clearFilters();
+    setSearchText("");
+  };
+
   // Handle Opening the Import Modal
   const handleImportModalOpen = () => {
     setImportModalVisible(true);
@@ -137,6 +185,7 @@ const TujuanPemeliharaan = () => {
       tujuanPemeliharaan: values.tujuanPemeliharaan,
       deskripsi: values.deskripsi,
     };
+    setLoading(true);
     try {
       await addTujuanPemeliharaan(tujuanData);
       form.resetFields();
@@ -148,6 +197,8 @@ const TujuanPemeliharaan = () => {
       setAddTujuanModalLoading(false);
       console.error("Failed to add tujuan pemeliharaan:", e);
       message.error("Gagal menambahkan, harap coba lagi!");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -160,6 +211,7 @@ const TujuanPemeliharaan = () => {
   // Handle Confirming the Edit Tujuan Pemeliharaan Modal
   const handleEditTujuanOk = async (values) => {
     setEditTujuanModalLoading(true);
+    setLoading(true);
     try {
       await editTujuanPemeliharaan(values, values.idTujuanPemeliharaan);
       setEditTujuanModalVisible(false);
@@ -170,6 +222,8 @@ const TujuanPemeliharaan = () => {
       setEditTujuanModalLoading(false);
       console.error("Failed to edit Tujuan pemeliharaan:", e);
       message.error("Pengeditan gagal, harap coba lagi!");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -185,11 +239,8 @@ const TujuanPemeliharaan = () => {
       okText: "Ya",
       okType: "danger",
       cancelText: "Tidak",
-      okButtonProps: {
-        loading: loading, // Aktifkan loading pada tombol ok
-      },
       onOk: () => {
-        setLoading(true); // Mengaktifkan loading saat klik ok
+        setLoading(true);
         deleteTujuanPemeliharaan({ idTujuanPemeliharaan })
           .then((res) => {
             message.success("Berhasil dihapus");
@@ -200,7 +251,7 @@ const TujuanPemeliharaan = () => {
             message.error("Gagal menghapus tujuan.");
           })
           .finally(() => {
-            setLoading(false); // Menonaktifkan loading setelah proses selesai
+            setLoading(false);
           });
       },
     });
@@ -220,7 +271,11 @@ const TujuanPemeliharaan = () => {
       const utcDays = Math.floor(input - 25569);
       const utcValue = utcDays * 86400;
       const dateInfo = new Date(utcValue * 1000);
-      date = new Date(dateInfo.getFullYear(), dateInfo.getMonth(), dateInfo.getDate()).toString();
+      date = new Date(
+        dateInfo.getFullYear(),
+        dateInfo.getMonth(),
+        dateInfo.getDate()
+      ).toString();
     } else if (typeof input === "string") {
       const [day, month, year] = input.split("/");
       date = new Date(`${year}-${month}-${day}`).toString();
@@ -236,7 +291,11 @@ const TujuanPemeliharaan = () => {
 
   const convertHeaderToCSV = () => {
     const columnTitlesLocal = ["No", "Tujuan Pemeliharaan", "Deskripsi"];
-    const exampleRow = ["1", "Contoh Pembibitan", "Contoh pembibitan sapi potong"];
+    const exampleRow = [
+      "1",
+      "Contoh Pembibitan",
+      "Contoh pembibitan sapi potong",
+    ];
 
     // Gabungkan header dan contoh data
     const rows = [columnTitlesLocal, exampleRow];
@@ -268,7 +327,11 @@ const TujuanPemeliharaan = () => {
       const workbook = read(data, { type: "array" });
 
       const worksheet = workbook.Sheets[workbook.SheetNames[0]];
-      const jsonData = utils.sheet_to_json(worksheet, { header: 1, blankrows: false, defval: null });
+      const jsonData = utils.sheet_to_json(worksheet, {
+        header: 1,
+        blankrows: false,
+        defval: null,
+      });
 
       const importedData = jsonData.slice(1); // Exclude the first row (column titles)
       const columnTitles = jsonData[0]; // Assume the first row contains column titles
@@ -335,6 +398,7 @@ const TujuanPemeliharaan = () => {
         dataToSaveArray.push(dataToSave);
       }
 
+      setLoading(true);
       try {
         if (dataToSaveArray.length > 0) {
           // Add new data
@@ -347,6 +411,7 @@ const TujuanPemeliharaan = () => {
 
       if (errorCount === 0) {
         message.success(`Semua data berhasil disimpan.`);
+        getTujuanPemeliharaanData();
       } else {
         message.error(`${errorCount} data gagal disimpan, harap coba lagi!`);
       }
@@ -357,6 +422,7 @@ const TujuanPemeliharaan = () => {
       setImportedData([]);
       setColumnTitles([]);
       setColumnMapping({});
+      setLoading(false);
     }
   };
 
@@ -368,11 +434,19 @@ const TujuanPemeliharaan = () => {
 
   // Convert Data to CSV Format
   const convertToCSV = (data) => {
-    const columnTitles = ["ID Tujuan Pemeliharaan", "Tujuan Pemeliharaan", "Deskripsi"];
+    const columnTitles = [
+      "ID Tujuan Pemeliharaan",
+      "Tujuan Pemeliharaan",
+      "Deskripsi",
+    ];
 
     const rows = [columnTitles];
     data.forEach((item) => {
-      const row = [item.idTujuanPemeliharaan, item.tujuanPemeliharaan, item.deskripsi];
+      const row = [
+        item.idTujuanPemeliharaan,
+        item.tujuanPemeliharaan,
+        item.deskripsi,
+      ];
       rows.push(row);
     });
 
@@ -397,6 +471,97 @@ const TujuanPemeliharaan = () => {
     document.body.removeChild(link); // Clean up
   };
 
+  const getColumnSearchProps = (dataIndex, nestedPath) => ({
+    filterDropdown: ({
+      setSelectedKeys,
+      selectedKeys,
+      confirm,
+      clearFilters,
+      close,
+    }) => (
+      <div style={{ padding: 8 }} onKeyDown={(e) => e.stopPropagation()}>
+        <Input
+          ref={searchInput}
+          placeholder={`Search ${dataIndex}`}
+          value={selectedKeys[0]}
+          onChange={(e) =>
+            setSelectedKeys(e.target.value ? [e.target.value] : [])
+          }
+          onPressEnter={() =>
+            handleSearchTable(selectedKeys, confirm, dataIndex)
+          }
+          style={{ marginBottom: 8, display: "block" }}
+        />
+        <Space>
+          <Button
+            type="primary"
+            onClick={() => handleSearchTable(selectedKeys, confirm, dataIndex)}
+            icon={<SearchOutlined />}
+            size="small"
+            style={{ width: 90 }}
+          >
+            Search
+          </Button>
+          <Button
+            onClick={() => clearFilters && handleReset(clearFilters)}
+            size="small"
+            style={{ width: 90 }}
+          >
+            Reset
+          </Button>
+          <Button
+            type="link"
+            size="small"
+            onClick={() => {
+              confirm({ closeDropdown: false });
+              setSearchText(selectedKeys[0]);
+              setSearchedColumn(dataIndex);
+            }}
+          >
+            Filter
+          </Button>
+          <Button type="link" size="small" onClick={() => close()}>
+            Close
+          </Button>
+        </Space>
+      </div>
+    ),
+    filterIcon: (filtered) => (
+      <SearchOutlined style={{ color: filtered ? "#1677ff" : undefined }} />
+    ),
+    onFilter: (value, record) => {
+      if (nestedPath) {
+        const nestedValue = nestedPath
+          .split(".")
+          .reduce((obj, key) => obj?.[key], record);
+        return nestedValue
+          ?.toString()
+          .toLowerCase()
+          .includes(value.toLowerCase());
+      }
+      return record[dataIndex]
+        ?.toString()
+        .toLowerCase()
+        .includes(value.toLowerCase());
+    },
+    filterDropdownProps: {
+      onOpenChange(open) {
+        if (open) setTimeout(() => searchInput.current?.select(), 100);
+      },
+    },
+    render: (text) =>
+      searchedColumn === dataIndex ? (
+        <Highlighter
+          highlightStyle={{ backgroundColor: "#ffc069", padding: 0 }}
+          searchWords={[searchText]}
+          autoEscape
+          textToHighlight={text?.toString() || ""}
+        />
+      ) : (
+        text
+      ),
+  });
+
   // Render Columns with Operations
   const renderColumns = () => {
     const baseColumns = [
@@ -404,12 +569,29 @@ const TujuanPemeliharaan = () => {
         title: "ID Tujuan Pemeliharaan",
         dataIndex: "idTujuanPemeliharaan",
         key: "idTujuanPemeliharaan",
+        ...getColumnSearchProps("idTujuanPemeliharaan"),
       },
-      { title: "Tujuan Pemeliharaan", dataIndex: "tujuanPemeliharaan", key: "tujuanPemeliharaan" },
-      { title: "Deskripsi", dataIndex: "deskripsi", key: "deskripsi" },
+      {
+        title: "Tujuan Pemeliharaan",
+        dataIndex: "tujuanPemeliharaan",
+        key: "tujuanPemeliharaan",
+        ...getColumnSearchProps("tujuanPemeliharaan"),
+        sorter: (a, b) =>
+          a.tujuanPemeliharaan.localeCompare(b.tujuanPemeliharaan),
+      },
+      {
+        title: "Deskripsi",
+        dataIndex: "deskripsi",
+        key: "deskripsi",
+        ...getColumnSearchProps("deskripsi"),
+        sorter: (a, b) => a.deskripsi.localeCompare(b.deskripsi),
+      },
     ];
 
-    if (user && (user.role === "ROLE_ADMINISTRATOR" || user.role === "ROLE_PETUGAS")) {
+    if (
+      user &&
+      (user.role === "ROLE_ADMINISTRATOR" || user.role === "ROLE_PETUGAS")
+    ) {
       baseColumns.push({
         title: "Operasi",
         key: "action",
@@ -417,9 +599,22 @@ const TujuanPemeliharaan = () => {
         align: "center",
         render: (text, row) => (
           <span>
-            <Button type="primary" shape="circle" icon={<EditOutlined />} title="Edit" onClick={() => handleEditTujuan(row)} />
+            <Button
+              type="primary"
+              shape="circle"
+              icon={<EditOutlined />}
+              title="Edit"
+              onClick={() => handleEditTujuan(row)}
+            />
             <Divider type="vertical" />
-            <Button type="primary" danger shape="circle" icon={<DeleteOutlined />} title="Delete" onClick={() => handleDeleteTujuan(row)} />
+            <Button
+              type="primary"
+              danger
+              shape="circle"
+              icon={<DeleteOutlined />}
+              title="Delete"
+              onClick={() => handleDeleteTujuan(row)}
+            />
           </span>
         ),
       });
@@ -431,9 +626,26 @@ const TujuanPemeliharaan = () => {
   // Render Table based on User Role
   const renderTable = () => {
     if (user && user.role === "ROLE_PETERNAK") {
-      return <Table dataSource={tujuanPemeliharaans} bordered columns={renderColumns()} rowKey="idTujuanPemeliharaan" />;
-    } else if (user && (user.role === "ROLE_ADMINISTRATOR" || user.role === "ROLE_PETUGAS")) {
-      return <Table dataSource={tujuanPemeliharaans} bordered columns={renderColumns()} rowKey="idTujuanPemeliharaan" />;
+      return (
+        <Table
+          dataSource={tujuanPemeliharaans}
+          bordered
+          columns={renderColumns()}
+          rowKey="idTujuanPemeliharaan"
+        />
+      );
+    } else if (
+      user &&
+      (user.role === "ROLE_ADMINISTRATOR" || user.role === "ROLE_PETUGAS")
+    ) {
+      return (
+        <Table
+          dataSource={tujuanPemeliharaans}
+          bordered
+          columns={renderColumns()}
+          rowKey="idTujuanPemeliharaan"
+        />
+      );
     } else {
       return null;
     }
@@ -441,7 +653,10 @@ const TujuanPemeliharaan = () => {
 
   // Render Buttons based on User Role
   const renderButtons = () => {
-    if (user && (user.role === "ROLE_ADMINISTRATOR" || user.role === "ROLE_PETUGAS")) {
+    if (
+      user &&
+      (user.role === "ROLE_ADMINISTRATOR" || user.role === "ROLE_PETUGAS")
+    ) {
       return (
         <Row gutter={[16, 16]} justify="start" style={{ paddingLeft: 9 }}>
           <Col>
@@ -450,12 +665,20 @@ const TujuanPemeliharaan = () => {
             </Button>
           </Col>
           <Col>
-            <Button icon={<UploadOutlined />} onClick={handleImportModalOpen} block>
+            <Button
+              icon={<UploadOutlined />}
+              onClick={handleImportModalOpen}
+              block
+            >
               Import File
             </Button>
           </Col>
           <Col>
-            <Button icon={<DownloadOutlined />} onClick={handleDownloadCSV} block>
+            <Button
+              icon={<DownloadOutlined />}
+              onClick={handleDownloadCSV}
+              block
+            >
               Download Format CSV
             </Button>
           </Col>
@@ -493,15 +716,34 @@ const TujuanPemeliharaan = () => {
       {/* TypingCard component */}
       <TypingCard title="Manajemen Tujuan Pemeliharaan" source={cardContent} />
       <br />
-      <Card title={title} style={{ overflowX: "scroll" }}>
-        {renderTable()}
-      </Card>
+      {loading ? (
+        <Card>
+          <Skeleton active paragraph={{ rows: 10 }} />
+        </Card>
+      ) : (
+        <Card title={title} style={{ overflowX: "scroll" }}>
+          {renderTable()}
+        </Card>
+      )}
 
       {/* Edit Tujuan Pemeliharaan Modal */}
-      <EditTujuanPemeliharaanForm currentRowData={currentRowData} wrappedComponentRef={editTujuanFormRef} visible={editTujuanModalVisible} confirmLoading={editTujuanModalLoading} onCancel={handleCancel} onOk={handleEditTujuanOk} />
+      <EditTujuanPemeliharaanForm
+        currentRowData={currentRowData}
+        wrappedComponentRef={editTujuanFormRef}
+        visible={editTujuanModalVisible}
+        confirmLoading={editTujuanModalLoading}
+        onCancel={handleCancel}
+        onOk={handleEditTujuanOk}
+      />
 
       {/* Add Tujuan Pemeliharraan Modal */}
-      <AddTujuanPemeliharaanForm wrappedComponentRef={addTujuanFormRef} visible={addTujuanModalVisible} confirmLoading={addTujuanModalLoading} onCancel={handleCancel} onOk={handleAddTujuanOk} />
+      <AddTujuanPemeliharaanForm
+        wrappedComponentRef={addTujuanFormRef}
+        visible={addTujuanModalVisible}
+        confirmLoading={addTujuanModalLoading}
+        onCancel={handleCancel}
+        onOk={handleAddTujuanOk}
+      />
 
       {/* Import Modal */}
       <Modal
@@ -512,7 +754,12 @@ const TujuanPemeliharaan = () => {
           <Button key="cancel" onClick={handleImportModalClose}>
             Cancel
           </Button>,
-          <Button key="upload" type="primary" loading={uploading} onClick={handleUpload}>
+          <Button
+            key="upload"
+            type="primary"
+            loading={uploading}
+            onClick={handleUpload}
+          >
             Upload
           </Button>,
         ]}

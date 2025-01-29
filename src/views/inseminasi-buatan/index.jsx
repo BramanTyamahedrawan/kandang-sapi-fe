@@ -394,6 +394,7 @@ const InseminasiBuatan = () => {
     setSearchText(selectedKeys[0]);
     setSearchedColumn(dataIndex);
   };
+
   const handleReset = (clearFilters) => {
     clearFilters();
     setSearchText("");
@@ -417,11 +418,12 @@ const InseminasiBuatan = () => {
       setAddInseminasiModalVisible(false);
       setAddInseminasiModalLoading(false);
       message.success("Berhasil menambahkan!");
-      setLoading(false);
       getInseminasisData();
     } catch (e) {
       setAddInseminasiModalLoading(false);
       message.error("Gagal menambahkan, harap coba lagi!");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -439,11 +441,12 @@ const InseminasiBuatan = () => {
       setEditInseminasiModalVisible(false);
       setEditInseminasiModalLoading(false);
       message.success("Berhasil diedit!");
-      setLoading(false);
       getInseminasisData();
     } catch (e) {
       setEditInseminasiModalLoading(false);
       message.error("Pengeditan gagal, harap coba lagi!");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -460,10 +463,11 @@ const InseminasiBuatan = () => {
         try {
           await deleteInseminasi({ idInseminasi });
           message.success("Berhasil dihapus");
-          setLoading(false);
           getInseminasisData();
         } catch (error) {
           message.error("Gagal menghapus data, harap coba lagi!");
+        } finally {
+          setLoading(false);
         }
       },
     });
@@ -727,15 +731,15 @@ const InseminasiBuatan = () => {
           noKartuTernak:
             row[columnMapping["No Kartu Ternak"]] ||
             row[columnMapping["ID Hewan"]] ||
-            "_",
-          idIsikhnasTernak: row[columnMapping["IdIsikhnas"]] || "_",
-          sex: row[columnMapping["Jenis Kelamin"]] || "_",
-          tempatLahir: row[columnMapping["Tempat Lahir Ternak"]] || "_",
-          umur: row[columnMapping["Umur"]] || "_",
+            "-",
+          idIsikhnasTernak: row[columnMapping["IdIsikhnasTernak"]] || "-",
+          sex: row[columnMapping["Jenis Kelamin"]] || "-",
+          tempatLahir: row[columnMapping["Tempat Lahir Ternak"]] || "-",
+          umur: row[columnMapping["Umur"]] || "-",
           identifikasiHewan:
             row[columnMapping["Identifikasi Hewan*"]] ||
             row[columnMapping["Identifikasi Hewan"]] ||
-            "_",
+            "-",
           tanggalLahir: formatDateToString(
             row[columnMapping["Tanggal Lahir Ternak**)"]] || "-"
           ),
@@ -810,7 +814,6 @@ const InseminasiBuatan = () => {
 
       if (errorCount === 0) {
         message.success(`Semua data berhasil disimpan.`);
-        setLoading(false);
         getInseminasisData();
       } else {
         message.error(
@@ -823,6 +826,7 @@ const InseminasiBuatan = () => {
       setImportedData([]); // Reset state setelah pemrosesan selesai
       setColumnTitles([]);
       setColumnMapping({});
+      setLoading(false);
     }
   };
 
