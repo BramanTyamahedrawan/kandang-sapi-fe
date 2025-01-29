@@ -87,7 +87,14 @@ const LayoutHeader = (props) => {
   return (
     <>
       {props.fixedHeader ? <Header /> : null}
+<<<<<<< HEAD
       <Header style={computedStyle()} className={props.fixedHeader ? "fix-header" : ""}>
+=======
+      <Header
+        style={computedStyle()}
+        className={props.fixedHeader ? "fix-header" : ""}
+      >
+>>>>>>> c6bf24b00626f516149ec30818fcce00435da892
         <Hamburger />
         {sidebarCollapsed ? <></> : <BreadCrumb />}
         <div className="right-menu">
@@ -97,8 +104,23 @@ const LayoutHeader = (props) => {
             <Dropdown overlay={menu} destroyPopupOnHide>
               {/* Wrap children in a single container */}
               <div style={{ display: "flex", alignItems: "center" }}>
+<<<<<<< HEAD
                 {user ? <Avatar shape="square" size="medium" src={assets.images.avatar} /> : <p>Loading...</p>}
                 <CaretDownOutlined style={{ color: "rgba(0,0,0,.3)", marginLeft: 8 }} />
+=======
+                {user ? (
+                  <Avatar
+                    shape="square"
+                    size="medium"
+                    src={assets.images.avatar}
+                  />
+                ) : (
+                  <p>Loading...</p>
+                )}
+                <CaretDownOutlined
+                  style={{ color: "rgba(0,0,0,.3)", marginLeft: 8 }}
+                />
+>>>>>>> c6bf24b00626f516149ec30818fcce00435da892
               </div>
             </Dropdown>
           </div>

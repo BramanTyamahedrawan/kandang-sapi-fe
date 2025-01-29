@@ -1,10 +1,16 @@
 import request from "@/utils/request";
+import { v4 as uuidv4 } from "uuid";
 
 export function addInseminasi(data) {
+  const updatedData = {
+    ...data,
+    idInseminasi: uuidv4(),
+  };
+
   return request({
     url: "/inseminasi",
     method: "post",
-    data,
+    data: updatedData,
   });
 }
 

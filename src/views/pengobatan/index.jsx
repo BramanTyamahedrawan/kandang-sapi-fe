@@ -12,6 +12,7 @@ import {
   Modal,
   Upload,
   Input,
+  Space,
 } from "antd";
 import {
   getPengobatan,
@@ -28,6 +29,7 @@ import {
   EditOutlined,
   DeleteOutlined,
   DownloadOutlined,
+  SearchOutlined,
 } from "@ant-design/icons";
 import AddPengobatanForm from "./forms/add-pengobatan-form";
 import { addPetugasBulkByNama } from "@/api/petugas";
@@ -35,6 +37,8 @@ import EditPengobatanForm from "./forms/edit-pengobatan-form";
 import TypingCard from "@/components/TypingCard";
 import { reqUserInfo } from "../../api/user";
 import { v4 as uuidv4 } from "uuid";
+import { Skeleton } from "antd";
+import Highlighter from "react-highlight-words";
 import { use } from "react";
 import { set } from "nprogress";
 
@@ -140,7 +144,11 @@ const Pengobatan = () => {
   const [columnMapping, setColumnMapping] = useState({});
   const [searchKeyword, setSearchKeyword] = useState("");
   const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [searchText, setSearchText] = useState("");
+  const [searchedColumn, setSearchedColumn] = useState("");
 
+  const searchInput = useRef(null);
   const editPengobatanFormRef = useRef();
   const addPengobatanFormRef = useRef();
 
@@ -163,57 +171,55 @@ const Pengobatan = () => {
   }, []);
 
   const getPengobatanData = async () => {
+    setLoading(true);
     try {
       const result = await getPengobatan();
       const { content, statusCode } = result.data;
 
       if (statusCode === 200) {
-        const filteredPengobatan = content
-          .filter((pengobatan) => {
-            const {
-              idPengobatan,
-              idKasus,
-              tanggalPengobatan,
-              tanggalKasus,
-              namaInfrastruktur,
-              lokasi,
-              dosis,
-              sindrom,
-              diagnosaBanding,
-              provinsiPengobatan,
-              kabupatenPengobatan,
-              kecamatanPengobatan,
-              desaPengobatan,
-              petugasId,
-            } = pengobatan;
-            const keyword = searchKeyword.toLowerCase();
+        const filteredPengobatan = content.filter((pengobatan) => {
+          const {
+            idPengobatan,
+            idKasus,
+            tanggalPengobatan,
+            tanggalKasus,
+            namaInfrastruktur,
+            lokasi,
+            dosis,
+            sindrom,
+            diagnosaBanding,
+            provinsiPengobatan,
+            kabupatenPengobatan,
+            kecamatanPengobatan,
+            desaPengobatan,
+            petugasId,
+          } = pengobatan;
+          const keyword = searchKeyword.toLowerCase();
 
-            return (
-              idPengobatan.toLowerCase().includes(keyword) ||
-              idKasus.toLowerCase().includes(keyword) ||
-              tanggalPengobatan.toLowerCase().includes(keyword) ||
-              tanggalKasus.toLowerCase().includes(keyword) ||
-              namaInfrastruktur.toLowerCase().includes(keyword) ||
-              lokasi.toLowerCase().includes(keyword) ||
-              dosis.toLowerCase().includes(keyword) ||
-              sindrom.toLowerCase().includes(keyword) ||
-              diagnosaBanding.toLowerCase().includes(keyword) ||
-              provinsiPengobatan.toLowerCase().includes(keyword) ||
-              kabupatenPengobatan.toLowerCase().includes(keyword) ||
-              kecamatanPengobatan.toLowerCase().includes(keyword) ||
-              desaPengobatan.toLowerCase().includes(keyword) ||
-              petugasId.toLowerCase().includes(keyword)
-            );
-          })
-          .sort(
-            (a, b) =>
-              new Date(b.tanggalPengobatan) - new Date(a.tanggalPengobatan)
-          ); // Urutkan dari terbaru
+          return (
+            idPengobatan.toLowerCase().includes(keyword) ||
+            idKasus.toLowerCase().includes(keyword) ||
+            tanggalPengobatan.toLowerCase().includes(keyword) ||
+            tanggalKasus.toLowerCase().includes(keyword) ||
+            namaInfrastruktur.toLowerCase().includes(keyword) ||
+            lokasi.toLowerCase().includes(keyword) ||
+            dosis.toLowerCase().includes(keyword) ||
+            sindrom.toLowerCase().includes(keyword) ||
+            diagnosaBanding.toLowerCase().includes(keyword) ||
+            provinsiPengobatan.toLowerCase().includes(keyword) ||
+            kabupatenPengobatan.toLowerCase().includes(keyword) ||
+            kecamatanPengobatan.toLowerCase().includes(keyword) ||
+            desaPengobatan.toLowerCase().includes(keyword) ||
+            petugasId.toLowerCase().includes(keyword)
+          );
+        });
 
         setPengobatan(filteredPengobatan);
       }
     } catch (error) {
       console.error("Terjadi kesalahan saat mengambil data pengobatan:", error);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -230,10 +236,20 @@ const Pengobatan = () => {
     }
   };
 
-  const handleSearch = (keyword) => {
-    setSearchKeyword(keyword);
-    getPengobatanData();
+  const handleSearchTable = (selectedKeys, confirm, dataIndex) => {
+    confirm();
+    setSearchText(selectedKeys[0]);
+    setSearchedColumn(dataIndex);
   };
+  const handleReset = (clearFilters) => {
+    clearFilters();
+    setSearchText("");
+  };
+
+  // const handleSearch = (keyword) => {
+  //   setSearchKeyword(keyword);
+  //   getPengobatanData();
+  // };
 
   const handleImportModalOpen = () => {
     setImportModalVisible(true);
@@ -255,11 +271,13 @@ const Pengobatan = () => {
 
   const handleAddPengobatanOk = async (values) => {
     setAddPengobatanModalLoading(true);
+    setLoading(true);
     try {
       await addPengobatan(values);
       setAddPengobatanModalVisible(false);
       setAddPengobatanModalLoading(false);
       message.success("Berhasil menambahkan data pengobatan!");
+      setLoading(false);
       getPengobatanData();
     } catch (error) {
       console.error("Gagal menambahkan data pengobatan:", error);
@@ -274,12 +292,14 @@ const Pengobatan = () => {
 
   const handleEditPengobatanOk = async (values) => {
     setEditPengobatanModalLoading(true);
+    setLoading(true);
     try {
       console.log("Data yang akan diubah:", values);
-      // await editPengobatan(values, currentRowData.idPengobatan);
+      await editPengobatan(values, currentRowData.idPengobatan);
       setEditPengobatanModalVisible(false);
       setEditPengobatanModalLoading(false);
       message.success("Berhasil mengubah data pengobatan!");
+      setLoading(false);
       getPengobatanData();
     } catch (error) {
       console.error("Gagal mengubah data pengobatan:", error);
@@ -296,9 +316,11 @@ const Pengobatan = () => {
       okType: "danger",
       cancelText: "Tidak",
       onOk: async () => {
+        setLoading(true);
         try {
           await deletePengobatan({ idPengobatan });
           message.success("Berhasil menghapus data pengobatan!");
+          setLoading(false);
           getPengobatanData();
         } catch (error) {
           console.error("Gagal menghapus data pengobatan:", error);
@@ -471,6 +493,7 @@ const Pengobatan = () => {
       }
 
       // Send bulk data to server
+      setLoading(true);
       try {
         await sendPetugasImport(petugasPengobatan);
         await sendPengobatanImport(pengobatan);
@@ -484,6 +507,8 @@ const Pengobatan = () => {
 
       if (errorCount === 0) {
         message.success(`Semua data berhasil disimpan.`);
+        setLoading(false);
+        getPengobatanData();
       } else {
         message.error(
           `${errorCount} data gagal disimpan karena duplikasi data!`
@@ -612,36 +637,170 @@ const Pengobatan = () => {
     link.click();
   };
 
+  const getColumnSearchProps = (dataIndex, nestedPath) => ({
+    filterDropdown: ({
+      setSelectedKeys,
+      selectedKeys,
+      confirm,
+      clearFilters,
+      close,
+    }) => (
+      <div style={{ padding: 8 }} onKeyDown={(e) => e.stopPropagation()}>
+        <Input
+          ref={searchInput}
+          placeholder={`Search ${dataIndex}`}
+          value={selectedKeys[0]}
+          onChange={(e) =>
+            setSelectedKeys(e.target.value ? [e.target.value] : [])
+          }
+          onPressEnter={() =>
+            handleSearchTable(selectedKeys, confirm, dataIndex)
+          }
+          style={{ marginBottom: 8, display: "block" }}
+        />
+        <Space>
+          <Button
+            type="primary"
+            onClick={() => handleSearchTable(selectedKeys, confirm, dataIndex)}
+            icon={<SearchOutlined />}
+            size="small"
+            style={{ width: 90 }}
+          >
+            Search
+          </Button>
+          <Button
+            onClick={() => clearFilters && handleReset(clearFilters)}
+            size="small"
+            style={{ width: 90 }}
+          >
+            Reset
+          </Button>
+          <Button
+            type="link"
+            size="small"
+            onClick={() => {
+              confirm({ closeDropdown: false });
+              setSearchText(selectedKeys[0]);
+              setSearchedColumn(dataIndex);
+            }}
+          >
+            Filter
+          </Button>
+          <Button type="link" size="small" onClick={() => close()}>
+            Close
+          </Button>
+        </Space>
+      </div>
+    ),
+    filterIcon: (filtered) => (
+      <SearchOutlined style={{ color: filtered ? "#1677ff" : undefined }} />
+    ),
+    onFilter: (value, record) => {
+      if (nestedPath) {
+        const nestedValue = nestedPath
+          .split(".")
+          .reduce((obj, key) => obj?.[key], record);
+        return nestedValue
+          ?.toString()
+          .toLowerCase()
+          .includes(value.toLowerCase());
+      }
+      return record[dataIndex]
+        ?.toString()
+        .toLowerCase()
+        .includes(value.toLowerCase());
+    },
+    filterDropdownProps: {
+      onOpenChange(open) {
+        if (open) setTimeout(() => searchInput.current?.select(), 100);
+      },
+    },
+    render: (text) =>
+      searchedColumn === dataIndex ? (
+        <Highlighter
+          highlightStyle={{ backgroundColor: "#ffc069", padding: 0 }}
+          searchWords={[searchText]}
+          autoEscape
+          textToHighlight={text?.toString() || ""}
+        />
+      ) : (
+        text
+      ),
+  });
+
   const renderColumns = () => {
     const baseColumns = [
-      { title: "ID Kasus", dataIndex: "idKasus", key: "idKasus" },
+      {
+        title: "ID Kasus",
+        dataIndex: "idKasus",
+        key: "idKasus",
+        ...getColumnSearchProps("idKasus"),
+        sorter: (a, b) => a.idKasus.localeCompare(b.idKasus),
+      },
       {
         title: "Tanggal Pengobatan",
         dataIndex: "tanggalPengobatan",
         key: "tanggalPengobatan",
+        ...getColumnSearchProps("tanggalPengobatan"),
+        sorter: (a, b) =>
+          new Date(a.tanggalPengobatan) - new Date(b.tanggalPengobatan),
       },
       {
         title: "Tanggal Kasus",
         dataIndex: "tanggalKasus",
         key: "tanggalKasus",
+        ...getColumnSearchProps("tanggalKasus"),
+        sorter: (a, b) => new Date(a.tanggalKasus) - new Date(b.tanggalKasus),
       },
       {
         title: "Nama Infrastruktur",
         dataIndex: "namaInfrastruktur",
         key: "namaInfrastruktur",
+        ...getColumnSearchProps("namaInfrastruktur"),
+        sorter: (a, b) =>
+          a.namaInfrastruktur.localeCompare(b.namaInfrastruktur),
       },
-      { title: "Lokasi", dataIndex: "lokasi", key: "lokasi" },
-      { title: "Dosis", dataIndex: "dosis", key: "dosis" },
-      { title: "Tanda atau Sindrom", dataIndex: "sindrom", key: "sindrom" },
+      {
+        title: "Lokasi",
+        dataIndex: "lokasi",
+        key: "lokasi",
+        ...getColumnSearchProps("lokasi"),
+      },
+      {
+        title: "Dosis",
+        dataIndex: "dosis",
+        key: "dosis",
+        ...getColumnSearchProps("dosis"),
+        sorter: (a, b) => a.dosis.localeCompare(b.dosis),
+      },
+      {
+        title: "Dosis",
+        dataIndex: "dosis",
+        key: "dosis",
+        ...getColumnSearchProps("dosis"),
+        sorter: (a, b) => a.dosis.localeCompare(b.dosis),
+      },
+      {
+        title: "Tanda atau Sindrom",
+        dataIndex: "sindrom",
+        key: "sindrom",
+        ...getColumnSearchProps("sindrom"),
+        sorter: (a, b) => a.sindrom.localeCompare(b.sindrom),
+      },
       {
         title: "Diagnosa Banding",
         dataIndex: "diagnosaBanding",
         key: "diagnosaBanding",
+        ...getColumnSearchProps("diagnosaBanding"),
+        sorter: (a, b) => a.diagnosaBanding.localeCompare(b.diagnosaBanding),
       },
       {
         title: "Petugas",
         dataIndex: ["petugas", "namaPetugas"],
         key: "namaPetugas",
+        ...getColumnSearchProps("namaPetugas", "petugas.namaPetugas"),
+        sorter: (a, b) =>
+          a.petugas.namaPetugas.localeCompare(b.petugas.namaPetugas),
       },
     ];
 
@@ -752,7 +911,7 @@ const Pengobatan = () => {
         <Input
           placeholder="Cari data"
           value={searchKeyword}
-          onChange={(e) => handleSearch(e.target.value)}
+          onChange={(e) => handleSearchTable(e.target.value)}
           style={{ width: 235, marginLeft: 10 }}
         />
       </Col>
@@ -766,9 +925,15 @@ const Pengobatan = () => {
         source="Di sini, Anda dapat mengelola daftar pengobatan di sistem."
       />
       <br />
-      <Card title={title} style={{ overflowX: "scroll" }}>
-        {renderTable()}
-      </Card>
+      {loading ? (
+        <Card>
+          <Skeleton active paragraph={{ rows: 10 }} />
+        </Card>
+      ) : (
+        <Card title={title} style={{ overflowX: "scroll" }}>
+          {renderTable()}
+        </Card>
+      )}
 
       <EditPengobatanForm
         currentRowData={currentRowData}

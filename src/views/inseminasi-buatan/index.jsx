@@ -1,4 +1,3 @@
-/* eslint-disable no-constant-condition */
 /* eslint-disable no-unused-vars */
 // import { Component, useState, useRef } from "react";
 import {
@@ -12,6 +11,7 @@ import {
   Modal,
   Upload,
   Input,
+  Space,
 } from "antd";
 import { getPeternaks } from "@/api/peternak";
 import {
@@ -35,6 +35,7 @@ import {
   EditOutlined,
   DeleteOutlined,
   DownloadOutlined,
+  SearchOutlined,
 } from "@ant-design/icons";
 import { read, utils } from "xlsx";
 import AddInseminasiBuatanForm from "./forms/add-inseminasi-form";
@@ -43,6 +44,8 @@ import TypingCard from "@/components/TypingCard";
 import React, { useEffect, useRef, useState } from "react";
 import { reqUserInfo } from "../../api/user";
 import { v4 as uuidv4 } from "uuid";
+import { Skeleton } from "antd";
+import Highlighter from "react-highlight-words";
 import { data } from "react-router-dom";
 
 const sendPetugasBulkData = async (data, batchSize = 7000) => {
@@ -263,7 +266,11 @@ const InseminasiBuatan = () => {
   const [columnMapping, setColumnMapping] = useState({});
   const [searchKeyword, setSearchKeyword] = useState("");
   const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [searchText, setSearchText] = useState("");
+  const [searchedColumn, setSearchedColumn] = useState("");
 
+  const searchInput = useRef(null);
   const editInseminasiFormRef = useRef(null);
   const addInseminasiFormRef = useRef(null);
 
@@ -289,44 +296,58 @@ const InseminasiBuatan = () => {
   }, []);
 
   const getInseminasisData = async () => {
+    setLoading(true);
     try {
       const result = await getInseminasis();
       const { content, statusCode } = result.data;
 
       if (statusCode === 200) {
-        const filteredInseminasi = content.filter((inseminasi) => {
-          const {
-            idInseminasi,
-            idPeternak,
-            namaPeternak,
-            kodeEartagNasional,
-            idPejantan,
-            idPembuatan,
-            bangsaPejantan,
-            produsen,
-            inseminator,
-            lokasi,
-          } = inseminasi;
-          const keyword = searchKeyword.toLowerCase();
+        const filteredInseminasi = content
+          .filter((inseminasi) => {
+            const {
+              idInseminasi,
+              tanggalIB,
+              idPeternak,
+              namaPeternak,
+              kodeEartagNasional,
+              idPejantan,
+              idPembuatan,
+              bangsaPejantan,
+              produsen,
+              inseminator,
+              lokasi,
+              idKandang,
+              namaKandang,
+            } = inseminasi;
+            const keyword = searchKeyword.toLowerCase();
 
-          return (
-            idInseminasi?.toLowerCase().includes(keyword) ||
-            idPeternak?.toLowerCase().includes(keyword) ||
-            namaPeternak?.toLowerCase().includes(keyword) ||
-            kodeEartagNasional?.toLowerCase().includes(keyword) ||
-            idPejantan?.toLowerCase().includes(keyword) ||
-            idPembuatan?.toLowerCase().includes(keyword) ||
-            bangsaPejantan?.toLowerCase().includes(keyword) ||
-            produsen?.toLowerCase().includes(keyword) ||
-            inseminator?.toLowerCase().includes(keyword) ||
-            lokasi?.toLowerCase().includes(keyword)
+            return (
+              idInseminasi?.toLowerCase().includes(keyword) ||
+              tanggalIB?.toLowerCase().includes(keyword) ||
+              idPeternak?.toLowerCase().includes(keyword) ||
+              namaPeternak?.toLowerCase().includes(keyword) ||
+              kodeEartagNasional?.toLowerCase().includes(keyword) ||
+              idPejantan?.toLowerCase().includes(keyword) ||
+              idPembuatan?.toLowerCase().includes(keyword) ||
+              bangsaPejantan?.toLowerCase().includes(keyword) ||
+              produsen?.toLowerCase().includes(keyword) ||
+              inseminator?.toLowerCase().includes(keyword) ||
+              idKandang?.toLowerCase().includes(keyword) ||
+              namaKandang?.toLowerCase().includes(keyword) ||
+              lokasi?.toLowerCase().includes(keyword)
+            );
+          })
+          .sort(
+            (a, b) =>
+              new Date(b.tanggalIB).getTime() - new Date(a.tanggalIB).getTime()
           );
-        });
 
         setInseminasis(filteredInseminasi);
       }
     } catch (error) {
       console.error("Failed to fetch inseminasis:", error);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -368,6 +389,16 @@ const InseminasiBuatan = () => {
     }
   };
 
+  const handleSearchTable = (selectedKeys, confirm, dataIndex) => {
+    confirm();
+    setSearchText(selectedKeys[0]);
+    setSearchedColumn(dataIndex);
+  };
+  const handleReset = (clearFilters) => {
+    clearFilters();
+    setSearchText("");
+  };
+
   const handleSearch = (keyword) => {
     setSearchKeyword(keyword);
     getInseminasisData();
@@ -379,12 +410,14 @@ const InseminasiBuatan = () => {
 
   const handleAddInseminasiOk = async (values) => {
     setAddInseminasiModalLoading(true);
+    setLoading(true);
     try {
       console.log("Data Inseminasi:", values);
       await addInseminasi(values);
       setAddInseminasiModalVisible(false);
       setAddInseminasiModalLoading(false);
       message.success("Berhasil menambahkan!");
+      setLoading(false);
       getInseminasisData();
     } catch (e) {
       setAddInseminasiModalLoading(false);
@@ -399,12 +432,14 @@ const InseminasiBuatan = () => {
 
   const handleEditInseminasiOk = async (values) => {
     setEditInseminasiModalLoading(true);
+    setLoading(true);
     try {
       console.log("Data Inseminasi:", values);
       await editInseminasi(values, currentRowData.idInseminasi);
       setEditInseminasiModalVisible(false);
       setEditInseminasiModalLoading(false);
       message.success("Berhasil diedit!");
+      setLoading(false);
       getInseminasisData();
     } catch (e) {
       setEditInseminasiModalLoading(false);
@@ -421,9 +456,11 @@ const InseminasiBuatan = () => {
       okType: "danger",
       cancelText: "Tidak",
       onOk: async () => {
+        setLoading(true);
         try {
           await deleteInseminasi({ idInseminasi });
           message.success("Berhasil dihapus");
+          setLoading(false);
           getInseminasisData();
         } catch (error) {
           message.error("Gagal menghapus data, harap coba lagi!");
@@ -520,8 +557,6 @@ const InseminasiBuatan = () => {
         const generateIdJenisHewan = uuidv4();
         const generateIdKandang = uuidv4();
 
-        const namaPetugasInseminator = row[columnMapping["Inseminator"]];
-
         const formatDateToString = (dateString) => {
           // Jika data berisi null atau "-", keluarkan "-"
           if (dateString === null || dateString === "-") {
@@ -586,31 +621,30 @@ const InseminasiBuatan = () => {
         };
         // const setEmail =;
 
-        console.log("Row Data:", row);
-
-        if (!uniqueData.has(row[columnMapping["Bangsa Pejantan"]])) {
+        const rumpunHewanUnique = row[columnMapping["Bangsa Pejantan"]];
+        if (!uniqueData.has(rumpunHewanUnique)) {
           const dataRumpunHewan = {
-            idRumpunHewan:
-              row[columnMapping["ID Rumpun Hewan"]] || generateIdRumpunHewan,
+            idRumpunHewan: generateIdRumpunHewan,
             rumpun: row[columnMapping["Bangsa Pejantan"]] || "-",
             deskripsi:
               "Deskripsi " + row[(columnMapping, ["Bangsa Pejantan"])] || "-",
           };
           rumpunHewanBulk.push(dataRumpunHewan);
-          uniqueData.set(row[columnMapping["Bangsa Pejantan"]], true);
+          uniqueData.set(rumpunHewanUnique, dataRumpunHewan);
         }
 
-        if (!uniqueData.has(row[columnMapping["kategori"]])) {
+        const jenisHewanUnique = row[columnMapping["kategori"]];
+        if (!uniqueData.has(jenisHewanUnique)) {
           const dataJenisHewan = {
-            idJenisHewan:
-              row[columnMapping["ID Jenis Hewan"]] || generateIdJenisHewan,
+            idJenisHewan: generateIdJenisHewan,
             jenis: row[columnMapping["kategori"]] || "-",
             deskripsi: "Deskripsi " + row[(columnMapping, ["kategori"])] || "-",
           };
           jenisHewanBulk.push(dataJenisHewan);
-          uniqueData.set(row[columnMapping["kategori"]], true);
+          uniqueData.set(jenisHewanUnique, dataJenisHewan);
         }
 
+        const namaPetugasInseminator = row[columnMapping["Inseminator"]];
         if (!uniqueData.has(namaPetugasInseminator)) {
           const dataPetugas = {
             petugasId: generateIdPetugas,
@@ -624,84 +658,107 @@ const InseminasiBuatan = () => {
           uniqueData.set(namaPetugasInseminator, dataPetugas);
         }
 
-        const dataPeternak = {
-          idPeternak: row[columnMapping["ID Peternak"]] || generateIdPeternak,
-          nikPeternak: cleanNik(row[columnMapping["NIK Peternak"]]) || "-",
-          namaPeternak: row[columnMapping["Nama Peternak"]] || "-",
-          noTelpPeternak: row[columnMapping["No Telp"]] || "-",
-          emailPeternak:
-            validateEmail(row[columnMapping["Email Pemilik Ternak"]]) || "-",
-          idPetugas: uniqueData.get(namaPetugasInseminator).petugasId,
-          nikPetugas: uniqueData.get(namaPetugasInseminator).nikPetugas,
-          namaPetugas: uniqueData.get(namaPetugasInseminator).namaPetugas,
-          alamat: row[columnMapping["Lokasi"]] || "-",
-          dusun: pecahLokasi.dusun,
-          desa: pecahLokasi.desa,
-          kecamatan: pecahLokasi.kecamatan,
-          kabupaten: pecahLokasi.kabupaten,
-          provinsi: pecahLokasi.provinsi,
-          tanggalLahirPeternak: formatDateToString(
-            row[columnMapping["Tanggal Lahir Pemilik Ternak"]] || "-"
-          ),
-          latitude: row[columnMapping["latitude"]] || "-",
-          longitude: row[columnMapping["longitude"]] || "-",
-          idIsikhnas: row[columnMapping["ID Isikhnas*)"]] || "-",
-          jenisKelaminPeternak:
-            row[columnMapping["Jenis Kelamin Pemilik Ternak"]] || "-",
-        };
+        const nikDataPeternak = row[columnMapping["NIK Peternak"]]
+          ? cleanNik(row[columnMapping["NIK Peternak"]])
+          : row[columnMapping["ID Peternak"]] || "-";
 
-        const dataKandang = {
-          idKandang: row[columnMapping["ID Kandang"]] || generateIdKandang,
-          peternak_id: dataPeternak.idPeternak,
-          nikPeternak: dataPeternak.nikPeternak,
-          namaPeternak: dataPeternak.namaPeternak,
-          namaKandang: `Kandang ${dataPeternak.namaPeternak}`,
-          alamat: row[columnMapping["Alamat Kandang**)"]] || "-",
-          luas: row[columnMapping["Luas Kandang*)"]] || "_",
-          kapasitas: row[columnMapping["Kapasitas Kandang*)"]] || "_",
-          nilaiBangunan: row[columnMapping["Nilai Bangunan*)"]] || "_",
-          jenisKandang: generateJenisKandang(
-            row[columnMapping["Jenis Kandang"]]
-          ),
-          latitude: row[columnMapping["latitude"]] || "-",
-          longitude: row[columnMapping["longitude"]] || "-",
-        };
+        const namaPemilikTernak = row[columnMapping["Nama Peternak"]];
+        if (!uniqueData.has(namaPemilikTernak)) {
+          const dataPeternak = {
+            idPeternak: generateIdPeternak,
+            nikPeternak: nikDataPeternak,
+            namaPeternak: row[columnMapping["Nama Peternak"]] || "-",
+            noTelpPeternak: row[columnMapping["No Telp"]] || "-",
+            emailPeternak:
+              validateEmail(row[columnMapping["Email Pemilik Ternak"]]) || "-",
+            idPetugas: uniqueData.get(namaPetugasInseminator).petugasId,
+            nikPetugas: uniqueData.get(namaPetugasInseminator).nikPetugas,
+            namaPetugas: uniqueData.get(namaPetugasInseminator).namaPetugas,
+            alamat: row[columnMapping["Lokasi"]] || "-",
+            dusun: pecahLokasi.dusun,
+            desa: pecahLokasi.desa,
+            kecamatan: pecahLokasi.kecamatan,
+            kabupaten: pecahLokasi.kabupaten,
+            provinsi: pecahLokasi.provinsi,
+            tanggalLahirPeternak: formatDateToString(
+              row[columnMapping["Tanggal Lahir Pemilik Ternak"]] || "-"
+            ),
+            latitude: row[columnMapping["latitude"]] || "-",
+            longitude: row[columnMapping["longitude"]] || "-",
+            idIsikhnas: row[columnMapping["ID Isikhnas*)"]] || "-",
+            jenisKelaminPeternak:
+              row[columnMapping["Jenis Kelamin Pemilik Ternak"]] || "-",
+          };
+          peternakBulk.push(dataPeternak);
+          uniqueData.set(namaPemilikTernak, dataPeternak);
+        }
+
+        const namaKandang = `Kandang ${
+          uniqueData.get(jenisHewanUnique).jenis
+        } - ${
+          row[columnMapping["Nama Kandang"]] ||
+          uniqueData.get(namaPemilikTernak).namaPeternak
+        }`;
+        if (!uniqueData.has(namaKandang)) {
+          const dataKandang = {
+            idKandang: generateIdKandang,
+            jenis: uniqueData.get(jenisHewanUnique).jenis,
+            idPeternak: uniqueData.get(namaPemilikTernak).idPeternak,
+            nikPeternak: uniqueData.get(namaPemilikTernak).nikPeternak,
+            namaPeternak: uniqueData.get(namaPemilikTernak).namaPeternak,
+            namaKandang: namaKandang,
+            alamat: row[columnMapping["Alamat Kandang"]] || "-",
+            luas: row[columnMapping["Luas Kandang"]] || "-",
+            kapasitas: row[columnMapping["Kapasitas Kandang"]] || "-",
+            nilaiBangunan: row[columnMapping["Nilai Bangunan"]] || "-",
+            jenisKandang: generateJenisKandang(
+              row[columnMapping["Jenis Kandang*)"]]
+            ),
+            latitude: row[columnMapping["latitude"]] || "-",
+            longitude: row[columnMapping["longitude"]] || "-",
+          };
+          kandangBulk.push(dataKandang);
+          uniqueData.set(namaKandang, dataKandang);
+        }
 
         const dataTernakHewan = {
-          idHewan: row[columnMapping["ID Hewan"]] || generateIdHewan,
+          idHewan: generateIdHewan,
           kodeEartagNasional: row[columnMapping["eartag"]] || "-",
-          noKartuTernak: row[columnMapping["kartu ternak induk"]] || "_",
+          noKartuTernak:
+            row[columnMapping["No Kartu Ternak"]] ||
+            row[columnMapping["ID Hewan"]] ||
+            "_",
           idIsikhnasTernak: row[columnMapping["IdIsikhnas"]] || "_",
-          sex: row[columnMapping["Jenis Kelamin**)"]] || "_",
+          sex: row[columnMapping["Jenis Kelamin"]] || "_",
           tempatLahir: row[columnMapping["Tempat Lahir Ternak"]] || "_",
           umur: row[columnMapping["Umur"]] || "_",
           identifikasiHewan:
             row[columnMapping["Identifikasi Hewan*"]] ||
             row[columnMapping["Identifikasi Hewan"]] ||
             "_",
+          tanggalLahir: formatDateToString(
+            row[columnMapping["Tanggal Lahir Ternak**)"]] || "-"
+          ),
           tanggalTerdaftar: formatDateToString(
             row[columnMapping["Tanggal Pendataan"]] || "-"
           ),
           idPetugas: uniqueData.get(namaPetugasInseminator).petugasId,
           nikPetugas: uniqueData.get(namaPetugasInseminator).nikPetugas,
           namaPetugas: uniqueData.get(namaPetugasInseminator).namaPetugas,
-          tanggalLahir: formatDateToString(
-            row[columnMapping["Tanggal Lahir Ternak**)"]] || "-"
-          ),
-          nikPeternak: dataPeternak.nikPeternak,
-          idKandang: dataKandang.idKandang,
-          namaKandang: dataKandang.namaKandang,
-          jenis: row[columnMapping["kategori"]] || "-",
-          rumpun: row[columnMapping["Bangsa Pejantan"]] || "-",
-          idPeternak: dataPeternak.idPeternak,
-          namaPeternak: dataPeternak.namaPeternak,
+          idKandang: uniqueData.get(namaKandang).idKandang,
+          namaKandang: uniqueData.get(namaKandang).namaKandang,
+          jenis: uniqueData.get(jenisHewanUnique).jenis,
+          rumpun: uniqueData.get(rumpunHewanUnique).rumpun,
+          idPeternak: uniqueData.get(namaPemilikTernak).idPeternak,
+          namaPeternak: uniqueData.get(namaPemilikTernak).namaPeternak,
+          nikPeternak: uniqueData.get(namaPemilikTernak).nikPeternak,
           tujuanPemeliharaan:
             row[columnMapping["Tujuan Pemeliharaan Ternak"]] || "-",
         };
 
         // data inseminasi
         const dataInseminasi = {
-          idInseminasi: row[columnMapping["ID"]] || generateIdInseminasi,
+          idInseminasi: generateIdInseminasi,
           tanggalIB:
             formatDateToString(row[columnMapping["Tanggal IB"]]) || "-",
           ib1: row[columnMapping["IB 1"]] || "-",
@@ -711,17 +768,17 @@ const InseminasiBuatan = () => {
           idPejantan: row[columnMapping["ID Pejantan"]] || "-",
           produsen: row[columnMapping["Produsen"]] || "-",
           idPembuatan: row[columnMapping["ID Pembuatan"]] || "-",
-          namaPeternak: dataPeternak.namaPeternak,
-          idPeternak: dataPeternak.idPeternak,
-          nikPeternak: dataPeternak.nikPeternak,
+          bangsaPejantan: row[columnMapping["Bangsa Pejantan"]] || "-",
+          namaPeternak: uniqueData.get(namaPemilikTernak).namaPeternak,
+          idPeternak: uniqueData.get(namaPemilikTernak).idPeternak,
+          nikPeternak: uniqueData.get(namaPemilikTernak).nikPeternak,
           idHewan: dataTernakHewan.idHewan,
           kodeEartagNasional: dataTernakHewan.kodeEartagNasional,
-          bangsaPejantan: row[columnMapping["Bangsa Pejantan"]] || "-",
           idPetugas: uniqueData.get(namaPetugasInseminator).petugasId,
           namaPetugas: uniqueData.get(namaPetugasInseminator).namaPetugas,
           nikPetugas: uniqueData.get(namaPetugasInseminator).nikPetugas,
-          idKandang: dataKandang.idKandang,
-          namaKandang: dataKandang.namaKandang,
+          idKandang: uniqueData.get(namaKandang).idKandang,
+          namaKandang: uniqueData.get(namaKandang).namaKandang,
           rumpun: dataTernakHewan.rumpun,
           jenis: dataTernakHewan.jenis,
         };
@@ -729,13 +786,12 @@ const InseminasiBuatan = () => {
         console.log("Data Inseminasi:", dataInseminasi);
 
         // petugasInseminasi.push(dataPetugas);
-        peternakBulk.push(dataPeternak);
-        kandangBulk.push(dataKandang);
         ternakHewanBulk.push(dataTernakHewan);
         inseminasiBuatan.push(dataInseminasi);
       }
 
       // Send bulk data to server
+      setLoading(true);
       try {
         await sendJenisHewanBulkData(jenisHewanBulk);
         await sendRumpunHewanBulkData(rumpunHewanBulk);
@@ -754,6 +810,8 @@ const InseminasiBuatan = () => {
 
       if (errorCount === 0) {
         message.success(`Semua data berhasil disimpan.`);
+        setLoading(false);
+        getInseminasisData();
       } else {
         message.error(
           `${errorCount} data gagal disimpan karena duplikasi data!`
@@ -778,34 +836,38 @@ const InseminasiBuatan = () => {
     const columnTitlesLocal = [
       "No",
       "Tanggal IB",
-      "Lokasi",
-      "Nama Peternak",
-      "eartag",
       "IB 1",
       "IB 2",
       "IB 3",
-      "IB lain",
+      "IB Lain",
       "ID Pejantan",
       "ID Pembuatan",
-      "Bangsa Pejantan",
       "Produsen",
+      "Bangsa Pejantan",
+      "Kode Eartag",
+      "No Kartu Ternak",
       "Inseminator",
+      "Nama Peternak",
+      "Nama Kandang",
+      "Kategori",
     ];
     const exampleRow = [
       "1",
       "Contoh 1/5/2023",
-      "Contoh Jawa Timur, Lumajang, Yosowilangun, Krai",
-      "Contoh Abdila",
-      "Contoh AAA350001317276",
+      "Contoh -",
       "Contoh 1",
-      "Contoh 1",
-      "Contoh 1",
-      "Contoh 1",
-      "Contoh 617114",
-      "Contoh UU1208",
-      "Contoh sapi simental",
+      "Contoh -",
+      "Contoh -",
+      "Contoh 51244",
+      "Contoh UU7221",
       "Contoh BBIB Singosari",
-      "Contoh Seto Adjukri",
+      "Contoh Sapi Limousin",
+      "Contoh AA532638235",
+      "Contoh 35346",
+      "Contoh Budi",
+      "Contoh Agus",
+      "Contoh Kandang Sapi Perah Agus",
+      "Contoh Sapi Perah",
     ];
 
     // Gabungkan header dan contoh data
@@ -842,36 +904,41 @@ const InseminasiBuatan = () => {
 
   const convertToCSV = (data) => {
     const columnTitles = [
-      "ID Inseminasi",
       "Tanggal IB",
-      "Lokasi",
-      "Nama Peternak",
-      "ID Peternak",
-      "ID Hewan",
-      "Eartag",
-      "IB",
+      "IB 1",
+      "IB 2",
+      "IB 3",
+      "IB Lain",
       "ID Pejantan",
       "ID Pembuatan",
-      "Bangsa Pejantan",
       "Produsen",
+      "Bangsa Pejantan",
+      "Kode Eartag",
+      "No Kartu Ternak",
       "Inseminator",
+      "Nama Peternak",
+      "Nama Kandang",
+      "Kategori",
     ];
 
     const rows = [columnTitles];
     data.forEach((item) => {
       const row = [
-        item.idInseminasi,
-        item.tanggalIB,
-        item.alamat,
-        item.namaPeternak,
-        item.idPeternak,
-        item.kodeEartagNasional,
-        item.ib,
-        item.idPejantan,
-        item.idPembuatan,
-        item.bangsaPejantan,
-        item.produsen,
-        item.inseminator,
+        item.tanggalIB || "-",
+        item.ib1 || "-",
+        item.ib2 || "-",
+        item.ib3 || "-",
+        item.ibLain || "-",
+        item.idPejantan || "-",
+        item.idPembuatan || "-",
+        item.produsen || "-",
+        item.bangsaPejantan || "-",
+        item.hewan?.kodeEartagNasional || "-",
+        item.hewan?.noKartuTernak || "-",
+        item.petugas?.namaPetugas || "-",
+        item.peternak?.namaPeternak || "-",
+        item.kandang?.namaKandang || "-",
+        item.jenisHewan?.jenis || "-",
       ];
       rows.push(row);
     });
@@ -895,24 +962,105 @@ const InseminasiBuatan = () => {
     link.click();
   };
 
+  const getColumnSearchProps = (dataIndex, nestedPath) => ({
+    filterDropdown: ({
+      setSelectedKeys,
+      selectedKeys,
+      confirm,
+      clearFilters,
+      close,
+    }) => (
+      <div style={{ padding: 8 }} onKeyDown={(e) => e.stopPropagation()}>
+        <Input
+          ref={searchInput}
+          placeholder={`Search ${dataIndex}`}
+          value={selectedKeys[0]}
+          onChange={(e) =>
+            setSelectedKeys(e.target.value ? [e.target.value] : [])
+          }
+          onPressEnter={() =>
+            handleSearchTable(selectedKeys, confirm, dataIndex)
+          }
+          style={{ marginBottom: 8, display: "block" }}
+        />
+        <Space>
+          <Button
+            type="primary"
+            onClick={() => handleSearchTable(selectedKeys, confirm, dataIndex)}
+            icon={<SearchOutlined />}
+            size="small"
+            style={{ width: 90 }}
+          >
+            Search
+          </Button>
+          <Button
+            onClick={() => clearFilters && handleReset(clearFilters)}
+            size="small"
+            style={{ width: 90 }}
+          >
+            Reset
+          </Button>
+          <Button
+            type="link"
+            size="small"
+            onClick={() => {
+              confirm({ closeDropdown: false });
+              setSearchText(selectedKeys[0]);
+              setSearchedColumn(dataIndex);
+            }}
+          >
+            Filter
+          </Button>
+          <Button type="link" size="small" onClick={() => close()}>
+            Close
+          </Button>
+        </Space>
+      </div>
+    ),
+    filterIcon: (filtered) => (
+      <SearchOutlined style={{ color: filtered ? "#1677ff" : undefined }} />
+    ),
+    onFilter: (value, record) => {
+      if (nestedPath) {
+        const nestedValue = nestedPath
+          .split(".")
+          .reduce((obj, key) => obj?.[key], record);
+        return nestedValue
+          ?.toString()
+          .toLowerCase()
+          .includes(value.toLowerCase());
+      }
+      return record[dataIndex]
+        ?.toString()
+        .toLowerCase()
+        .includes(value.toLowerCase());
+    },
+    filterDropdownProps: {
+      onOpenChange(open) {
+        if (open) setTimeout(() => searchInput.current?.select(), 100);
+      },
+    },
+    render: (text) =>
+      searchedColumn === dataIndex ? (
+        <Highlighter
+          highlightStyle={{ backgroundColor: "#ffc069", padding: 0 }}
+          searchWords={[searchText]}
+          autoEscape
+          textToHighlight={text?.toString() || ""}
+        />
+      ) : (
+        text
+      ),
+  });
+
   const renderColumns = () => {
     const baseColumns = [
       {
-        title: "ID Inseminasi",
-        dataIndex: "idInseminasi",
-        key: "idInseminasi",
-      },
-      { title: "Tanggal IB", dataIndex: "tanggalIB", key: "tanggalIB" },
-      {
-        title: "Nama Peternak",
-        dataIndex: ["peternak", "namaPeternak"],
-        key: "namaPeternak",
-      },
-      { title: "Alamat", dataIndex: ["peternak", "alamat"], key: "alamat" },
-      {
-        title: "Kode Eartag",
-        dataIndex: ["hewan", "kodeEartagNasional"],
-        key: "kodeEartagNasional",
+        title: "Tanggal IB",
+        dataIndex: "tanggalIB",
+        key: "tanggalIB",
+        ...getColumnSearchProps("tanggalIB"),
+        sorter: (a, b) => new Date(a.tanggalIB) - new Date(b.tanggalIB),
       },
       {
         title: "IB",
@@ -925,18 +1073,81 @@ const InseminasiBuatan = () => {
           return "-"; // Default jika tidak ada data
         },
       },
-      { title: "ID Pejantan", dataIndex: "idPejantan", key: "idPejantan" },
-      { title: "ID Pembuatan", dataIndex: "idPembuatan", key: "idPembuatan" },
+      {
+        title: "ID Pejantan",
+        dataIndex: "idPejantan",
+        key: "idPejantan",
+        ...getColumnSearchProps("idPejantan"),
+        sorter: (a, b) => a.idPejantan.localeCompare(b.idPejantan),
+      },
+      {
+        title: "ID Pembuatan",
+        dataIndex: "idPembuatan",
+        key: "idPembuatan",
+        ...getColumnSearchProps("idPembuatan"),
+        sorter: (a, b) => a.idPembuatan.localeCompare(b.idPembuatan),
+      },
+      {
+        title: "Produsen",
+        dataIndex: "produsen",
+        key: "produsen",
+        ...getColumnSearchProps("produsen"),
+        sorter: (a, b) => a.produsen.localeCompare(b.produsen),
+      },
       {
         title: "Bangsa Pejantan",
         dataIndex: ["rumpunHewan", "rumpun"],
         key: "rumpun",
+        ...getColumnSearchProps("rumpunHewan.rumpun"),
+        sorter: (a, b) =>
+          a.rumpunHewan.rumpun.localeCompare(b.rumpunHewan.rumpun),
       },
-      { title: "Produsen", dataIndex: "produsen", key: "produsen" },
+      {
+        title: "Kode Eartag",
+        dataIndex: ["hewan", "kodeEartagNasional"],
+        key: "kodeEartagNasional",
+        ...getColumnSearchProps("hewan.kodeEartagNasional"),
+        sorter: (a, b) =>
+          a.hewan.kodeEartagNasional.localeCompare(b.hewan.kodeEartagNasional),
+      },
+      {
+        title: "No Kartu Ternak",
+        dataIndex: ["hewan", "noKartuTernak"],
+        key: "noKartuTernak",
+        ...getColumnSearchProps("hewan.noKartuTernak"),
+        sorter: (a, b) =>
+          a.hewan.noKartuTernak.localeCompare(b.hewan.noKartuTernak),
+      },
       {
         title: "Inseminator",
         dataIndex: ["petugas", "namaPetugas"],
         key: "inseminator",
+        ...getColumnSearchProps("petugas.namaPetugas"),
+        sorter: (a, b) =>
+          a.petugas.namaPetugas.localeCompare(b.petugas.namaPetugas),
+      },
+      {
+        title: "Nama Peternak",
+        dataIndex: ["peternak", "namaPeternak"],
+        key: "namaPeternak",
+        ...getColumnSearchProps("peternak.namaPeternak"),
+        sorter: (a, b) =>
+          a.peternak.namaPeternak.localeCompare(b.peternak.namaPeternak),
+      },
+      {
+        title: "Nama Kandang",
+        dataIndex: ["kandang", "namaKandang"],
+        key: "namaKandang",
+        ...getColumnSearchProps("kandang.namaKandang"),
+        sorter: (a, b) =>
+          a.kandang.namaKandang.localeCompare(b.kandang.namaKandang),
+      },
+      {
+        title: "Kategori",
+        dataIndex: ["jenisHewan", "jenis"],
+        key: "jenis",
+        ...getColumnSearchProps("jenisHewan.jenis"),
+        sorter: (a, b) => a.jenisHewan.jenis.localeCompare(b.jenisHewan.jenis),
       },
     ];
 
@@ -1069,9 +1280,15 @@ const InseminasiBuatan = () => {
         source="Di sini, Anda dapat mengelola daftar inseminasi di sistem."
       />
       <br />
-      <Card title={title} style={{ overflowX: "scroll" }}>
-        {renderTable()}
-      </Card>
+      {loading ? (
+        <Card>
+          <Skeleton active paragraph={{ rows: 10 }} />
+        </Card>
+      ) : (
+        <Card title={title} style={{ overflowX: "scroll" }}>
+          {renderTable()}
+        </Card>
+      )}
 
       <EditInseminasiBuatanForm
         currentRowData={currentRowData}

@@ -11,6 +11,7 @@ import {
   Modal,
   Upload,
   Input,
+  Space,
 } from "antd";
 import {
   getPkb,
@@ -34,6 +35,7 @@ import {
   UploadOutlined,
   EditOutlined,
   DeleteOutlined,
+  SearchOutlined,
 } from "@ant-design/icons";
 import { read, utils } from "xlsx";
 import TypingCard from "@/components/TypingCard";
@@ -42,6 +44,8 @@ import AddPkbForm from "./forms/add-pkb-form";
 import { reqUserInfo } from "../../api/user";
 import { v4 as uuidv4 } from "uuid";
 import { getPeternaks } from "../../api/peternak";
+import { Skeleton } from "antd";
+import Highlighter from "react-highlight-words";
 import { data } from "react-router-dom";
 import { set } from "nprogress";
 
@@ -258,7 +262,11 @@ const Pkb = () => {
   const [columnMapping, setColumnMapping] = useState({});
   const [searchKeyword, setSearchKeyword] = useState("");
   const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [searchText, setSearchText] = useState("");
+  const [searchedColumn, setSearchedColumn] = useState("");
 
+  const searchInput = useRef(null);
   const editPkbFormRef = useRef();
   const addPkbFormRef = useRef();
 
@@ -286,53 +294,63 @@ const Pkb = () => {
   }, []);
 
   const getPkbData = async () => {
+    setLoading(true);
     try {
       const result = await getPkb();
       const { content, statusCode } = result.data;
       if (statusCode === 200) {
-        const filteredPKB = content.filter((pkb) => {
-          const {
-            idKejadian,
-            tanggalPkb,
-            jumlah,
-            umurKebuntingan,
-            idPetugas,
-            idPeternak,
-            idHewan,
-            idKandang,
-            idRumpunHewan,
-            idJenisHewan,
-          } = pkb;
-          const keyword = searchKeyword.toLowerCase();
+        const filteredPKB = content
+          .filter((pkb) => {
+            const {
+              idPkb,
+              idKejadian,
+              tanggalPkb,
+              jumlah,
+              umurKebuntingan,
+              idPetugas,
+              idPeternak,
+              idHewan,
+              idKandang,
+              idRumpunHewan,
+              idJenisHewan,
+            } = pkb;
+            const keyword = searchKeyword.toLowerCase();
 
-          return (
-            (typeof idKejadian === "string" &&
-              idKejadian.toLowerCase().includes(keyword)) ||
-            (typeof tanggalPkb === "string" &&
-              tanggalPkb.toLowerCase().includes(keyword)) ||
-            (typeof jumlah === "string" &&
-              jumlah.toLowerCase().includes(keyword)) ||
-            (typeof umurKebuntingan === "string" &&
-              umurKebuntingan.toLowerCase().includes(keyword)) ||
-            (typeof idPetugas === "string" &&
-              idPetugas.toLowerCase().includes(keyword)) ||
-            (typeof idPeternak === "string" &&
-              idPeternak.toLowerCase().includes(keyword)) ||
-            (typeof idHewan === "string" &&
-              idHewan.toLowerCase().includes(keyword)) ||
-            (typeof idKandang === "string" &&
-              idKandang.toLowerCase().includes(keyword)) ||
-            (typeof idRumpunHewan === "string" &&
-              idRumpunHewan.toLowerCase().includes(keyword)) ||
-            (typeof idJenisHewan === "string" &&
-              idJenisHewan.toLowerCase().includes(keyword))
-          );
-        });
+            return (
+              (typeof idPkb === "string" &&
+                idPkb.toLowerCase().includes(keyword)) ||
+              (typeof idKejadian === "string" &&
+                idKejadian.toLowerCase().includes(keyword)) ||
+              (typeof tanggalPkb === "string" &&
+                tanggalPkb.toLowerCase().includes(keyword)) ||
+              (typeof jumlah === "string" &&
+                jumlah.toLowerCase().includes(keyword)) ||
+              (typeof umurKebuntingan === "string" &&
+                umurKebuntingan.toLowerCase().includes(keyword)) ||
+              (typeof idPetugas === "string" &&
+                idPetugas.toLowerCase().includes(keyword)) ||
+              (typeof idPeternak === "string" &&
+                idPeternak.toLowerCase().includes(keyword)) ||
+              (typeof idHewan === "string" &&
+                idHewan.toLowerCase().includes(keyword)) ||
+              (typeof idKandang === "string" &&
+                idKandang.toLowerCase().includes(keyword)) ||
+              (typeof idRumpunHewan === "string" &&
+                idRumpunHewan.toLowerCase().includes(keyword)) ||
+              (typeof idJenisHewan === "string" &&
+                idJenisHewan.toLowerCase().includes(keyword))
+            );
+          })
+          .sort((a, b) => {
+            return new Date(b.tanggalPkb) - new Date(a.tanggalPkb);
+          });
 
         setPkb(filteredPKB);
       }
     } catch (error) {
       console.error("Failed to fetch data:", error);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -374,10 +392,20 @@ const Pkb = () => {
     }
   };
 
-  const handleSearch = (keyword) => {
-    setSearchKeyword(keyword);
-    getPkbData();
+  const handleSearch = (selectedKeys, confirm, dataIndex) => {
+    confirm();
+    setSearchText(selectedKeys[0]);
+    setSearchedColumn(dataIndex);
   };
+  const handleReset = (clearFilters) => {
+    clearFilters();
+    setSearchText("");
+  };
+
+  // const handleSearch = (keyword) => {
+  //   setSearchKeyword(keyword);
+  //   getPkbData();
+  // };
 
   const handleImportModalOpen = () => {
     setImportModalVisible(true);
@@ -399,12 +427,14 @@ const Pkb = () => {
 
   const handleAddPkbOk = async (values) => {
     setAddPkbModalLoading(true);
+    setLoading(true);
     try {
       console.log("Data yang dikirim:", values);
       await addPkb(values);
       setAddPkbModalVisible(false);
       setAddPkbModalLoading(false);
       message.success("Berhasil menambahkan!");
+      setLoading(false);
       getPkbData();
     } catch (error) {
       console.error("Gagal menambahkan, harap coba lagi!", error);
@@ -419,12 +449,14 @@ const Pkb = () => {
 
   const handleEditPkbOk = async (values) => {
     setEditPkbModalLoading(true);
+    setLoading(true);
     try {
       console.log("Edit pkb values: ", values);
-      await editPkb(values, currentRowData.idKejadian);
+      await editPkb(values, currentRowData.idPkb);
       setEditPkbModalVisible(false);
       setEditPkbModalLoading(false);
       message.success("Berhasil diedit!");
+      setLoading(false);
       getPkbData();
     } catch (error) {
       console.error("Pengeditan gagal, harap coba lagi!", error);
@@ -433,7 +465,7 @@ const Pkb = () => {
   };
 
   const handleDeletePkb = (row) => {
-    const { idKejadian } = row;
+    const { idPkb } = row;
     Modal.confirm({
       title: "Konfirmasi",
       content: "Apakah Anda yakin ingin menghapus data ini?",
@@ -441,9 +473,11 @@ const Pkb = () => {
       okType: "danger",
       cancelText: "Tidak",
       onOk: async () => {
+        setLoading(true);
         try {
-          await deletePkb({ idKejadian });
+          await deletePkb({ idPkb });
           message.success("Berhasil dihapus");
+          setLoading(false);
           getPkbData();
         } catch (error) {
           console.error("Gagal menghapus data:", error);
@@ -519,7 +553,7 @@ const Pkb = () => {
       const kandangBulk = [];
 
       for (const row of importedData) {
-        const generateIdKejadian = uuidv4();
+        const generateIdPkb = uuidv4();
         const generateIdRumpunHewan = uuidv4();
         const generateIdJenisHewan = uuidv4();
         const generateIdHewan = uuidv4();
@@ -588,8 +622,6 @@ const Pkb = () => {
         const generateJenisKandang = (jenisKandang) => {
           return jenisKandang || "Permanen";
         };
-
-        console.log("Row Data:", row);
 
         const rumpunHewanUnique = row[columnMapping["Spesies"]] || "-";
         if (!uniqueData.has(rumpunHewanUnique)) {
@@ -666,23 +698,27 @@ const Pkb = () => {
         const namaKandang = `Kandang ${
           uniqueData.get(jenisHewanUnique).jenis
         } ${uniqueData.get(namaPemilikTernak).namaPeternak}`;
-        const dataKandang = {
-          idKandang: generateIdKandang,
-          jenis: uniqueData.get(jenisHewanUnique).jenis,
-          idPeternak: uniqueData.get(namaPemilikTernak).idPeternak,
-          nikPeternak: uniqueData.get(namaPemilikTernak).nikPeternak,
-          namaPeternak: uniqueData.get(namaPemilikTernak).namaPeternak,
-          namaKandang: namaKandang,
-          alamat: row[columnMapping["Alamat Kandang**)"]] || "-",
-          luas: row[columnMapping["Luas Kandang*)"]] || "-",
-          kapasitas: row[columnMapping["Kapasitas Kandang*)"]] || "-",
-          nilaiBangunan: row[columnMapping["Nilai Bangunan*)"]] || "-",
-          jenisKandang: generateJenisKandang(
-            row[columnMapping["Jenis Kandang*)"]]
-          ),
-          latitude: row[columnMapping["latitude"]] || "-",
-          longitude: row[columnMapping["longitude"]] || "-",
-        };
+        if (!uniqueData.has(namaKandang)) {
+          const dataKandang = {
+            idKandang: generateIdKandang,
+            jenis: uniqueData.get(jenisHewanUnique).jenis,
+            idPeternak: uniqueData.get(namaPemilikTernak).idPeternak,
+            nikPeternak: uniqueData.get(namaPemilikTernak).nikPeternak,
+            namaPeternak: uniqueData.get(namaPemilikTernak).namaPeternak,
+            namaKandang: namaKandang,
+            alamat: row[columnMapping["Alamat Kandang"]] || "-",
+            luas: row[columnMapping["Luas Kandang"]] || "-",
+            kapasitas: row[columnMapping["Kapasitas Kandang"]] || "-",
+            nilaiBangunan: row[columnMapping["Nilai Bangunan"]] || "-",
+            jenisKandang: generateJenisKandang(
+              row[columnMapping["Jenis Kandang"]]
+            ),
+            latitude: row[columnMapping["latitude"]] || "-",
+            longitude: row[columnMapping["longitude"]] || "-",
+          };
+          kandangBulk.push(dataKandang);
+          uniqueData.set(namaKandang, dataKandang);
+        }
 
         const dataTernakHewan = {
           idHewan: generateIdHewan,
@@ -708,8 +744,8 @@ const Pkb = () => {
           idPetugas: uniqueData.get(namaPetugasPemeriksa).petugasId,
           namaPetugas: uniqueData.get(namaPetugasPemeriksa).namaPetugas,
           nikPetugas: uniqueData.get(namaPetugasPemeriksa).nikPetugas,
-          idKandang: dataKandang.idKandang,
-          namaKandang: dataKandang.namaKandang,
+          idKandang: uniqueData.get(namaKandang).idKandang,
+          namaKandang: uniqueData.get(namaKandang).namaKandang,
           jenis: uniqueData.get(jenisHewanUnique).jenis,
           rumpun: uniqueData.get(rumpunHewanUnique).rumpun,
           idPeternak: uniqueData.get(namaPemilikTernak).idPeternak,
@@ -720,31 +756,34 @@ const Pkb = () => {
         };
 
         const dataPkb = {
-          idKejadian: row[columnMapping["ID Kejadian"]],
+          idPkb: generateIdPkb,
+          idKejadian: row[columnMapping["ID Kejadian"]] || "-",
           tanggalPkb:
             formatDateToString(row[columnMapping["Tanggal PKB"]]) || "-",
           jumlah: row[columnMapping["Jumlah"]] || "-",
           umurKebuntingan:
-            row[columnMapping["Umur Kebuntingan saat PKB (bulan)"]] || "-",
+            row[columnMapping["Umur Kebuntingan saat PKB (bulan)"]] ||
+            row[columnMapping["Umur Kebuntingan"]] ||
+            "-",
           idPeternak: uniqueData.get(namaPemilikTernak).idPeternak,
           namaPeternak: uniqueData.get(namaPemilikTernak).namaPeternak,
           nikPeternak: uniqueData.get(namaPemilikTernak).nikPeternak,
           idPetugas: uniqueData.get(namaPetugasPemeriksa).petugasId,
           nikPetugas: uniqueData.get(namaPetugasPemeriksa).nikPetugas,
           namaPetugas: uniqueData.get(namaPetugasPemeriksa).namaPetugas,
-          idKandang: dataKandang.idKandang,
-          namaKandang: dataKandang.namaKandang,
+          idKandang: uniqueData.get(namaKandang).idKandang,
+          namaKandang: uniqueData.get(namaKandang).namaKandang,
           idHewan: dataTernakHewan.idHewan,
           rumpun: uniqueData.get(rumpunHewanUnique).rumpun,
           jenis: uniqueData.get(jenisHewanUnique).jenis,
         };
 
-        kandangBulk.push(dataKandang);
         ternakHewanBulk.push(dataTernakHewan);
         pkb.push(dataPkb);
       }
 
       // Send bulk data to server
+      setLoading(true);
       try {
         await sendJenisHewanBulkData(jenisHewanBulk);
         await sendRumpunHewanBulkData(rumpunHewanBulk);
@@ -763,6 +802,8 @@ const Pkb = () => {
 
       if (errorCount === 0) {
         message.success(`Semua data berhasil disimpan.`);
+        setLoading(false);
+        getPkbData();
       } else {
         message.error(
           `${errorCount} data gagal disimpan karena duplikasi data!`
@@ -787,26 +828,28 @@ const Pkb = () => {
     const columnTitlesLocal = [
       "No",
       "ID Kejadian",
-      "Nama Peternak",
-      "Nik Peternak",
-      "ID Hewan",
-      "Spesies",
-      "kategori",
+      "Tanggal PKB",
       "Jumlah",
       "Umur Kebuntingan saat PKB (bulan)",
+      "Spesies",
+      "kategori",
+      "Nama Peternak",
+      "NIK Peternak",
+      "No Kartu Ternak",
       "Pemeriksa Kebuntingan",
     ];
     const exampleRow = [
       "1",
       "Contoh 78210308",
-      "Contoh Sugi",
-      "Contoh 3508070507040006",
-      "Contoh 090439",
-      "Contoh sapi limosin",
-      "Contoh sapi potong",
+      "COntoh 01/01/2021",
       "Contoh 1",
-      "Contoh 5",
-      "Contoh Irfan Setiyawan P.",
+      "Contoh 2",
+      "Contoh sapi fh",
+      "Contoh sapi",
+      "Contoh Budi",
+      "Contoh 1234567890123456",
+      "Contoh 23532",
+      "Contoh Joko",
     ];
 
     // Gabungkan header dan contoh data
@@ -837,7 +880,7 @@ const Pkb = () => {
   };
 
   const handleExportData = () => {
-    const csvContent = convertDataToCSV();
+    const csvContent = convertDataToCSV(pkb);
     downloadCSV(csvContent);
   };
 
@@ -845,12 +888,13 @@ const Pkb = () => {
     const columnTitles = [
       "ID Kejadian",
       "Tanggal PKB",
-      "Nama Peternak",
-      "No Kartu Ternak",
-      "Species",
-      "Kategori",
       "Jumlah",
       "Umur Kebuntingan",
+      "Species",
+      "Kategori",
+      "Nama Peternak",
+      "NIK Peternak",
+      "No Kartu Ternak",
       "Pemeriksa Kebuntingan",
     ];
 
@@ -860,12 +904,13 @@ const Pkb = () => {
       const rowData = [
         row.idKejadian,
         row.tanggalPkb,
-        row.peternak.namaPeternak,
-        row.hewan.noKartuTernak,
-        row.rumpunHewan.rumpun,
-        row.jenisHewan.jenis,
         row.jumlah,
         row.umurKebuntingan,
+        row.rumpunHewan.rumpun,
+        row.jenisHewan.jenis,
+        row.peternak.namaPeternak,
+        row.peternak.nikPeternak,
+        row.hewan.noKartuTernak,
         row.petugas.namaPetugas,
       ];
       rows.push(rowData);
@@ -885,50 +930,177 @@ const Pkb = () => {
     const encodedUri = encodeURI(csvContent);
     const link = document.createElement("a");
     link.setAttribute("href", encodedUri);
-    link.setAttribute("download", "Hewan.csv");
+    link.setAttribute("download", "PKB.csv");
     document.body.appendChild(link); // Required for Firefox
     link.click();
     document.body.removeChild(link); // Clean up
   };
 
+  const getColumnSearchProps = (dataIndex, nestedPath) => ({
+    filterDropdown: ({
+      setSelectedKeys,
+      selectedKeys,
+      confirm,
+      clearFilters,
+      close,
+    }) => (
+      <div style={{ padding: 8 }} onKeyDown={(e) => e.stopPropagation()}>
+        <Input
+          ref={searchInput}
+          placeholder={`Search ${dataIndex}`}
+          value={selectedKeys[0]}
+          onChange={(e) =>
+            setSelectedKeys(e.target.value ? [e.target.value] : [])
+          }
+          onPressEnter={() => handleSearch(selectedKeys, confirm, dataIndex)}
+          style={{ marginBottom: 8, display: "block" }}
+        />
+        <Space>
+          <Button
+            type="primary"
+            onClick={() => handleSearch(selectedKeys, confirm, dataIndex)}
+            icon={<SearchOutlined />}
+            size="small"
+            style={{ width: 90 }}
+          >
+            Search
+          </Button>
+          <Button
+            onClick={() => clearFilters && handleReset(clearFilters)}
+            size="small"
+            style={{ width: 90 }}
+          >
+            Reset
+          </Button>
+          <Button
+            type="link"
+            size="small"
+            onClick={() => {
+              confirm({ closeDropdown: false });
+              setSearchText(selectedKeys[0]);
+              setSearchedColumn(dataIndex);
+            }}
+          >
+            Filter
+          </Button>
+          <Button type="link" size="small" onClick={() => close()}>
+            Close
+          </Button>
+        </Space>
+      </div>
+    ),
+    filterIcon: (filtered) => (
+      <SearchOutlined style={{ color: filtered ? "#1677ff" : undefined }} />
+    ),
+    onFilter: (value, record) => {
+      if (nestedPath) {
+        const nestedValue = nestedPath
+          .split(".")
+          .reduce((obj, key) => obj?.[key], record);
+        return nestedValue
+          ?.toString()
+          .toLowerCase()
+          .includes(value.toLowerCase());
+      }
+      return record[dataIndex]
+        ?.toString()
+        .toLowerCase()
+        .includes(value.toLowerCase());
+    },
+    filterDropdownProps: {
+      onOpenChange(open) {
+        if (open) setTimeout(() => searchInput.current?.select(), 100);
+      },
+    },
+    render: (text) =>
+      searchedColumn === dataIndex ? (
+        <Highlighter
+          highlightStyle={{ backgroundColor: "#ffc069", padding: 0 }}
+          searchWords={[searchText]}
+          autoEscape
+          textToHighlight={text?.toString() || ""}
+        />
+      ) : (
+        text
+      ),
+  });
+
   const renderColumns = () => {
     const baseColumns = [
-      { title: "ID Kejadian", dataIndex: "idKejadian", key: "idKejadian" },
-      { title: "Tanggal PKB", dataIndex: "tanggalPkb", key: "tanggalPkb" },
       {
-        title: "Nama Peternak",
-        dataIndex: ["peternak", "namaPeternak"],
-        key: "namaPeternak",
+        title: "ID Kejadian",
+        dataIndex: "idKejadian",
+        key: "idKejadian",
+        ...getColumnSearchProps("idKejadian"),
+        sorter: (a, b) => a.idKejadian.localeCompare(b.idKejadian),
       },
       {
-        title: "No Kartu Ternak",
-        dataIndex: ["hewan", "noKartuTernak"],
-        key: "noKartuTernak",
-      },
-      {
-        title: "Species",
-        dataIndex: ["rumpunHewan", "rumpun"],
-        key: "rumpun",
-      },
-      {
-        title: "Kategori",
-        dataIndex: ["jenisHewan", "jenis"],
-        key: "jenis",
+        title: "Tanggal PKB",
+        dataIndex: "tanggalPkb",
+        key: "tanggalPkb",
+        ...getColumnSearchProps("tanggalPkb"),
+        sorter: (a, b) => new Date(a.tanggalPkb) - new Date(b.tanggalPkb),
       },
       {
         title: "Jumlah",
         dataIndex: "jumlah",
         key: "jumlah",
+        ...getColumnSearchProps("jumlah"),
+        sorter: (a, b) => a.jumlah.localeCompare(b.jumlah),
       },
       {
         title: "Umur Kebuntingan",
         dataIndex: "umurKebuntingan",
         key: "umurKebuntingan",
+        ...getColumnSearchProps("umurKebuntingan"),
+        sorter: (a, b) => a.umurKebuntingan.localeCompare(b.umurKebuntingan),
+      },
+      {
+        title: "Species",
+        dataIndex: ["rumpunHewan", "rumpun"],
+        key: "rumpun",
+        ...getColumnSearchProps("rumpun", "rumpunHewan.rumpun"),
+        sorter: (a, b) =>
+          a.rumpunHewan.rumpun.localeCompare(b.rumpunHewan.rumpun),
+      },
+      {
+        title: "Kategori",
+        dataIndex: ["jenisHewan", "jenis"],
+        key: "jenis",
+        ...getColumnSearchProps("jenis", "jenisHewan.jenis"),
+        sorter: (a, b) => a.jenisHewan.jenis.localeCompare(b.jenisHewan.jenis),
+      },
+      {
+        title: "Nama Peternak",
+        dataIndex: ["peternak", "namaPeternak"],
+        key: "namaPeternak",
+        ...getColumnSearchProps("namaPeternak", "peternak.namaPeternak"),
+        sorter: (a, b) =>
+          a.peternak.namaPeternak.localeCompare(b.peternak.namaPeternak),
       },
       {
         title: "Pemeriksa Kebuntingan",
         dataIndex: ["petugas", "namaPetugas"],
         key: "namaPetugas",
+        ...getColumnSearchProps("namaPetugas", "petugas.namaPetugas"),
+        sorter: (a, b) =>
+          a.petugas.namaPetugas.localeCompare(b.petugas.namaPetugas),
+      },
+      {
+        title: "Kartu Ternak",
+        dataIndex: ["hewan", "noKartuTernak"],
+        key: "noKartuTernak",
+        ...getColumnSearchProps("noKartuTernak", "hewan.noKartuTernak"),
+        sorter: (a, b) =>
+          a.hewan.noKartuTernak.localeCompare(b.hewan.noKartuTernak),
+      },
+      {
+        title: "Kandang",
+        dataIndex: ["kandang", "namaKandang"],
+        key: "namaKandang",
+        ...getColumnSearchProps("namaKandang", "kandang.namaKandang"),
+        sorter: (a, b) =>
+          a.kandang.namaKandang.localeCompare(b.kandang.namaKandang),
       },
     ];
 
@@ -971,7 +1143,7 @@ const Pkb = () => {
           dataSource={pkb}
           bordered
           columns={renderColumns()}
-          rowKey="idKejadian"
+          rowKey="idPkb"
         />
       );
     } else if (
@@ -983,7 +1155,7 @@ const Pkb = () => {
           dataSource={pkb}
           bordered
           columns={renderColumns()}
-          rowKey="idKejadian"
+          rowKey="idPkb"
         />
       );
     } else {
@@ -1036,30 +1208,34 @@ const Pkb = () => {
   const title = (
     <Row gutter={[16, 16]} justify="start">
       {renderButtons()}
-      <Col xs={24} sm={12} md={8} lg={8} xl={8}>
+      {/* <Col xs={24} sm={12} md={8} lg={8} xl={8}>
         <Input
           placeholder="Cari data"
           value={searchKeyword}
           onChange={(e) => handleSearch(e.target.value)}
           style={{ width: 235, marginLeft: 10 }}
         />
-      </Col>
+      </Col> */}
     </Row>
   );
 
   return (
     <div className="app-container">
-      {/* TypingCard component */}
-
       <TypingCard
         title="Manajemen PKB"
         source="Di sini, Anda dapat mengelola daftar pkb di sistem."
       />
       <br />
 
-      <Card title={title} style={{ overflowX: "scroll" }}>
-        {renderTable()}
-      </Card>
+      {loading ? (
+        <Card>
+          <Skeleton active paragraph={{ rows: 10 }} />
+        </Card>
+      ) : (
+        <Card title={title} style={{ overflowX: "scroll" }}>
+          {renderTable()}
+        </Card>
+      )}
 
       <EditPkbForm
         currentRowData={currentRowData}
@@ -1077,7 +1253,6 @@ const Pkb = () => {
         onOk={handleAddPkbOk}
       />
 
-      {/* Modal Import */}
       <Modal
         title="Import File"
         open={importModalVisible}

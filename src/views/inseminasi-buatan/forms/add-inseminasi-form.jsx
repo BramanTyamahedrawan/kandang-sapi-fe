@@ -4,6 +4,8 @@ import { Modal, Form, Input, Select, Row, Col } from "antd";
 import { getPetugas } from "@/api/petugas";
 import { getPeternaks } from "@/api/peternak";
 import { getHewans } from "../../../api/hewan";
+import { getKandang } from "@/api/kandang";
+import { getJenisHewan } from "@/api/jenishewan";
 import { getRumpunHewan } from "../../../api/rumpunhewan";
 
 const { Option } = Select;
@@ -18,6 +20,8 @@ const AddInseminasiBuatanForm = ({
   const [petugasList, setPetugasList] = useState([]);
   const [peternakList, setPeternakList] = useState([]);
   const [hewanList, setHewanList] = useState([]);
+  const [kandangList, setKandangList] = useState([]);
+  const [jenisHewanList, setJenisHewanList] = useState([]);
   const [rumpunHewanList, setRumpunHewanList] = useState([]);
 
   useEffect(() => {
@@ -25,6 +29,8 @@ const AddInseminasiBuatanForm = ({
     fetchPeternakList();
     fetchRumpunHewanList();
     fetchHewanList();
+    fetchKandangList();
+    fetchJenisHewanList();
   }, []);
 
   const fetchPetugasList = async () => {
@@ -75,6 +81,30 @@ const AddInseminasiBuatanForm = ({
     }
   };
 
+  const fetchKandangList = async () => {
+    try {
+      const result = await getKandang();
+      const { content, statusCode } = result.data;
+      if (statusCode === 200) {
+        setKandangList(content);
+      }
+    } catch (error) {
+      console.error("Error fetching kandang data:", error);
+    }
+  };
+
+  const fetchJenisHewanList = async () => {
+    try {
+      const result = await getJenisHewan();
+      const { content, statusCode } = result.data;
+      if (statusCode === 200) {
+        setJenisHewanList(content);
+      }
+    } catch (error) {
+      console.error("Error fetching jenis hewan data:", error);
+    }
+  };
+
   const handleSubmit = async () => {
     try {
       const values = await form.validateFields();
@@ -101,34 +131,6 @@ const AddInseminasiBuatanForm = ({
         <Row gutter={16}>
           <Col xs={24} sm={24} md={12}>
             <Form.Item
-              label="ID Inseminasi:"
-              name="idInseminasi"
-              rules={[
-                { required: true, message: "Silahkan isi ID Inseminasi" },
-              ]}
-            >
-              <Input placeholder="Masukkan ID Inseminasi" />
-            </Form.Item>
-          </Col>
-          <Col xs={24} sm={24} md={12}>
-            <Form.Item
-              label="Inseminator:"
-              name="petugasId"
-              rules={[
-                { required: true, message: "Silahkan pilih inseminator" },
-              ]}
-            >
-              <Select placeholder="Pilih Inseminator">
-                {petugasList.map(({ petugasId, namaPetugas }) => (
-                  <Option key={petugasId} value={petugasId}>
-                    {namaPetugas}
-                  </Option>
-                ))}
-              </Select>
-            </Form.Item>
-          </Col>
-          <Col xs={24} sm={24} md={12}>
-            <Form.Item
               label="Produsen:"
               name="produsen"
               initialValue="BBIB Singosari"
@@ -136,40 +138,6 @@ const AddInseminasiBuatanForm = ({
               <Select>
                 <Option value="BBIB Singosari">BBIB Singosari</Option>
                 <Option value="BIB Lembang">BIB Lembang</Option>
-              </Select>
-            </Form.Item>
-          </Col>
-          <Col xs={24} sm={24} md={12}>
-            <Form.Item
-              label="Nama Peternak:"
-              name="idPeternak"
-              rules={[
-                { required: true, message: "Silahkan pilih nama peternak" },
-              ]}
-            >
-              <Select placeholder="Pilih Nama Peternak">
-                {peternakList.map(({ idPeternak, namaPeternak }) => (
-                  <Option key={idPeternak} value={idPeternak}>
-                    {namaPeternak}
-                  </Option>
-                ))}
-              </Select>
-            </Form.Item>
-          </Col>
-          <Col xs={24} sm={24} md={12}>
-            <Form.Item
-              label="Eartag Hewan:"
-              name="idHewan"
-              rules={[
-                { required: true, message: "Silahkan pilih eartag hewan" },
-              ]}
-            >
-              <Select placeholder="Pilih Kode Eartag">
-                {hewanList.map(({ idHewan, kodeEartagNasional }) => (
-                  <Option key={idHewan} value={idHewan}>
-                    {kodeEartagNasional}
-                  </Option>
-                ))}
               </Select>
             </Form.Item>
           </Col>
@@ -217,6 +185,75 @@ const AddInseminasiBuatanForm = ({
           </Col>
           <Col xs={24} sm={24} md={12}>
             <Form.Item
+              label="ID Pembuatan:"
+              name="idPembuatan"
+              rules={[{ required: true, message: "Silahkan isi ID pembuatan" }]}
+            >
+              <Input placeholder="Masukkan ID Pembuatan" />
+            </Form.Item>
+          </Col>
+          <Col xs={24} sm={24} md={12}>
+            <Form.Item
+              label="Tanggal IB:"
+              name="tanggalIB"
+              rules={[{ required: true, message: "Silahkan isi tanggal IB" }]}
+            >
+              <Input type="date" placeholder="Masukkan Tanggal IB" />
+            </Form.Item>
+          </Col>
+          <Col xs={24} sm={24} md={12}>
+            <Form.Item
+              label="Inseminator:"
+              name="petugasId"
+              rules={[
+                { required: true, message: "Silahkan pilih inseminator" },
+              ]}
+            >
+              <Select placeholder="Pilih Inseminator">
+                {petugasList.map(({ petugasId, namaPetugas }) => (
+                  <Option key={petugasId} value={petugasId}>
+                    {namaPetugas}
+                  </Option>
+                ))}
+              </Select>
+            </Form.Item>
+          </Col>
+          <Col xs={24} sm={24} md={12}>
+            <Form.Item
+              label="Nama Peternak:"
+              name="idPeternak"
+              rules={[
+                { required: true, message: "Silahkan pilih nama peternak" },
+              ]}
+            >
+              <Select placeholder="Pilih Nama Peternak">
+                {peternakList.map(({ idPeternak, namaPeternak }) => (
+                  <Option key={idPeternak} value={idPeternak}>
+                    {namaPeternak}
+                  </Option>
+                ))}
+              </Select>
+            </Form.Item>
+          </Col>
+          <Col xs={24} sm={24} md={12}>
+            <Form.Item
+              label="Eartag Hewan:"
+              name="idHewan"
+              rules={[
+                { required: true, message: "Silahkan pilih eartag hewan" },
+              ]}
+            >
+              <Select placeholder="Pilih Kode Eartag">
+                {hewanList.map(({ idHewan, kodeEartagNasional }) => (
+                  <Option key={idHewan} value={idHewan}>
+                    {kodeEartagNasional}
+                  </Option>
+                ))}
+              </Select>
+            </Form.Item>
+          </Col>
+          <Col xs={24} sm={24} md={12}>
+            <Form.Item
               label="Bangsa Pejantan:"
               name="idRumpunHewan"
               rules={[
@@ -251,21 +288,25 @@ const AddInseminasiBuatanForm = ({
             </Form.Item>
           </Col>
           <Col xs={24} sm={24} md={12}>
-            <Form.Item
-              label="ID Pembuatan:"
-              name="idPembuatan"
-              rules={[{ required: true, message: "Silahkan isi ID pembuatan" }]}
-            >
-              <Input placeholder="Masukkan ID Pembuatan" />
+            <Form.Item label="Kandang" name="idKandang">
+              <Select placeholder="Pilih Kandang">
+                {kandangList.map(({ idKandang, namaKandang }) => (
+                  <Option key={idKandang} value={idKandang}>
+                    {namaKandang}
+                  </Option>
+                ))}
+              </Select>
             </Form.Item>
           </Col>
           <Col xs={24} sm={24} md={12}>
-            <Form.Item
-              label="Tanggal IB:"
-              name="tanggalIB"
-              rules={[{ required: true, message: "Silahkan isi tanggal IB" }]}
-            >
-              <Input type="date" placeholder="Masukkan Tanggal IB" />
+            <Form.Item label="Jenis Hewan" name="idJenisHewan">
+              <Select placeholder="Pilih Jenis Hewan">
+                {jenisHewanList.map(({ idJenisHewan, jenis }) => (
+                  <Option key={idJenisHewan} value={idJenisHewan}>
+                    {jenis}
+                  </Option>
+                ))}
+              </Select>
             </Form.Item>
           </Col>
         </Row>

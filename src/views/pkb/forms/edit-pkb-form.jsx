@@ -35,6 +35,7 @@ const EditPKBForm = ({
 
     if (currentRowData) {
       form.setFieldsValue({
+        idPkb: currentRowData.idPkb,
         idKejadian: currentRowData.idKejadian,
         tanggalPkb: currentRowData.tanggalPkb,
         jumlah: currentRowData.jumlah,
@@ -146,12 +147,8 @@ const EditPKBForm = ({
       <Form form={form} layout="vertical">
         <Row gutter={16}>
           <Col xs={24} sm={24} md={12}>
-            <Form.Item
-              name="idKejadian"
-              label="ID Kejadian"
-              initialValue={currentRowData.idKejadian}
-            >
-              <Input disabled />
+            <Form.Item name="idKejadian" label="ID Kejadian">
+              <Input placeholder="Masukkan ID Kejadian" />
             </Form.Item>
           </Col>
           <Col xs={24} sm={24} md={12}>
