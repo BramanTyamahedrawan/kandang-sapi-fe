@@ -17,12 +17,18 @@ const RumpunHewan = React.lazy(() => import("@/views/rumpun-hewan"));
 const TujuanPemeliharaan = React.lazy(() => import("@/views/tujuan-pemeliharaan"));
 const JenisVaksin = React.lazy(() => import("@/views/jenis-vaksin"));
 const NamaVaksin = React.lazy(() => import("@/views/nama-vaksin"));
-const User = React.lazy(()=>import("@/views/user"));
+const User = React.lazy(() => import("@/views/user"));
+const Peta = React.lazy(() => import("@/views/peta"));
 
 export default [
   {
     path: "/dashboard",
     component: Dashboard,
+    roles: ["ROLE_ADMINISTRATOR", "ROLE_PETUGAS", "ROLE_PETERNAK"],
+  },
+  {
+    path: "/peta",
+    component: Peta,
     roles: ["ROLE_ADMINISTRATOR", "ROLE_PETUGAS", "ROLE_PETERNAK"],
   },
   {

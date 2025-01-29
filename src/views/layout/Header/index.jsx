@@ -71,8 +71,7 @@ const LayoutHeader = (props) => {
     <Menu onClick={onClick}>
       {user ? (
         <div>
-          <p>{user.name}</p>
-          <p>{user.email}</p>
+          <p style={{ maxWidth: 180, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{user.name}</p>
         </div>
       ) : (
         <p>Loading...</p>
@@ -88,31 +87,19 @@ const LayoutHeader = (props) => {
   return (
     <>
       {props.fixedHeader ? <Header /> : null}
-      <Header
-        style={computedStyle()}
-        className={props.fixedHeader ? "fix-header" : ""}
-      >
+
+      <Header style={computedStyle()} className={props.fixedHeader ? "fix-header" : ""}>
         <Hamburger />
         {sidebarCollapsed ? <></> : <BreadCrumb />}
         <div className="right-menu">
           <FullScreen />
           {/* {props.showSettings && <Settings />} */}
           <div className="dropdown-wrap">
-            <Dropdown overlay={menu}>
+            <Dropdown overlay={menu} destroyPopupOnHide>
               {/* Wrap children in a single container */}
               <div style={{ display: "flex", alignItems: "center" }}>
-                {user ? (
-                  <Avatar
-                    shape="square"
-                    size="medium"
-                    src={assets.images.avatar}
-                  />
-                ) : (
-                  <p>Loading...</p>
-                )}
-                <CaretDownOutlined
-                  style={{ color: "rgba(0,0,0,.3)", marginLeft: 8 }}
-                />
+                {user ? <Avatar shape="square" size="medium" src={assets.images.avatar} /> : <p>Loading...</p>}
+                <CaretDownOutlined style={{ color: "rgba(0,0,0,.3)", marginLeft: 8 }} />
               </div>
             </Dropdown>
           </div>

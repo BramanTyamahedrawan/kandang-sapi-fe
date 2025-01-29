@@ -18,6 +18,7 @@ import {
   BarcodeOutlined,
   ProjectOutlined,
   DatabaseOutlined,
+  EnvironmentOutlined,
 } from "@ant-design/icons";
 import { color } from "echarts";
 import { icon } from "leaflet";
@@ -29,12 +30,12 @@ const menuList = [
     icon: HomeOutlined,
     roles: ["ROLE_ADMINISTRATOR", "ROLE_PETUGAS", "ROLE_PETERNAK"],
   },
-  // {
-  //   title: "Berita",
-  //   path: "/berita",
-  //   icon: "book",
-  //   roles:["ROLE_ADMINISTRATOR"]
-  // },
+  {
+    title: "Peta Data Ternak",
+    path: "/peta",
+    icon: EnvironmentOutlined,
+    roles: ["ROLE_ADMINISTRATOR", "ROLE_PETUGAS", "ROLE_PETERNAK"],
+  },
   {
     title: "Master Data",
     icon: ProjectOutlined,
