@@ -9,27 +9,28 @@ import BoxCard from "./components/BoxCard";
 import MapWithChoropleth from "./components/Map/MapWithChoropleth";
 const Dashboard = () => {
   return (
-    <div className='app-container'>
+    <div className="app-container">
       <h2
         style={{
           alignItems: "left",
           padding: "10px",
           backgroundColor: "White",
           fontWeight: "bold",
-        }}>
+        }}
+      >
         Selamat Datang
       </h2>
-      <Row gutter={[16, 16]} justify='start' style={{ paddingLeft: 9 }}>
-        <Col >
+      <Row gutter={[16, 16]} justify="start" style={{ paddingLeft: 9 }}>
+        <Col>
           <ImportAllData />
         </Col>
-        <Col >
+        <Col>
           <DownloadFormatCsv />
         </Col>
       </Row>
       <BoxCard />
       {/* <BarChart /> */}
-      <MapWithChoropleth />
+      {/* <MapWithChoropleth /> */}
     </div>
   );
 };

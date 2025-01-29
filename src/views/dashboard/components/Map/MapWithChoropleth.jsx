@@ -5,30 +5,11 @@ import { getKandang } from "@/api/kandang";
 import { getPeternaks } from "@/api/peternak";
 import assets from "@/assets";
 import { frontendUrl } from "@/configs/global";
-import {
-  Alert,
-  Card,
-  Checkbox,
-  Col,
-  Descriptions,
-  Drawer,
-  Image,
-  Radio,
-  Row,
-  Spin,
-  Typography,
-} from "antd";
+import { Alert, Card, Checkbox, Col, Descriptions, Drawer, Image, Radio, Row, Spin, Typography } from "antd";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import React, { useEffect, useState } from "react";
-import {
-  GeoJSON,
-  LayersControl,
-  MapContainer,
-  Marker,
-  Pane,
-  TileLayer,
-} from "react-leaflet";
+import { GeoJSON, LayersControl, MapContainer, Marker, Pane, TileLayer } from "react-leaflet";
 import imgUrl from "../../../../utils/imageURL";
 
 const { Title } = Typography;
@@ -91,14 +72,7 @@ const MapWithChoropleth = () => {
     const fetchData = async () => {
       try {
         // Fetch GeoJSON data
-        const [
-          batasAdmLmjResponse,
-          radius8KmResponse,
-          radius5KmResponse,
-          krb1Response,
-          krb2Response,
-          krb3Response,
-        ] = await Promise.all([
+        const [batasAdmLmjResponse, radius8KmResponse, radius5KmResponse, krb1Response, krb2Response, krb3Response] = await Promise.all([
           fetch(`${frontendUrl}/data/Batas_Adm_Lmj_FeaturesToJSON.geojson`),
           fetch(`${frontendUrl}/data/Radius_8_km_FeaturesToJSON.geojson`),
           fetch(`${frontendUrl}/data/Radius_5_km_FeaturesToJSON.geojson`),
@@ -131,10 +105,7 @@ const MapWithChoropleth = () => {
           console.log("Kandang Data:", kandangData.data.content);
           setKandang(kandangData.data.content);
         } else {
-          console.warn(
-            "Gagal mengambil data kandang:",
-            kandangData.data.message
-          );
+          console.warn("Gagal mengambil data kandang:", kandangData.data.message);
         }
 
         // Fetch Peternak data
@@ -143,10 +114,7 @@ const MapWithChoropleth = () => {
           console.log("Peternak Data:", peternakData.data.content);
           setPeternaks(peternakData.data.content);
         } else {
-          console.warn(
-            "Gagal mengambil data peternak:",
-            peternakData.data.message
-          );
+          console.warn("Gagal mengambil data peternak:", peternakData.data.message);
         }
 
         setLoading(false);
@@ -163,20 +131,8 @@ const MapWithChoropleth = () => {
   const HatchPattern = ({ id, color }) => (
     <svg width="0" height="0">
       <defs>
-        <pattern
-          id={id}
-          width="10"
-          height="10"
-          patternTransform="rotate(45)"
-          patternUnits="userSpaceOnUse"
-        >
-          <line
-            x1="0"
-            y1="0"
-            x2="0"
-            y2="10"
-            style={{ stroke: color, strokeWidth: 4 }}
-          />
+        <pattern id={id} width="10" height="10" patternTransform="rotate(45)" patternUnits="userSpaceOnUse">
+          <line x1="0" y1="0" x2="0" y2="10" style={{ stroke: color, strokeWidth: 4 }} />
         </pattern>
       </defs>
     </svg>
@@ -253,31 +209,15 @@ const MapWithChoropleth = () => {
 
   const kandangValid = kandang.filter((item) => {
     // Normalisasi latitude dan longitude menjadi angka
-    const latitude = item.latitude
-      ? parseFloat(item.latitude?.toString().replace(",", "."))
-      : null; // Tetapkan null jika latitude kosong
-    const longitude = item.longitude
-      ? parseFloat(item.longitude?.toString().replace(",", "."))
-      : null; // Tetapkan null jika longitude kosong
+    const latitude = item.latitude ? parseFloat(item.latitude?.toString().replace(",", ".")) : null; // Tetapkan null jika latitude kosong
+    const longitude = item.longitude ? parseFloat(item.longitude?.toString().replace(",", ".")) : null; // Tetapkan null jika longitude kosong
 
     // Validasi data
-    const isValid =
-      latitude !== null &&
-      longitude !== null &&
-      !isNaN(latitude) &&
-      !isNaN(longitude) &&
-      latitude >= -90 &&
-      latitude <= 90 &&
-      longitude >= -180 &&
-      longitude <= 180;
+    const isValid = latitude !== null && longitude !== null && !isNaN(latitude) && !isNaN(longitude) && latitude >= -90 && latitude <= 90 && longitude >= -180 && longitude <= 180;
 
     // Log data tidak valid
     if (!isValid) {
-      console.warn(
-        `Data tidak valid ditemukan: id=${
-          item.idKandang || "unknown"
-        }, latitude=${item.latitude}, longitude=${item.longitude}`
-      );
+      console.warn(`Data tidak valid ditemukan: id=${item.idKandang || "unknown"}, latitude=${item.latitude}, longitude=${item.longitude}`);
     }
 
     // Simpan data valid dengan nilai normalisasi
@@ -294,15 +234,7 @@ const MapWithChoropleth = () => {
   });
 
   // Filter peternak yang memiliki latitude dan longitude valid dan merupakan angka
-  const peternaksValid = peternaks.filter(
-    (item) =>
-      item.latitude !== null &&
-      item.latitude !== undefined &&
-      item.longitude !== null &&
-      item.longitude !== undefined &&
-      !isNaN(item.latitude) &&
-      !isNaN(item.longitude)
-  );
+  const peternaksValid = peternaks.filter((item) => item.latitude !== null && item.latitude !== undefined && item.longitude !== null && item.longitude !== undefined && !isNaN(item.latitude) && !isNaN(item.longitude));
 
   // Handler untuk klik marker Kandang
   const handleKandangClick = (item) => {
@@ -326,7 +258,7 @@ const MapWithChoropleth = () => {
   };
 
   return (
-    <div className="app-container" style={{ display: "flex" }}>
+    <div className="app-container" style={{ display: "flex", flexDirection: "column", height: "100%", position: "relative" }}>
       {/* Menampilkan Loading Spinner */}
       {loading && (
         <div style={{ textAlign: "center", padding: "50px", width: "100%" }}>
@@ -335,338 +267,215 @@ const MapWithChoropleth = () => {
       )}
 
       {/* Menampilkan Error Alert */}
-      {error && (
-        <Alert
-          message="Error"
-          description={error}
-          type="error"
-          showIcon
-          style={{ margin: "20px", width: "100%" }}
-        />
-      )}
+      {error && <Alert message="Error" description={error} type="error" showIcon style={{ margin: "20px", width: "100%" }} />}
 
       {/* Menampilkan Kontrol dan Peta jika tidak loading dan tidak error */}
       {!loading && !error && (
         <>
-          {/* Kontrol Lapisan */}
-          <Row gutter={[16, 16]} style={{ padding: "20px", width: "100%" }}>
-            <Col xs={24} md={8}>
-              <Card title="Kontrol Lapisan Gunung Semeru">
-                <Checkbox
-                  checked={showGunungSemeru}
-                  onChange={(e) => setShowGunungSemeru(e.target.checked)}
-                >
-                  Tampilkan Gunung Semeru
-                </Checkbox>
-                {showGunungSemeru && (
-                  <Checkbox.Group
-                    style={{
-                      display: "flex",
-                      flexDirection: "column",
-                      marginTop: "10px",
-                    }}
-                    value={Object.keys(layerVisibilityGS).filter(
-                      (layer) => layerVisibilityGS[layer]
-                    )}
-                    onChange={handleToggleLayerGS}
-                  >
-                    <Checkbox value="BatasAdmLmj">Batas Adm Lmj</Checkbox>
-                    <Checkbox value="Radius8Km">Radius 8 km</Checkbox>
-                    <Checkbox value="Radius5Km">Radius 5 km</Checkbox>
-                    <Checkbox value="KRB1">KRB 1</Checkbox>
-                    <Checkbox value="KRB2">KRB 2</Checkbox>
-                    <Checkbox value="KRB3">KRB 3</Checkbox>
-                  </Checkbox.Group>
+          {/* Kontainer Peta */}
+          <div style={{ flex: 1, position: "relative", backgroundColor: "#fff" }}>
+            <MapContainer center={[-8.15976, 112.92566]} zoom={10} style={{ height: "600px", width: "100%" }}>
+              <Pane name="radiusPane" style={{ zIndex: 650 }} />
+              <Pane name="krbPane" style={{ zIndex: 600 }} />
+              <Pane name="kandangPane" style={{ zIndex: 700 }} />
+              <Pane name="peternakPane" style={{ zIndex: 750 }} />
+              {/* Pane for kandang markers */}
+              <HatchPattern id="diagonalHatchOrange" color="orange" />
+              <HatchPattern id="diagonalHatchRed" color="red" />
+
+              <LayersControl position="topright">
+                {/* Tile Layers */}
+                {selectedTileLayer === "osm" && (
+                  <LayersControl.BaseLayer checked name="OpenStreetMap">
+                    <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" maxZoom={19} />
+                  </LayersControl.BaseLayer>
                 )}
-              </Card>
-            </Col>
-            <Col xs={24} md={8}>
-              <Card title="Kontrol Lapisan Kandang">
-                <Checkbox
-                  checked={showKandang}
-                  onChange={(e) => setShowKandang(e.target.checked)}
-                >
-                  Tampilkan Kandang
-                </Checkbox>
-                {showKandang && (
-                  <Checkbox.Group
-                    style={{
-                      display: "flex",
-                      flexDirection: "column",
-                      marginTop: "10px",
-                    }}
-                    value={Object.keys(layerVisibilityK).filter(
-                      (layer) => layerVisibilityK[layer]
-                    )}
-                    onChange={handleToggleLayerK}
-                  >
-                    <Checkbox value="Kandang">Kandang</Checkbox>
-                  </Checkbox.Group>
+
+                {selectedTileLayer === "osm-hot" && (
+                  <LayersControl.BaseLayer name="OpenStreetMap HOT">
+                    <TileLayer url="https://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png" maxZoom={19} />
+                  </LayersControl.BaseLayer>
                 )}
-              </Card>
-            </Col>
-            <Col xs={24} md={8}>
-              <Card title="Kontrol Lapisan Peternak">
-                <Checkbox
-                  checked={showPeternak}
-                  onChange={(e) => setShowPeternak(e.target.checked)}
-                >
-                  Tampilkan Peternak
-                </Checkbox>
-                {showPeternak && (
-                  <Checkbox.Group
-                    style={{
-                      display: "flex",
-                      flexDirection: "column",
-                      marginTop: "10px",
-                    }}
-                    value={Object.keys(layerVisibilityP).filter(
-                      (layer) => layerVisibilityP[layer]
-                    )}
-                    onChange={handleToggleLayerP}
-                  >
-                    <Checkbox value="Peternak">Peternak</Checkbox>
-                  </Checkbox.Group>
+
+                {selectedTileLayer === "opentopomap" && (
+                  <LayersControl.BaseLayer name="OpenTopoMap">
+                    <TileLayer url="https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png" maxZoom={17} />
+                  </LayersControl.BaseLayer>
                 )}
-              </Card>
-            </Col>
-            <Col xs={24}>
-              <Card title="Pemilihan Tile Layer">
-                <Radio.Group
-                  onChange={handleTileLayerChange}
-                  value={selectedTileLayer}
-                >
-                  <Radio.Button value="osm">OpenStreetMap</Radio.Button>
-                  <Radio.Button value="osm-hot">OpenStreetMap HOT</Radio.Button>
-                  <Radio.Button value="opentopomap">OpenTopoMap</Radio.Button>
-                </Radio.Group>
-              </Card>
-            </Col>
-          </Row>
 
-          {/* Peta */}
-          <MapContainer
-            center={[-8.15976, 112.92566]}
-            zoom={13}
-            style={{ height: "600px", width: "100%" }}
-          >
-            <Pane name="radiusPane" style={{ zIndex: 650 }} />
-            <Pane name="krbPane" style={{ zIndex: 600 }} />
-            <Pane name="kandangPane" style={{ zIndex: 700 }} />
-            <Pane name="peternakPane" style={{ zIndex: 750 }} />
-            {/* Pane for kandang markers */}
-            <HatchPattern id="diagonalHatchOrange" color="orange" />
-            <HatchPattern id="diagonalHatchRed" color="red" />
-
-            <LayersControl position="topright">
-              {/* Tile Layers */}
-              {selectedTileLayer === "osm" && (
-                <LayersControl.BaseLayer checked name="OpenStreetMap">
-                  <TileLayer
-                    url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                    maxZoom={19}
-                  />
-                </LayersControl.BaseLayer>
-              )}
-
-              {selectedTileLayer === "osm-hot" && (
-                <LayersControl.BaseLayer name="OpenStreetMap HOT">
-                  <TileLayer
-                    url="https://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png"
-                    maxZoom={19}
-                  />
-                </LayersControl.BaseLayer>
-              )}
-
-              {selectedTileLayer === "opentopomap" && (
-                <LayersControl.BaseLayer name="OpenTopoMap">
-                  <TileLayer
-                    url="https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png"
-                    maxZoom={17}
-                  />
-                </LayersControl.BaseLayer>
-              )}
-
-              {/* GeoJSON Layers */}
-              {showGunungSemeru &&
-                layerVisibilityGS.BatasAdmLmj &&
-                BatasAdmLmj && (
+                {/* GeoJSON Layers */}
+                {showGunungSemeru && layerVisibilityGS.BatasAdmLmj && BatasAdmLmj && (
                   <LayersControl.Overlay checked name="Batas Adm Lmj">
+                    <GeoJSON data={BatasAdmLmj} style={{ color: "black", weight: 0.5 }} />
+                  </LayersControl.Overlay>
+                )}
+                {showGunungSemeru && layerVisibilityGS.Radius8Km && Radius8Km && (
+                  <LayersControl.Overlay checked name="Radius 8 km">
                     <GeoJSON
-                      data={BatasAdmLmj}
-                      style={{ color: "black", weight: 0.5 }}
+                      data={Radius8Km}
+                      pane="radiusPane"
+                      style={{
+                        color: "black",
+                        weight: 2,
+                        fillColor: "url(#diagonalHatchOrange)",
+                        fillOpacity: 1,
+                      }}
                     />
                   </LayersControl.Overlay>
                 )}
-              {showGunungSemeru && layerVisibilityGS.Radius8Km && Radius8Km && (
-                <LayersControl.Overlay checked name="Radius 8 km">
-                  <GeoJSON
-                    data={Radius8Km}
-                    pane="radiusPane"
-                    style={{
-                      color: "black",
-                      weight: 2,
-                      fillColor: "url(#diagonalHatchOrange)",
-                      fillOpacity: 1,
-                    }}
-                  />
-                </LayersControl.Overlay>
-              )}
-              {showGunungSemeru && layerVisibilityGS.Radius5Km && Radius5Km && (
-                <LayersControl.Overlay checked name="Radius 5 km">
-                  <GeoJSON
-                    data={Radius5Km}
-                    pane="radiusPane"
-                    style={{
-                      color: "black",
-                      weight: 2,
-                      fillColor: "url(#diagonalHatchRed)",
-                      fillOpacity: 1,
-                    }}
-                  />
-                </LayersControl.Overlay>
-              )}
-              {showGunungSemeru && layerVisibilityGS.KRB1 && KRB1 && (
-                <LayersControl.Overlay checked name="KRB 1">
-                  <GeoJSON
-                    data={KRB1}
-                    pane="krbPane"
-                    style={{
-                      color: "red",
-                      weight: 2,
-                      fillColor: "red",
-                      fillOpacity: 1,
-                    }}
-                  />
-                </LayersControl.Overlay>
-              )}
-              {showGunungSemeru && layerVisibilityGS.KRB2 && KRB2 && (
-                <LayersControl.Overlay checked name="KRB 2">
-                  <GeoJSON
-                    data={KRB2}
-                    pane="krbPane"
-                    style={{
-                      color: "orange",
-                      weight: 2,
-                      fillColor: "orange",
-                      fillOpacity: 1,
-                    }}
-                  />
-                </LayersControl.Overlay>
-              )}
-              {showGunungSemeru && layerVisibilityGS.KRB3 && KRB3 && (
-                <LayersControl.Overlay checked name="KRB 3">
-                  <GeoJSON
-                    data={KRB3}
-                    pane="krbPane"
-                    style={{
-                      color: "yellow",
-                      weight: 2,
-                      fillColor: "yellow",
-                      fillOpacity: 1,
-                    }}
-                  />
-                </LayersControl.Overlay>
-              )}
+                {showGunungSemeru && layerVisibilityGS.Radius5Km && Radius5Km && (
+                  <LayersControl.Overlay checked name="Radius 5 km">
+                    <GeoJSON
+                      data={Radius5Km}
+                      pane="radiusPane"
+                      style={{
+                        color: "black",
+                        weight: 2,
+                        fillColor: "url(#diagonalHatchRed)",
+                        fillOpacity: 1,
+                      }}
+                    />
+                  </LayersControl.Overlay>
+                )}
+                {showGunungSemeru && layerVisibilityGS.KRB1 && KRB1 && (
+                  <LayersControl.Overlay checked name="KRB 1">
+                    <GeoJSON
+                      data={KRB1}
+                      pane="krbPane"
+                      style={{
+                        color: "red",
+                        weight: 2,
+                        fillColor: "red",
+                        fillOpacity: 1,
+                      }}
+                    />
+                  </LayersControl.Overlay>
+                )}
+                {showGunungSemeru && layerVisibilityGS.KRB2 && KRB2 && (
+                  <LayersControl.Overlay checked name="KRB 2">
+                    <GeoJSON
+                      data={KRB2}
+                      pane="krbPane"
+                      style={{
+                        color: "orange",
+                        weight: 2,
+                        fillColor: "orange",
+                        fillOpacity: 1,
+                      }}
+                    />
+                  </LayersControl.Overlay>
+                )}
+                {showGunungSemeru && layerVisibilityGS.KRB3 && KRB3 && (
+                  <LayersControl.Overlay checked name="KRB 3">
+                    <GeoJSON
+                      data={KRB3}
+                      pane="krbPane"
+                      style={{
+                        color: "yellow",
+                        weight: 2,
+                        fillColor: "yellow",
+                        fillOpacity: 1,
+                      }}
+                    />
+                  </LayersControl.Overlay>
+                )}
 
-              {/* Kandang Markers */}
-              {showKandang &&
-                layerVisibilityK.Kandang &&
-                kandangValid.length > 0 &&
-                kandangValid.map((item, index) => (
-                  <Marker
-                    key={item.idKandang || index}
-                    position={[item.latitude, item.longitude]} // Menggunakan nilai yang telah dinormalisasi
-                    pane="kandangPane"
-                    icon={customMarkerIcon}
-                    eventHandlers={{
-                      click: () => handleKandangClick(item),
-                    }}
-                  />
-                ))}
-              {/* Peternak Markers */}
-              {/* {showPeternak &&
-                layerVisibilityP.Peternak &&
-                peternaksValid.length > 0 &&
-                peternaksValid.map((item, index) => (
-                  <Marker
-                    key={item.idPeternak || index}
-                    position={[item.latitude, item.longitude]}
-                    pane="peternakPane"
-                    icon={customPeternakIcon}
-                    eventHandlers={{
-                      click: () => handlePeternakClick(item),
-                    }}
-                  />
-                ))} */}
-            </LayersControl>
-          </MapContainer>
+                {/* Kandang Markers */}
+                {showKandang &&
+                  layerVisibilityK.Kandang &&
+                  kandangValid.length > 0 &&
+                  kandangValid.map((item, index) => (
+                    <Marker
+                      key={item.idKandang || index}
+                      position={[item.latitude, item.longitude]}
+                      pane="kandangPane"
+                      icon={customMarkerIcon}
+                      eventHandlers={{
+                        click: () => handleKandangClick(item),
+                      }}
+                    />
+                  ))}
+
+                {/* Peternak Markers */}
+                {/* {showPeternak &&
+                  layerVisibilityP.Peternak &&
+                  peternaksValid.length > 0 &&
+                  peternaksValid.map((item, index) => (
+                    <Marker
+                      key={item.idPeternak || index}
+                      position={[item.latitude, item.longitude]}
+                      pane="peternakPane"
+                      icon={customPeternakIcon}
+                      eventHandlers={{
+                        click: () => handlePeternakClick(item),
+                      }}
+                    />
+                  ))} */}
+              </LayersControl>
+            </MapContainer>
+          </div>
+          {/* Kontrol Panel */}
+          {/* <div style={{ padding: "20px", backgroundColor: "#f7f7f7", borderTop: "1px solid #ddd" }}>
+            <Row gutter={[16, 16]} style={{ width: "100%" }}>
+              <Col xs={24} md={8}>
+                <Card title="Kontrol Lapisan Gunung Semeru">
+                  <Checkbox checked={showGunungSemeru} onChange={(e) => setShowGunungSemeru(e.target.checked)}>
+                    Tampilkan Gunung Semeru
+                  </Checkbox>
+                  {showGunungSemeru && (
+                    <Checkbox.Group
+                      style={{
+                        display: "flex",
+                        flexDirection: "column",
+                        marginTop: "10px",
+                      }}
+                      value={Object.keys(layerVisibilityGS).filter((layer) => layerVisibilityGS[layer])}
+                      onChange={handleToggleLayerGS}
+                    >
+                      <Checkbox value="BatasAdmLmj">Batas Adm Lmj</Checkbox>
+                      <Checkbox value="Radius8Km">Radius 8 km</Checkbox>
+                      <Checkbox value="Radius5Km">Radius 5 km</Checkbox>
+                    </Checkbox.Group>
+                  )}
+                </Card>
+              </Col>
+              <Col xs={24} md={8}>
+                <Card title="Kontrol Lapisan Kandang">
+                  <Checkbox checked={showKandang} onChange={(e) => setShowKandang(e.target.checked)}>
+                    Tampilkan Kandang
+                  </Checkbox>
+                </Card>
+              </Col>
+              <Col xs={24} md={8}>
+                <Card title="Kontrol Lapisan Peternak">
+                  <Checkbox checked={showPeternak} onChange={(e) => setShowPeternak(e.target.checked)}>
+                    Tampilkan Peternak
+                  </Checkbox>
+                </Card>
+              </Col>
+            </Row>
+          </div> */}
 
           {/* Drawer Sidebar untuk Detail Kandang atau Peternak */}
-          <Drawer
-            title={
-              selectedKandang
-                ? selectedKandang.namaKandang
-                : selectedPeternak
-                ? selectedPeternak.namaPeternak
-                : "Detail"
-            }
-            placement="right"
-            width={400}
-            onClose={handleCloseDrawer}
-            open={drawerVisible}
-            destroyOnClose
-          >
+          <Drawer title={selectedKandang ? selectedKandang.namaKandang : selectedPeternak ? selectedPeternak.namaPeternak : "Detail"} placement="right" width={400} onClose={handleCloseDrawer} open={drawerVisible} destroyOnClose>
             {selectedKandang && (
               <Card size="small" bordered={false}>
                 <Title level={5}>Detail Kandang</Title>
                 <Descriptions bordered column={1} size="small">
-                  <Descriptions.Item label="ID Kandang">
-                    {selectedKandang.idKandang || "-"}
-                  </Descriptions.Item>
-                  <Descriptions.Item label="Nama Kandang">
-                    {selectedKandang.namaKandang || "-"}
-                  </Descriptions.Item>
-                  <Descriptions.Item label="Jenis Kandang">
-                    {selectedKandang.jenisKandang || "-"}
-                    </Descriptions.Item>
-                  <Descriptions.Item label="Jenis Hewan">
-                    {selectedKandang.jenisHewan?.jenis || "-"}
-                  </Descriptions.Item>
-                  <Descriptions.Item label="Luas">
-                    {selectedKandang.luas || "-"}
-                  </Descriptions.Item>
-                  <Descriptions.Item label="Kapasitas">
-                    {selectedKandang.kapasitas || "-"}
-                  </Descriptions.Item>
-                  <Descriptions.Item label="Nilai Bangunan">
-                    {selectedKandang.nilaiBangunan || "-"}
-                  </Descriptions.Item>
-                  <Descriptions.Item label="Alamat">
-                    {selectedKandang.alamat || "-"}
-                  </Descriptions.Item>
-                  <Descriptions.Item label="Latitude">
-                    {selectedKandang.latitude || "-"}
-                  </Descriptions.Item>
-                  <Descriptions.Item label="Longitude">
-                    {selectedKandang.longitude || "-"}
-                  </Descriptions.Item>
-                  <Descriptions.Item label="Peternak">
-                    {selectedKandang.peternak?.namaPeternak || "-"}
-                  </Descriptions.Item>
+                  <Descriptions.Item label="ID Kandang">{selectedKandang.idKandang || "-"}</Descriptions.Item>
+                  <Descriptions.Item label="Nama Kandang">{selectedKandang.namaKandang || "-"}</Descriptions.Item>
+                  <Descriptions.Item label="Jenis Kandang">{selectedKandang.jenisKandang || "-"}</Descriptions.Item>
+                  <Descriptions.Item label="Jenis Hewan">{selectedKandang.jenisHewan?.jenis || "-"}</Descriptions.Item>
+                  <Descriptions.Item label="Luas">{selectedKandang.luas || "-"}</Descriptions.Item>
+                  <Descriptions.Item label="Kapasitas">{selectedKandang.kapasitas || "-"}</Descriptions.Item>
+                  <Descriptions.Item label="Nilai Bangunan">{selectedKandang.nilaiBangunan || "-"}</Descriptions.Item>
+                  <Descriptions.Item label="Alamat">{selectedKandang.alamat || "-"}</Descriptions.Item>
+                  <Descriptions.Item label="Latitude">{selectedKandang.latitude || "-"}</Descriptions.Item>
+                  <Descriptions.Item label="Longitude">{selectedKandang.longitude || "-"}</Descriptions.Item>
+                  <Descriptions.Item label="Peternak">{selectedKandang.peternak?.namaPeternak || "-"}</Descriptions.Item>
                   {selectedKandang.file_path && (
                     <Descriptions.Item label="Foto Kandang">
-                      <Image
-                        width={200}
-                        src={`${imgUrl}/kandang/${selectedKandang.file_path}`}
-                        alt="Foto Kandang"
-                        placeholder={
-                          <Image
-                            preview={false}
-                            src={assets.images.placeholder}
-                          />
-                        }
-                      />
+                      <Image width={200} src={`${imgUrl}/kandang/${selectedKandang.file_path}`} alt="Foto Kandang" placeholder={<Image preview={false} src={assets.images.placeholder} />} />
                     </Descriptions.Item>
                   )}
                 </Descriptions>
@@ -676,36 +485,18 @@ const MapWithChoropleth = () => {
               <Card size="small" bordered={false}>
                 <Title level={5}>Detail Peternak</Title>
                 <Descriptions bordered column={1} size="small">
-                  <Descriptions.Item label="ID Peternak">
-                    {selectedPeternak.idPeternak}
-                  </Descriptions.Item>
-                  <Descriptions.Item label="Nama Peternak">
-                    {selectedPeternak.namaPeternak}
-                  </Descriptions.Item>
-                  <Descriptions.Item label="Alamat">
-                    {selectedPeternak.alamat}
-                  </Descriptions.Item>
+                  <Descriptions.Item label="ID Peternak">{selectedPeternak.idPeternak}</Descriptions.Item>
+                  <Descriptions.Item label="Nama Peternak">{selectedPeternak.namaPeternak}</Descriptions.Item>
+                  <Descriptions.Item label="Alamat">{selectedPeternak.alamat}</Descriptions.Item>
                   {selectedPeternak.file_path && (
                     <Descriptions.Item label="Foto Peternak">
-                      <Image
-                        width={200}
-                        src={`${imgUrl}/peternak/${selectedPeternak.file_path}`}
-                        alt="Foto Peternak"
-                        placeholder={
-                          <Image
-                            preview={false}
-                            src={assets.images.placeholder}
-                          />
-                        }
-                      />
+                      <Image width={200} src={`${imgUrl}/peternak/${selectedPeternak.file_path}`} alt="Foto Peternak" placeholder={<Image preview={false} src={assets.images.placeholder} />} />
                     </Descriptions.Item>
                   )}
                 </Descriptions>
               </Card>
             )}
-            {!selectedKandang && !selectedPeternak && (
-              <Spin tip="Memuat detail..." />
-            )}
+            {!selectedKandang && !selectedPeternak && <Spin tip="Memuat detail..." />}
           </Drawer>
         </>
       )}

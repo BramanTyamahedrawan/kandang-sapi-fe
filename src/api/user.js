@@ -1,7 +1,7 @@
 // src/api/user.js
 
 import request from "@/utils/request";
-
+import { v4 } from "uuid";
 /**
  * Permintaan informasi user saat ini.
  * GET /user/me
@@ -56,7 +56,7 @@ export function deleteUserByPeternak(id) {
  * @returns {Promise} - Axios response promise
  */
 export function editUser(data) {
-  return request.post("/user/edit", data);
+  return request.put(`/user/edit/${data.id}`, data);
 }
 
 /**
@@ -76,12 +76,16 @@ export function reqValidatUserID(data) {
  * @returns {Promise} - Axios response promise
  */
 export function addUser(data) {
-  console.log("data user ", data);
-
-  return request.post("/users", data);
+  const updateData = {
+    ...data,
+    id: v4(),
+  };
+  return request.post("/users", updateData);
 }
 
 export function addUserBulk(data) {
+  console.log("Data samapi diapi ", data);
+
   return request.post("/users/bulk", data);
 }
 
@@ -93,4 +97,8 @@ export function addUserBulk(data) {
  */
 export function register(data) {
   return request.post("/auth/signup", data);
+}
+
+export function validatePassword(data) {
+  return request.post("/user/validate-password", data);
 }
