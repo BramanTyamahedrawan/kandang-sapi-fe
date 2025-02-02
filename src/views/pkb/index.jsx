@@ -1,53 +1,47 @@
 /* eslint-disable no-unused-vars */
-import { Component } from "react";
+import { addHewanBulkImport } from "@/api/hewan";
+import { addJenisHewanBulk } from "@/api/jenishewan";
+import { addKandangBulkByNama } from "@/api/kandang";
+import { addPeternakBulkByNama } from "@/api/peternak";
+import { addPetugasBulkByNama, getPetugas } from "@/api/petugas";
 import {
-  Card,
-  Button,
-  Table,
-  message,
-  Row,
-  Col,
-  Divider,
-  Modal,
-  Upload,
-  Input,
-  Space,
-} from "antd";
-import {
-  getPkb,
-  getPkbByPeternak,
-  deletePkb,
-  editPkb,
   addPkb,
   addPkbImport,
+  deletePkb,
+  editPkb,
+  getPkb
 } from "@/api/pkb";
-import React, { useEffect, useRef, useState } from "react";
-import { addJenisHewanBulk } from "@/api/jenishewan";
 import { addRumpunHewanBulk } from "@/api/rumpunhewan";
-import { addHewanBulkImport } from "@/api/hewan";
-import { addPeternakBulkByNama } from "@/api/peternak";
-import { addPetugasBulkByNama } from "@/api/petugas";
-import { addKandangBulkByNama } from "@/api/kandang";
-import { getPetugas } from "@/api/petugas";
-import { getHewans } from "@/api/hewan";
-import {
-  DownloadOutlined,
-  UploadOutlined,
-  EditOutlined,
-  DeleteOutlined,
-  SearchOutlined,
-} from "@ant-design/icons";
-import { read, utils } from "xlsx";
 import TypingCard from "@/components/TypingCard";
-import EditPkbForm from "./forms/edit-pkb-form";
-import AddPkbForm from "./forms/add-pkb-form";
-import { reqUserInfo } from "../../api/user";
-import { v4 as uuidv4 } from "uuid";
-import { getPeternaks } from "../../api/peternak";
-import { Skeleton } from "antd";
+import {
+  DeleteOutlined,
+  DownloadOutlined,
+  EditOutlined,
+  SearchOutlined,
+  UploadOutlined,
+} from "@ant-design/icons";
+import {
+  Button,
+  Card,
+  Col,
+  Divider,
+  Input,
+  message,
+  Modal,
+  Row,
+  Skeleton,
+  Space,
+  Table,
+  Upload,
+} from "antd";
+import React, { useEffect, useRef, useState } from "react";
 import Highlighter from "react-highlight-words";
-import { data } from "react-router-dom";
-import { set } from "nprogress";
+import { v4 as uuidv4 } from "uuid";
+import { read, utils } from "xlsx";
+import { getPeternaks } from "../../api/peternak";
+import { reqUserInfo } from "../../api/user";
+import AddPkbForm from "./forms/add-pkb-form";
+import EditPkbForm from "./forms/edit-pkb-form";
 
 const sendPetugasBulkData = async (data, batchSize = 7000) => {
   const totalBatches = Math.ceil(data.length / batchSize);
@@ -244,7 +238,9 @@ function parseAddress(address) {
   return { dusun, desa, kecamatan, kabupaten, provinsi };
 }
 
-const cleanNik = (nik) => (nik ? nik.replace(/'/g, "").trim() : "-");
+const cleanNik = (nik) => {
+  return nik ? String(nik).replace(/'/g, "").trim() : "-";
+};
 
 const Pkb = () => {
   const [pkb, setPkb] = useState([]);
@@ -633,7 +629,7 @@ const Pkb = () => {
             rumpun: row[columnMapping["Spesies"]] || "-",
             deskripsi: "Deskripsi " + row[(columnMapping, ["Spesies"])] || "-",
           };
-          rumpunHewanBulk.push(dataRumpunHewan);
+          // rumpunHewanBulk.push(dataRumpunHewan);
           uniqueData.set(rumpunHewanUnique, dataRumpunHewan);
         }
 
@@ -644,7 +640,7 @@ const Pkb = () => {
             jenis: row[columnMapping["kategori"]] || "-",
             deskripsi: "Deskripsi " + row[(columnMapping, ["kategori"])] || "-",
           };
-          jenisHewanBulk.push(dataJenisHewan);
+          // jenisHewanBulk.push(dataJenisHewan);
           uniqueData.set(jenisHewanUnique, dataJenisHewan);
         }
 
@@ -659,19 +655,19 @@ const Pkb = () => {
             email: validateEmail(row[columnMapping["Email Petugas"]]) || "-",
             job: "Pemeriksa Kebuntingan",
           };
-          petugasPemeriksaBulk.push(dataPetugasPemeriksa);
+          // petugasPemeriksaBulk.push(dataPetugasPemeriksa);
           uniqueData.set(namaPetugasPemeriksa, dataPetugasPemeriksa);
         }
 
-        const nikDataPeternak = row[columnMapping["NIK Peternak"]]
-          ? cleanNik(row[columnMapping["NIK Peternak"]])
-          : row[columnMapping["ID Peternak"]] || "-";
+        // const nikDataPeternak = row[columnMapping["NIK Peternak"]]
+        //   ? cleanNik(row[columnMapping["NIK Peternak"]])
+        //   : row[columnMapping["ID Peternak"]] || "-";
 
         const namaPemilikTernak = row[columnMapping["Nama Peternak"]] || "-";
         if (!uniqueData.has(namaPemilikTernak)) {
           const dataPeternak = {
             idPeternak: generateIdPeternak,
-            nikPeternak: nikDataPeternak,
+            nikPeternak:  row[columnMapping["NIK Peternak"]] || "-",
             namaPeternak: row[columnMapping["Nama Peternak"]] || "-",
             noTelpPeternak: row[columnMapping["No Telp"]] || "-",
             emailPeternak:
@@ -694,7 +690,7 @@ const Pkb = () => {
             jenisKelaminPeternak:
               row[columnMapping["Jenis Kelamin Pemilik Ternak"]] || "-",
           };
-          peternakBulk.push(dataPeternak);
+          // peternakBulk.push(dataPeternak);
           uniqueData.set(namaPemilikTernak, dataPeternak);
         }
 
@@ -719,7 +715,7 @@ const Pkb = () => {
             latitude: row[columnMapping["latitude"]] || "-",
             longitude: row[columnMapping["longitude"]] || "-",
           };
-          kandangBulk.push(dataKandang);
+          // kandangBulk.push(dataKandang);
           uniqueData.set(namaKandang, dataKandang);
         }
 
@@ -771,29 +767,47 @@ const Pkb = () => {
           idPeternak: uniqueData.get(namaPemilikTernak).idPeternak,
           namaPeternak: uniqueData.get(namaPemilikTernak).namaPeternak,
           nikPeternak: uniqueData.get(namaPemilikTernak).nikPeternak,
-          idPetugas: uniqueData.get(namaPetugasPemeriksa).petugasId,
           nikPetugas: uniqueData.get(namaPetugasPemeriksa).nikPetugas,
           namaPetugas: uniqueData.get(namaPetugasPemeriksa).namaPetugas,
           idKandang: uniqueData.get(namaKandang).idKandang,
           namaKandang: uniqueData.get(namaKandang).namaKandang,
           idHewan: dataTernakHewan.idHewan,
+          kodeEartagNasional: row[columnMapping["Kode Eartag Nasional"]] || "-",
+          noKartuTernak:
+            row[columnMapping["No Kartu Ternak"]] ||
+            row[columnMapping["ID Hewan"]] ||
+            "-",
+          idIsikhnasTernak: row[columnMapping["IdIsikhnas"]] || "-",
+          tanggalLahir: formatDateToString(
+            row[columnMapping["Tanggal Lahir Ternak"]] || "-"
+          ),
+          sex: row[columnMapping["Jenis Kelamin Ternak"]] || "-",
+          tempatLahir: row[columnMapping["Tempat Lahir Ternak"]] || "-",
+          umur: row[columnMapping["Umur"]] || "-",
+          identifikasiHewan:
+            row[columnMapping["Identifikasi Hewan*"]] ||
+            row[columnMapping["Identifikasi Hewan"]] ||
+            "-",
+          tanggalTerdaftar: formatDateToString(
+            row[columnMapping["Tanggal Pendataan"]] || "-"
+          ),
           rumpun: uniqueData.get(rumpunHewanUnique).rumpun,
           jenis: uniqueData.get(jenisHewanUnique).jenis,
         };
 
-        ternakHewanBulk.push(dataTernakHewan);
+        // ternakHewanBulk.push(dataTernakHewan);
         pkb.push(dataPkb);
       }
 
       // Send bulk data to server
       setLoading(true);
       try {
-        await sendJenisHewanBulkData(jenisHewanBulk);
-        await sendRumpunHewanBulkData(rumpunHewanBulk);
-        await sendPetugasBulkData(petugasPemeriksaBulk);
-        await sendPeternakBulkData(peternakBulk);
-        await sendKandangBulkData(kandangBulk);
-        await sendTernakHewanBulkData(ternakHewanBulk);
+        // await sendJenisHewanBulkData(jenisHewanBulk);
+        // await sendRumpunHewanBulkData(rumpunHewanBulk);
+        // await sendPetugasBulkData(petugasPemeriksaBulk);
+        // await sendPeternakBulkData(peternakBulk);
+        // await sendKandangBulkData(kandangBulk);
+        // await sendTernakHewanBulkData(ternakHewanBulk);
         await sendPkbImport(pkb);
       } catch (error) {
         console.error(

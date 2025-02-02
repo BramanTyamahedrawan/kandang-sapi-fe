@@ -21,7 +21,6 @@ import {
   editInseminasi,
   addInseminasi,
   addInseminasiImport,
-  addInseminsasiBulk,
 } from "@/api/inseminasi";
 import { addJenisHewanBulk } from "@/api/jenishewan";
 import { addRumpunHewanBulk } from "@/api/rumpunhewan";
@@ -194,7 +193,7 @@ const sendInseminasiBuatanImport = async (data, batchSize = 7000) => {
 
     try {
       console.log(`Data Inseminasi Buatan (Batch ${i + 1}):`, batchData); // Log data yang dikirim
-      const response = await addInseminsasiBulk(batchData);
+      const response = await addInseminasiImport(batchData);
       console.log(
         `Batch ${i + 1}/${totalBatches} berhasil dikirim`,
         response.data
@@ -662,15 +661,12 @@ const InseminasiBuatan = () => {
           uniqueData.set(namaPetugasInseminator, dataPetugas);
         }
 
-        const nikDataPeternak = row[columnMapping["NIK Peternak"]]
-          ? cleanNik(row[columnMapping["NIK Peternak"]])
-          : row[columnMapping["ID Peternak"]] || "-";
-
         const namaPemilikTernak = row[columnMapping["Nama Peternak"]];
         if (!uniqueData.has(namaPemilikTernak)) {
           const dataPeternak = {
             idPeternak: generateIdPeternak,
-            nikPeternak: nikDataPeternak,
+            nikPeternak:
+              cleanNik(row[columnMapping["NIK Pemilik Ternak"]]) || "-",
             namaPeternak: row[columnMapping["Nama Peternak"]] || "-",
             noTelpPeternak: row[columnMapping["No Telp"]] || "-",
             emailPeternak:
@@ -773,18 +769,26 @@ const InseminasiBuatan = () => {
           produsen: row[columnMapping["Produsen"]] || "-",
           idPembuatan: row[columnMapping["ID Pembuatan"]] || "-",
           bangsaPejantan: row[columnMapping["Bangsa Pejantan"]] || "-",
+          // peternak
           namaPeternak: uniqueData.get(namaPemilikTernak).namaPeternak,
-          idPeternak: uniqueData.get(namaPemilikTernak).idPeternak,
           nikPeternak: uniqueData.get(namaPemilikTernak).nikPeternak,
-          idHewan: dataTernakHewan.idHewan,
+          idPeternak: uniqueData.get(namaPemilikTernak).idPeternak,
+          alamat: row[columnMapping["Lokasi"]] || "-",
+          dusun: pecahLokasi.dusun,
+          desa: pecahLokasi.desa,
+          kecamatan: pecahLokasi.kecamatan,
+          kabupaten: pecahLokasi.kabupaten,
+          provinsi: pecahLokasi.provinsi,
           kodeEartagNasional: dataTernakHewan.kodeEartagNasional,
-          idPetugas: uniqueData.get(namaPetugasInseminator).petugasId,
+          idHewan: dataTernakHewan.idHewan,
+          noKartuTernak: dataTernakHewan.noKartuTernak,
           namaPetugas: uniqueData.get(namaPetugasInseminator).namaPetugas,
           nikPetugas: uniqueData.get(namaPetugasInseminator).nikPetugas,
-          idKandang: uniqueData.get(namaKandang).idKandang,
+          idPetugas: uniqueData.get(namaPetugasInseminator).petugasId,
           namaKandang: uniqueData.get(namaKandang).namaKandang,
-          rumpun: dataTernakHewan.rumpun,
-          jenis: dataTernakHewan.jenis,
+          idKandang: uniqueData.get(namaKandang).idKandang,
+          rumpun: uniqueData.get(rumpunHewanUnique).rumpun,
+          jenis: uniqueData.get(jenisHewanUnique).jenis,
         };
 
         console.log("Data Inseminasi:", dataInseminasi);
@@ -797,12 +801,6 @@ const InseminasiBuatan = () => {
       // Send bulk data to server
       setLoading(true);
       try {
-        await sendJenisHewanBulkData(jenisHewanBulk);
-        await sendRumpunHewanBulkData(rumpunHewanBulk);
-        await sendPetugasBulkData(petugasInseminasi);
-        await sendPeternakBulkData(peternakBulk);
-        await sendKandangBulkData(kandangBulk);
-        await sendTernakHewanBulkData(ternakHewanBulk);
         await sendInseminasiBuatanImport(inseminasiBuatan);
       } catch (error) {
         console.error(

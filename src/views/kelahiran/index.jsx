@@ -26,7 +26,7 @@ import {
   deleteKelahiran,
   editKelahiran,
   addKelahiran,
-  addKelahiranBulk,
+  addKelahiranImport,
 } from "@/api/kelahiran";
 import { addJenisHewanBulk } from "@/api/jenishewan";
 import { addRumpunHewanBulk } from "@/api/rumpunhewan";
@@ -216,7 +216,7 @@ const sendKelahiranBulkData = async (data, batchSize = 7000) => {
 
     try {
       console.log(`Data Kelahiran (Batch ${i + 1}):`, batchData); // Log data yang dikirim
-      const response = await addKelahiranBulk(batchData);
+      const response = await addKelahiranImport(batchData);
       console.log(
         `Batch ${i + 1}/${totalBatches} berhasil dikirim`,
         response.data
@@ -821,13 +821,6 @@ const Kelahiran = () => {
           tanggalLahir: formatDateToString(
             row[columnMapping["Tanggal lahir"]] || "-"
           ),
-          idPeternak: uniqueData.get(dataPeternakUnique).idPeternak,
-          namaPeternak: uniqueData.get(dataPeternakUnique).namaPeternak,
-          idKandang: uniqueData.get(namaKandang).idKandang,
-          namaKandang: uniqueData.get(namaKandang).namaKandang,
-          idHewan: dataTernakHewan.idHewan,
-          noKartuTernak: dataTernakHewan.noKartuTernak,
-          kodeEartagNasional: dataTernakHewan.kodeEartagNasional,
           spesies: row[columnMapping["Spesies Induk"]] || "-",
           kategori: row[columnMapping["kategori"]] || "-",
           jumlah: row[columnMapping["Jumlah"]] || "-",
@@ -835,13 +828,21 @@ const Kelahiran = () => {
           idHewanAnak: row[columnMapping["ID Hewan Anak"]] || "-",
           noKartuTernakAnak: row[columnMapping["kartu ternak anak"]] || "-",
           jenisKelaminAnak: row[columnMapping["Jenis Kelamin Anak"]] || "-",
+          urutanIB: row[columnMapping["urutan_ib"]] || "-",
+          idPejantan: row[columnMapping["ID Pejantan Straw"]] || "-",
+          idPeternak: uniqueData.get(dataPeternakUnique).idPeternak,
+          namaPeternak: uniqueData.get(dataPeternakUnique).namaPeternak,
+          nikPeternak: uniqueData.get(dataPeternakUnique).nikPeternak,
+          idKandang: uniqueData.get(namaKandang).idKandang,
+          namaKandang: uniqueData.get(namaKandang).namaKandang,
+          idHewan: dataTernakHewan.idHewan,
+          noKartuTernak: dataTernakHewan.noKartuTernak,
+          kodeEartagNasional: dataTernakHewan.kodeEartagNasional,
           nikPetugas: uniqueData.get(namaPetugasPelapor).nikPetugas,
           namaPetugas: uniqueData.get(namaPetugasPelapor).namaPetugas,
           petugasId: uniqueData.get(namaPetugasPelapor).petugasId,
-          jenis: row[columnMapping["kategori"]] || "-",
-          rumpun: row[columnMapping["Spesies Induk"]] || "-",
-          urutanIB: row[columnMapping["urutan_ib"]] || "-",
-          idPejantan: row[columnMapping["ID Pejantan Straw"]] || "-",
+          jenis: uniqueData.get(jenisHewanUnique).jenis,
+          rumpun: uniqueData.get(rumpunHewanUnique).rumpun,
         };
 
         ternakHewanBulk.push(dataTernakHewan);
@@ -851,13 +852,6 @@ const Kelahiran = () => {
       // Send bulk data to server
       setLoading(true);
       try {
-        await sendJenisHewanBulkData(jenisHewanBulk);
-        await sendRumpunHewanBulkData(rumpunHewanBulk);
-        await sendPetugasBulkData(petugasKelahiran);
-        await sendPeternakBulkData(peternakBulk);
-        await sendKandangBulkData(kandangBulk);
-        await sendTernakHewanBulkData(ternakHewanBulk);
-        await sendInseminasiBulkData(inseminasiBulk);
         await sendKelahiranBulkData(kelahiranBulk);
       } catch (error) {
         console.error(
