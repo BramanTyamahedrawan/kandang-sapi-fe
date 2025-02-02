@@ -26,7 +26,7 @@ import {
   deleteKelahiran,
   editKelahiran,
   addKelahiran,
-  addKelahiranBulk,
+  addKelahiranImport,
 } from "@/api/kelahiran";
 import { addJenisHewanBulk } from "@/api/jenishewan";
 import { addRumpunHewanBulk } from "@/api/rumpunhewan";
@@ -216,7 +216,7 @@ const sendKelahiranBulkData = async (data, batchSize = 7000) => {
 
     try {
       console.log(`Data Kelahiran (Batch ${i + 1}):`, batchData); // Log data yang dikirim
-      const response = await addKelahiranBulk(batchData);
+      const response = await addKelahiranImport(batchData);
       console.log(
         `Batch ${i + 1}/${totalBatches} berhasil dikirim`,
         response.data

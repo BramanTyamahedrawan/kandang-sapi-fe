@@ -52,3 +52,11 @@ export function addKelahiranBulk(data) {
     data,
   });
 }
+
+export function addKelahiranImport(data) {
+  return request({
+    url: "/kelahiran/import",
+    method: "post",
+    data,
+  });
+}
