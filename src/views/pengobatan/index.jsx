@@ -1,46 +1,42 @@
 /* eslint-disable no-constant-condition */
 /* eslint-disable no-unused-vars */
-import { Component } from "react";
 import {
-  Card,
-  Button,
-  Table,
-  message,
-  Row,
-  Col,
-  Divider,
-  Modal,
-  Upload,
-  Input,
-  Space,
-} from "antd";
-import {
-  getPengobatan,
-  deletePengobatan,
-  editPengobatan,
   addPengobatan,
   addPengobatanImport,
+  deletePengobatan,
+  editPengobatan,
+  getPengobatan,
 } from "@/api/pengobatan";
-import { getPetugas } from "@/api/petugas";
-import { read, utils } from "xlsx";
-import React, { useEffect, useRef, useState } from "react";
+import { addPetugasBulkByNama, getPetugas } from "@/api/petugas";
+import TypingCard from "@/components/TypingCard";
 import {
-  UploadOutlined,
-  EditOutlined,
   DeleteOutlined,
   DownloadOutlined,
+  EditOutlined,
   SearchOutlined,
+  UploadOutlined,
 } from "@ant-design/icons";
-import AddPengobatanForm from "./forms/add-pengobatan-form";
-import { addPetugasBulkByNama } from "@/api/petugas";
-import EditPengobatanForm from "./forms/edit-pengobatan-form";
-import TypingCard from "@/components/TypingCard";
-import { reqUserInfo } from "../../api/user";
-import { v4 as uuidv4 } from "uuid";
-import { Skeleton } from "antd";
+import {
+  Button,
+  Card,
+  Col,
+  Divider,
+  Input,
+  message,
+  Modal,
+  Row,
+  Skeleton,
+  Space,
+  Table,
+  Upload,
+} from "antd";
+import React, { useEffect, useRef, useState } from "react";
 import Highlighter from "react-highlight-words";
-import { use } from "react";
-import { set } from "nprogress";
+import { v4 as uuidv4 } from "uuid";
+import { read, utils } from "xlsx";
+import { reqUserInfo } from "../../api/user";
+import AddPengobatanForm from "./forms/add-pengobatan-form";
+import EditPengobatanForm from "./forms/edit-pengobatan-form";
 
 const sendPetugasImport = async (data, batchSize = 7000) => {
   const totalBatches = Math.ceil(data.length / batchSize);
@@ -463,7 +459,7 @@ const Pengobatan = () => {
             email: validateEmail(row[columnMapping["Email Petugas"]]) || "-",
             job: "Petugas Pengobatan",
           };
-          petugasPengobatan.push(dataPetugasPengobatan);
+          // petugasPengobatan.push(dataPetugasPengobatan);
           uniqueData.set(namaPetugasPengobatan, dataPetugasPengobatan);
         }
 
@@ -498,7 +494,7 @@ const Pengobatan = () => {
       // Send bulk data to server
       setLoading(true);
       try {
-        await sendPetugasImport(petugasPengobatan);
+        // await sendPetugasImport(petugasPengobatan);
         await sendPengobatanImport(pengobatan);
       } catch (error) {
         console.error(
