@@ -244,7 +244,9 @@ function parseAddress(address) {
   return { dusun, desa, kecamatan, kabupaten, provinsi };
 }
 
-const cleanNik = (nik) => (nik ? nik.replace(/'/g, "").trim() : "-");
+const cleanNik = (nik) => {
+  return nik ? String(nik).replace(/'/g, "").trim() : "-";
+};
 
 const Pkb = () => {
   const [pkb, setPkb] = useState([]);
