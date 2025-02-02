@@ -1,5 +1,5 @@
 /* eslint-disable no-unused-vars */
-import { addUser, deleteUser, editUser, getUsers, addUserBulk } from "@/api/user";
+import { addUser, deleteUser, editUser, getUsers, addUserBulk, validatePassword } from "@/api/user";
 import TypingCard from "@/components/TypingCard";
 import { Button, Card, Col, Divider, Input, message, Modal, Row, Table, Upload } from "antd";
 import React, { useEffect, useRef, useState } from "react";

@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { Form, Input, message, Modal, Select, Row, Col } from "antd";
 import Item from "antd/es/list/Item";
 const { Option } = Select;
-import { validatePassword } from "@/api/user";
+
 
 const EditUserForm = ({ visible, onCancel, onOk, confirmLoading, currentRowData }) => {
   const [form] = Form.useForm();
