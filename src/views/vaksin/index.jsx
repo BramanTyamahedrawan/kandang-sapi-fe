@@ -3,38 +3,14 @@
 import { getNamaVaksin } from "@/api/nama-vaksin";
 import { getPeternaks } from "@/api/peternak";
 import TypingCard from "@/components/TypingCard";
-import {
-  DeleteOutlined,
-  DownloadOutlined,
-  EditOutlined,
-  UploadOutlined,
-  SearchOutlined,
-} from "@ant-design/icons";
-import {
-  Button,
-  Card,
-  Col,
-  Divider,
-  Input,
-  message,
-  Modal,
-  Row,
-  Table,
-  Upload,
-  Space,
-} from "antd";
+import { DeleteOutlined, DownloadOutlined, EditOutlined, UploadOutlined, SearchOutlined } from "@ant-design/icons";
+import { Button, Card, Col, Divider, Input, message, Modal, Row, Table, Upload, Space } from "antd";
 import React, { useEffect, useRef, useState } from "react";
 import { read, utils } from "xlsx";
 import AddVaksinForm from "./forms/add-vaksin-form";
 import EditVaksinForm from "./forms/edit-vaksin-form";
 import { v4 as uuidv4 } from "uuid";
-import {
-  addVaksin,
-  deleteVaksin,
-  editVaksin,
-  getVaksins,
-  addVaksinImport,
-} from "@/api/vaksin";
+import { addVaksin, deleteVaksin, editVaksin, getVaksins, addVaksinImport } from "@/api/vaksin";
 
 import { getPetugas } from "@/api/petugas";
 import { reqUserInfo } from "../../api/user";
@@ -100,25 +76,13 @@ const Vaksin = () => {
 
       if (statusCode === 200) {
         const filteredVaksin = content.filter((vaksin) => {
-          const {
-            idVaksin,
-            idPeternak,
-            namaPeternak,
-            kodeEartagNasional,
-            idPejantan,
-            idPembuatan,
-            bangsaPejantan,
-            produsen,
-            inseminator,
-            lokasi,
-          } = vaksin;
+          const { idVaksin, idPeternak, namaPeternak, kodeEartagNasional, idPejantan, idPembuatan, bangsaPejantan, produsen, inseminator, lokasi } = vaksin;
           const keyword = searchKeyword.toLowerCase();
 
           const isIdVaksinValid = typeof idVaksin === "string";
           const isIdPeternakValid = typeof idPeternak === "string";
           const isNamaPeternakValid = typeof namaPeternak === "string";
-          const isKodeEartagNasionalValid =
-            typeof kodeEartagNasional === "string";
+          const isKodeEartagNasionalValid = typeof kodeEartagNasional === "string";
           const isIdPejantanValid = typeof idPejantan === "string";
           const isIdPembuatanValid = typeof idPembuatan === "string";
           const isBangsaPejantanValid = typeof bangsaPejantan === "string";
@@ -129,18 +93,13 @@ const Vaksin = () => {
           return (
             (isIdVaksinValid && idVaksin.toLowerCase().includes(keyword)) ||
             (isIdPeternakValid && idPeternak.toLowerCase().includes(keyword)) ||
-            (isNamaPeternakValid &&
-              namaPeternak.toLowerCase().includes(keyword)) ||
-            (isKodeEartagNasionalValid &&
-              kodeEartagNasional.toLowerCase().includes(keyword)) ||
+            (isNamaPeternakValid && namaPeternak.toLowerCase().includes(keyword)) ||
+            (isKodeEartagNasionalValid && kodeEartagNasional.toLowerCase().includes(keyword)) ||
             (isIdPejantanValid && idPejantan.toLowerCase().includes(keyword)) ||
-            (isIdPembuatanValid &&
-              idPembuatan.toLowerCase().includes(keyword)) ||
-            (isBangsaPejantanValid &&
-              bangsaPejantan.toLowerCase().includes(keyword)) ||
+            (isIdPembuatanValid && idPembuatan.toLowerCase().includes(keyword)) ||
+            (isBangsaPejantanValid && bangsaPejantan.toLowerCase().includes(keyword)) ||
             (isProdusenValid && produsen.toLowerCase().includes(keyword)) ||
-            (isInseminatorValid &&
-              inseminator.toLowerCase().includes(keyword)) ||
+            (isInseminatorValid && inseminator.toLowerCase().includes(keyword)) ||
             (isLokasiValid && lokasi.toLowerCase().includes(keyword))
           );
         });
@@ -321,11 +280,7 @@ const Vaksin = () => {
       const utcDays = Math.floor(input - 25569);
       const utcValue = utcDays * 86400;
       const dateInfo = new Date(utcValue * 1000);
-      date = new Date(
-        dateInfo.getFullYear(),
-        dateInfo.getMonth(),
-        dateInfo.getDate()
-      ).toString();
+      date = new Date(dateInfo.getFullYear(), dateInfo.getMonth(), dateInfo.getDate()).toString();
     } else if (typeof input === "string") {
       const [day, month, year] = input.split("/");
       date = new Date(`${year}-${month}-${day}`).toString();
@@ -416,10 +371,7 @@ const Vaksin = () => {
         const [datePart, timePart] = dateString.split(" ");
         const [day, month, year] = datePart.split("/");
 
-        return `${year}-${month.padStart(2, "0")}-${day.padStart(
-          2,
-          "0"
-        )} ${timePart}`;
+        return `${year}-${month.padStart(2, "0")}-${day.padStart(2, "0")} ${timePart}`;
       } else if (typeof dateString === "string") {
         const [day, month, year] = dateString.split("/");
         return `${year}-${month.padStart(2, "0")}-${day.padStart(2, "0")}`;
@@ -487,32 +439,8 @@ const Vaksin = () => {
   };
 
   const convertHeaderToCSV = () => {
-    const columnTitlesLocal = [
-      "No",
-      "Nama Vaksin",
-      "Jenis Vaksin",
-      "Nik Peternak",
-      "Nama Peternak",
-      "Kode Eartag Ternak",
-      "No Kartu Ternak",
-      "Batch Vaksin",
-      "Vaksin Ke",
-      "Nama Petugas Vaksin",
-      "Tanggal Vaksin",
-    ];
-    const exampleRow = [
-      "1",
-      "Contoh ABC",
-      "Contoh PMK",
-      "Contoh 3508070507040006",
-      "Contoh Supardi",
-      "Contoh AAAA3451",
-      "Contoh 667578",
-      "Contoh 66677",
-      "Contoh 1",
-      "Contoh Suparman",
-      "Contoh 3/4/2025",
-    ];
+    const columnTitlesLocal = ["No", "Nama Vaksin", "Jenis Vaksin", "Nik Peternak", "Nama Peternak", "Kode Eartag Ternak", "No Kartu Ternak", "Batch Vaksin", "Vaksin Ke", "Nama Petugas Vaksin", "Tanggal Vaksin"];
+    const exampleRow = ["1", "Contoh ABC", "Contoh PMK", "Contoh 3508070507040006", "Contoh Supardi", "Contoh AAAA3451", "Contoh 667578", "Contoh 66677", "Contoh 1", "Contoh Suparman", "Contoh 3/4/2025"];
 
     // Gabungkan header dan contoh data
     const rows = [columnTitlesLocal, exampleRow];
@@ -543,17 +471,7 @@ const Vaksin = () => {
 
   // Convert data to CSV format
   const convertToCSV = (data) => {
-    const columnTitles = [
-      "ID Vaksin",
-      "Nama Vaksin",
-      "Jenis Vaksin",
-      "Lokasi",
-      "Nama Peternak",
-      "NIK Peternak",
-      "Eartag Hewan",
-      "Inseminator",
-      "Tanggal Vaksin",
-    ];
+    const columnTitles = ["ID Vaksin", "Nama Vaksin", "Jenis Vaksin", "Lokasi", "Nama Peternak", "NIK Peternak", "Eartag Hewan", "Inseminator", "Tanggal Vaksin"];
 
     const rows = [columnTitles];
     data.forEach((item) => {
@@ -592,41 +510,21 @@ const Vaksin = () => {
   };
 
   const getColumnSearchProps = (dataIndex, nestedPath) => ({
-    filterDropdown: ({
-      setSelectedKeys,
-      selectedKeys,
-      confirm,
-      clearFilters,
-      close,
-    }) => (
+    filterDropdown: ({ setSelectedKeys, selectedKeys, confirm, clearFilters, close }) => (
       <div style={{ padding: 8 }} onKeyDown={(e) => e.stopPropagation()}>
         <Input
           ref={searchInput}
           placeholder={`Search ${dataIndex}`}
           value={selectedKeys[0]}
-          onChange={(e) =>
-            setSelectedKeys(e.target.value ? [e.target.value] : [])
-          }
-          onPressEnter={() =>
-            handleSearchTable(selectedKeys, confirm, dataIndex)
-          }
+          onChange={(e) => setSelectedKeys(e.target.value ? [e.target.value] : [])}
+          onPressEnter={() => handleSearchTable(selectedKeys, confirm, dataIndex)}
           style={{ marginBottom: 8, display: "block" }}
         />
         <Space>
-          <Button
-            type="primary"
-            onClick={() => handleSearchTable(selectedKeys, confirm, dataIndex)}
-            icon={<SearchOutlined />}
-            size="small"
-            style={{ width: 90 }}
-          >
+          <Button type="primary" onClick={() => handleSearchTable(selectedKeys, confirm, dataIndex)} icon={<SearchOutlined />} size="small" style={{ width: 90 }}>
             Search
           </Button>
-          <Button
-            onClick={() => clearFilters && handleReset(clearFilters)}
-            size="small"
-            style={{ width: 90 }}
-          >
+          <Button onClick={() => clearFilters && handleReset(clearFilters)} size="small" style={{ width: 90 }}>
             Reset
           </Button>
           <Button
@@ -646,40 +544,20 @@ const Vaksin = () => {
         </Space>
       </div>
     ),
-    filterIcon: (filtered) => (
-      <SearchOutlined style={{ color: filtered ? "#1677ff" : undefined }} />
-    ),
+    filterIcon: (filtered) => <SearchOutlined style={{ color: filtered ? "#1677ff" : undefined }} />,
     onFilter: (value, record) => {
       if (nestedPath) {
-        const nestedValue = nestedPath
-          .split(".")
-          .reduce((obj, key) => obj?.[key], record);
-        return nestedValue
-          ?.toString()
-          .toLowerCase()
-          .includes(value.toLowerCase());
+        const nestedValue = nestedPath.split(".").reduce((obj, key) => obj?.[key], record);
+        return nestedValue?.toString().toLowerCase().includes(value.toLowerCase());
       }
-      return record[dataIndex]
-        ?.toString()
-        .toLowerCase()
-        .includes(value.toLowerCase());
+      return record[dataIndex]?.toString().toLowerCase().includes(value.toLowerCase());
     },
     filterDropdownProps: {
       onOpenChange(open) {
         if (open) setTimeout(() => searchInput.current?.select(), 100);
       },
     },
-    render: (text) =>
-      searchedColumn === dataIndex ? (
-        <Highlighter
-          highlightStyle={{ backgroundColor: "#ffc069", padding: 0 }}
-          searchWords={[searchText]}
-          autoEscape
-          textToHighlight={text?.toString() || ""}
-        />
-      ) : (
-        text
-      ),
+    render: (text) => (searchedColumn === dataIndex ? <Highlighter highlightStyle={{ backgroundColor: "#ffc069", padding: 0 }} searchWords={[searchText]} autoEscape textToHighlight={text?.toString() || ""} /> : text),
   });
 
   // Render Columns with Operations
@@ -691,8 +569,7 @@ const Vaksin = () => {
         dataIndex: ["jenisVaksin", "jenis"],
         key: "jenis",
         ...getColumnSearchProps("jenisVaksin.jenis"),
-        sorter: (a, b) =>
-          a.jenisVaksin.jenis.localeCompare(b.jenisVaksin.jenis),
+        sorter: (a, b) => a.jenisVaksin.jenis.localeCompare(b.jenisVaksin.jenis),
       },
       {
         title: "Nama Vaksin",
@@ -707,16 +584,14 @@ const Vaksin = () => {
         dataIndex: ["hewan", "kodeEartagNasional"],
         key: "kodeEartagNasional",
         ...getColumnSearchProps("hewan.kodeEartagNasional"),
-        sorter: (a, b) =>
-          a.hewan.kodeEartagNasional.localeCompare(b.hewan.kodeEartagNasional),
+        sorter: (a, b) => a.hewan.kodeEartagNasional.localeCompare(b.hewan.kodeEartagNasional),
       },
       {
         title: "Nama Peternak",
         dataIndex: ["peternak", "namaPeternak"],
         key: "namaPeternak",
         ...getColumnSearchProps("peternak.namaPeternak"),
-        sorter: (a, b) =>
-          a.peternak.namaPeternak.localeCompare(b.peternak.namaPeternak),
+        sorter: (a, b) => a.peternak.namaPeternak.localeCompare(b.peternak.namaPeternak),
       },
 
       {
@@ -739,8 +614,7 @@ const Vaksin = () => {
         dataIndex: ["petugas", "namaPetugas"],
         key: "namaPetugas",
         ...getColumnSearchProps("petugas.namaPetugas"),
-        sorter: (a, b) =>
-          a.petugas.namaPetugas.localeCompare(b.petugas.namaPetugas),
+        sorter: (a, b) => a.petugas.namaPetugas.localeCompare(b.petugas.namaPetugas),
       },
 
       {
@@ -755,16 +629,11 @@ const Vaksin = () => {
         dataIndex: ["hewan", "tanggalTerdaftar"],
         key: "tanggalTerdaftar",
         ...getColumnSearchProps("hewan.tanggalTerdaftar"),
-        sorter: (a, b) =>
-          new Date(a.hewan.tanggalTerdaftar) -
-          new Date(b.hewan.tanggalTerdaftar),
+        sorter: (a, b) => new Date(a.hewan.tanggalTerdaftar) - new Date(b.hewan.tanggalTerdaftar),
       },
     ];
 
-    if (
-      user &&
-      (user.role === "ROLE_ADMINISTRATOR" || user.role === "ROLE_PETUGAS")
-    ) {
+    if (user && (user.role === "ROLE_ADMINISTRATOR" || user.role === "ROLE_PETUGAS")) {
       baseColumns.push({
         title: "Operasi",
         key: "action",
@@ -772,22 +641,9 @@ const Vaksin = () => {
         align: "center",
         render: (text, row) => (
           <span>
-            <Button
-              type="primary"
-              shape="circle"
-              icon={<EditOutlined />}
-              title="Edit"
-              onClick={() => handleEditVaksin(row)}
-            />
+            <Button type="primary" shape="circle" icon={<EditOutlined />} title="Edit" onClick={() => handleEditVaksin(row)} />
             <Divider type="vertical" />
-            <Button
-              type="primary"
-              danger
-              shape="circle"
-              icon={<DeleteOutlined />}
-              title="Delete"
-              onClick={() => handleDeleteVaksin(row)}
-            />
+            <Button type="primary" danger shape="circle" icon={<DeleteOutlined />} title="Delete" onClick={() => handleDeleteVaksin(row)} />
           </span>
         ),
       });
@@ -799,26 +655,9 @@ const Vaksin = () => {
   // Render Table based on User Role
   const renderTable = () => {
     if (user && user.role === "ROLE_PETERNAK") {
-      return (
-        <Table
-          dataSource={vaksins}
-          bordered
-          columns={renderColumns()}
-          rowKey="idVaksin"
-        />
-      );
-    } else if (
-      user &&
-      (user.role === "ROLE_ADMINISTRATOR" || user.role === "ROLE_PETUGAS")
-    ) {
-      return (
-        <Table
-          dataSource={vaksins}
-          bordered
-          columns={renderColumns()}
-          rowKey="idVaksin"
-        />
-      );
+      return <Table dataSource={vaksins} bordered columns={renderColumns()} rowKey="idVaksin" />;
+    } else if (user && (user.role === "ROLE_ADMINISTRATOR" || user.role === "ROLE_PETUGAS")) {
+      return <Table dataSource={vaksins} bordered columns={renderColumns()} rowKey="idVaksin" />;
     } else {
       return null;
     }
@@ -826,37 +665,26 @@ const Vaksin = () => {
 
   // Render Buttons based on User Role
   const renderButtons = () => {
-    if (
-      user &&
-      (user.role === "ROLE_ADMINISTRATOR" || user.role === "ROLE_PETUGAS")
-    ) {
+    if (user && (user.role === "ROLE_ADMINISTRATOR" || user.role === "ROLE_PETUGAS")) {
       return (
         <Row gutter={[16, 16]} justify="start" style={{ paddingLeft: 9 }}>
           <Col>
-            <Button type="primary" onClick={handleAddVaksin} block>
+            <Button type="primary" onClick={handleAddVaksin} style={{ width: 200 }}>
               Tambah Vaksin
             </Button>
           </Col>
           <Col>
-            <Button
-              icon={<UploadOutlined />}
-              onClick={handleImportModalOpen}
-              block
-            >
+            <Button icon={<UploadOutlined />} onClick={handleImportModalOpen} style={{ width: 200 }}>
               Import File
             </Button>
           </Col>
           <Col>
-            <Button
-              icon={<DownloadOutlined />}
-              onClick={handleDownloadCSV}
-              block
-            >
+            <Button icon={<DownloadOutlined />} onClick={handleDownloadCSV} style={{ width: 200 }}>
               Download Format CSV
             </Button>
           </Col>
           <Col>
-            <Button icon={<UploadOutlined />} onClick={handleExportData} block>
+            <Button icon={<UploadOutlined />} onClick={handleExportData} style={{ width: 200 }}>
               Export Data To CSV
             </Button>
           </Col>
@@ -872,12 +700,7 @@ const Vaksin = () => {
     <Row gutter={[16, 16]} justify="space-between">
       {renderButtons()}
       <Col xs={24} sm={12} md={8} lg={8} xl={8}>
-        <Input
-          placeholder="Cari data"
-          value={searchKeyword}
-          onChange={(e) => handleSearch(e.target.value)}
-          style={{ width: "100%" }}
-        />
+        <Input placeholder="Cari data" value={searchKeyword} onChange={(e) => handleSearch(e.target.value)} style={{ width: "100%" }} />
       </Col>
     </Row>
   );
@@ -889,34 +712,20 @@ const Vaksin = () => {
       {/* TypingCard component */}
       <TypingCard title="Manajemen Vaksin Buatan" source={cardContent} />
       <br />
+      <Card>{title}</Card>
       {loading ? (
         <Card>
           <Skeleton active paragraph={{ rows: 10 }} />
         </Card>
       ) : (
-        <Card title={title} style={{ overflowX: "scroll" }}>
-          {renderTable()}
-        </Card>
+        <Card style={{ overflowX: "scroll" }}>{renderTable()}</Card>
       )}
 
       {/* Edit Vaksin Modal */}
-      <EditVaksinForm
-        currentRowData={currentRowData}
-        wrappedComponentRef={editVaksinFormRef}
-        visible={editVaksinModalVisible}
-        confirmLoading={editVaksinModalLoading}
-        onCancel={handleCancel}
-        onOk={handleEditVaksinOk}
-      />
+      <EditVaksinForm currentRowData={currentRowData} wrappedComponentRef={editVaksinFormRef} visible={editVaksinModalVisible} confirmLoading={editVaksinModalLoading} onCancel={handleCancel} onOk={handleEditVaksinOk} />
 
       {/* Add Vaksin Modal */}
-      <AddVaksinForm
-        wrappedComponentRef={addVaksinFormRef}
-        visible={addVaksinModalVisible}
-        confirmLoading={addVaksinModalLoading}
-        onCancel={handleCancel}
-        onOk={handleAddVaksinOk}
-      />
+      <AddVaksinForm wrappedComponentRef={addVaksinFormRef} visible={addVaksinModalVisible} confirmLoading={addVaksinModalLoading} onCancel={handleCancel} onOk={handleAddVaksinOk} />
 
       {/* Import Modal */}
       <Modal
@@ -927,12 +736,7 @@ const Vaksin = () => {
           <Button key="cancel" onClick={handleImportModalClose}>
             Cancel
           </Button>,
-          <Button
-            key="upload"
-            type="primary"
-            loading={uploading}
-            onClick={handleUpload}
-          >
+          <Button key="upload" type="primary" loading={uploading} onClick={handleUpload}>
             Upload
           </Button>,
         ]}

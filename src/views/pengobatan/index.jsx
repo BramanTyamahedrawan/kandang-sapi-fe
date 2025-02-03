@@ -1,35 +1,10 @@
 /* eslint-disable no-constant-condition */
 /* eslint-disable no-unused-vars */
-import {
-  addPengobatan,
-  addPengobatanImport,
-  deletePengobatan,
-  editPengobatan,
-  getPengobatan,
-} from "@/api/pengobatan";
+import { addPengobatan, addPengobatanImport, deletePengobatan, editPengobatan, getPengobatan } from "@/api/pengobatan";
 import { addPetugasBulkByNama, getPetugas } from "@/api/petugas";
 import TypingCard from "@/components/TypingCard";
-import {
-  DeleteOutlined,
-  DownloadOutlined,
-  EditOutlined,
-  SearchOutlined,
-  UploadOutlined,
-} from "@ant-design/icons";
-import {
-  Button,
-  Card,
-  Col,
-  Divider,
-  Input,
-  message,
-  Modal,
-  Row,
-  Skeleton,
-  Space,
-  Table,
-  Upload,
-} from "antd";
+import { DeleteOutlined, DownloadOutlined, EditOutlined, SearchOutlined, UploadOutlined } from "@ant-design/icons";
+import { Button, Card, Col, Divider, Input, message, Modal, Row, Skeleton, Space, Table, Upload } from "antd";
 import React, { useEffect, useRef, useState } from "react";
 import Highlighter from "react-highlight-words";
 import { v4 as uuidv4 } from "uuid";
@@ -47,15 +22,9 @@ const sendPetugasImport = async (data, batchSize = 7000) => {
     try {
       console.log(`Data Petugas (Batch ${i + 1}):`, batchData); // Log data yang dikirim
       const response = await addPetugasBulkByNama(batchData);
-      console.log(
-        `Batch ${i + 1}/${totalBatches} berhasil dikirim`,
-        response.data
-      );
+      console.log(`Batch ${i + 1}/${totalBatches} berhasil dikirim`, response.data);
     } catch (error) {
-      console.error(
-        `Batch ${i + 1}/${totalBatches} gagal dikirim`,
-        error.response?.data || error.message
-      );
+      console.error(`Batch ${i + 1}/${totalBatches} gagal dikirim`, error.response?.data || error.message);
       throw error; // Hentikan proses jika batch gagal
     }
   }
@@ -70,15 +39,9 @@ const sendPengobatanImport = async (data, batchSize = 7000) => {
     try {
       console.log(`Data Pengobatan (Batch ${i + 1}):`, batchData); // Log data yang dikirim
       const response = await addPengobatanImport(batchData);
-      console.log(
-        `Batch ${i + 1}/${totalBatches} berhasil dikirim`,
-        response.data
-      );
+      console.log(`Batch ${i + 1}/${totalBatches} berhasil dikirim`, response.data);
     } catch (error) {
-      console.error(
-        `Batch ${i + 1}/${totalBatches} gagal dikirim`,
-        error.response?.data || error.message
-      );
+      console.error(`Batch ${i + 1}/${totalBatches} gagal dikirim`, error.response?.data || error.message);
       throw error; // Hentikan proses jika batch gagal
     }
   }
@@ -102,12 +65,7 @@ function parseAddress(address) {
   const provinsi = parts[0] || "-";
 
   // Validasi bahwa setidaknya satu bagian selain "-" harus terisi
-  const isValid =
-    dusun !== "-" ||
-    desa !== "-" ||
-    kecamatan !== "-" ||
-    kabupaten !== "-" ||
-    provinsi !== "-";
+  const isValid = dusun !== "-" || desa !== "-" || kecamatan !== "-" || kabupaten !== "-" || provinsi !== "-";
 
   if (!isValid) {
     console.warn(`Alamat tidak valid: ${address}`);
@@ -123,15 +81,11 @@ const cleanNik = (nik) => (nik ? nik.replace(/'/g, "").trim() : "-");
 const Pengobatan = () => {
   const [pengobatan, setPengobatan] = useState([]);
   const [petugas, setPetugas] = useState([]);
-  const [editPengobatanModalVisible, setEditPengobatanModalVisible] =
-    useState(false);
-  const [editPengobatanModalLoading, setEditPengobatanModalLoading] =
-    useState(false);
+  const [editPengobatanModalVisible, setEditPengobatanModalVisible] = useState(false);
+  const [editPengobatanModalLoading, setEditPengobatanModalLoading] = useState(false);
   const [currentRowData, setCurrentRowData] = useState({});
-  const [addPengobatanModalVisible, setAddPengobatanModalVisible] =
-    useState(false);
-  const [addPengobatanModalLoading, setAddPengobatanModalLoading] =
-    useState(false);
+  const [addPengobatanModalVisible, setAddPengobatanModalVisible] = useState(false);
+  const [addPengobatanModalLoading, setAddPengobatanModalLoading] = useState(false);
   const [importModalVisible, setImportModalVisible] = useState(false);
   const [importedData, setImportedData] = useState([]);
   const [columnTitles, setColumnTitles] = useState([]);
@@ -174,22 +128,7 @@ const Pengobatan = () => {
 
       if (statusCode === 200) {
         const filteredPengobatan = content.filter((pengobatan) => {
-          const {
-            idPengobatan,
-            idKasus,
-            tanggalPengobatan,
-            tanggalKasus,
-            namaInfrastruktur,
-            lokasi,
-            dosis,
-            sindrom,
-            diagnosaBanding,
-            provinsiPengobatan,
-            kabupatenPengobatan,
-            kecamatanPengobatan,
-            desaPengobatan,
-            petugasId,
-          } = pengobatan;
+          const { idPengobatan, idKasus, tanggalPengobatan, tanggalKasus, namaInfrastruktur, lokasi, dosis, sindrom, diagnosaBanding, provinsiPengobatan, kabupatenPengobatan, kecamatanPengobatan, desaPengobatan, petugasId } = pengobatan;
           const keyword = searchKeyword.toLowerCase();
 
           return (
@@ -419,10 +358,7 @@ const Pengobatan = () => {
             const [datePart, timePart] = dateString.split(" ");
             const [day, month, year] = datePart.split("/");
 
-            return `${year}-${month.padStart(2, "0")}-${day.padStart(
-              2,
-              "0"
-            )} ${timePart}`;
+            return `${year}-${month.padStart(2, "0")}-${day.padStart(2, "0")} ${timePart}`;
           } else if (typeof dateString === "string") {
             const [day, month, year] = dateString.split("/");
             return `${year}-${month.padStart(2, "0")}-${day.padStart(2, "0")}`;
@@ -435,18 +371,14 @@ const Pengobatan = () => {
         const validateEmail = (email) => {
           // Jika email tidak valid (null, undefined, atau bukan string), gunakan default
           if (typeof email !== "string" || !email.includes("@")) {
-            console.warn(
-              `Email tidak valid: ${email}. Menggunakan email default.`
-            );
+            console.warn(`Email tidak valid: ${email}. Menggunakan email default.`);
             return "default@gmail.com"; // Email default
           }
           // Jika valid, kembalikan email
           return email;
         };
 
-        const pecahLokasi = parseAddress(
-          row[columnMapping["Lokasi"]] || row[columnMapping["Alamat"]] || "-"
-        );
+        const pecahLokasi = parseAddress(row[columnMapping["Lokasi"]] || row[columnMapping["Alamat"]] || "-");
         // const setEmail =;
 
         const namaPetugasPengobatan = row[columnMapping["Petugas"]] || "-";
@@ -467,11 +399,8 @@ const Pengobatan = () => {
         const dataPengobatan = {
           idPengobatan: generateIdPengobatan,
           idKasus: row[columnMapping["ID Kasus"]] || "-",
-          tanggalPengobatan: formatDateToString(
-            row[columnMapping["tanggal_pengobatan"]] || "-"
-          ),
-          tanggalKasus:
-            formatDateToString(row[columnMapping["tanggal_kasus"]]) || "-",
+          tanggalPengobatan: formatDateToString(row[columnMapping["tanggal_pengobatan"]] || "-"),
+          tanggalKasus: formatDateToString(row[columnMapping["tanggal_kasus"]]) || "-",
           namaInfrastruktur: row[columnMapping["Nama Infrasruktur"]] || "-",
           lokasi: row[columnMapping["Lokasi"]] || "-",
           provinsiPengobatan: pecahLokasi.provinsi,
@@ -497,20 +426,14 @@ const Pengobatan = () => {
         // await sendPetugasImport(petugasPengobatan);
         await sendPengobatanImport(pengobatan);
       } catch (error) {
-        console.error(
-          "Gagal menyimpan data secara bulk:",
-          error,
-          error.response?.data
-        );
+        console.error("Gagal menyimpan data secara bulk:", error, error.response?.data);
       }
 
       if (errorCount === 0) {
         message.success(`Semua data berhasil disimpan.`);
         getPengobatanData();
       } else {
-        message.error(
-          `${errorCount} data gagal disimpan karena duplikasi data!`
-        );
+        message.error(`${errorCount} data gagal disimpan karena duplikasi data!`);
       }
     } catch (error) {
       console.error("Gagal memproses data:", error);
@@ -530,18 +453,7 @@ const Pengobatan = () => {
   };
 
   function convertHeaderToCSV() {
-    const columnTitlesLocal = [
-      "No",
-      "tanggal_pengobatan",
-      "tanggal_kasus",
-      "ID Kasus",
-      "Petugas",
-      "Nama Infrasruktur",
-      "Lokasi",
-      "Dosis",
-      "Tanda/Sindrom",
-      "Diagnosa Banding",
-    ];
+    const columnTitlesLocal = ["No", "tanggal_pengobatan", "tanggal_kasus", "ID Kasus", "Petugas", "Nama Infrasruktur", "Lokasi", "Dosis", "Tanda/Sindrom", "Diagnosa Banding"];
     const exampleRow = [
       "1",
       "Contoh 1/5/2023",
@@ -589,31 +501,11 @@ const Pengobatan = () => {
   };
 
   const convertToCSV = (data) => {
-    const columnTitles = [
-      "Tanggal Pengobatan",
-      "Tanggal Kasus",
-      "ID Kasus",
-      "Petugas",
-      "Nama Infrastruktur",
-      "Lokasi",
-      "Dosis",
-      "Tanda atau Sindrom",
-      "Diagnosa Banding",
-    ];
+    const columnTitles = ["Tanggal Pengobatan", "Tanggal Kasus", "ID Kasus", "Petugas", "Nama Infrastruktur", "Lokasi", "Dosis", "Tanda atau Sindrom", "Diagnosa Banding"];
 
     const rows = [columnTitles];
     data.forEach((item) => {
-      const row = [
-        item.tanggalPengobatan,
-        item.tanggalKasus,
-        item.idKasus,
-        item.namaPetugas,
-        item.namaInfrastruktur,
-        item.lokasi,
-        item.dosis,
-        item.sindrom,
-        item.diagnosaBanding,
-      ];
+      const row = [item.tanggalPengobatan, item.tanggalKasus, item.idKasus, item.namaPetugas, item.namaInfrastruktur, item.lokasi, item.dosis, item.sindrom, item.diagnosaBanding];
       rows.push(row);
     });
 
@@ -637,41 +529,21 @@ const Pengobatan = () => {
   };
 
   const getColumnSearchProps = (dataIndex, nestedPath) => ({
-    filterDropdown: ({
-      setSelectedKeys,
-      selectedKeys,
-      confirm,
-      clearFilters,
-      close,
-    }) => (
+    filterDropdown: ({ setSelectedKeys, selectedKeys, confirm, clearFilters, close }) => (
       <div style={{ padding: 8 }} onKeyDown={(e) => e.stopPropagation()}>
         <Input
           ref={searchInput}
           placeholder={`Search ${dataIndex}`}
           value={selectedKeys[0]}
-          onChange={(e) =>
-            setSelectedKeys(e.target.value ? [e.target.value] : [])
-          }
-          onPressEnter={() =>
-            handleSearchTable(selectedKeys, confirm, dataIndex)
-          }
+          onChange={(e) => setSelectedKeys(e.target.value ? [e.target.value] : [])}
+          onPressEnter={() => handleSearchTable(selectedKeys, confirm, dataIndex)}
           style={{ marginBottom: 8, display: "block" }}
         />
         <Space>
-          <Button
-            type="primary"
-            onClick={() => handleSearchTable(selectedKeys, confirm, dataIndex)}
-            icon={<SearchOutlined />}
-            size="small"
-            style={{ width: 90 }}
-          >
+          <Button type="primary" onClick={() => handleSearchTable(selectedKeys, confirm, dataIndex)} icon={<SearchOutlined />} size="small" style={{ width: 90 }}>
             Search
           </Button>
-          <Button
-            onClick={() => clearFilters && handleReset(clearFilters)}
-            size="small"
-            style={{ width: 90 }}
-          >
+          <Button onClick={() => clearFilters && handleReset(clearFilters)} size="small" style={{ width: 90 }}>
             Reset
           </Button>
           <Button
@@ -691,40 +563,20 @@ const Pengobatan = () => {
         </Space>
       </div>
     ),
-    filterIcon: (filtered) => (
-      <SearchOutlined style={{ color: filtered ? "#1677ff" : undefined }} />
-    ),
+    filterIcon: (filtered) => <SearchOutlined style={{ color: filtered ? "#1677ff" : undefined }} />,
     onFilter: (value, record) => {
       if (nestedPath) {
-        const nestedValue = nestedPath
-          .split(".")
-          .reduce((obj, key) => obj?.[key], record);
-        return nestedValue
-          ?.toString()
-          .toLowerCase()
-          .includes(value.toLowerCase());
+        const nestedValue = nestedPath.split(".").reduce((obj, key) => obj?.[key], record);
+        return nestedValue?.toString().toLowerCase().includes(value.toLowerCase());
       }
-      return record[dataIndex]
-        ?.toString()
-        .toLowerCase()
-        .includes(value.toLowerCase());
+      return record[dataIndex]?.toString().toLowerCase().includes(value.toLowerCase());
     },
     filterDropdownProps: {
       onOpenChange(open) {
         if (open) setTimeout(() => searchInput.current?.select(), 100);
       },
     },
-    render: (text) =>
-      searchedColumn === dataIndex ? (
-        <Highlighter
-          highlightStyle={{ backgroundColor: "#ffc069", padding: 0 }}
-          searchWords={[searchText]}
-          autoEscape
-          textToHighlight={text?.toString() || ""}
-        />
-      ) : (
-        text
-      ),
+    render: (text) => (searchedColumn === dataIndex ? <Highlighter highlightStyle={{ backgroundColor: "#ffc069", padding: 0 }} searchWords={[searchText]} autoEscape textToHighlight={text?.toString() || ""} /> : text),
   });
 
   const renderColumns = () => {
@@ -741,8 +593,7 @@ const Pengobatan = () => {
         dataIndex: "tanggalPengobatan",
         key: "tanggalPengobatan",
         ...getColumnSearchProps("tanggalPengobatan"),
-        sorter: (a, b) =>
-          new Date(a.tanggalPengobatan) - new Date(b.tanggalPengobatan),
+        sorter: (a, b) => new Date(a.tanggalPengobatan) - new Date(b.tanggalPengobatan),
       },
       {
         title: "Tanggal Kasus",
@@ -756,8 +607,7 @@ const Pengobatan = () => {
         dataIndex: "namaInfrastruktur",
         key: "namaInfrastruktur",
         ...getColumnSearchProps("namaInfrastruktur"),
-        sorter: (a, b) =>
-          a.namaInfrastruktur.localeCompare(b.namaInfrastruktur),
+        sorter: (a, b) => a.namaInfrastruktur.localeCompare(b.namaInfrastruktur),
       },
       {
         title: "Lokasi",
@@ -798,8 +648,7 @@ const Pengobatan = () => {
         dataIndex: ["petugas", "namaPetugas"],
         key: "namaPetugas",
         ...getColumnSearchProps("namaPetugas", "petugas.namaPetugas"),
-        sorter: (a, b) =>
-          a.petugas.namaPetugas.localeCompare(b.petugas.namaPetugas),
+        sorter: (a, b) => a.petugas.namaPetugas.localeCompare(b.petugas.namaPetugas),
       },
     ];
 
@@ -811,21 +660,9 @@ const Pengobatan = () => {
         align: "center",
         render: (text, row) => (
           <span>
-            <Button
-              type="primary"
-              shape="circle"
-              icon={<EditOutlined />}
-              onClick={() => handleEditPengobatan(row)}
-            />
+            <Button type="primary" shape="circle" icon={<EditOutlined />} onClick={() => handleEditPengobatan(row)} />
             <Divider type="vertical" />
-            <Button
-              type="primary"
-              danger
-              shape="circle"
-              title="Delete"
-              icon={<DeleteOutlined />}
-              onClick={() => handleDeletePengobatan(row)}
-            />
+            <Button type="primary" danger shape="circle" title="Delete" icon={<DeleteOutlined />} onClick={() => handleDeletePengobatan(row)} />
           </span>
         ),
       });
@@ -836,63 +673,35 @@ const Pengobatan = () => {
 
   const renderTable = () => {
     if (user && user.role === "ROLE_PETERNAK") {
-      return (
-        <Table
-          dataSource={pengobatan}
-          bordered
-          columns={renderColumns()}
-          rowKey="idPengobatan"
-        />
-      );
-    } else if (
-      user &&
-      (user.role === "ROLE_ADMINISTRATOR" || user.role === "ROLE_PETUGAS")
-    ) {
-      return (
-        <Table
-          dataSource={pengobatan}
-          bordered
-          columns={renderColumns()}
-          rowKey="idPengobatan"
-        />
-      );
+      return <Table dataSource={pengobatan} bordered columns={renderColumns()} rowKey="idPengobatan" />;
+    } else if (user && (user.role === "ROLE_ADMINISTRATOR" || user.role === "ROLE_PETUGAS")) {
+      return <Table dataSource={pengobatan} bordered columns={renderColumns()} rowKey="idPengobatan" />;
     } else {
       return null;
     }
   };
 
   const renderButtons = () => {
-    if (
-      user &&
-      (user.role === "ROLE_ADMINISTRATOR" || user.role === "ROLE_PETUGAS")
-    ) {
+    if (user && (user.role === "ROLE_ADMINISTRATOR" || user.role === "ROLE_PETUGAS")) {
       return (
         <Row gutter={[16, 16]} justify="start" style={{ paddingLeft: 9 }}>
           <Col>
-            <Button type="primary" onClick={handleAddPengobatan} block>
+            <Button type="primary" onClick={handleAddPengobatan} style={{ width: 200 }}>
               Tambah Pengobatan
             </Button>
           </Col>
           <Col>
-            <Button
-              icon={<UploadOutlined />}
-              onClick={handleImportModalOpen}
-              block
-            >
+            <Button icon={<UploadOutlined />} onClick={handleImportModalOpen} style={{ width: 200 }}>
               Import File
             </Button>
           </Col>
           <Col>
-            <Button
-              icon={<DownloadOutlined />}
-              onClick={handleDownloadCSV}
-              block
-            >
+            <Button icon={<DownloadOutlined />} onClick={handleDownloadCSV} style={{ width: 200 }}>
               Download Format CSV
             </Button>
           </Col>
           <Col>
-            <Button icon={<UploadOutlined />} onClick={handleExportData} block>
+            <Button icon={<UploadOutlined />} onClick={handleExportData} style={{ width: 200 }}>
               Export Data To CSV
             </Button>
           </Col>
@@ -907,49 +716,27 @@ const Pengobatan = () => {
     <Row gutter={[16, 16]} justify="start">
       {renderButtons()}
       <Col xs={24} sm={12} md={8} lg={8} xl={8}>
-        <Input
-          placeholder="Cari data"
-          value={searchKeyword}
-          onChange={(e) => handleSearchTable(e.target.value)}
-          style={{ width: 235, marginLeft: 10 }}
-        />
+        <Input placeholder="Cari data" value={searchKeyword} onChange={(e) => handleSearchTable(e.target.value)} style={{ width: "100%" }} />
       </Col>
     </Row>
   );
 
   return (
     <div className="app-container">
-      <TypingCard
-        title="Manajemen Data Pengobatan"
-        source="Di sini, Anda dapat mengelola daftar pengobatan di sistem."
-      />
+      <TypingCard title="Manajemen Data Pengobatan" source="Di sini, Anda dapat mengelola daftar pengobatan di sistem." />
       <br />
+      <Card>{title}</Card>
       {loading ? (
         <Card>
           <Skeleton active paragraph={{ rows: 10 }} />
         </Card>
       ) : (
-        <Card title={title} style={{ overflowX: "scroll" }}>
-          {renderTable()}
-        </Card>
+        <Card style={{ overflowX: "scroll" }}>{renderTable()}</Card>
       )}
 
-      <EditPengobatanForm
-        currentRowData={currentRowData}
-        wrappedComponentRef={editPengobatanFormRef}
-        visible={editPengobatanModalVisible}
-        confirmLoading={editPengobatanModalLoading}
-        onCancel={handleCancel}
-        onOk={handleEditPengobatanOk}
-      />
+      <EditPengobatanForm currentRowData={currentRowData} wrappedComponentRef={editPengobatanFormRef} visible={editPengobatanModalVisible} confirmLoading={editPengobatanModalLoading} onCancel={handleCancel} onOk={handleEditPengobatanOk} />
 
-      <AddPengobatanForm
-        wrappedComponentRef={addPengobatanFormRef}
-        visible={addPengobatanModalVisible}
-        confirmLoading={addPengobatanModalLoading}
-        onCancel={handleCancel}
-        onOk={handleAddPengobatanOk}
-      />
+      <AddPengobatanForm wrappedComponentRef={addPengobatanFormRef} visible={addPengobatanModalVisible} confirmLoading={addPengobatanModalLoading} onCancel={handleCancel} onOk={handleAddPengobatanOk} />
       <Modal
         title="Import File"
         open={importModalVisible}
@@ -958,12 +745,7 @@ const Pengobatan = () => {
           <Button key="cancel" onClick={handleCancel}>
             Cancel
           </Button>,
-          <Button
-            key="upload"
-            type="primary"
-            loading={uploading}
-            onClick={handleUpload}
-          >
+          <Button key="upload" type="primary" loading={uploading} onClick={handleUpload}>
             Upload
           </Button>,
         ]}

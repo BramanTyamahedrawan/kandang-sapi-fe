@@ -1,33 +1,9 @@
 /* eslint-disable no-constant-condition */
 /* eslint-disable no-unused-vars */
-import {
-  addJenisVaksin,
-  deleteJenisVaksin,
-  editJenisVaksin,
-  getJenisVaksin,
-  addJenisVaksinBulk,
-} from "@/api/jenis-vaksin";
+import { addJenisVaksin, deleteJenisVaksin, editJenisVaksin, getJenisVaksin, addJenisVaksinBulk } from "@/api/jenis-vaksin";
 import TypingCard from "@/components/TypingCard";
-import {
-  DeleteOutlined,
-  DownloadOutlined,
-  EditOutlined,
-  UploadOutlined,
-  SearchOutlined,
-} from "@ant-design/icons";
-import {
-  Button,
-  Card,
-  Col,
-  Divider,
-  Input,
-  message,
-  Modal,
-  Row,
-  Table,
-  Upload,
-  Space,
-} from "antd";
+import { DeleteOutlined, DownloadOutlined, EditOutlined, UploadOutlined, SearchOutlined } from "@ant-design/icons";
+import { Button, Card, Col, Divider, Input, message, Modal, Row, Table, Upload, Space } from "antd";
 import React, { useEffect, useRef, useState } from "react";
 import { read, utils } from "xlsx";
 import { reqUserInfo } from "../../api/user";
@@ -40,15 +16,11 @@ import Highlighter from "react-highlight-words";
 const JenisVaksin = () => {
   // State Variables
   const [jenisVaksins, setJenisVaksins] = useState([]);
-  const [editJenisVaksinModalVisible, setEditJenisVaksinModalVisible] =
-    useState(false);
-  const [editJenisVaksinModalLoading, setEditJenisVaksinModalLoading] =
-    useState(false);
+  const [editJenisVaksinModalVisible, setEditJenisVaksinModalVisible] = useState(false);
+  const [editJenisVaksinModalLoading, setEditJenisVaksinModalLoading] = useState(false);
   const [currentRowData, setCurrentRowData] = useState({});
-  const [addJenisVaksinModalVisible, setAddJenisVaksinModalVisible] =
-    useState(false);
-  const [addJenisVaksinModalLoading, setAddJenisVaksinModalLoading] =
-    useState(false);
+  const [addJenisVaksinModalVisible, setAddJenisVaksinModalVisible] = useState(false);
+  const [addJenisVaksinModalLoading, setAddJenisVaksinModalLoading] = useState(false);
   const [importModalVisible, setImportModalVisible] = useState(false);
   const [importedData, setImportedData] = useState([]);
   const [searchKeyword, setSearchKeyword] = useState("");
@@ -93,12 +65,7 @@ const JenisVaksin = () => {
           const isJenisValid = typeof jenis === "string";
           const isDeskripsiValid = typeof deskripsi === "string";
 
-          return (
-            (isIdJenisVaksinValid &&
-              idJenisVaksin.toLowerCase().includes(keyword)) ||
-            (isJenisValid && jenis.toLowerCase().includes(keyword)) ||
-            (isDeskripsiValid && deskripsi.toLowerCase().includes(keyword))
-          );
+          return (isIdJenisVaksinValid && idJenisVaksin.toLowerCase().includes(keyword)) || (isJenisValid && jenis.toLowerCase().includes(keyword)) || (isDeskripsiValid && deskripsi.toLowerCase().includes(keyword));
         });
 
         setJenisVaksins(filteredJenisVaksin);
@@ -265,11 +232,7 @@ const JenisVaksin = () => {
       const utcDays = Math.floor(input - 25569);
       const utcValue = utcDays * 86400;
       const dateInfo = new Date(utcValue * 1000);
-      date = new Date(
-        dateInfo.getFullYear(),
-        dateInfo.getMonth(),
-        dateInfo.getDate()
-      ).toString();
+      date = new Date(dateInfo.getFullYear(), dateInfo.getMonth(), dateInfo.getDate()).toString();
     } else if (typeof input === "string") {
       const [day, month, year] = input.split("/");
       date = new Date(`${year}-${month}-${day}`).toString();
@@ -399,11 +362,7 @@ const JenisVaksin = () => {
 
   const convertHeaderToCSV = () => {
     const columnTitlesLocal = ["No", "Jenis Vaksin", "Deskripsi"];
-    const exampleRow = [
-      "1",
-      "Contoh PMK",
-      "Contoh jenis vaksin untuk penyakit PMK",
-    ];
+    const exampleRow = ["1", "Contoh PMK", "Contoh jenis vaksin untuk penyakit PMK"];
 
     // Gabungkan header dan contoh data
     const rows = [columnTitlesLocal, exampleRow];
@@ -464,41 +423,21 @@ const JenisVaksin = () => {
   };
 
   const getColumnSearchProps = (dataIndex, nestedPath) => ({
-    filterDropdown: ({
-      setSelectedKeys,
-      selectedKeys,
-      confirm,
-      clearFilters,
-      close,
-    }) => (
+    filterDropdown: ({ setSelectedKeys, selectedKeys, confirm, clearFilters, close }) => (
       <div style={{ padding: 8 }} onKeyDown={(e) => e.stopPropagation()}>
         <Input
           ref={searchInput}
           placeholder={`Search ${dataIndex}`}
           value={selectedKeys[0]}
-          onChange={(e) =>
-            setSelectedKeys(e.target.value ? [e.target.value] : [])
-          }
-          onPressEnter={() =>
-            handleSearchTable(selectedKeys, confirm, dataIndex)
-          }
+          onChange={(e) => setSelectedKeys(e.target.value ? [e.target.value] : [])}
+          onPressEnter={() => handleSearchTable(selectedKeys, confirm, dataIndex)}
           style={{ marginBottom: 8, display: "block" }}
         />
         <Space>
-          <Button
-            type="primary"
-            onClick={() => handleSearchTable(selectedKeys, confirm, dataIndex)}
-            icon={<SearchOutlined />}
-            size="small"
-            style={{ width: 90 }}
-          >
+          <Button type="primary" onClick={() => handleSearchTable(selectedKeys, confirm, dataIndex)} icon={<SearchOutlined />} size="small" style={{ width: 90 }}>
             Search
           </Button>
-          <Button
-            onClick={() => clearFilters && handleReset(clearFilters)}
-            size="small"
-            style={{ width: 90 }}
-          >
+          <Button onClick={() => clearFilters && handleReset(clearFilters)} size="small" style={{ width: 90 }}>
             Reset
           </Button>
           <Button
@@ -518,40 +457,20 @@ const JenisVaksin = () => {
         </Space>
       </div>
     ),
-    filterIcon: (filtered) => (
-      <SearchOutlined style={{ color: filtered ? "#1677ff" : undefined }} />
-    ),
+    filterIcon: (filtered) => <SearchOutlined style={{ color: filtered ? "#1677ff" : undefined }} />,
     onFilter: (value, record) => {
       if (nestedPath) {
-        const nestedValue = nestedPath
-          .split(".")
-          .reduce((obj, key) => obj?.[key], record);
-        return nestedValue
-          ?.toString()
-          .toLowerCase()
-          .includes(value.toLowerCase());
+        const nestedValue = nestedPath.split(".").reduce((obj, key) => obj?.[key], record);
+        return nestedValue?.toString().toLowerCase().includes(value.toLowerCase());
       }
-      return record[dataIndex]
-        ?.toString()
-        .toLowerCase()
-        .includes(value.toLowerCase());
+      return record[dataIndex]?.toString().toLowerCase().includes(value.toLowerCase());
     },
     filterDropdownProps: {
       onOpenChange(open) {
         if (open) setTimeout(() => searchInput.current?.select(), 100);
       },
     },
-    render: (text) =>
-      searchedColumn === dataIndex ? (
-        <Highlighter
-          highlightStyle={{ backgroundColor: "#ffc069", padding: 0 }}
-          searchWords={[searchText]}
-          autoEscape
-          textToHighlight={text?.toString() || ""}
-        />
-      ) : (
-        text
-      ),
+    render: (text) => (searchedColumn === dataIndex ? <Highlighter highlightStyle={{ backgroundColor: "#ffc069", padding: 0 }} searchWords={[searchText]} autoEscape textToHighlight={text?.toString() || ""} /> : text),
   });
 
   // Render Columns with Operations
@@ -578,10 +497,7 @@ const JenisVaksin = () => {
       },
     ];
 
-    if (
-      user &&
-      (user.role === "ROLE_ADMINISTRATOR" || user.role === "ROLE_PETUGAS")
-    ) {
+    if (user && (user.role === "ROLE_ADMINISTRATOR" || user.role === "ROLE_PETUGAS")) {
       baseColumns.push({
         title: "Operasi",
         key: "action",
@@ -589,22 +505,9 @@ const JenisVaksin = () => {
         align: "center",
         render: (text, row) => (
           <span>
-            <Button
-              type="primary"
-              shape="circle"
-              icon={<EditOutlined />}
-              title="Edit"
-              onClick={() => handleEditJenisVaksin(row)}
-            />
+            <Button type="primary" shape="circle" icon={<EditOutlined />} title="Edit" onClick={() => handleEditJenisVaksin(row)} />
             <Divider type="vertical" />
-            <Button
-              type="primary"
-              danger
-              shape="circle"
-              icon={<DeleteOutlined />}
-              title="Delete"
-              onClick={() => handleDeleteJenisVaksin(row)}
-            />
+            <Button type="primary" danger shape="circle" icon={<DeleteOutlined />} title="Delete" onClick={() => handleDeleteJenisVaksin(row)} />
           </span>
         ),
       });
@@ -616,26 +519,9 @@ const JenisVaksin = () => {
   // Render Table based on User Role
   const renderTable = () => {
     if (user && user.role === "ROLE_PETERNAK") {
-      return (
-        <Table
-          dataSource={jenisVaksins}
-          bordered
-          columns={renderColumns()}
-          rowKey="idJenisVaksin"
-        />
-      );
-    } else if (
-      user &&
-      (user.role === "ROLE_ADMINISTRATOR" || user.role === "ROLE_PETUGAS")
-    ) {
-      return (
-        <Table
-          dataSource={jenisVaksins}
-          bordered
-          columns={renderColumns()}
-          rowKey="idJenisVaksin"
-        />
-      );
+      return <Table dataSource={jenisVaksins} bordered columns={renderColumns()} rowKey="idJenisVaksin" />;
+    } else if (user && (user.role === "ROLE_ADMINISTRATOR" || user.role === "ROLE_PETUGAS")) {
+      return <Table dataSource={jenisVaksins} bordered columns={renderColumns()} rowKey="idJenisVaksin" />;
     } else {
       return null;
     }
@@ -643,37 +529,26 @@ const JenisVaksin = () => {
 
   // Render Buttons based on User Role
   const renderButtons = () => {
-    if (
-      user &&
-      (user.role === "ROLE_ADMINISTRATOR" || user.role === "ROLE_PETUGAS")
-    ) {
+    if (user && (user.role === "ROLE_ADMINISTRATOR" || user.role === "ROLE_PETUGAS")) {
       return (
         <Row gutter={[16, 16]} justify="start" style={{ paddingLeft: 9 }}>
           <Col>
-            <Button type="primary" onClick={handleAddJenisVaksin} block>
+            <Button type="primary" onClick={handleAddJenisVaksin} style={{ width: 200 }}>
               Tambah Jenis Vaksin
             </Button>
           </Col>
           <Col>
-            <Button
-              icon={<UploadOutlined />}
-              onClick={handleImportModalOpen}
-              block
-            >
+            <Button icon={<UploadOutlined />} onClick={handleImportModalOpen} style={{ width: 200 }}>
               Import File
             </Button>
           </Col>
           <Col>
-            <Button
-              icon={<DownloadOutlined />}
-              onClick={handleDownloadCSV}
-              block
-            >
+            <Button icon={<DownloadOutlined />} onClick={handleDownloadCSV} style={{ width: 200 }}>
               Download Format CSV
             </Button>
           </Col>
           <Col>
-            <Button icon={<UploadOutlined />} onClick={handleExportData} block>
+            <Button icon={<UploadOutlined />} onClick={handleExportData} style={{ width: 200 }}>
               Export Data To CSV
             </Button>
           </Col>
@@ -689,12 +564,7 @@ const JenisVaksin = () => {
     <Row gutter={[16, 16]} justify="space-between">
       {renderButtons()}
       <Col xs={24} sm={12} md={8} lg={8} xl={8}>
-        <Input
-          placeholder="Cari data"
-          value={searchKeyword}
-          onChange={(e) => handleSearch(e.target.value)}
-          style={{ width: "100%" }}
-        />
+        <Input placeholder="Cari data" value={searchKeyword} onChange={(e) => handleSearch(e.target.value)} style={{ width: "100%" }} />
       </Col>
     </Row>
   );
@@ -706,14 +576,13 @@ const JenisVaksin = () => {
       {/* TypingCard component */}
       <TypingCard title="Manajemen Jenis Vaksin" source={cardContent} />
       <br />
+      <Card>{title}</Card>
       {loading ? (
         <Card>
           <Skeleton active paragraph={{ rows: 10 }} />
         </Card>
       ) : (
-        <Card title={title} style={{ overflowX: "scroll" }}>
-          {renderTable()}
-        </Card>
+        <Card style={{ overflowX: "scroll" }}>{renderTable()}</Card>
       )}
 
       {/* Edit Jenis Vaksin Modal */}
@@ -727,13 +596,7 @@ const JenisVaksin = () => {
       />
 
       {/* Add Jenis Vaksin Modal */}
-      <AddJenisVaksinForm
-        wrappedComponentRef={addJenisVaksinFormRef}
-        visible={addJenisVaksinModalVisible}
-        confirmLoading={addJenisVaksinModalLoading}
-        onCancel={handleCancel}
-        onOk={handleAddJenisVaksinOk}
-      />
+      <AddJenisVaksinForm wrappedComponentRef={addJenisVaksinFormRef} visible={addJenisVaksinModalVisible} confirmLoading={addJenisVaksinModalLoading} onCancel={handleCancel} onOk={handleAddJenisVaksinOk} />
 
       {/* Import Modal */}
       <Modal
@@ -744,12 +607,7 @@ const JenisVaksin = () => {
           <Button key="cancel" onClick={handleImportModalClose}>
             Cancel
           </Button>,
-          <Button
-            key="upload"
-            type="primary"
-            loading={uploading}
-            onClick={handleUpload}
-          >
+          <Button key="upload" type="primary" loading={uploading} onClick={handleUpload}>
             Upload
           </Button>,
         ]}

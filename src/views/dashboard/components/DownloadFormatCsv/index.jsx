@@ -72,7 +72,7 @@ export default class DownloadFormatCsv extends Component {
   render() {
     return (
       <div>
-        <Button onClick={handleExportHeaderOnly} icon={<DownloadOutlined />}>
+        <Button onClick={handleExportHeaderOnly} icon={<DownloadOutlined />} style={{ width: 250 }}>
           Download Format CSV
         </Button>
       </div>

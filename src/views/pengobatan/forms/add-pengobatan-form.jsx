@@ -20,9 +20,7 @@ const AddPengobatanForm = ({ visible, onCancel, onOk, confirmLoading }) => {
 
   const fetchProvinces = async () => {
     try {
-      const response = await fetch(
-        "https://www.emsifa.com/api-wilayah-indonesia/api/provinces.json"
-      );
+      const response = await fetch("https://www.emsifa.com/api-wilayah-indonesia/api/provinces.json");
       const data = await response.json();
       setProvinces(data);
     } catch (error) {
@@ -43,14 +41,10 @@ const AddPengobatanForm = ({ visible, onCancel, onOk, confirmLoading }) => {
   };
 
   const handleProvinceChange = async (value) => {
-    const selectedProvince = provinces.find(
-      (province) => province.name === value
-    );
+    const selectedProvince = provinces.find((province) => province.name === value);
     if (selectedProvince) {
       try {
-        const response = await fetch(
-          `https://www.emsifa.com/api-wilayah-indonesia/api/regencies/${selectedProvince.id}.json`
-        );
+        const response = await fetch(`https://www.emsifa.com/api-wilayah-indonesia/api/regencies/${selectedProvince.id}.json`);
         const data = await response.json();
         setRegencies(data);
         form.setFieldsValue({
@@ -68,9 +62,7 @@ const AddPengobatanForm = ({ visible, onCancel, onOk, confirmLoading }) => {
     const selectedRegency = regencies.find((regency) => regency.name === value);
     if (selectedRegency) {
       try {
-        const response = await fetch(
-          `https://www.emsifa.com/api-wilayah-indonesia/api/districts/${selectedRegency.id}.json`
-        );
+        const response = await fetch(`https://www.emsifa.com/api-wilayah-indonesia/api/districts/${selectedRegency.id}.json`);
         const data = await response.json();
         setDistricts(data);
         form.setFieldsValue({
@@ -84,14 +76,10 @@ const AddPengobatanForm = ({ visible, onCancel, onOk, confirmLoading }) => {
   };
 
   const handleDistrictChange = async (value) => {
-    const selectedDistrict = districts.find(
-      (district) => district.name === value
-    );
+    const selectedDistrict = districts.find((district) => district.name === value);
     if (selectedDistrict) {
       try {
-        const response = await fetch(
-          `https://www.emsifa.com/api-wilayah-indonesia/api/villages/${selectedDistrict.id}.json`
-        );
+        const response = await fetch(`https://www.emsifa.com/api-wilayah-indonesia/api/villages/${selectedDistrict.id}.json`);
         const data = await response.json();
         setVillages(data);
         form.setFieldsValue({ desaPengobatan: undefined });
@@ -102,23 +90,12 @@ const AddPengobatanForm = ({ visible, onCancel, onOk, confirmLoading }) => {
   };
 
   const handleVillageChange = (value) => {
-    const selectedProvince = provinces.find(
-      (province) => province.name === form.getFieldValue("provinsiPengobatan")
-    );
-    const selectedRegency = regencies.find(
-      (regency) => regency.name === form.getFieldValue("kabupatenPengobatan")
-    );
-    const selectedDistrict = districts.find(
-      (district) => district.name === form.getFieldValue("kecamatanPengobatan")
-    );
+    const selectedProvince = provinces.find((province) => province.name === form.getFieldValue("provinsiPengobatan"));
+    const selectedRegency = regencies.find((regency) => regency.name === form.getFieldValue("kabupatenPengobatan"));
+    const selectedDistrict = districts.find((district) => district.name === form.getFieldValue("kecamatanPengobatan"));
     const selectedVillage = villages.find((village) => village.name === value);
 
-    if (
-      selectedProvince &&
-      selectedRegency &&
-      selectedDistrict &&
-      selectedVillage
-    ) {
+    if (selectedProvince && selectedRegency && selectedDistrict && selectedVillage) {
       const mergedLocation = `${selectedVillage.name}, ${selectedDistrict.name}, ${selectedRegency.name}, ${selectedProvince.name}`;
       form.setFieldsValue({ lokasi: mergedLocation });
     }
@@ -157,38 +134,22 @@ const AddPengobatanForm = ({ visible, onCancel, onOk, confirmLoading }) => {
       <Form form={form} layout="vertical">
         <Row gutter={16}>
           <Col xs={24} sm={24} md={12}>
-            <Form.Item
-              name="idKasus"
-              label="ID Kasus:"
-              rules={[{ required: true, message: "Masukkan ID Kasus!" }]}
-            >
+            <Form.Item name="idKasus" label="ID Kasus:" rules={[{ required: true, message: "Masukkan ID Kasus!" }]}>
               <Input placeholder="Masukkan ID Kasus" />
             </Form.Item>
           </Col>
           <Col xs={24} sm={24} md={12}>
-            <Form.Item
-              name="tanggalPengobatan"
-              label="Tanggal Pengobatan:"
-              rules={[{ required: true }]}
-            >
+            <Form.Item name="tanggalPengobatan" label="Tanggal Pengobatan:" rules={[{ required: true }]}>
               <Input type="date" placeholder="Masukkan tanggal pengobatan" />
             </Form.Item>
           </Col>
           <Col xs={24} sm={24} md={12}>
-            <Form.Item
-              name="tanggalKasus"
-              label="Tanggal Kasus:"
-              rules={[{ required: true }]}
-            >
+            <Form.Item name="tanggalKasus" label="Tanggal Kasus:" rules={[{ required: true }]}>
               <Input type="date" placeholder="Masukkan tanggal kasus" />
             </Form.Item>
           </Col>
           <Col xs={24} sm={24} md={12}>
-            <Form.Item
-              name="petugasId"
-              label="Petugas:"
-              rules={[{ required: true, message: "Pilih Petugas!" }]}
-            >
+            <Form.Item name="petugasId" label="Petugas:" rules={[{ required: true, message: "Pilih Petugas!" }]}>
               <Select placeholder="Pilih Petugas">
                 {petugasList.map(({ petugasId, namaPetugas }) => (
                   <Option key={petugasId} value={petugasId}>
@@ -220,10 +181,7 @@ const AddPengobatanForm = ({ visible, onCancel, onOk, confirmLoading }) => {
           </Col>
           <Col xs={24} sm={24} md={12}>
             <Form.Item name="provinsiPengobatan" label="Provinsi:">
-              <Select
-                placeholder="Pilih Provinsi"
-                onChange={handleProvinceChange}
-              >
+              <Select placeholder="Pilih Provinsi" onChange={handleProvinceChange}>
                 {provinces.map(({ id, name }) => (
                   <Option key={id} value={name}>
                     {name}
@@ -234,10 +192,7 @@ const AddPengobatanForm = ({ visible, onCancel, onOk, confirmLoading }) => {
           </Col>
           <Col xs={24} sm={24} md={12}>
             <Form.Item name="kabupatenPengobatan" label="Kabupaten:">
-              <Select
-                placeholder="Pilih Kabupaten"
-                onChange={handleRegencyChange}
-              >
+              <Select placeholder="Pilih Kabupaten" onChange={handleRegencyChange}>
                 {regencies.map(({ id, name }) => (
                   <Option key={id} value={name}>
                     {name}
@@ -248,10 +203,7 @@ const AddPengobatanForm = ({ visible, onCancel, onOk, confirmLoading }) => {
           </Col>
           <Col xs={24} sm={24} md={12}>
             <Form.Item name="kecamatanPengobatan" label="Kecamatan:">
-              <Select
-                placeholder="Pilih Kecamatan"
-                onChange={handleDistrictChange}
-              >
+              <Select placeholder="Pilih Kecamatan" onChange={handleDistrictChange}>
                 {districts.map(({ id, name }) => (
                   <Option key={id} value={name}>
                     {name}
@@ -271,7 +223,7 @@ const AddPengobatanForm = ({ visible, onCancel, onOk, confirmLoading }) => {
               </Select>
             </Form.Item>
           </Col>
-          <Col xs={24} sm={24} md={12}>
+          <Col xs={24} sm={24} md={24}>
             <Form.Item name="lokasi" label="Lokasi:">
               <Input placeholder="Lokasi akan otomatis terisi" disabled />
             </Form.Item>

@@ -1,27 +1,8 @@
 /* eslint-disable no-unused-vars */
 // import { Component, useState, useRef } from "react";
-import {
-  Card,
-  Button,
-  Table,
-  message,
-  Row,
-  Col,
-  Divider,
-  Modal,
-  Upload,
-  Input,
-  Space,
-} from "antd";
+import { Card, Button, Table, message, Row, Col, Divider, Modal, Upload, Input, Space } from "antd";
 import { getPeternaks } from "@/api/peternak";
-import {
-  getInseminasis,
-  getInseminasiByPeternak,
-  deleteInseminasi,
-  editInseminasi,
-  addInseminasi,
-  addInseminasiImport,
-} from "@/api/inseminasi";
+import { getInseminasis, getInseminasiByPeternak, deleteInseminasi, editInseminasi, addInseminasi, addInseminasiImport } from "@/api/inseminasi";
 import { addJenisHewanBulk } from "@/api/jenishewan";
 import { addRumpunHewanBulk } from "@/api/rumpunhewan";
 import { addHewanBulkImport } from "@/api/hewan";
@@ -29,13 +10,7 @@ import { addKandangBulkByNama } from "@/api/kandang";
 import { addPeternakBulkByNama } from "@/api/peternak";
 import { addPetugasBulkByNama } from "@/api/petugas";
 import { getPetugas } from "@/api/petugas";
-import {
-  UploadOutlined,
-  EditOutlined,
-  DeleteOutlined,
-  DownloadOutlined,
-  SearchOutlined,
-} from "@ant-design/icons";
+import { UploadOutlined, EditOutlined, DeleteOutlined, DownloadOutlined, SearchOutlined } from "@ant-design/icons";
 import { read, utils } from "xlsx";
 import AddInseminasiBuatanForm from "./forms/add-inseminasi-form";
 import EditInseminasiBuatanForm from "./forms/edit-inseminasi-form";
@@ -56,15 +31,9 @@ const sendPetugasBulkData = async (data, batchSize = 7000) => {
     try {
       console.log(`Data Petugas (Batch ${i + 1}):`, batchData); // Log data yang dikirim
       const response = await addPetugasBulkByNama(batchData);
-      console.log(
-        `Batch ${i + 1}/${totalBatches} berhasil dikirim`,
-        response.data
-      );
+      console.log(`Batch ${i + 1}/${totalBatches} berhasil dikirim`, response.data);
     } catch (error) {
-      console.error(
-        `Batch ${i + 1}/${totalBatches} gagal dikirim`,
-        error.response?.data || error.message
-      );
+      console.error(`Batch ${i + 1}/${totalBatches} gagal dikirim`, error.response?.data || error.message);
       throw error; // Hentikan proses jika batch gagal
     }
   }
@@ -79,15 +48,9 @@ const sendPeternakBulkData = async (data, batchSize = 7000) => {
     try {
       console.log(`Data Peternak (Batch ${i + 1}):`, batchData); // Log data yang dikirim
       const response = await addPeternakBulkByNama(batchData);
-      console.log(
-        `Batch ${i + 1}/${totalBatches} berhasil dikirim`,
-        response.data
-      );
+      console.log(`Batch ${i + 1}/${totalBatches} berhasil dikirim`, response.data);
     } catch (error) {
-      console.error(
-        `Batch ${i + 1}/${totalBatches} gagal dikirim`,
-        error.response?.data || error.message
-      );
+      console.error(`Batch ${i + 1}/${totalBatches} gagal dikirim`, error.response?.data || error.message);
       throw error; // Hentikan proses jika batch gagal
     }
   }
@@ -102,15 +65,9 @@ const sendRumpunHewanBulkData = async (data, batchSize = 7000) => {
     try {
       console.log(`Data Rumpun Hewan (Batch ${i + 1}):`, batchData); // Log data yang dikirim
       const response = await addRumpunHewanBulk(batchData);
-      console.log(
-        `Batch ${i + 1}/${totalBatches} berhasil dikirim`,
-        response.data
-      );
+      console.log(`Batch ${i + 1}/${totalBatches} berhasil dikirim`, response.data);
     } catch (error) {
-      console.error(
-        `Batch ${i + 1}/${totalBatches} gagal dikirim`,
-        error.response?.data || error.message
-      );
+      console.error(`Batch ${i + 1}/${totalBatches} gagal dikirim`, error.response?.data || error.message);
       throw error;
     }
   }
@@ -125,15 +82,9 @@ const sendJenisHewanBulkData = async (data, batchSize = 7000) => {
     try {
       console.log(`Data Jenis Hewan (Batch ${i + 1}):`, batchData); // Log data yang dikirim
       const response = await addJenisHewanBulk(batchData);
-      console.log(
-        `Batch ${i + 1}/${totalBatches} berhasil dikirim`,
-        response.data
-      );
+      console.log(`Batch ${i + 1}/${totalBatches} berhasil dikirim`, response.data);
     } catch (error) {
-      console.error(
-        `Batch ${i + 1}/${totalBatches} gagal dikirim`,
-        error.response?.data || error.message
-      );
+      console.error(`Batch ${i + 1}/${totalBatches} gagal dikirim`, error.response?.data || error.message);
       throw error; // Hentikan proses jika batch gagal
     }
   }
@@ -148,15 +99,9 @@ const sendKandangBulkData = async (data, batchSize = 7000) => {
     try {
       console.log(`Data Kandang (Batch ${i + 1}):`, batchData); // Log data yang dikirim
       const response = await addKandangBulkByNama(batchData);
-      console.log(
-        `Batch ${i + 1}/${totalBatches} berhasil dikirim`,
-        response.data
-      );
+      console.log(`Batch ${i + 1}/${totalBatches} berhasil dikirim`, response.data);
     } catch (error) {
-      console.error(
-        `Batch ${i + 1}/${totalBatches} gagal dikirim`,
-        error.response?.data || error.message
-      );
+      console.error(`Batch ${i + 1}/${totalBatches} gagal dikirim`, error.response?.data || error.message);
       throw error; // Hentikan proses jika batch gagal
     }
   }
@@ -171,15 +116,9 @@ const sendTernakHewanBulkData = async (data, batchSize = 7000) => {
     try {
       console.log(`Data Ternak Hewan (Batch ${i + 1}):`, batchData); // Log data yang dikirim
       const response = await addHewanBulkImport(batchData);
-      console.log(
-        `Batch ${i + 1}/${totalBatches} berhasil dikirim`,
-        response.data
-      );
+      console.log(`Batch ${i + 1}/${totalBatches} berhasil dikirim`, response.data);
     } catch (error) {
-      console.error(
-        `Batch ${i + 1}/${totalBatches} gagal dikirim`,
-        error.response?.data || error.message
-      );
+      console.error(`Batch ${i + 1}/${totalBatches} gagal dikirim`, error.response?.data || error.message);
       throw error; // Hentikan proses jika batch gagal
     }
   }
@@ -194,15 +133,9 @@ const sendInseminasiBuatanImport = async (data, batchSize = 7000) => {
     try {
       console.log(`Data Inseminasi Buatan (Batch ${i + 1}):`, batchData); // Log data yang dikirim
       const response = await addInseminasiImport(batchData);
-      console.log(
-        `Batch ${i + 1}/${totalBatches} berhasil dikirim`,
-        response.data
-      );
+      console.log(`Batch ${i + 1}/${totalBatches} berhasil dikirim`, response.data);
     } catch (error) {
-      console.error(
-        `Batch ${i + 1}/${totalBatches} gagal dikirim`,
-        error.response?.data || error.message
-      );
+      console.error(`Batch ${i + 1}/${totalBatches} gagal dikirim`, error.response?.data || error.message);
       throw error; // Hentikan proses jika batch gagal
     }
   }
@@ -226,12 +159,7 @@ function parseAddress(address) {
   const provinsi = parts[0] || "-";
 
   // Validasi bahwa setidaknya satu bagian selain "-" harus terisi
-  const isValid =
-    dusun !== "-" ||
-    desa !== "-" ||
-    kecamatan !== "-" ||
-    kabupaten !== "-" ||
-    provinsi !== "-";
+  const isValid = dusun !== "-" || desa !== "-" || kecamatan !== "-" || kabupaten !== "-" || provinsi !== "-";
 
   if (!isValid) {
     console.warn(`Alamat tidak valid: ${address}`);
@@ -248,15 +176,11 @@ const InseminasiBuatan = () => {
   const [inseminasis, setInseminasis] = useState([]);
   const [peternaks, setPeternaks] = useState([]);
   const [petugas, setPetugas] = useState([]);
-  const [editInseminasiModalVisible, setEditInseminasiModalVisible] =
-    useState(false);
-  const [editInseminasiModalLoading, setEditInseminasiModalLoading] =
-    useState(false);
+  const [editInseminasiModalVisible, setEditInseminasiModalVisible] = useState(false);
+  const [editInseminasiModalLoading, setEditInseminasiModalLoading] = useState(false);
   const [currentRowData, setCurrentRowData] = useState({});
-  const [addInseminasiModalVisible, setAddInseminasiModalVisible] =
-    useState(false);
-  const [addInseminasiModalLoading, setAddInseminasiModalLoading] =
-    useState(false);
+  const [addInseminasiModalVisible, setAddInseminasiModalVisible] = useState(false);
+  const [addInseminasiModalLoading, setAddInseminasiModalLoading] = useState(false);
   const [importModalVisible, setImportModalVisible] = useState(false);
   const [importedData, setImportedData] = useState([]);
   const [columnTitles, setColumnTitles] = useState([]);
@@ -303,21 +227,7 @@ const InseminasiBuatan = () => {
       if (statusCode === 200) {
         const filteredInseminasi = content
           .filter((inseminasi) => {
-            const {
-              idInseminasi,
-              tanggalIB,
-              idPeternak,
-              namaPeternak,
-              kodeEartagNasional,
-              idPejantan,
-              idPembuatan,
-              bangsaPejantan,
-              produsen,
-              inseminator,
-              lokasi,
-              idKandang,
-              namaKandang,
-            } = inseminasi;
+            const { idInseminasi, tanggalIB, idPeternak, namaPeternak, kodeEartagNasional, idPejantan, idPembuatan, bangsaPejantan, produsen, inseminator, lokasi, idKandang, namaKandang } = inseminasi;
             const keyword = searchKeyword.toLowerCase();
 
             return (
@@ -336,10 +246,7 @@ const InseminasiBuatan = () => {
               lokasi?.toLowerCase().includes(keyword)
             );
           })
-          .sort(
-            (a, b) =>
-              new Date(b.tanggalIB).getTime() - new Date(a.tanggalIB).getTime()
-          );
+          .sort((a, b) => new Date(b.tanggalIB).getTime() - new Date(a.tanggalIB).getTime());
 
         setInseminasis(filteredInseminasi);
       }
@@ -590,10 +497,7 @@ const InseminasiBuatan = () => {
             const [datePart, timePart] = dateString.split(" ");
             const [day, month, year] = datePart.split("/");
 
-            return `${year}-${month.padStart(2, "0")}-${day.padStart(
-              2,
-              "0"
-            )} ${timePart}`;
+            return `${year}-${month.padStart(2, "0")}-${day.padStart(2, "0")} ${timePart}`;
           } else if (typeof dateString === "string") {
             const [day, month, year] = dateString.split("/");
             return `${year}-${month.padStart(2, "0")}-${day.padStart(2, "0")}`;
@@ -606,18 +510,14 @@ const InseminasiBuatan = () => {
         const validateEmail = (email) => {
           // Jika email tidak valid (null, undefined, atau bukan string), gunakan default
           if (typeof email !== "string" || !email.includes("@")) {
-            console.warn(
-              `Email tidak valid: ${email}. Menggunakan email default.`
-            );
+            console.warn(`Email tidak valid: ${email}. Menggunakan email default.`);
             return "default@gmail.com"; // Email default
           }
           // Jika valid, kembalikan email
           return email;
         };
 
-        const pecahLokasi = parseAddress(
-          row[columnMapping["Lokasi"]] || row[columnMapping["Alamat"]] || "-"
-        );
+        const pecahLokasi = parseAddress(row[columnMapping["Lokasi"]] || row[columnMapping["Alamat"]] || "-");
 
         const generateJenisKandang = (jenisKandang) => {
           return jenisKandang || "Permanen";
@@ -629,8 +529,7 @@ const InseminasiBuatan = () => {
           const dataRumpunHewan = {
             idRumpunHewan: generateIdRumpunHewan,
             rumpun: row[columnMapping["Bangsa Pejantan"]] || "-",
-            deskripsi:
-              "Deskripsi " + row[(columnMapping, ["Bangsa Pejantan"])] || "-",
+            deskripsi: "Deskripsi " + row[(columnMapping, ["Bangsa Pejantan"])] || "-",
           };
           rumpunHewanBulk.push(dataRumpunHewan);
           uniqueData.set(rumpunHewanUnique, dataRumpunHewan);
@@ -665,12 +564,10 @@ const InseminasiBuatan = () => {
         if (!uniqueData.has(namaPemilikTernak)) {
           const dataPeternak = {
             idPeternak: generateIdPeternak,
-            nikPeternak:
-              cleanNik(row[columnMapping["NIK Pemilik Ternak"]]) || "-",
+            nikPeternak: cleanNik(row[columnMapping["NIK Pemilik Ternak"]]) || "-",
             namaPeternak: row[columnMapping["Nama Peternak"]] || "-",
             noTelpPeternak: row[columnMapping["No Telp"]] || "-",
-            emailPeternak:
-              validateEmail(row[columnMapping["Email Pemilik Ternak"]]) || "-",
+            emailPeternak: validateEmail(row[columnMapping["Email Pemilik Ternak"]]) || "-",
             idPetugas: uniqueData.get(namaPetugasInseminator).petugasId,
             nikPetugas: uniqueData.get(namaPetugasInseminator).nikPetugas,
             namaPetugas: uniqueData.get(namaPetugasInseminator).namaPetugas,
@@ -680,25 +577,17 @@ const InseminasiBuatan = () => {
             kecamatan: pecahLokasi.kecamatan,
             kabupaten: pecahLokasi.kabupaten,
             provinsi: pecahLokasi.provinsi,
-            tanggalLahirPeternak: formatDateToString(
-              row[columnMapping["Tanggal Lahir Pemilik Ternak"]] || "-"
-            ),
+            tanggalLahirPeternak: formatDateToString(row[columnMapping["Tanggal Lahir Pemilik Ternak"]] || "-"),
             latitude: row[columnMapping["latitude"]] || "-",
             longitude: row[columnMapping["longitude"]] || "-",
             idIsikhnas: row[columnMapping["ID Isikhnas*)"]] || "-",
-            jenisKelaminPeternak:
-              row[columnMapping["Jenis Kelamin Pemilik Ternak"]] || "-",
+            jenisKelaminPeternak: row[columnMapping["Jenis Kelamin Pemilik Ternak"]] || "-",
           };
           peternakBulk.push(dataPeternak);
           uniqueData.set(namaPemilikTernak, dataPeternak);
         }
 
-        const namaKandang = `Kandang ${
-          uniqueData.get(jenisHewanUnique).jenis
-        } - ${
-          row[columnMapping["Nama Kandang"]] ||
-          uniqueData.get(namaPemilikTernak).namaPeternak
-        }`;
+        const namaKandang = `Kandang ${uniqueData.get(jenisHewanUnique).jenis} - ${row[columnMapping["Nama Kandang"]] || uniqueData.get(namaPemilikTernak).namaPeternak}`;
         if (!uniqueData.has(namaKandang)) {
           const dataKandang = {
             idKandang: generateIdKandang,
@@ -711,9 +600,7 @@ const InseminasiBuatan = () => {
             luas: row[columnMapping["Luas Kandang"]] || "-",
             kapasitas: row[columnMapping["Kapasitas Kandang"]] || "-",
             nilaiBangunan: row[columnMapping["Nilai Bangunan"]] || "-",
-            jenisKandang: generateJenisKandang(
-              row[columnMapping["Jenis Kandang*)"]]
-            ),
+            jenisKandang: generateJenisKandang(row[columnMapping["Jenis Kandang*)"]]),
             latitude: row[columnMapping["latitude"]] || "-",
             longitude: row[columnMapping["longitude"]] || "-",
           };
@@ -724,24 +611,14 @@ const InseminasiBuatan = () => {
         const dataTernakHewan = {
           idHewan: generateIdHewan,
           kodeEartagNasional: row[columnMapping["eartag"]] || "-",
-          noKartuTernak:
-            row[columnMapping["No Kartu Ternak"]] ||
-            row[columnMapping["ID Hewan"]] ||
-            "-",
+          noKartuTernak: row[columnMapping["No Kartu Ternak"]] || row[columnMapping["ID Hewan"]] || "-",
           idIsikhnasTernak: row[columnMapping["IdIsikhnasTernak"]] || "-",
           sex: row[columnMapping["Jenis Kelamin"]] || "-",
           tempatLahir: row[columnMapping["Tempat Lahir Ternak"]] || "-",
           umur: row[columnMapping["Umur"]] || "-",
-          identifikasiHewan:
-            row[columnMapping["Identifikasi Hewan*"]] ||
-            row[columnMapping["Identifikasi Hewan"]] ||
-            "-",
-          tanggalLahir: formatDateToString(
-            row[columnMapping["Tanggal Lahir Ternak**)"]] || "-"
-          ),
-          tanggalTerdaftar: formatDateToString(
-            row[columnMapping["Tanggal Pendataan"]] || "-"
-          ),
+          identifikasiHewan: row[columnMapping["Identifikasi Hewan*"]] || row[columnMapping["Identifikasi Hewan"]] || "-",
+          tanggalLahir: formatDateToString(row[columnMapping["Tanggal Lahir Ternak**)"]] || "-"),
+          tanggalTerdaftar: formatDateToString(row[columnMapping["Tanggal Pendataan"]] || "-"),
           idPetugas: uniqueData.get(namaPetugasInseminator).petugasId,
           nikPetugas: uniqueData.get(namaPetugasInseminator).nikPetugas,
           namaPetugas: uniqueData.get(namaPetugasInseminator).namaPetugas,
@@ -752,15 +629,13 @@ const InseminasiBuatan = () => {
           idPeternak: uniqueData.get(namaPemilikTernak).idPeternak,
           namaPeternak: uniqueData.get(namaPemilikTernak).namaPeternak,
           nikPeternak: uniqueData.get(namaPemilikTernak).nikPeternak,
-          tujuanPemeliharaan:
-            row[columnMapping["Tujuan Pemeliharaan Ternak"]] || "-",
+          tujuanPemeliharaan: row[columnMapping["Tujuan Pemeliharaan Ternak"]] || "-",
         };
 
         // data inseminasi
         const dataInseminasi = {
           idInseminasi: generateIdInseminasi,
-          tanggalIB:
-            formatDateToString(row[columnMapping["Tanggal IB"]]) || "-",
+          tanggalIB: formatDateToString(row[columnMapping["Tanggal IB"]]) || "-",
           ib1: row[columnMapping["IB 1"]] || "-",
           ib2: row[columnMapping["IB 2"]] || "-",
           ib3: row[columnMapping["IB 3"]] || "-",
@@ -803,20 +678,14 @@ const InseminasiBuatan = () => {
       try {
         await sendInseminasiBuatanImport(inseminasiBuatan);
       } catch (error) {
-        console.error(
-          "Gagal menyimpan data secara bulk:",
-          error,
-          error.response?.data
-        );
+        console.error("Gagal menyimpan data secara bulk:", error, error.response?.data);
       }
 
       if (errorCount === 0) {
         message.success(`Semua data berhasil disimpan.`);
         getInseminasisData();
       } else {
-        message.error(
-          `${errorCount} data gagal disimpan karena duplikasi data!`
-        );
+        message.error(`${errorCount} data gagal disimpan karena duplikasi data!`);
       }
     } catch (error) {
       console.error("Gagal memproses data:", error);
@@ -905,23 +774,7 @@ const InseminasiBuatan = () => {
   };
 
   const convertToCSV = (data) => {
-    const columnTitles = [
-      "Tanggal IB",
-      "IB 1",
-      "IB 2",
-      "IB 3",
-      "IB Lain",
-      "ID Pejantan",
-      "ID Pembuatan",
-      "Produsen",
-      "Bangsa Pejantan",
-      "Kode Eartag",
-      "No Kartu Ternak",
-      "Inseminator",
-      "Nama Peternak",
-      "Nama Kandang",
-      "Kategori",
-    ];
+    const columnTitles = ["Tanggal IB", "IB 1", "IB 2", "IB 3", "IB Lain", "ID Pejantan", "ID Pembuatan", "Produsen", "Bangsa Pejantan", "Kode Eartag", "No Kartu Ternak", "Inseminator", "Nama Peternak", "Nama Kandang", "Kategori"];
 
     const rows = [columnTitles];
     data.forEach((item) => {
@@ -965,41 +818,21 @@ const InseminasiBuatan = () => {
   };
 
   const getColumnSearchProps = (dataIndex, nestedPath) => ({
-    filterDropdown: ({
-      setSelectedKeys,
-      selectedKeys,
-      confirm,
-      clearFilters,
-      close,
-    }) => (
+    filterDropdown: ({ setSelectedKeys, selectedKeys, confirm, clearFilters, close }) => (
       <div style={{ padding: 8 }} onKeyDown={(e) => e.stopPropagation()}>
         <Input
           ref={searchInput}
           placeholder={`Search ${dataIndex}`}
           value={selectedKeys[0]}
-          onChange={(e) =>
-            setSelectedKeys(e.target.value ? [e.target.value] : [])
-          }
-          onPressEnter={() =>
-            handleSearchTable(selectedKeys, confirm, dataIndex)
-          }
+          onChange={(e) => setSelectedKeys(e.target.value ? [e.target.value] : [])}
+          onPressEnter={() => handleSearchTable(selectedKeys, confirm, dataIndex)}
           style={{ marginBottom: 8, display: "block" }}
         />
         <Space>
-          <Button
-            type="primary"
-            onClick={() => handleSearchTable(selectedKeys, confirm, dataIndex)}
-            icon={<SearchOutlined />}
-            size="small"
-            style={{ width: 90 }}
-          >
+          <Button type="primary" onClick={() => handleSearchTable(selectedKeys, confirm, dataIndex)} icon={<SearchOutlined />} size="small" style={{ width: 90 }}>
             Search
           </Button>
-          <Button
-            onClick={() => clearFilters && handleReset(clearFilters)}
-            size="small"
-            style={{ width: 90 }}
-          >
+          <Button onClick={() => clearFilters && handleReset(clearFilters)} size="small" style={{ width: 90 }}>
             Reset
           </Button>
           <Button
@@ -1019,40 +852,20 @@ const InseminasiBuatan = () => {
         </Space>
       </div>
     ),
-    filterIcon: (filtered) => (
-      <SearchOutlined style={{ color: filtered ? "#1677ff" : undefined }} />
-    ),
+    filterIcon: (filtered) => <SearchOutlined style={{ color: filtered ? "#1677ff" : undefined }} />,
     onFilter: (value, record) => {
       if (nestedPath) {
-        const nestedValue = nestedPath
-          .split(".")
-          .reduce((obj, key) => obj?.[key], record);
-        return nestedValue
-          ?.toString()
-          .toLowerCase()
-          .includes(value.toLowerCase());
+        const nestedValue = nestedPath.split(".").reduce((obj, key) => obj?.[key], record);
+        return nestedValue?.toString().toLowerCase().includes(value.toLowerCase());
       }
-      return record[dataIndex]
-        ?.toString()
-        .toLowerCase()
-        .includes(value.toLowerCase());
+      return record[dataIndex]?.toString().toLowerCase().includes(value.toLowerCase());
     },
     filterDropdownProps: {
       onOpenChange(open) {
         if (open) setTimeout(() => searchInput.current?.select(), 100);
       },
     },
-    render: (text) =>
-      searchedColumn === dataIndex ? (
-        <Highlighter
-          highlightStyle={{ backgroundColor: "#ffc069", padding: 0 }}
-          searchWords={[searchText]}
-          autoEscape
-          textToHighlight={text?.toString() || ""}
-        />
-      ) : (
-        text
-      ),
+    render: (text) => (searchedColumn === dataIndex ? <Highlighter highlightStyle={{ backgroundColor: "#ffc069", padding: 0 }} searchWords={[searchText]} autoEscape textToHighlight={text?.toString() || ""} /> : text),
   });
 
   const renderColumns = () => {
@@ -1101,48 +914,42 @@ const InseminasiBuatan = () => {
         dataIndex: ["rumpunHewan", "rumpun"],
         key: "rumpun",
         ...getColumnSearchProps("rumpunHewan.rumpun"),
-        sorter: (a, b) =>
-          a.rumpunHewan.rumpun.localeCompare(b.rumpunHewan.rumpun),
+        sorter: (a, b) => a.rumpunHewan.rumpun.localeCompare(b.rumpunHewan.rumpun),
       },
       {
         title: "Kode Eartag",
         dataIndex: ["hewan", "kodeEartagNasional"],
         key: "kodeEartagNasional",
         ...getColumnSearchProps("hewan.kodeEartagNasional"),
-        sorter: (a, b) =>
-          a.hewan.kodeEartagNasional.localeCompare(b.hewan.kodeEartagNasional),
+        sorter: (a, b) => a.hewan.kodeEartagNasional.localeCompare(b.hewan.kodeEartagNasional),
       },
       {
         title: "No Kartu Ternak",
         dataIndex: ["hewan", "noKartuTernak"],
         key: "noKartuTernak",
         ...getColumnSearchProps("hewan.noKartuTernak"),
-        sorter: (a, b) =>
-          a.hewan.noKartuTernak.localeCompare(b.hewan.noKartuTernak),
+        sorter: (a, b) => a.hewan.noKartuTernak.localeCompare(b.hewan.noKartuTernak),
       },
       {
         title: "Inseminator",
         dataIndex: ["petugas", "namaPetugas"],
         key: "inseminator",
         ...getColumnSearchProps("petugas.namaPetugas"),
-        sorter: (a, b) =>
-          a.petugas.namaPetugas.localeCompare(b.petugas.namaPetugas),
+        sorter: (a, b) => a.petugas.namaPetugas.localeCompare(b.petugas.namaPetugas),
       },
       {
         title: "Nama Peternak",
         dataIndex: ["peternak", "namaPeternak"],
         key: "namaPeternak",
         ...getColumnSearchProps("peternak.namaPeternak"),
-        sorter: (a, b) =>
-          a.peternak.namaPeternak.localeCompare(b.peternak.namaPeternak),
+        sorter: (a, b) => a.peternak.namaPeternak.localeCompare(b.peternak.namaPeternak),
       },
       {
         title: "Nama Kandang",
         dataIndex: ["kandang", "namaKandang"],
         key: "namaKandang",
         ...getColumnSearchProps("kandang.namaKandang"),
-        sorter: (a, b) =>
-          a.kandang.namaKandang.localeCompare(b.kandang.namaKandang),
+        sorter: (a, b) => a.kandang.namaKandang.localeCompare(b.kandang.namaKandang),
       },
       {
         title: "Kategori",
@@ -1153,10 +960,7 @@ const InseminasiBuatan = () => {
       },
     ];
 
-    if (
-      user &&
-      (user.role === "ROLE_ADMINISTRATOR" || user.role === "ROLE_PETUGAS")
-    ) {
+    if (user && (user.role === "ROLE_ADMINISTRATOR" || user.role === "ROLE_PETUGAS")) {
       baseColumns.push({
         title: "Operasi",
         key: "action",
@@ -1164,22 +968,9 @@ const InseminasiBuatan = () => {
         align: "center",
         render: (text, row) => (
           <span>
-            <Button
-              type="primary"
-              shape="circle"
-              icon={<EditOutlined />}
-              title="Edit"
-              onClick={() => handleEditInseminasi(row)}
-            />
+            <Button type="primary" shape="circle" icon={<EditOutlined />} title="Edit" onClick={() => handleEditInseminasi(row)} />
             <Divider type="vertical" />
-            <Button
-              type="primary"
-              danger
-              shape="circle"
-              icon={<DeleteOutlined />}
-              title="Delete"
-              onClick={() => handleDeleteInseminasi(row)}
-            />
+            <Button type="primary" danger shape="circle" icon={<DeleteOutlined />} title="Delete" onClick={() => handleDeleteInseminasi(row)} />
           </span>
         ),
       });
@@ -1190,67 +981,35 @@ const InseminasiBuatan = () => {
 
   const renderTable = () => {
     if (user && user.role === "ROLE_PETERNAK") {
-      return (
-        <Table
-          dataSource={inseminasis}
-          bordered
-          columns={renderColumns()}
-          rowKey="idInseminasi"
-        />
-      );
-    } else if (
-      user &&
-      (user.role === "ROLE_ADMINISTRATOR" || user.role === "ROLE_PETUGAS")
-    ) {
-      return (
-        <Table
-          dataSource={inseminasis}
-          bordered
-          columns={renderColumns()}
-          rowKey="idInseminasi"
-        />
-      );
+      return <Table dataSource={inseminasis} bordered columns={renderColumns()} rowKey="idInseminasi" />;
+    } else if (user && (user.role === "ROLE_ADMINISTRATOR" || user.role === "ROLE_PETUGAS")) {
+      return <Table dataSource={inseminasis} bordered columns={renderColumns()} rowKey="idInseminasi" />;
     } else {
       return null;
     }
   };
 
   const renderButtons = () => {
-    if (
-      user &&
-      (user.role === "ROLE_ADMINISTRATOR" || user.role === "ROLE_PETUGAS")
-    ) {
+    if (user && (user.role === "ROLE_ADMINISTRATOR" || user.role === "ROLE_PETUGAS")) {
       return (
         <Row gutter={[16, 16]} justify="start" style={{ paddingLeft: 9 }}>
           <Col>
-            <Button type="primary" onClick={handleAddInseminasi} block>
+            <Button type="primary" onClick={handleAddInseminasi} style={{ width: 200 }}>
               Tambah Inseminasi
             </Button>
           </Col>
           <Col>
-            <Button
-              icon={<UploadOutlined />}
-              onClick={handleImportModalOpen}
-              block
-            >
+            <Button icon={<UploadOutlined />} onClick={handleImportModalOpen} style={{ width: 200 }}>
               Import File
             </Button>
           </Col>
           <Col>
-            <Button
-              icon={<DownloadOutlined />}
-              onClick={handleDownloadCSV}
-              block
-            >
+            <Button icon={<DownloadOutlined />} onClick={handleDownloadCSV} style={{ width: 200 }}>
               Download Format CSV
             </Button>
           </Col>
           <Col>
-            <Button
-              icon={<DownloadOutlined />}
-              onClick={handleExportData}
-              block
-            >
+            <Button icon={<DownloadOutlined />} onClick={handleExportData} style={{ width: 200 }}>
               Export Data To CSV
             </Button>
           </Col>
@@ -1265,31 +1024,22 @@ const InseminasiBuatan = () => {
     <Row gutter={[16, 16]} justify="space-between">
       {renderButtons()}
       <Col xs={24} sm={12} md={8} lg={8} xl={8}>
-        <Input
-          placeholder="Cari data"
-          value={searchKeyword}
-          onChange={(e) => handleSearch(e.target.value)}
-          style={{ width: "100%" }}
-        />
+        <Input placeholder="Cari data" value={searchKeyword} onChange={(e) => handleSearch(e.target.value)} style={{ width: "100%" }} />
       </Col>
     </Row>
   );
 
   return (
     <div className="app-container">
-      <TypingCard
-        title="Manajemen Inseminasi Buatan"
-        source="Di sini, Anda dapat mengelola daftar inseminasi di sistem."
-      />
+      <TypingCard title="Manajemen Inseminasi Buatan" source="Di sini, Anda dapat mengelola daftar inseminasi di sistem." />
       <br />
+      <Card>{title}</Card>
       {loading ? (
         <Card>
           <Skeleton active paragraph={{ rows: 10 }} />
         </Card>
       ) : (
-        <Card title={title} style={{ overflowX: "scroll" }}>
-          {renderTable()}
-        </Card>
+        <Card style={{ overflowX: "scroll" }}>{renderTable()}</Card>
       )}
 
       <EditInseminasiBuatanForm
@@ -1301,13 +1051,7 @@ const InseminasiBuatan = () => {
         onOk={handleEditInseminasiOk}
       />
 
-      <AddInseminasiBuatanForm
-        wrappedComponentRef={addInseminasiFormRef}
-        visible={addInseminasiModalVisible}
-        confirmLoading={addInseminasiModalLoading}
-        onCancel={handleCancel}
-        onOk={handleAddInseminasiOk}
-      />
+      <AddInseminasiBuatanForm wrappedComponentRef={addInseminasiFormRef} visible={addInseminasiModalVisible} confirmLoading={addInseminasiModalLoading} onCancel={handleCancel} onOk={handleAddInseminasiOk} />
 
       <Modal
         title="Import File"
@@ -1317,12 +1061,7 @@ const InseminasiBuatan = () => {
           <Button key="cancel" onClick={handleImportModalClose}>
             Cancel
           </Button>,
-          <Button
-            key="upload"
-            type="primary"
-            loading={uploading}
-            onClick={handleUpload}
-          >
+          <Button key="upload" type="primary" loading={uploading} onClick={handleUpload}>
             Upload
           </Button>,
         ]}

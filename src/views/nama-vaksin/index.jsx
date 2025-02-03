@@ -1,33 +1,9 @@
 /* eslint-disable no-unused-vars */
-import {
-  addNamaVaksin,
-  deleteNamaVaksin,
-  editNamaVaksin,
-  getNamaVaksin,
-  addNamaVaksinBulk,
-} from "@/api/nama-vaksin";
+import { addNamaVaksin, deleteNamaVaksin, editNamaVaksin, getNamaVaksin, addNamaVaksinBulk } from "@/api/nama-vaksin";
 import { reqUserInfo } from "@/api/user"; // Adjust the import path as necessary
 import TypingCard from "@/components/TypingCard";
-import {
-  DeleteOutlined,
-  DownloadOutlined,
-  EditOutlined,
-  UploadOutlined,
-  SearchOutlined,
-} from "@ant-design/icons";
-import {
-  Button,
-  Card,
-  Col,
-  Divider,
-  Input,
-  message,
-  Modal,
-  Row,
-  Table,
-  Upload,
-  Space,
-} from "antd";
+import { DeleteOutlined, DownloadOutlined, EditOutlined, UploadOutlined, SearchOutlined } from "@ant-design/icons";
+import { Button, Card, Col, Divider, Input, message, Modal, Row, Table, Upload, Space } from "antd";
 import React, { useEffect, useRef, useState } from "react";
 import { read, utils } from "xlsx";
 import AddNamaVaksinForm from "./forms/add-namavaksin-form";
@@ -39,15 +15,11 @@ import Highlighter from "react-highlight-words";
 const NamaVaksin = () => {
   // State Variables
   const [namaVaksins, setNamaVaksins] = useState([]);
-  const [editNamaVaksinModalVisible, setEditNamaVaksinModalVisible] =
-    useState(false);
-  const [editNamaVaksinModalLoading, setEditNamaVaksinModalLoading] =
-    useState(false);
+  const [editNamaVaksinModalVisible, setEditNamaVaksinModalVisible] = useState(false);
+  const [editNamaVaksinModalLoading, setEditNamaVaksinModalLoading] = useState(false);
   const [currentRowData, setCurrentRowData] = useState({});
-  const [addNamaVaksinModalVisible, setAddNamaVaksinModalVisible] =
-    useState(false);
-  const [addNamaVaksinModalLoading, setAddNamaVaksinModalLoading] =
-    useState(false);
+  const [addNamaVaksinModalVisible, setAddNamaVaksinModalVisible] = useState(false);
+  const [addNamaVaksinModalLoading, setAddNamaVaksinModalLoading] = useState(false);
   const [importModalVisible, setImportModalVisible] = useState(false);
   const [importedData, setImportedData] = useState([]);
   const [searchKeyword, setSearchKeyword] = useState("");
@@ -91,12 +63,7 @@ const NamaVaksin = () => {
           const isNamaValid = typeof namaVaksin === "string";
           const isDeskripsiValid = typeof deskripsi === "string";
 
-          return (
-            (isIdNamaVaksinValid &&
-              idNamaVaksin.toLowerCase().includes(keyword)) ||
-            (isNamaValid && namaVaksin.toLowerCase().includes(keyword)) ||
-            (isDeskripsiValid && deskripsi.toLowerCase().includes(keyword))
-          );
+          return (isIdNamaVaksinValid && idNamaVaksin.toLowerCase().includes(keyword)) || (isNamaValid && namaVaksin.toLowerCase().includes(keyword)) || (isDeskripsiValid && deskripsi.toLowerCase().includes(keyword));
         });
 
         setNamaVaksins(filteredNamaVaksin);
@@ -258,11 +225,7 @@ const NamaVaksin = () => {
       const utcDays = Math.floor(input - 25569);
       const utcValue = utcDays * 86400;
       const dateInfo = new Date(utcValue * 1000);
-      date = new Date(
-        dateInfo.getFullYear(),
-        dateInfo.getMonth(),
-        dateInfo.getDate()
-      ).toString();
+      date = new Date(dateInfo.getFullYear(), dateInfo.getMonth(), dateInfo.getDate()).toString();
     } else if (typeof input === "string") {
       const [day, month, year] = input.split("/");
       date = new Date(`${year}-${month}-${day}`).toString();
@@ -393,18 +356,8 @@ const NamaVaksin = () => {
   };
 
   const convertHeaderToCSV = () => {
-    const columnTitlesLocal = [
-      "No",
-      "Jenis Vaksin",
-      "Nama Vaksin",
-      "Deskripsi",
-    ];
-    const exampleRow = [
-      "1",
-      "Contoh PMK",
-      "Contoh PMK ABC",
-      "Nama Vaksin penyakit PMK 1",
-    ];
+    const columnTitlesLocal = ["No", "Jenis Vaksin", "Nama Vaksin", "Deskripsi"];
+    const exampleRow = ["1", "Contoh PMK", "Contoh PMK ABC", "Nama Vaksin penyakit PMK 1"];
 
     // Gabungkan header dan contoh data
     const rows = [columnTitlesLocal, exampleRow];
@@ -435,20 +388,10 @@ const NamaVaksin = () => {
 
   // Convert Data to CSV Format
   const convertToCSV = (data) => {
-    const columnTitles = [
-      "ID Nama Vaksin",
-      "Jenis Vaksin",
-      "Nama Vaksin",
-      "Deskripsi",
-    ];
+    const columnTitles = ["ID Nama Vaksin", "Jenis Vaksin", "Nama Vaksin", "Deskripsi"];
     const rows = [columnTitles];
     data.forEach((item) => {
-      const row = [
-        item.idNamaVaksin,
-        item.jenisVaksin?.jenis,
-        item.nama,
-        item.deskripsi,
-      ];
+      const row = [item.idNamaVaksin, item.jenisVaksin?.jenis, item.nama, item.deskripsi];
       rows.push(row);
     });
     let csvContent = "data:text/csv;charset=utf-8,";
@@ -471,41 +414,21 @@ const NamaVaksin = () => {
   };
 
   const getColumnSearchProps = (dataIndex, nestedPath) => ({
-    filterDropdown: ({
-      setSelectedKeys,
-      selectedKeys,
-      confirm,
-      clearFilters,
-      close,
-    }) => (
+    filterDropdown: ({ setSelectedKeys, selectedKeys, confirm, clearFilters, close }) => (
       <div style={{ padding: 8 }} onKeyDown={(e) => e.stopPropagation()}>
         <Input
           ref={searchInput}
           placeholder={`Search ${dataIndex}`}
           value={selectedKeys[0]}
-          onChange={(e) =>
-            setSelectedKeys(e.target.value ? [e.target.value] : [])
-          }
-          onPressEnter={() =>
-            handleSearchTable(selectedKeys, confirm, dataIndex)
-          }
+          onChange={(e) => setSelectedKeys(e.target.value ? [e.target.value] : [])}
+          onPressEnter={() => handleSearchTable(selectedKeys, confirm, dataIndex)}
           style={{ marginBottom: 8, display: "block" }}
         />
         <Space>
-          <Button
-            type="primary"
-            onClick={() => handleSearchTable(selectedKeys, confirm, dataIndex)}
-            icon={<SearchOutlined />}
-            size="small"
-            style={{ width: 90 }}
-          >
+          <Button type="primary" onClick={() => handleSearchTable(selectedKeys, confirm, dataIndex)} icon={<SearchOutlined />} size="small" style={{ width: 90 }}>
             Search
           </Button>
-          <Button
-            onClick={() => clearFilters && handleReset(clearFilters)}
-            size="small"
-            style={{ width: 90 }}
-          >
+          <Button onClick={() => clearFilters && handleReset(clearFilters)} size="small" style={{ width: 90 }}>
             Reset
           </Button>
           <Button
@@ -525,40 +448,20 @@ const NamaVaksin = () => {
         </Space>
       </div>
     ),
-    filterIcon: (filtered) => (
-      <SearchOutlined style={{ color: filtered ? "#1677ff" : undefined }} />
-    ),
+    filterIcon: (filtered) => <SearchOutlined style={{ color: filtered ? "#1677ff" : undefined }} />,
     onFilter: (value, record) => {
       if (nestedPath) {
-        const nestedValue = nestedPath
-          .split(".")
-          .reduce((obj, key) => obj?.[key], record);
-        return nestedValue
-          ?.toString()
-          .toLowerCase()
-          .includes(value.toLowerCase());
+        const nestedValue = nestedPath.split(".").reduce((obj, key) => obj?.[key], record);
+        return nestedValue?.toString().toLowerCase().includes(value.toLowerCase());
       }
-      return record[dataIndex]
-        ?.toString()
-        .toLowerCase()
-        .includes(value.toLowerCase());
+      return record[dataIndex]?.toString().toLowerCase().includes(value.toLowerCase());
     },
     filterDropdownProps: {
       onOpenChange(open) {
         if (open) setTimeout(() => searchInput.current?.select(), 100);
       },
     },
-    render: (text) =>
-      searchedColumn === dataIndex ? (
-        <Highlighter
-          highlightStyle={{ backgroundColor: "#ffc069", padding: 0 }}
-          searchWords={[searchText]}
-          autoEscape
-          textToHighlight={text?.toString() || ""}
-        />
-      ) : (
-        text
-      ),
+    render: (text) => (searchedColumn === dataIndex ? <Highlighter highlightStyle={{ backgroundColor: "#ffc069", padding: 0 }} searchWords={[searchText]} autoEscape textToHighlight={text?.toString() || ""} /> : text),
   });
 
   // Render Columns with Operations
@@ -574,8 +477,7 @@ const NamaVaksin = () => {
         dataIndex: ["jenisVaksin", "jenis"],
         key: "jenis",
         ...getColumnSearchProps("jenisVaksin.jenis", "jenisVaksin.jenis"),
-        sorter: (a, b) =>
-          a.jenisVaksin.jenis.localeCompare(b.jenisVaksin.jenis),
+        sorter: (a, b) => a.jenisVaksin.jenis.localeCompare(b.jenisVaksin.jenis),
       },
       {
         title: "Nama Vaksin",
@@ -593,10 +495,7 @@ const NamaVaksin = () => {
       },
     ];
 
-    if (
-      user &&
-      (user.role === "ROLE_ADMINISTRATOR" || user.role === "ROLE_PETUGAS")
-    ) {
+    if (user && (user.role === "ROLE_ADMINISTRATOR" || user.role === "ROLE_PETUGAS")) {
       baseColumns.push({
         title: "Operasi",
         key: "action",
@@ -604,22 +503,9 @@ const NamaVaksin = () => {
         align: "center",
         render: (text, row) => (
           <span>
-            <Button
-              type="primary"
-              shape="circle"
-              icon={<EditOutlined />}
-              title="Edit"
-              onClick={() => handleEditNamaVaksin(row)}
-            />
+            <Button type="primary" shape="circle" icon={<EditOutlined />} title="Edit" onClick={() => handleEditNamaVaksin(row)} />
             <Divider type="vertical" />
-            <Button
-              type="primary"
-              danger
-              shape="circle"
-              icon={<DeleteOutlined />}
-              title="Delete"
-              onClick={() => handleDeleteNamaVaksin(row)}
-            />
+            <Button type="primary" danger shape="circle" icon={<DeleteOutlined />} title="Delete" onClick={() => handleDeleteNamaVaksin(row)} />
           </span>
         ),
       });
@@ -631,26 +517,9 @@ const NamaVaksin = () => {
   // Render Table based on User Role
   const renderTable = () => {
     if (user && user.role === "ROLE_PETERNAK") {
-      return (
-        <Table
-          dataSource={namaVaksins}
-          bordered
-          columns={renderColumns()}
-          rowKey="idNamaVaksin"
-        />
-      );
-    } else if (
-      user &&
-      (user.role === "ROLE_ADMINISTRATOR" || user.role === "ROLE_PETUGAS")
-    ) {
-      return (
-        <Table
-          dataSource={namaVaksins}
-          bordered
-          columns={renderColumns()}
-          rowKey="idNamaVaksin"
-        />
-      );
+      return <Table dataSource={namaVaksins} bordered columns={renderColumns()} rowKey="idNamaVaksin" />;
+    } else if (user && (user.role === "ROLE_ADMINISTRATOR" || user.role === "ROLE_PETUGAS")) {
+      return <Table dataSource={namaVaksins} bordered columns={renderColumns()} rowKey="idNamaVaksin" />;
     } else {
       return null;
     }
@@ -658,37 +527,26 @@ const NamaVaksin = () => {
 
   // Render Buttons based on User Role
   const renderButtons = () => {
-    if (
-      user &&
-      (user.role === "ROLE_ADMINISTRATOR" || user.role === "ROLE_PETUGAS")
-    ) {
+    if (user && (user.role === "ROLE_ADMINISTRATOR" || user.role === "ROLE_PETUGAS")) {
       return (
         <Row gutter={[16, 16]} justify="start" style={{ paddingLeft: 9 }}>
           <Col>
-            <Button type="primary" onClick={handleAddJenisVaksin} block>
+            <Button type="primary" onClick={handleAddJenisVaksin} style={{ width: 200 }}>
               Tambah Nama Vaksin
             </Button>
           </Col>
           <Col>
-            <Button
-              icon={<UploadOutlined />}
-              onClick={handleImportModalOpen}
-              block
-            >
+            <Button icon={<UploadOutlined />} onClick={handleImportModalOpen} style={{ width: 200 }}>
               Import File
             </Button>
           </Col>
           <Col>
-            <Button
-              icon={<DownloadOutlined />}
-              onClick={handleDownloadCSV}
-              block
-            >
+            <Button icon={<DownloadOutlined />} onClick={handleDownloadCSV} style={{ width: 200 }}>
               Download Format CSV
             </Button>
           </Col>
           <Col>
-            <Button icon={<UploadOutlined />} onClick={handleExportData} block>
+            <Button icon={<UploadOutlined />} onClick={handleExportData} style={{ width: 200 }}>
               Export Data To CSV
             </Button>
           </Col>
@@ -704,12 +562,7 @@ const NamaVaksin = () => {
     <Row gutter={[16, 16]} justify="space-between">
       {renderButtons()}
       <Col xs={24} sm={12} md={8} lg={8} xl={8}>
-        <Input
-          placeholder="Cari data"
-          value={searchKeyword}
-          onChange={(e) => handleSearch(e.target.value)}
-          style={{ width: "100%" }}
-        />
+        <Input placeholder="Cari data" value={searchKeyword} onChange={(e) => handleSearch(e.target.value)} style={{ width: "100%" }} />
       </Col>
     </Row>
   );
@@ -721,34 +574,20 @@ const NamaVaksin = () => {
       {/* TypingCard component */}
       <TypingCard title="Manajemen Nama Vaksin" source={cardContent} />
       <br />
+      <Card>{title}</Card>
       {loading ? (
         <Card>
           <Skeleton active paragraph={{ rows: 10 }} />
         </Card>
       ) : (
-        <Card title={title} style={{ overflowX: "scroll" }}>
-          {renderTable()}
-        </Card>
+        <Card style={{ overflowX: "scroll" }}>{renderTable()}</Card>
       )}
 
       {/* Edit Nama vaksin Modal */}
-      <EditNamaVaksinForm
-        currentRowData={currentRowData}
-        wrappedComponentRef={editNamaVaksinFormRef}
-        visible={editNamaVaksinModalVisible}
-        confirmLoading={editNamaVaksinModalLoading}
-        onCancel={handleCancel}
-        onOk={handleEditNamaVaksinOk}
-      />
+      <EditNamaVaksinForm currentRowData={currentRowData} wrappedComponentRef={editNamaVaksinFormRef} visible={editNamaVaksinModalVisible} confirmLoading={editNamaVaksinModalLoading} onCancel={handleCancel} onOk={handleEditNamaVaksinOk} />
 
       {/* Add Nama Vaksin Modal */}
-      <AddNamaVaksinForm
-        wrappedComponentRef={addNamaVaksinFormRef}
-        visible={addNamaVaksinModalVisible}
-        confirmLoading={addNamaVaksinModalLoading}
-        onCancel={handleCancel}
-        onOk={handleAddNamaVaksinOk}
-      />
+      <AddNamaVaksinForm wrappedComponentRef={addNamaVaksinFormRef} visible={addNamaVaksinModalVisible} confirmLoading={addNamaVaksinModalLoading} onCancel={handleCancel} onOk={handleAddNamaVaksinOk} />
 
       {/* Import Modal */}
       <Modal
@@ -759,12 +598,7 @@ const NamaVaksin = () => {
           <Button key="cancel" onClick={handleImportModalClose}>
             Cancel
           </Button>,
-          <Button
-            key="upload"
-            type="primary"
-            loading={uploading}
-            onClick={handleUpload}
-          >
+          <Button key="upload" type="primary" loading={uploading} onClick={handleUpload}>
             Upload
           </Button>,
         ]}

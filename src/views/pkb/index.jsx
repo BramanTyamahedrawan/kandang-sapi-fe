@@ -4,36 +4,11 @@ import { addJenisHewanBulk } from "@/api/jenishewan";
 import { addKandangBulkByNama } from "@/api/kandang";
 import { addPeternakBulkByNama } from "@/api/peternak";
 import { addPetugasBulkByNama, getPetugas } from "@/api/petugas";
-import {
-  addPkb,
-  addPkbImport,
-  deletePkb,
-  editPkb,
-  getPkb
-} from "@/api/pkb";
+import { addPkb, addPkbImport, deletePkb, editPkb, getPkb } from "@/api/pkb";
 import { addRumpunHewanBulk } from "@/api/rumpunhewan";
 import TypingCard from "@/components/TypingCard";
-import {
-  DeleteOutlined,
-  DownloadOutlined,
-  EditOutlined,
-  SearchOutlined,
-  UploadOutlined,
-} from "@ant-design/icons";
-import {
-  Button,
-  Card,
-  Col,
-  Divider,
-  Input,
-  message,
-  Modal,
-  Row,
-  Skeleton,
-  Space,
-  Table,
-  Upload,
-} from "antd";
+import { DeleteOutlined, DownloadOutlined, EditOutlined, SearchOutlined, UploadOutlined } from "@ant-design/icons";
+import { Button, Card, Col, Divider, Input, message, Modal, Row, Skeleton, Space, Table, Upload } from "antd";
 import React, { useEffect, useRef, useState } from "react";
 import Highlighter from "react-highlight-words";
 import { v4 as uuidv4 } from "uuid";
@@ -52,15 +27,9 @@ const sendPetugasBulkData = async (data, batchSize = 7000) => {
     try {
       console.log(`Data Petugas (Batch ${i + 1}):`, batchData); // Log data yang dikirim
       const response = await addPetugasBulkByNama(batchData);
-      console.log(
-        `Batch ${i + 1}/${totalBatches} berhasil dikirim`,
-        response.data
-      );
+      console.log(`Batch ${i + 1}/${totalBatches} berhasil dikirim`, response.data);
     } catch (error) {
-      console.error(
-        `Batch ${i + 1}/${totalBatches} gagal dikirim`,
-        error.response?.data || error.message
-      );
+      console.error(`Batch ${i + 1}/${totalBatches} gagal dikirim`, error.response?.data || error.message);
       throw error; // Hentikan proses jika batch gagal
     }
   }
@@ -75,15 +44,9 @@ const sendPeternakBulkData = async (data, batchSize = 7000) => {
     try {
       console.log(`Data Peternak (Batch ${i + 1}):`, batchData); // Log data yang dikirim
       const response = await addPeternakBulkByNama(batchData);
-      console.log(
-        `Batch ${i + 1}/${totalBatches} berhasil dikirim`,
-        response.data
-      );
+      console.log(`Batch ${i + 1}/${totalBatches} berhasil dikirim`, response.data);
     } catch (error) {
-      console.error(
-        `Batch ${i + 1}/${totalBatches} gagal dikirim`,
-        error.response?.data || error.message
-      );
+      console.error(`Batch ${i + 1}/${totalBatches} gagal dikirim`, error.response?.data || error.message);
       throw error; // Hentikan proses jika batch gagal
     }
   }
@@ -98,15 +61,9 @@ const sendRumpunHewanBulkData = async (data, batchSize = 7000) => {
     try {
       console.log(`Data Rumpun Hewan (Batch ${i + 1}):`, batchData); // Log data yang dikirim
       const response = await addRumpunHewanBulk(batchData);
-      console.log(
-        `Batch ${i + 1}/${totalBatches} berhasil dikirim`,
-        response.data
-      );
+      console.log(`Batch ${i + 1}/${totalBatches} berhasil dikirim`, response.data);
     } catch (error) {
-      console.error(
-        `Batch ${i + 1}/${totalBatches} gagal dikirim`,
-        error.response?.data || error.message
-      );
+      console.error(`Batch ${i + 1}/${totalBatches} gagal dikirim`, error.response?.data || error.message);
       throw error;
     }
   }
@@ -121,15 +78,9 @@ const sendJenisHewanBulkData = async (data, batchSize = 7000) => {
     try {
       console.log(`Data Jenis Hewan (Batch ${i + 1}):`, batchData); // Log data yang dikirim
       const response = await addJenisHewanBulk(batchData);
-      console.log(
-        `Batch ${i + 1}/${totalBatches} berhasil dikirim`,
-        response.data
-      );
+      console.log(`Batch ${i + 1}/${totalBatches} berhasil dikirim`, response.data);
     } catch (error) {
-      console.error(
-        `Batch ${i + 1}/${totalBatches} gagal dikirim`,
-        error.response?.data || error.message
-      );
+      console.error(`Batch ${i + 1}/${totalBatches} gagal dikirim`, error.response?.data || error.message);
       throw error; // Hentikan proses jika batch gagal
     }
   }
@@ -144,15 +95,9 @@ const sendKandangBulkData = async (data, batchSize = 7000) => {
     try {
       console.log(`Data Kandang (Batch ${i + 1}):`, batchData); // Log data yang dikirim
       const response = await addKandangBulkByNama(batchData);
-      console.log(
-        `Batch ${i + 1}/${totalBatches} berhasil dikirim`,
-        response.data
-      );
+      console.log(`Batch ${i + 1}/${totalBatches} berhasil dikirim`, response.data);
     } catch (error) {
-      console.error(
-        `Batch ${i + 1}/${totalBatches} gagal dikirim`,
-        error.response?.data || error.message
-      );
+      console.error(`Batch ${i + 1}/${totalBatches} gagal dikirim`, error.response?.data || error.message);
       throw error; // Hentikan proses jika batch gagal
     }
   }
@@ -167,15 +112,9 @@ const sendTernakHewanBulkData = async (data, batchSize = 7000) => {
     try {
       console.log(`Data Ternak Hewan (Batch ${i + 1}):`, batchData); // Log data yang dikirim
       const response = await addHewanBulkImport(batchData);
-      console.log(
-        `Batch ${i + 1}/${totalBatches} berhasil dikirim`,
-        response.data
-      );
+      console.log(`Batch ${i + 1}/${totalBatches} berhasil dikirim`, response.data);
     } catch (error) {
-      console.error(
-        `Batch ${i + 1}/${totalBatches} gagal dikirim`,
-        error.response?.data || error.message
-      );
+      console.error(`Batch ${i + 1}/${totalBatches} gagal dikirim`, error.response?.data || error.message);
       throw error; // Hentikan proses jika batch gagal
     }
   }
@@ -190,15 +129,9 @@ const sendPkbImport = async (data, batchSize = 7000) => {
     try {
       console.log(`Data PKB (Batch ${i + 1}):`, batchData); // Log data yang dikirim
       const response = await addPkbImport(batchData);
-      console.log(
-        `Batch ${i + 1}/${totalBatches} berhasil dikirim`,
-        response.data
-      );
+      console.log(`Batch ${i + 1}/${totalBatches} berhasil dikirim`, response.data);
     } catch (error) {
-      console.error(
-        `Batch ${i + 1}/${totalBatches} gagal dikirim`,
-        error.response?.data || error.message
-      );
+      console.error(`Batch ${i + 1}/${totalBatches} gagal dikirim`, error.response?.data || error.message);
       throw error; // Hentikan proses jika batch gagal
     }
   }
@@ -222,12 +155,7 @@ function parseAddress(address) {
   const provinsi = parts[0] || "-";
 
   // Validasi bahwa setidaknya satu bagian selain "-" harus terisi
-  const isValid =
-    dusun !== "-" ||
-    desa !== "-" ||
-    kecamatan !== "-" ||
-    kabupaten !== "-" ||
-    provinsi !== "-";
+  const isValid = dusun !== "-" || desa !== "-" || kecamatan !== "-" || kabupaten !== "-" || provinsi !== "-";
 
   if (!isValid) {
     console.warn(`Alamat tidak valid: ${address}`);
@@ -297,44 +225,21 @@ const Pkb = () => {
       if (statusCode === 200) {
         const filteredPKB = content
           .filter((pkb) => {
-            const {
-              idPkb,
-              idKejadian,
-              tanggalPkb,
-              jumlah,
-              umurKebuntingan,
-              idPetugas,
-              idPeternak,
-              idHewan,
-              idKandang,
-              idRumpunHewan,
-              idJenisHewan,
-            } = pkb;
+            const { idPkb, idKejadian, tanggalPkb, jumlah, umurKebuntingan, idPetugas, idPeternak, idHewan, idKandang, idRumpunHewan, idJenisHewan } = pkb;
             const keyword = searchKeyword.toLowerCase();
 
             return (
-              (typeof idPkb === "string" &&
-                idPkb.toLowerCase().includes(keyword)) ||
-              (typeof idKejadian === "string" &&
-                idKejadian.toLowerCase().includes(keyword)) ||
-              (typeof tanggalPkb === "string" &&
-                tanggalPkb.toLowerCase().includes(keyword)) ||
-              (typeof jumlah === "string" &&
-                jumlah.toLowerCase().includes(keyword)) ||
-              (typeof umurKebuntingan === "string" &&
-                umurKebuntingan.toLowerCase().includes(keyword)) ||
-              (typeof idPetugas === "string" &&
-                idPetugas.toLowerCase().includes(keyword)) ||
-              (typeof idPeternak === "string" &&
-                idPeternak.toLowerCase().includes(keyword)) ||
-              (typeof idHewan === "string" &&
-                idHewan.toLowerCase().includes(keyword)) ||
-              (typeof idKandang === "string" &&
-                idKandang.toLowerCase().includes(keyword)) ||
-              (typeof idRumpunHewan === "string" &&
-                idRumpunHewan.toLowerCase().includes(keyword)) ||
-              (typeof idJenisHewan === "string" &&
-                idJenisHewan.toLowerCase().includes(keyword))
+              (typeof idPkb === "string" && idPkb.toLowerCase().includes(keyword)) ||
+              (typeof idKejadian === "string" && idKejadian.toLowerCase().includes(keyword)) ||
+              (typeof tanggalPkb === "string" && tanggalPkb.toLowerCase().includes(keyword)) ||
+              (typeof jumlah === "string" && jumlah.toLowerCase().includes(keyword)) ||
+              (typeof umurKebuntingan === "string" && umurKebuntingan.toLowerCase().includes(keyword)) ||
+              (typeof idPetugas === "string" && idPetugas.toLowerCase().includes(keyword)) ||
+              (typeof idPeternak === "string" && idPeternak.toLowerCase().includes(keyword)) ||
+              (typeof idHewan === "string" && idHewan.toLowerCase().includes(keyword)) ||
+              (typeof idKandang === "string" && idKandang.toLowerCase().includes(keyword)) ||
+              (typeof idRumpunHewan === "string" && idRumpunHewan.toLowerCase().includes(keyword)) ||
+              (typeof idJenisHewan === "string" && idJenisHewan.toLowerCase().includes(keyword))
             );
           })
           .sort((a, b) => {
@@ -590,10 +495,7 @@ const Pkb = () => {
             const [datePart, timePart] = dateString.split(" ");
             const [day, month, year] = datePart.split("/");
 
-            return `${year}-${month.padStart(2, "0")}-${day.padStart(
-              2,
-              "0"
-            )} ${timePart}`;
+            return `${year}-${month.padStart(2, "0")}-${day.padStart(2, "0")} ${timePart}`;
           } else if (typeof dateString === "string") {
             const [day, month, year] = dateString.split("/");
             return `${year}-${month.padStart(2, "0")}-${day.padStart(2, "0")}`;
@@ -606,18 +508,14 @@ const Pkb = () => {
         const validateEmail = (email) => {
           // Jika email tidak valid (null, undefined, atau bukan string), gunakan default
           if (typeof email !== "string" || !email.includes("@")) {
-            console.warn(
-              `Email tidak valid: ${email}. Menggunakan email default.`
-            );
+            console.warn(`Email tidak valid: ${email}. Menggunakan email default.`);
             return "default@gmail.com"; // Email default
           }
           // Jika valid, kembalikan email
           return email;
         };
 
-        const pecahLokasi = parseAddress(
-          row[columnMapping["Lokasi"]] || row[columnMapping["Alamat"]] || "-"
-        );
+        const pecahLokasi = parseAddress(row[columnMapping["Lokasi"]] || row[columnMapping["Alamat"]] || "-");
         const generateJenisKandang = (jenisKandang) => {
           return jenisKandang || "Permanen";
         };
@@ -644,8 +542,7 @@ const Pkb = () => {
           uniqueData.set(jenisHewanUnique, dataJenisHewan);
         }
 
-        const namaPetugasPemeriksa =
-          row[columnMapping["Pemeriksa Kebuntingan"]] || "-";
+        const namaPetugasPemeriksa = row[columnMapping["Pemeriksa Kebuntingan"]] || "-";
         if (!uniqueData.has(namaPetugasPemeriksa)) {
           const dataPetugasPemeriksa = {
             petugasId: generateIdPetugas,
@@ -667,11 +564,10 @@ const Pkb = () => {
         if (!uniqueData.has(namaPemilikTernak)) {
           const dataPeternak = {
             idPeternak: generateIdPeternak,
-            nikPeternak:  row[columnMapping["NIK Peternak"]] || "-",
+            nikPeternak: row[columnMapping["NIK Peternak"]] || "-",
             namaPeternak: row[columnMapping["Nama Peternak"]] || "-",
             noTelpPeternak: row[columnMapping["No Telp"]] || "-",
-            emailPeternak:
-              validateEmail(row[columnMapping["Email Pemilik Ternak"]]) || "-",
+            emailPeternak: validateEmail(row[columnMapping["Email Pemilik Ternak"]]) || "-",
             idPetugas: uniqueData.get(namaPetugasPemeriksa).petugasId,
             nikPetugas: uniqueData.get(namaPetugasPemeriksa).nikPetugas,
             namaPetugas: uniqueData.get(namaPetugasPemeriksa).namaPetugas,
@@ -681,22 +577,17 @@ const Pkb = () => {
             kecamatan: pecahLokasi.kecamatan,
             kabupaten: pecahLokasi.kabupaten,
             provinsi: pecahLokasi.provinsi,
-            tanggalLahirPeternak: formatDateToString(
-              row[columnMapping["Tanggal Lahir Pemilik Ternak"]] || "-"
-            ),
+            tanggalLahirPeternak: formatDateToString(row[columnMapping["Tanggal Lahir Pemilik Ternak"]] || "-"),
             latitude: row[columnMapping["latitude"]] || "-",
             longitude: row[columnMapping["longitude"]] || "-",
             idIsikhnas: row[columnMapping["ID Isikhnas*)"]] || "-",
-            jenisKelaminPeternak:
-              row[columnMapping["Jenis Kelamin Pemilik Ternak"]] || "-",
+            jenisKelaminPeternak: row[columnMapping["Jenis Kelamin Pemilik Ternak"]] || "-",
           };
           // peternakBulk.push(dataPeternak);
           uniqueData.set(namaPemilikTernak, dataPeternak);
         }
 
-        const namaKandang = `Kandang ${
-          uniqueData.get(jenisHewanUnique).jenis
-        } ${uniqueData.get(namaPemilikTernak).namaPeternak}`;
+        const namaKandang = `Kandang ${uniqueData.get(jenisHewanUnique).jenis} ${uniqueData.get(namaPemilikTernak).namaPeternak}`;
         if (!uniqueData.has(namaKandang)) {
           const dataKandang = {
             idKandang: generateIdKandang,
@@ -709,9 +600,7 @@ const Pkb = () => {
             luas: row[columnMapping["Luas Kandang"]] || "-",
             kapasitas: row[columnMapping["Kapasitas Kandang"]] || "-",
             nilaiBangunan: row[columnMapping["Nilai Bangunan"]] || "-",
-            jenisKandang: generateJenisKandang(
-              row[columnMapping["Jenis Kandang"]]
-            ),
+            jenisKandang: generateJenisKandang(row[columnMapping["Jenis Kandang"]]),
             latitude: row[columnMapping["latitude"]] || "-",
             longitude: row[columnMapping["longitude"]] || "-",
           };
@@ -722,24 +611,14 @@ const Pkb = () => {
         const dataTernakHewan = {
           idHewan: generateIdHewan,
           kodeEartagNasional: row[columnMapping["Kode Eartag Nasional"]] || "-",
-          noKartuTernak:
-            row[columnMapping["No Kartu Ternak"]] ||
-            row[columnMapping["ID Hewan"]] ||
-            "-",
+          noKartuTernak: row[columnMapping["No Kartu Ternak"]] || row[columnMapping["ID Hewan"]] || "-",
           idIsikhnasTernak: row[columnMapping["IdIsikhnas"]] || "-",
-          tanggalLahir: formatDateToString(
-            row[columnMapping["Tanggal Lahir Ternak"]] || "-"
-          ),
+          tanggalLahir: formatDateToString(row[columnMapping["Tanggal Lahir Ternak"]] || "-"),
           sex: row[columnMapping["Jenis Kelamin Ternak"]] || "-",
           tempatLahir: row[columnMapping["Tempat Lahir Ternak"]] || "-",
           umur: row[columnMapping["Umur"]] || "-",
-          identifikasiHewan:
-            row[columnMapping["Identifikasi Hewan*"]] ||
-            row[columnMapping["Identifikasi Hewan"]] ||
-            "-",
-          tanggalTerdaftar: formatDateToString(
-            row[columnMapping["Tanggal Pendataan"]] || "-"
-          ),
+          identifikasiHewan: row[columnMapping["Identifikasi Hewan*"]] || row[columnMapping["Identifikasi Hewan"]] || "-",
+          tanggalTerdaftar: formatDateToString(row[columnMapping["Tanggal Pendataan"]] || "-"),
           idPetugas: uniqueData.get(namaPetugasPemeriksa).petugasId,
           namaPetugas: uniqueData.get(namaPetugasPemeriksa).namaPetugas,
           nikPetugas: uniqueData.get(namaPetugasPemeriksa).nikPetugas,
@@ -750,20 +629,15 @@ const Pkb = () => {
           idPeternak: uniqueData.get(namaPemilikTernak).idPeternak,
           namaPeternak: uniqueData.get(namaPemilikTernak).namaPeternak,
           nikPeternak: uniqueData.get(namaPemilikTernak).nikPeternak,
-          tujuanPemeliharaan:
-            row[columnMapping["Tujuan Pemeliharaan Ternak"]] || "-",
+          tujuanPemeliharaan: row[columnMapping["Tujuan Pemeliharaan Ternak"]] || "-",
         };
 
         const dataPkb = {
           idPkb: generateIdPkb,
           idKejadian: row[columnMapping["ID Kejadian"]] || "-",
-          tanggalPkb:
-            formatDateToString(row[columnMapping["Tanggal PKB"]]) || "-",
+          tanggalPkb: formatDateToString(row[columnMapping["Tanggal PKB"]]) || "-",
           jumlah: row[columnMapping["Jumlah"]] || "-",
-          umurKebuntingan:
-            row[columnMapping["Umur Kebuntingan saat PKB (bulan)"]] ||
-            row[columnMapping["Umur Kebuntingan"]] ||
-            "-",
+          umurKebuntingan: row[columnMapping["Umur Kebuntingan saat PKB (bulan)"]] || row[columnMapping["Umur Kebuntingan"]] || "-",
           idPeternak: uniqueData.get(namaPemilikTernak).idPeternak,
           namaPeternak: uniqueData.get(namaPemilikTernak).namaPeternak,
           nikPeternak: uniqueData.get(namaPemilikTernak).nikPeternak,
@@ -773,24 +647,14 @@ const Pkb = () => {
           namaKandang: uniqueData.get(namaKandang).namaKandang,
           idHewan: dataTernakHewan.idHewan,
           kodeEartagNasional: row[columnMapping["Kode Eartag Nasional"]] || "-",
-          noKartuTernak:
-            row[columnMapping["No Kartu Ternak"]] ||
-            row[columnMapping["ID Hewan"]] ||
-            "-",
+          noKartuTernak: row[columnMapping["No Kartu Ternak"]] || row[columnMapping["ID Hewan"]] || "-",
           idIsikhnasTernak: row[columnMapping["IdIsikhnas"]] || "-",
-          tanggalLahir: formatDateToString(
-            row[columnMapping["Tanggal Lahir Ternak"]] || "-"
-          ),
+          tanggalLahir: formatDateToString(row[columnMapping["Tanggal Lahir Ternak"]] || "-"),
           sex: row[columnMapping["Jenis Kelamin Ternak"]] || "-",
           tempatLahir: row[columnMapping["Tempat Lahir Ternak"]] || "-",
           umur: row[columnMapping["Umur"]] || "-",
-          identifikasiHewan:
-            row[columnMapping["Identifikasi Hewan*"]] ||
-            row[columnMapping["Identifikasi Hewan"]] ||
-            "-",
-          tanggalTerdaftar: formatDateToString(
-            row[columnMapping["Tanggal Pendataan"]] || "-"
-          ),
+          identifikasiHewan: row[columnMapping["Identifikasi Hewan*"]] || row[columnMapping["Identifikasi Hewan"]] || "-",
+          tanggalTerdaftar: formatDateToString(row[columnMapping["Tanggal Pendataan"]] || "-"),
           rumpun: uniqueData.get(rumpunHewanUnique).rumpun,
           jenis: uniqueData.get(jenisHewanUnique).jenis,
         };
@@ -810,20 +674,14 @@ const Pkb = () => {
         // await sendTernakHewanBulkData(ternakHewanBulk);
         await sendPkbImport(pkb);
       } catch (error) {
-        console.error(
-          "Gagal menyimpan data secara bulk:",
-          error,
-          error.response?.data
-        );
+        console.error("Gagal menyimpan data secara bulk:", error, error.response?.data);
       }
 
       if (errorCount === 0) {
         message.success(`Semua data berhasil disimpan.`);
         getPkbData();
       } else {
-        message.error(
-          `${errorCount} data gagal disimpan karena duplikasi data!`
-        );
+        message.error(`${errorCount} data gagal disimpan karena duplikasi data!`);
       }
     } catch (error) {
       console.error("Gagal memproses data:", error);
@@ -842,32 +700,8 @@ const Pkb = () => {
   };
 
   const convertHeaderToCSV = () => {
-    const columnTitlesLocal = [
-      "No",
-      "ID Kejadian",
-      "Tanggal PKB",
-      "Jumlah",
-      "Umur Kebuntingan saat PKB (bulan)",
-      "Spesies",
-      "kategori",
-      "Nama Peternak",
-      "NIK Peternak",
-      "No Kartu Ternak",
-      "Pemeriksa Kebuntingan",
-    ];
-    const exampleRow = [
-      "1",
-      "Contoh 78210308",
-      "COntoh 01/01/2021",
-      "Contoh 1",
-      "Contoh 2",
-      "Contoh sapi fh",
-      "Contoh sapi",
-      "Contoh Budi",
-      "Contoh 1234567890123456",
-      "Contoh 23532",
-      "Contoh Joko",
-    ];
+    const columnTitlesLocal = ["No", "ID Kejadian", "Tanggal PKB", "Jumlah", "Umur Kebuntingan saat PKB (bulan)", "Spesies", "kategori", "Nama Peternak", "NIK Peternak", "No Kartu Ternak", "Pemeriksa Kebuntingan"];
+    const exampleRow = ["1", "Contoh 78210308", "COntoh 01/01/2021", "Contoh 1", "Contoh 2", "Contoh sapi fh", "Contoh sapi", "Contoh Budi", "Contoh 1234567890123456", "Contoh 23532", "Contoh Joko"];
 
     // Gabungkan header dan contoh data
     const rows = [columnTitlesLocal, exampleRow];
@@ -902,34 +736,12 @@ const Pkb = () => {
   };
 
   const convertDataToCSV = (data) => {
-    const columnTitles = [
-      "ID Kejadian",
-      "Tanggal PKB",
-      "Jumlah",
-      "Umur Kebuntingan",
-      "Species",
-      "Kategori",
-      "Nama Peternak",
-      "NIK Peternak",
-      "No Kartu Ternak",
-      "Pemeriksa Kebuntingan",
-    ];
+    const columnTitles = ["ID Kejadian", "Tanggal PKB", "Jumlah", "Umur Kebuntingan", "Species", "Kategori", "Nama Peternak", "NIK Peternak", "No Kartu Ternak", "Pemeriksa Kebuntingan"];
 
     // Gabungkan header dan data
     const rows = [columnTitles];
     data.forEach((row) => {
-      const rowData = [
-        row.idKejadian,
-        row.tanggalPkb,
-        row.jumlah,
-        row.umurKebuntingan,
-        row.rumpunHewan.rumpun,
-        row.jenisHewan.jenis,
-        row.peternak.namaPeternak,
-        row.peternak.nikPeternak,
-        row.hewan.noKartuTernak,
-        row.petugas.namaPetugas,
-      ];
+      const rowData = [row.idKejadian, row.tanggalPkb, row.jumlah, row.umurKebuntingan, row.rumpunHewan.rumpun, row.jenisHewan.jenis, row.peternak.namaPeternak, row.peternak.nikPeternak, row.hewan.noKartuTernak, row.petugas.namaPetugas];
       rows.push(rowData);
     });
 
@@ -954,39 +766,21 @@ const Pkb = () => {
   };
 
   const getColumnSearchProps = (dataIndex, nestedPath) => ({
-    filterDropdown: ({
-      setSelectedKeys,
-      selectedKeys,
-      confirm,
-      clearFilters,
-      close,
-    }) => (
+    filterDropdown: ({ setSelectedKeys, selectedKeys, confirm, clearFilters, close }) => (
       <div style={{ padding: 8 }} onKeyDown={(e) => e.stopPropagation()}>
         <Input
           ref={searchInput}
           placeholder={`Search ${dataIndex}`}
           value={selectedKeys[0]}
-          onChange={(e) =>
-            setSelectedKeys(e.target.value ? [e.target.value] : [])
-          }
+          onChange={(e) => setSelectedKeys(e.target.value ? [e.target.value] : [])}
           onPressEnter={() => handleSearch(selectedKeys, confirm, dataIndex)}
           style={{ marginBottom: 8, display: "block" }}
         />
         <Space>
-          <Button
-            type="primary"
-            onClick={() => handleSearch(selectedKeys, confirm, dataIndex)}
-            icon={<SearchOutlined />}
-            size="small"
-            style={{ width: 90 }}
-          >
+          <Button type="primary" onClick={() => handleSearch(selectedKeys, confirm, dataIndex)} icon={<SearchOutlined />} size="small" style={{ width: 90 }}>
             Search
           </Button>
-          <Button
-            onClick={() => clearFilters && handleReset(clearFilters)}
-            size="small"
-            style={{ width: 90 }}
-          >
+          <Button onClick={() => clearFilters && handleReset(clearFilters)} size="small" style={{ width: 90 }}>
             Reset
           </Button>
           <Button
@@ -1006,40 +800,20 @@ const Pkb = () => {
         </Space>
       </div>
     ),
-    filterIcon: (filtered) => (
-      <SearchOutlined style={{ color: filtered ? "#1677ff" : undefined }} />
-    ),
+    filterIcon: (filtered) => <SearchOutlined style={{ color: filtered ? "#1677ff" : undefined }} />,
     onFilter: (value, record) => {
       if (nestedPath) {
-        const nestedValue = nestedPath
-          .split(".")
-          .reduce((obj, key) => obj?.[key], record);
-        return nestedValue
-          ?.toString()
-          .toLowerCase()
-          .includes(value.toLowerCase());
+        const nestedValue = nestedPath.split(".").reduce((obj, key) => obj?.[key], record);
+        return nestedValue?.toString().toLowerCase().includes(value.toLowerCase());
       }
-      return record[dataIndex]
-        ?.toString()
-        .toLowerCase()
-        .includes(value.toLowerCase());
+      return record[dataIndex]?.toString().toLowerCase().includes(value.toLowerCase());
     },
     filterDropdownProps: {
       onOpenChange(open) {
         if (open) setTimeout(() => searchInput.current?.select(), 100);
       },
     },
-    render: (text) =>
-      searchedColumn === dataIndex ? (
-        <Highlighter
-          highlightStyle={{ backgroundColor: "#ffc069", padding: 0 }}
-          searchWords={[searchText]}
-          autoEscape
-          textToHighlight={text?.toString() || ""}
-        />
-      ) : (
-        text
-      ),
+    render: (text) => (searchedColumn === dataIndex ? <Highlighter highlightStyle={{ backgroundColor: "#ffc069", padding: 0 }} searchWords={[searchText]} autoEscape textToHighlight={text?.toString() || ""} /> : text),
   });
 
   const renderColumns = () => {
@@ -1077,8 +851,7 @@ const Pkb = () => {
         dataIndex: ["rumpunHewan", "rumpun"],
         key: "rumpun",
         ...getColumnSearchProps("rumpun", "rumpunHewan.rumpun"),
-        sorter: (a, b) =>
-          a.rumpunHewan.rumpun.localeCompare(b.rumpunHewan.rumpun),
+        sorter: (a, b) => a.rumpunHewan.rumpun.localeCompare(b.rumpunHewan.rumpun),
       },
       {
         title: "Kategori",
@@ -1092,32 +865,28 @@ const Pkb = () => {
         dataIndex: ["peternak", "namaPeternak"],
         key: "namaPeternak",
         ...getColumnSearchProps("namaPeternak", "peternak.namaPeternak"),
-        sorter: (a, b) =>
-          a.peternak.namaPeternak.localeCompare(b.peternak.namaPeternak),
+        sorter: (a, b) => a.peternak.namaPeternak.localeCompare(b.peternak.namaPeternak),
       },
       {
         title: "Pemeriksa Kebuntingan",
         dataIndex: ["petugas", "namaPetugas"],
         key: "namaPetugas",
         ...getColumnSearchProps("namaPetugas", "petugas.namaPetugas"),
-        sorter: (a, b) =>
-          a.petugas.namaPetugas.localeCompare(b.petugas.namaPetugas),
+        sorter: (a, b) => a.petugas.namaPetugas.localeCompare(b.petugas.namaPetugas),
       },
       {
         title: "Kartu Ternak",
         dataIndex: ["hewan", "noKartuTernak"],
         key: "noKartuTernak",
         ...getColumnSearchProps("noKartuTernak", "hewan.noKartuTernak"),
-        sorter: (a, b) =>
-          a.hewan.noKartuTernak.localeCompare(b.hewan.noKartuTernak),
+        sorter: (a, b) => a.hewan.noKartuTernak.localeCompare(b.hewan.noKartuTernak),
       },
       {
         title: "Kandang",
         dataIndex: ["kandang", "namaKandang"],
         key: "namaKandang",
         ...getColumnSearchProps("namaKandang", "kandang.namaKandang"),
-        sorter: (a, b) =>
-          a.kandang.namaKandang.localeCompare(b.kandang.namaKandang),
+        sorter: (a, b) => a.kandang.namaKandang.localeCompare(b.kandang.namaKandang),
       },
     ];
 
@@ -1129,22 +898,9 @@ const Pkb = () => {
         align: "center",
         render: (text, row) => (
           <span>
-            <Button
-              type="primary"
-              shape="circle"
-              icon={<EditOutlined />}
-              title="Edit"
-              onClick={() => handleEditPkb(row)}
-            />
+            <Button type="primary" shape="circle" icon={<EditOutlined />} title="Edit" onClick={() => handleEditPkb(row)} />
             <Divider type="vertical" />
-            <Button
-              type="primary"
-              danger
-              shape="circle"
-              icon={<DeleteOutlined />}
-              title="Delete"
-              onClick={() => handleDeletePkb(row)}
-            />
+            <Button type="primary" danger shape="circle" icon={<DeleteOutlined />} title="Delete" onClick={() => handleDeletePkb(row)} />
           </span>
         ),
       });
@@ -1155,63 +911,35 @@ const Pkb = () => {
 
   const renderTable = () => {
     if (user && user.role === "ROLE_PETERNAK") {
-      return (
-        <Table
-          dataSource={pkb}
-          bordered
-          columns={renderColumns()}
-          rowKey="idPkb"
-        />
-      );
-    } else if (
-      user &&
-      (user.role === "ROLE_ADMINISTRATOR" || user.role === "ROLE_PETUGAS")
-    ) {
-      return (
-        <Table
-          dataSource={pkb}
-          bordered
-          columns={renderColumns()}
-          rowKey="idPkb"
-        />
-      );
+      return <Table dataSource={pkb} bordered columns={renderColumns()} rowKey="idPkb" />;
+    } else if (user && (user.role === "ROLE_ADMINISTRATOR" || user.role === "ROLE_PETUGAS")) {
+      return <Table dataSource={pkb} bordered columns={renderColumns()} rowKey="idPkb" />;
     } else {
       return null;
     }
   };
 
   const renderButtons = () => {
-    if (
-      user &&
-      (user.role === "ROLE_ADMINISTRATOR" || user.role === "ROLE_PETUGAS")
-    ) {
+    if (user && (user.role === "ROLE_ADMINISTRATOR" || user.role === "ROLE_PETUGAS")) {
       return (
         <Row gutter={[16, 16]} justify="start" style={{ paddingLeft: 9 }}>
           <Col>
-            <Button type="primary" onClick={handleAddPkb} block>
+            <Button type="primary" onClick={handleAddPkb} style={{ width: 200 }}>
               Tambah PKB
             </Button>
           </Col>
           <Col>
-            <Button
-              icon={<UploadOutlined />}
-              onClick={handleImportModalOpen}
-              block
-            >
+            <Button icon={<UploadOutlined />} onClick={handleImportModalOpen} style={{ width: 200 }}>
               Import File
             </Button>
           </Col>
           <Col>
-            <Button
-              icon={<DownloadOutlined />}
-              onClick={handleDownloadCSV}
-              block
-            >
+            <Button icon={<DownloadOutlined />} onClick={handleDownloadCSV} style={{ width: 200 }}>
               Download Format CSV
             </Button>
           </Col>
           <Col>
-            <Button icon={<UploadOutlined />} onClick={handleExportData} block>
+            <Button icon={<UploadOutlined />} onClick={handleExportData} style={{ width: 200 }}>
               Export Data To CSV
             </Button>
           </Col>
@@ -1238,37 +966,19 @@ const Pkb = () => {
 
   return (
     <div className="app-container">
-      <TypingCard
-        title="Manajemen PKB"
-        source="Di sini, Anda dapat mengelola daftar pkb di sistem."
-      />
+      <TypingCard title="Manajemen PKB" source="Di sini, Anda dapat mengelola daftar pkb di sistem." />
       <br />
-
+      <Card>{title}</Card>
       {loading ? (
         <Card>
           <Skeleton active paragraph={{ rows: 10 }} />
         </Card>
       ) : (
-        <Card title={title} style={{ overflowX: "scroll" }}>
-          {renderTable()}
-        </Card>
+        <Card style={{ overflowX: "scroll" }}>{renderTable()}</Card>
       )}
 
-      <EditPkbForm
-        currentRowData={currentRowData}
-        wrappedComponentRef={editPkbFormRef}
-        visible={editPkbModalVisible}
-        confirmLoading={editPkbModalLoading}
-        onCancel={handleCancel}
-        onOk={handleEditPkbOk}
-      />
-      <AddPkbForm
-        wrappedComponentRef={addPkbFormRef}
-        visible={addPkbModalVisible}
-        confirmLoading={addPkbModalLoading}
-        onCancel={handleCancel}
-        onOk={handleAddPkbOk}
-      />
+      <EditPkbForm currentRowData={currentRowData} wrappedComponentRef={editPkbFormRef} visible={editPkbModalVisible} confirmLoading={editPkbModalLoading} onCancel={handleCancel} onOk={handleEditPkbOk} />
+      <AddPkbForm wrappedComponentRef={addPkbFormRef} visible={addPkbModalVisible} confirmLoading={addPkbModalLoading} onCancel={handleCancel} onOk={handleAddPkbOk} />
 
       <Modal
         title="Import File"
@@ -1278,12 +988,7 @@ const Pkb = () => {
           <Button key="cancel" onClick={handleImportModalClose}>
             Cancel
           </Button>,
-          <Button
-            key="upload"
-            type="primary"
-            loading={uploading}
-            onClick={handleUpload}
-          >
+          <Button key="upload" type="primary" loading={uploading} onClick={handleUpload}>
             Upload
           </Button>,
         ]}

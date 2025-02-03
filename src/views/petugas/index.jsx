@@ -4,35 +4,11 @@
  * @format
  */
 
-import {
-  addPetugas,
-  deletePetugas,
-  editPetugas,
-  getPetugas,
-  addPetugasBulk,
-} from "@/api/petugas";
+import { addPetugas, deletePetugas, editPetugas, getPetugas, addPetugasBulk } from "@/api/petugas";
 import TypingCard from "@/components/TypingCard";
 import kandangSapi from "@/assets/images/kandangsapi.jpg";
-import {
-  DeleteOutlined,
-  DownloadOutlined,
-  EditOutlined,
-  UploadOutlined,
-  SearchOutlined,
-} from "@ant-design/icons";
-import {
-  Button,
-  Card,
-  Col,
-  Divider,
-  Input,
-  message,
-  Modal,
-  Row,
-  Table,
-  Upload,
-  Space,
-} from "antd";
+import { DeleteOutlined, DownloadOutlined, EditOutlined, UploadOutlined, SearchOutlined } from "@ant-design/icons";
+import { Button, Card, Col, Divider, Input, message, Modal, Row, Table, Upload, Space } from "antd";
 import { useEffect, useRef, useState } from "react";
 import { read, utils } from "xlsx";
 import {
@@ -336,9 +312,7 @@ const Petugas = () => {
         };
 
         // Check if data already exists
-        const existingPetugasIndex = petugas.findIndex(
-          (p) => p.nikPetugas === dataToSave.nikPetugas
-        );
+        const existingPetugasIndex = petugas.findIndex((p) => p.nikPetugas === dataToSave.nikPetugas);
 
         dataToSaveArray.push(dataToSave);
         dataToSaveArrayUser.push(dataToSaveUser);
@@ -384,24 +358,8 @@ const Petugas = () => {
   };
 
   const convertHeaderToCSV = () => {
-    const columnTitlesLocal = [
-      "No",
-      "NIK Petugas",
-      "Nama Petugas",
-      "No. Telp Petugas",
-      "Email Petugas",
-      "Wilayah",
-      "Job",
-    ];
-    const exampleRow = [
-      "1",
-      "Contoh 3508070507040006",
-      "Contoh Supardi",
-      "Contoh 085432678654",
-      "Contoh supardi@gmail.com",
-      "Contoh Yosowilangun,Lumajang,Jawa Timur",
-      "Contoh pendataan",
-    ];
+    const columnTitlesLocal = ["No", "NIK Petugas", "Nama Petugas", "No. Telp Petugas", "Email Petugas", "Wilayah", "Job"];
+    const exampleRow = ["1", "Contoh 3508070507040006", "Contoh Supardi", "Contoh 085432678654", "Contoh supardi@gmail.com", "Contoh Yosowilangun,Lumajang,Jawa Timur", "Contoh pendataan"];
 
     // Gabungkan header dan contoh data
     const rows = [columnTitlesLocal, exampleRow];
@@ -436,13 +394,7 @@ const Petugas = () => {
   };
 
   const convertToCSV = (data) => {
-    const columnTitlesLocal = [
-      "NIK Petugas",
-      "Nama Petugas",
-      "No. Telp Petugas",
-      "Email Petugas",
-      "Job",
-    ];
+    const columnTitlesLocal = ["NIK Petugas", "Nama Petugas", "No. Telp Petugas", "Email Petugas", "Job"];
 
     const rows = [columnTitlesLocal];
     data.forEach((item) => {
@@ -468,41 +420,21 @@ const Petugas = () => {
   };
 
   const getColumnSearchProps = (dataIndex, nestedPath) => ({
-    filterDropdown: ({
-      setSelectedKeys,
-      selectedKeys,
-      confirm,
-      clearFilters,
-      close,
-    }) => (
+    filterDropdown: ({ setSelectedKeys, selectedKeys, confirm, clearFilters, close }) => (
       <div style={{ padding: 8 }} onKeyDown={(e) => e.stopPropagation()}>
         <Input
           ref={searchInput}
           placeholder={`Search ${dataIndex}`}
           value={selectedKeys[0]}
-          onChange={(e) =>
-            setSelectedKeys(e.target.value ? [e.target.value] : [])
-          }
-          onPressEnter={() =>
-            handleSearchTable(selectedKeys, confirm, dataIndex)
-          }
+          onChange={(e) => setSelectedKeys(e.target.value ? [e.target.value] : [])}
+          onPressEnter={() => handleSearchTable(selectedKeys, confirm, dataIndex)}
           style={{ marginBottom: 8, display: "block" }}
         />
         <Space>
-          <Button
-            type="primary"
-            onClick={() => handleSearchTable(selectedKeys, confirm, dataIndex)}
-            icon={<SearchOutlined />}
-            size="small"
-            style={{ width: 90 }}
-          >
+          <Button type="primary" onClick={() => handleSearchTable(selectedKeys, confirm, dataIndex)} icon={<SearchOutlined />} size="small" style={{ width: 90 }}>
             Search
           </Button>
-          <Button
-            onClick={() => clearFilters && handleReset(clearFilters)}
-            size="small"
-            style={{ width: 90 }}
-          >
+          <Button onClick={() => clearFilters && handleReset(clearFilters)} size="small" style={{ width: 90 }}>
             Reset
           </Button>
           <Button
@@ -522,40 +454,20 @@ const Petugas = () => {
         </Space>
       </div>
     ),
-    filterIcon: (filtered) => (
-      <SearchOutlined style={{ color: filtered ? "#1677ff" : undefined }} />
-    ),
+    filterIcon: (filtered) => <SearchOutlined style={{ color: filtered ? "#1677ff" : undefined }} />,
     onFilter: (value, record) => {
       if (nestedPath) {
-        const nestedValue = nestedPath
-          .split(".")
-          .reduce((obj, key) => obj?.[key], record);
-        return nestedValue
-          ?.toString()
-          .toLowerCase()
-          .includes(value.toLowerCase());
+        const nestedValue = nestedPath.split(".").reduce((obj, key) => obj?.[key], record);
+        return nestedValue?.toString().toLowerCase().includes(value.toLowerCase());
       }
-      return record[dataIndex]
-        ?.toString()
-        .toLowerCase()
-        .includes(value.toLowerCase());
+      return record[dataIndex]?.toString().toLowerCase().includes(value.toLowerCase());
     },
     filterDropdownProps: {
       onOpenChange(open) {
         if (open) setTimeout(() => searchInput.current?.select(), 100);
       },
     },
-    render: (text) =>
-      searchedColumn === dataIndex ? (
-        <Highlighter
-          highlightStyle={{ backgroundColor: "#ffc069", padding: 0 }}
-          searchWords={[searchText]}
-          autoEscape
-          textToHighlight={text?.toString() || ""}
-        />
-      ) : (
-        text
-      ),
+    render: (text) => (searchedColumn === dataIndex ? <Highlighter highlightStyle={{ backgroundColor: "#ffc069", padding: 0 }} searchWords={[searchText]} autoEscape textToHighlight={text?.toString() || ""} /> : text),
   });
 
   const renderColumns = () => {
@@ -619,22 +531,9 @@ const Petugas = () => {
         align: "center",
         render: (text, row) => (
           <span>
-            <Button
-              type="primary"
-              shape="circle"
-              icon={<EditOutlined />}
-              title="Edit"
-              onClick={() => handleEditPetugas(row)}
-            />
+            <Button type="primary" shape="circle" icon={<EditOutlined />} title="Edit" onClick={() => handleEditPetugas(row)} />
             <Divider type="vertical" />
-            <Button
-              danger
-              type="primary"
-              shape="circle"
-              icon={<DeleteOutlined />}
-              title="Delete"
-              onClick={() => handleDeletePetugas(row)}
-            />
+            <Button danger type="primary" shape="circle" icon={<DeleteOutlined />} title="Delete" onClick={() => handleDeletePetugas(row)} />
           </span>
         ),
       });
@@ -645,23 +544,9 @@ const Petugas = () => {
 
   const renderTable = () => {
     if (user && user.role === "ROLE_PETUGAS") {
-      return (
-        <Table
-          dataSource={petugas}
-          bordered
-          columns={renderColumns()}
-          rowKey="petugasId"
-        />
-      );
+      return <Table dataSource={petugas} bordered columns={renderColumns()} rowKey="petugasId" />;
     } else if (user && user.role === "ROLE_ADMINISTRATOR") {
-      return (
-        <Table
-          dataSource={petugas}
-          bordered
-          columns={renderColumns()}
-          rowKey="petugasId"
-        />
-      );
+      return <Table dataSource={petugas} bordered columns={renderColumns()} rowKey="petugasId" />;
     } else {
       return null;
     }
@@ -672,30 +557,22 @@ const Petugas = () => {
       return (
         <Row gutter={[16, 16]} justify="start" style={{ paddingLeft: 9 }}>
           <Col>
-            <Button type="primary" onClick={handleAddPetugas} block>
+            <Button type="primary" onClick={handleAddPetugas} style={{ width: 200 }}>
               Tambah Petugas
             </Button>
           </Col>
           <Col>
-            <Button
-              icon={<UploadOutlined />}
-              onClick={handleImportModalOpen}
-              block
-            >
+            <Button icon={<UploadOutlined />} onClick={handleImportModalOpen} style={{ width: 200 }}>
               Import File
             </Button>
           </Col>
           <Col>
-            <Button
-              icon={<DownloadOutlined />}
-              onClick={handleDownloadCSV}
-              block
-            >
+            <Button icon={<DownloadOutlined />} onClick={handleDownloadCSV} style={{ width: 200 }}>
               Download Format CSV
             </Button>
           </Col>
           <Col>
-            <Button icon={<UploadOutlined />} onClick={handleExportData} block>
+            <Button icon={<UploadOutlined />} onClick={handleExportData} style={{ width: 200 }}>
               Export Data To CSV
             </Button>
           </Col>
@@ -710,12 +587,7 @@ const Petugas = () => {
     <Row gutter={[16, 16]} justify="space-between">
       {renderButtons()}
       <Col xs={24} sm={12} md={8} lg={8} xl={8}>
-        <Input
-          placeholder="Cari data"
-          value={searchKeyword}
-          onChange={(e) => handleSearch(e.target.value)}
-          style={{ width: "100%" }}
-        />
+        <Input placeholder="Cari data" value={searchKeyword} onChange={(e) => handleSearch(e.target.value)} style={{ width: "100%" }} />
       </Col>
     </Row>
   );
@@ -726,14 +598,13 @@ const Petugas = () => {
     <div className="app-container">
       <TypingCard title="Manajemen Data Petugas" source={cardContent} />
       <br />
+      <Card>{title}</Card>
       {loading ? (
         <Card>
           <Skeleton active paragraph={{ rows: 10 }} />
         </Card>
       ) : (
-        <Card title={title} style={{ overflowX: "scroll" }}>
-          {renderTable()}
-        </Card>
+        <Card style={{ overflowX: "scroll" }}>{renderTable()}</Card>
       )}
       <EditPetugasForm
         ref={editPetugasFormRef} // Menghubungkan ref ke EditPetugasForm
@@ -743,13 +614,7 @@ const Petugas = () => {
         onCancel={() => setEditPetugasModalVisible(false)}
         onOk={handleEditPetugasOk}
       />
-      <AddPetugasForm
-        wrappedComponentRef={addPetugasFormRef}
-        visible={addPetugasModalVisible}
-        confirmLoading={addPetugasModalLoading}
-        onCancel={handleClosePetugas}
-        onOk={handleAddPetugasOk}
-      />
+      <AddPetugasForm wrappedComponentRef={addPetugasFormRef} visible={addPetugasModalVisible} confirmLoading={addPetugasModalLoading} onCancel={handleClosePetugas} onOk={handleAddPetugasOk} />
       <Modal
         title="Import File"
         visible={importModalVisible}
@@ -758,12 +623,7 @@ const Petugas = () => {
           <Button key="cancel" onClick={handleImportModalClose}>
             Cancel
           </Button>,
-          <Button
-            key="upload"
-            type="primary"
-            loading={uploading}
-            onClick={handleUpload}
-          >
+          <Button key="upload" type="primary" loading={uploading} onClick={handleUpload}>
             Upload
           </Button>,
         ]}

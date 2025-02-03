@@ -259,7 +259,7 @@ const EditKandangForm = ({ visible, onCancel, onOk, confirmLoading, currentRowDa
     >
       <Form form={form} layout="vertical">
         <Row gutter={16}>
-          <Col span={12}>
+          <Col xs={24} sm={24} md={12}>
             <Form.Item label="Nama Peternak" name="idPeternak" rules={[{ required: true, message: "Pilih Nama Peternak!" }]}>
               <Select placeholder="Pilih Nama Peternak">
                 {peternakList.map((item) => (
@@ -270,12 +270,12 @@ const EditKandangForm = ({ visible, onCancel, onOk, confirmLoading, currentRowDa
               </Select>
             </Form.Item>
           </Col>
-          <Col span={12}>
+          <Col xs={24} sm={24} md={12}>
             <Form.Item label="Nama Kadang:" name="namaKandang" rules={[{ required: true, message: "Silahkan isi Nama Kandang" }]}>
               <Input placeholder="Masukkan Nama Kandang" />
             </Form.Item>
           </Col>
-          <Col span={12}>
+          <Col xs={24} sm={24} md={12}>
             <Form.Item label="Jenis Hewan:" name="idJenisHewan" rules={[{ required: true, message: "Pilih Jenis Hewan!" }]}>
               <Select
                 showSearch
@@ -291,7 +291,7 @@ const EditKandangForm = ({ visible, onCancel, onOk, confirmLoading, currentRowDa
               </Select>
             </Form.Item>
           </Col>
-          <Col span={12}>
+          <Col xs={24} sm={24} md={12}>
             <Form.Item label="Jenis Kandang" name="jenisKandang" rules={[{ required: true, message: "Pilih Jenis Kandang!" }]}>
               <Select placeholder="Pilih Jenis Kandang">
                 <Select.Option key="1" value="permanen">
@@ -306,22 +306,22 @@ const EditKandangForm = ({ visible, onCancel, onOk, confirmLoading, currentRowDa
               </Select>
             </Form.Item>
           </Col>
-          <Col span={12}>
+          <Col xs={24} sm={24} md={12}>
             <Form.Item label="Luas Kandang" name="luas">
               <Input placeholder="Masukkan Luas Kandang" />
             </Form.Item>
           </Col>
-          <Col span={12}>
+          <Col xs={24} sm={24} md={12}>
             <Form.Item label="Kapasitas Kandang" name="kapasitas">
               <Input placeholder="Masukkan Kapasitas Kandang" />
             </Form.Item>
           </Col>
-          <Col span={12}>
+          <Col xs={24} sm={24} md={12}>
             <Form.Item label="Nilai Bangunan" name="nilaiBangunan">
               <Input placeholder="Masukkan Nilai Bangunan" />
             </Form.Item>
           </Col>
-          <Col span={12}>
+          <Col xs={24} sm={24} md={12}>
             <Form.Item label="Provinsi" name="provinsi">
               <Select placeholder="Pilih Provinsi" onChange={handleProvinceChange}>
                 {provinces.map((item) => (
@@ -332,7 +332,7 @@ const EditKandangForm = ({ visible, onCancel, onOk, confirmLoading, currentRowDa
               </Select>
             </Form.Item>
           </Col>
-          <Col span={12}>
+          <Col xs={24} sm={24} md={12}>
             <Form.Item label="Kabupaten" name="kabupaten">
               <Select placeholder="Pilih Kabupaten" onChange={handleRegencyChange}>
                 {regencies.map((item) => (
@@ -343,7 +343,7 @@ const EditKandangForm = ({ visible, onCancel, onOk, confirmLoading, currentRowDa
               </Select>
             </Form.Item>
           </Col>
-          <Col span={12}>
+          <Col xs={24} sm={24} md={12}>
             <Form.Item label="Kecamatan" name="kecamatan">
               <Select placeholder="Pilih Kecamatan" onChange={handleDistrictChange}>
                 {districts.map((item) => (
@@ -354,7 +354,7 @@ const EditKandangForm = ({ visible, onCancel, onOk, confirmLoading, currentRowDa
               </Select>
             </Form.Item>
           </Col>
-          <Col span={12}>
+          <Col xs={24} sm={24} md={12}>
             <Form.Item label="Desa" name="desa">
               <Select placeholder="Pilih Desa" onChange={handleVillageChange} allowClear disabled={!villages.length}>
                 {villages.map((item) => (
@@ -365,12 +365,12 @@ const EditKandangForm = ({ visible, onCancel, onOk, confirmLoading, currentRowDa
               </Select>
             </Form.Item>
           </Col>
-          <Col span={12}>
+          <Col xs={24} sm={24} md={12}>
             <Form.Item label="Alamat:" name="alamat" rules={[{ required: true, message: "Silahkan isi alamat" }]}>
               <Input placeholder="Alamat akan terisi otomatis" readOnly />
             </Form.Item>
           </Col>
-          <Col span={12}>
+          <Col xs={24} sm={24} md={12}>
             <Form.Item
               label="Latitude:"
               name="latitude"
@@ -385,7 +385,7 @@ const EditKandangForm = ({ visible, onCancel, onOk, confirmLoading, currentRowDa
               <Input placeholder="Masukkan Latitude" />
             </Form.Item>
           </Col>
-          <Col span={12}>
+          <Col xs={24} sm={24} md={12}>
             <Form.Item
               label="Longitude:"
               name="longitude"

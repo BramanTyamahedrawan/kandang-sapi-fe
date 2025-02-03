@@ -1,33 +1,8 @@
 /* eslint-disable no-unused-vars */
 import { Component } from "react";
-import {
-  Card,
-  Button,
-  Table,
-  message,
-  Row,
-  Col,
-  Divider,
-  Modal,
-  Upload,
-  Input,
-  Space,
-} from "antd";
-import {
-  UploadOutlined,
-  EditOutlined,
-  DeleteOutlined,
-  DownloadOutlined,
-  SearchOutlined,
-} from "@ant-design/icons";
-import {
-  getKelahiran,
-  getKelahiranByPeternak,
-  deleteKelahiran,
-  editKelahiran,
-  addKelahiran,
-  addKelahiranImport,
-} from "@/api/kelahiran";
+import { Card, Button, Table, message, Row, Col, Divider, Modal, Upload, Input, Space } from "antd";
+import { UploadOutlined, EditOutlined, DeleteOutlined, DownloadOutlined, SearchOutlined } from "@ant-design/icons";
+import { getKelahiran, getKelahiranByPeternak, deleteKelahiran, editKelahiran, addKelahiran, addKelahiranImport } from "@/api/kelahiran";
 import { addJenisHewanBulk } from "@/api/jenishewan";
 import { addRumpunHewanBulk } from "@/api/rumpunhewan";
 import { addHewanBulkImport } from "@/api/hewan";
@@ -56,15 +31,9 @@ const sendPetugasBulkData = async (data, batchSize = 7000) => {
     try {
       console.log(`Data Petugas (Batch ${i + 1}):`, batchData); // Log data yang dikirim
       const response = await addPetugasBulkByNama(batchData);
-      console.log(
-        `Batch ${i + 1}/${totalBatches} berhasil dikirim`,
-        response.data
-      );
+      console.log(`Batch ${i + 1}/${totalBatches} berhasil dikirim`, response.data);
     } catch (error) {
-      console.error(
-        `Batch ${i + 1}/${totalBatches} gagal dikirim`,
-        error.response?.data || error.message
-      );
+      console.error(`Batch ${i + 1}/${totalBatches} gagal dikirim`, error.response?.data || error.message);
       throw error; // Hentikan proses jika batch gagal
     }
   }
@@ -79,15 +48,9 @@ const sendPeternakBulkData = async (data, batchSize = 7000) => {
     try {
       console.log(`Data Peternak (Batch ${i + 1}):`, batchData); // Log data yang dikirim
       const response = await addPeternakBulkByNama(batchData);
-      console.log(
-        `Batch ${i + 1}/${totalBatches} berhasil dikirim`,
-        response.data
-      );
+      console.log(`Batch ${i + 1}/${totalBatches} berhasil dikirim`, response.data);
     } catch (error) {
-      console.error(
-        `Batch ${i + 1}/${totalBatches} gagal dikirim`,
-        error.response?.data || error.message
-      );
+      console.error(`Batch ${i + 1}/${totalBatches} gagal dikirim`, error.response?.data || error.message);
       throw error; // Hentikan proses jika batch gagal
     }
   }
@@ -102,15 +65,9 @@ const sendRumpunHewanBulkData = async (data, batchSize = 7000) => {
     try {
       console.log(`Data Rumpun Hewan (Batch ${i + 1}):`, batchData); // Log data yang dikirim
       const response = await addRumpunHewanBulk(batchData);
-      console.log(
-        `Batch ${i + 1}/${totalBatches} berhasil dikirim`,
-        response.data
-      );
+      console.log(`Batch ${i + 1}/${totalBatches} berhasil dikirim`, response.data);
     } catch (error) {
-      console.error(
-        `Batch ${i + 1}/${totalBatches} gagal dikirim`,
-        error.response?.data || error.message
-      );
+      console.error(`Batch ${i + 1}/${totalBatches} gagal dikirim`, error.response?.data || error.message);
       throw error;
     }
   }
@@ -125,15 +82,9 @@ const sendJenisHewanBulkData = async (data, batchSize = 7000) => {
     try {
       console.log(`Data Jenis Hewan (Batch ${i + 1}):`, batchData); // Log data yang dikirim
       const response = await addJenisHewanBulk(batchData);
-      console.log(
-        `Batch ${i + 1}/${totalBatches} berhasil dikirim`,
-        response.data
-      );
+      console.log(`Batch ${i + 1}/${totalBatches} berhasil dikirim`, response.data);
     } catch (error) {
-      console.error(
-        `Batch ${i + 1}/${totalBatches} gagal dikirim`,
-        error.response?.data || error.message
-      );
+      console.error(`Batch ${i + 1}/${totalBatches} gagal dikirim`, error.response?.data || error.message);
       throw error; // Hentikan proses jika batch gagal
     }
   }
@@ -148,15 +99,9 @@ const sendKandangBulkData = async (data, batchSize = 7000) => {
     try {
       console.log(`Data Kandang (Batch ${i + 1}):`, batchData); // Log data yang dikirim
       const response = await addKandangBulkByNama(batchData);
-      console.log(
-        `Batch ${i + 1}/${totalBatches} berhasil dikirim`,
-        response.data
-      );
+      console.log(`Batch ${i + 1}/${totalBatches} berhasil dikirim`, response.data);
     } catch (error) {
-      console.error(
-        `Batch ${i + 1}/${totalBatches} gagal dikirim`,
-        error.response?.data || error.message
-      );
+      console.error(`Batch ${i + 1}/${totalBatches} gagal dikirim`, error.response?.data || error.message);
       throw error; // Hentikan proses jika batch gagal
     }
   }
@@ -171,15 +116,9 @@ const sendTernakHewanBulkData = async (data, batchSize = 7000) => {
     try {
       console.log(`Data Ternak Hewan (Batch ${i + 1}):`, batchData); // Log data yang dikirim
       const response = await addHewanBulkImport(batchData);
-      console.log(
-        `Batch ${i + 1}/${totalBatches} berhasil dikirim`,
-        response.data
-      );
+      console.log(`Batch ${i + 1}/${totalBatches} berhasil dikirim`, response.data);
     } catch (error) {
-      console.error(
-        `Batch ${i + 1}/${totalBatches} gagal dikirim`,
-        error.response?.data || error.message
-      );
+      console.error(`Batch ${i + 1}/${totalBatches} gagal dikirim`, error.response?.data || error.message);
       throw error; // Hentikan proses jika batch gagal
     }
   }
@@ -194,15 +133,9 @@ const sendInseminasiBulkData = async (data, batchSize = 7000) => {
     try {
       console.log(`Data Inseminasi Buatan (Batch ${i + 1}):`, batchData); // Log data yang dikirim
       const response = await addInseminsasiBulk(batchData);
-      console.log(
-        `Batch ${i + 1}/${totalBatches} berhasil dikirim`,
-        response.data
-      );
+      console.log(`Batch ${i + 1}/${totalBatches} berhasil dikirim`, response.data);
     } catch (error) {
-      console.error(
-        `Batch ${i + 1}/${totalBatches} gagal dikirim`,
-        error.response?.data || error.message
-      );
+      console.error(`Batch ${i + 1}/${totalBatches} gagal dikirim`, error.response?.data || error.message);
       throw error; // Hentikan proses jika batch gagal
     }
   }
@@ -217,15 +150,9 @@ const sendKelahiranBulkData = async (data, batchSize = 7000) => {
     try {
       console.log(`Data Kelahiran (Batch ${i + 1}):`, batchData); // Log data yang dikirim
       const response = await addKelahiranImport(batchData);
-      console.log(
-        `Batch ${i + 1}/${totalBatches} berhasil dikirim`,
-        response.data
-      );
+      console.log(`Batch ${i + 1}/${totalBatches} berhasil dikirim`, response.data);
     } catch (error) {
-      console.error(
-        `Batch ${i + 1}/${totalBatches} gagal dikirim`,
-        error.response?.data || error.message
-      );
+      console.error(`Batch ${i + 1}/${totalBatches} gagal dikirim`, error.response?.data || error.message);
       throw error; // Hentikan proses jika batch gagal
     }
   }
@@ -249,12 +176,7 @@ function parseAddress(address) {
   const provinsi = parts[0] || "-";
 
   // Validasi bahwa setidaknya satu bagian selain "-" harus terisi
-  const isValid =
-    dusun !== "-" ||
-    desa !== "-" ||
-    kecamatan !== "-" ||
-    kabupaten !== "-" ||
-    provinsi !== "-";
+  const isValid = dusun !== "-" || desa !== "-" || kecamatan !== "-" || kabupaten !== "-" || provinsi !== "-";
 
   if (!isValid) {
     console.warn(`Alamat tidak valid: ${address}`);
@@ -270,15 +192,11 @@ const cleanNik = (nik) => (nik ? nik.replace(/'/g, "").trim() : "-");
 const Kelahiran = () => {
   const [kelahirans, setKelahirans] = useState([]);
   const [petugas, setPetugas] = useState([]);
-  const [editKelahiranModalVisible, setEditKelahiranModalVisible] =
-    useState(false);
-  const [editKelahiranModalLoading, setEditKelahiranModalLoading] =
-    useState(false);
+  const [editKelahiranModalVisible, setEditKelahiranModalVisible] = useState(false);
+  const [editKelahiranModalLoading, setEditKelahiranModalLoading] = useState(false);
   const [currentRowData, setCurrentRowData] = useState({});
-  const [addKelahiranModalVisible, setAddKelahiranModalVisible] =
-    useState(false);
-  const [addKelahiranModalLoading, setAddKelahiranModalLoading] =
-    useState(false);
+  const [addKelahiranModalVisible, setAddKelahiranModalVisible] = useState(false);
+  const [addKelahiranModalLoading, setAddKelahiranModalLoading] = useState(false);
   const [importModalVisible, setImportModalVisible] = useState(false);
   const [importedData, setImportedData] = useState([]);
   const [columnTitles, setColumnTitles] = useState([]);
@@ -324,25 +242,8 @@ const Kelahiran = () => {
       if (statusCode === 200) {
         const filteredKelahiran = content
           .filter((kelahiran) => {
-            const {
-              idKelahiran,
-              idKejadian,
-              tanggalLaporan,
-              tanggalLahir,
-              idPeternak,
-              petugasId,
-              idKandang,
-              idJenisHewan,
-              idRumpunHewan,
-              kategori,
-              jumlah,
-              idHewanAnak,
-              eartagAnak,
-              jenisKelaminAnak,
-              noKartuTernakAnak,
-              spesies,
-              urutanIB,
-            } = kelahiran;
+            const { idKelahiran, idKejadian, tanggalLaporan, tanggalLahir, idPeternak, petugasId, idKandang, idJenisHewan, idRumpunHewan, kategori, jumlah, idHewanAnak, eartagAnak, jenisKelaminAnak, noKartuTernakAnak, spesies, urutanIB } =
+              kelahiran;
             const keyword = searchKeyword?.toLowerCase();
 
             return (
@@ -365,11 +266,7 @@ const Kelahiran = () => {
               idRumpunHewan?.toLowerCase()?.includes(keyword)
             );
           })
-          .sort(
-            (a, b) =>
-              new Date(b.tanggalLaporan).getTime() -
-              new Date(a.tanggalLaporan).getTime()
-          );
+          .sort((a, b) => new Date(b.tanggalLaporan).getTime() - new Date(a.tanggalLaporan).getTime());
 
         setKelahirans(filteredKelahiran);
       }
@@ -621,10 +518,7 @@ const Kelahiran = () => {
             const [datePart, timePart] = dateString.split(" ");
             const [day, month, year] = datePart.split("/");
 
-            return `${year}-${month.padStart(2, "0")}-${day.padStart(
-              2,
-              "0"
-            )} ${timePart}`;
+            return `${year}-${month.padStart(2, "0")}-${day.padStart(2, "0")} ${timePart}`;
           } else if (typeof dateString === "string") {
             const [day, month, year] = dateString.split("/");
             return `${year}-${month.padStart(2, "0")}-${day.padStart(2, "0")}`;
@@ -637,18 +531,14 @@ const Kelahiran = () => {
         const validateEmail = (email) => {
           // Jika email tidak valid (null, undefined, atau bukan string), gunakan default
           if (typeof email !== "string" || !email.includes("@")) {
-            console.warn(
-              `Email tidak valid: ${email}. Menggunakan email default.`
-            );
+            console.warn(`Email tidak valid: ${email}. Menggunakan email default.`);
             return "default@gmail.com"; // Email default
           }
           // Jika valid, kembalikan email
           return email;
         };
 
-        const pecahLokasi = parseAddress(
-          row[columnMapping["Lokasi"]] || row[columnMapping["Alamat"]] || "-"
-        );
+        const pecahLokasi = parseAddress(row[columnMapping["Lokasi"]] || row[columnMapping["Alamat"]] || "-");
         const generateJenisKandang = (jenisKandang) => {
           return jenisKandang || "Permanen";
         };
@@ -658,8 +548,7 @@ const Kelahiran = () => {
           const dataRumpunHewan = {
             idRumpunHewan: generateIdRumpunHewan,
             rumpun: row[columnMapping["Spesies Induk"]] || "-",
-            deskripsi:
-              "Deskripsi " + row[columnMapping["Spesies Induk"]] || "-",
+            deskripsi: "Deskripsi " + row[columnMapping["Spesies Induk"]] || "-",
           };
           rumpunHewanBulk.push(dataRumpunHewan);
           uniqueData.set(rumpunHewanUnique, dataRumpunHewan);
@@ -690,9 +579,7 @@ const Kelahiran = () => {
           uniqueData.set(namaPetugasPelapor, dataPetugasKelahiran);
         }
 
-        const nikDataPeternak = row[columnMapping["NIK Peternak"]]
-          ? cleanNik(row[columnMapping["NIK Peternak"]])
-          : row[columnMapping["ID Peternak"]] || "-";
+        const nikDataPeternak = row[columnMapping["NIK Peternak"]] ? cleanNik(row[columnMapping["NIK Peternak"]]) : row[columnMapping["ID Peternak"]] || "-";
 
         const dataPeternakUnique = nikDataPeternak;
         if (!uniqueData.has(dataPeternakUnique)) {
@@ -701,8 +588,7 @@ const Kelahiran = () => {
             nikPeternak: nikDataPeternak,
             namaPeternak: row[columnMapping["Nama Peternak"]] || "-",
             noTelpPeternak: row[columnMapping["No Telp"]] || "-",
-            emailPeternak:
-              validateEmail(row[columnMapping["Email Pemilik Ternak"]]) || "-",
+            emailPeternak: validateEmail(row[columnMapping["Email Pemilik Ternak"]]) || "-",
             idPetugas: uniqueData.get(namaPetugasPelapor).petugasId,
             nikPetugas: uniqueData.get(namaPetugasPelapor).nikPetugas,
             namaPetugas: uniqueData.get(namaPetugasPelapor).namaPetugas,
@@ -712,22 +598,17 @@ const Kelahiran = () => {
             kecamatan: pecahLokasi.kecamatan,
             kabupaten: pecahLokasi.kabupaten,
             provinsi: pecahLokasi.provinsi,
-            tanggalLahirPeternak: formatDateToString(
-              row[columnMapping["Tanggal Lahir Pemilik Ternak"]] || "-"
-            ),
+            tanggalLahirPeternak: formatDateToString(row[columnMapping["Tanggal Lahir Pemilik Ternak"]] || "-"),
             latitude: row[columnMapping["latitude"]] || "-",
             longitude: row[columnMapping["longitude"]] || "-",
             idIsikhnas: row[columnMapping["ID Isikhnas*)"]] || "-",
-            jenisKelaminPeternak:
-              row[columnMapping["Jenis Kelamin Pemilik Ternak"]] || "-",
+            jenisKelaminPeternak: row[columnMapping["Jenis Kelamin Pemilik Ternak"]] || "-",
           };
           peternakBulk.push(dataPeternak);
           uniqueData.set(dataPeternakUnique, dataPeternak);
         }
 
-        const namaKandang = `Kandang ${
-          uniqueData.get(jenisHewanUnique).jenis
-        } ${uniqueData.get(dataPeternakUnique).namaPeternak}`;
+        const namaKandang = `Kandang ${uniqueData.get(jenisHewanUnique).jenis} ${uniqueData.get(dataPeternakUnique).namaPeternak}`;
         if (!uniqueData.has(namaKandang)) {
           const dataKandang = {
             idKandang: generateIdKandang,
@@ -740,9 +621,7 @@ const Kelahiran = () => {
             luas: row[columnMapping["Luas Kandang"]] || "-",
             kapasitas: row[columnMapping["Kapasitas Kandang"]] || "-",
             nilaiBangunan: row[columnMapping["Nilai Bangunan"]] || "-",
-            jenisKandang: generateJenisKandang(
-              row[columnMapping["Jenis Kandang"]]
-            ),
+            jenisKandang: generateJenisKandang(row[columnMapping["Jenis Kandang"]]),
             latitude: row[columnMapping["latitude"]] || "-",
             longitude: row[columnMapping["longitude"]] || "-",
           };
@@ -755,19 +634,12 @@ const Kelahiran = () => {
           kodeEartagNasional: row[columnMapping["eartag_induk"]] || "-",
           noKartuTernak: row[columnMapping["kartu ternak induk"]] || "-",
           idIsikhnasTernak: row[columnMapping["IdIsikhnas"]] || "-",
-          tanggalLahir: formatDateToString(
-            row[columnMapping["Tanggal Lahir Ternak"]] || "-"
-          ),
+          tanggalLahir: formatDateToString(row[columnMapping["Tanggal Lahir Ternak"]] || "-"),
           sex: row[columnMapping["Jenis Kelamin"]] || "-",
           tempatLahir: row[columnMapping["Tempat Lahir Ternak"]] || "-",
           umur: row[columnMapping["Umur"]] || "-",
-          identifikasiHewan:
-            row[columnMapping["Identifikasi Hewan*"]] ||
-            row[columnMapping["Identifikasi Hewan"]] ||
-            "_",
-          tanggalTerdaftar: formatDateToString(
-            row[columnMapping["Tanggal Pendataan"]] || "-"
-          ),
+          identifikasiHewan: row[columnMapping["Identifikasi Hewan*"]] || row[columnMapping["Identifikasi Hewan"]] || "_",
+          tanggalTerdaftar: formatDateToString(row[columnMapping["Tanggal Pendataan"]] || "-"),
           nikPetugas: uniqueData.get(namaPetugasPelapor).nikPetugas,
           namaPetugas: uniqueData.get(namaPetugasPelapor).namaPetugas,
           idPetugas: uniqueData.get(namaPetugasPelapor).petugasId,
@@ -778,15 +650,13 @@ const Kelahiran = () => {
           rumpun: uniqueData.get(rumpunHewanUnique).rumpun,
           idPeternak: uniqueData.get(dataPeternakUnique).idPeternak,
           namaPeternak: uniqueData.get(dataPeternakUnique).namaPeternak,
-          tujuanPemeliharaan:
-            row[columnMapping["Tujuan Pemeliharaan Ternak"]] || "_",
+          tujuanPemeliharaan: row[columnMapping["Tujuan Pemeliharaan Ternak"]] || "_",
         };
 
         if (row[columnMapping["ID Pejantan Straw"]] != null) {
           const dataInseminasi = {
             idInseminasi: generateIdInseminasi,
-            tanggalIB:
-              formatDateToString(row[columnMapping["Tanggal IB"]]) || "-",
+            tanggalIB: formatDateToString(row[columnMapping["Tanggal IB"]]) || "-",
             namaPeternak: uniqueData.get(dataPeternakUnique).namaPeternak,
             idPeternak: uniqueData.get(dataPeternakUnique).idPeternak,
             nikPeternak: uniqueData.get(dataPeternakUnique).nikPeternak,
@@ -815,12 +685,8 @@ const Kelahiran = () => {
         const dataKelahiran = {
           idKelahiran: generateIdKelahiran,
           idKejadian: row[columnMapping["id kejadian"]] || "-",
-          tanggalLaporan: formatDateToString(
-            row[columnMapping["Tanggal laporan"]] || "-"
-          ),
-          tanggalLahir: formatDateToString(
-            row[columnMapping["Tanggal lahir"]] || "-"
-          ),
+          tanggalLaporan: formatDateToString(row[columnMapping["Tanggal laporan"]] || "-"),
+          tanggalLahir: formatDateToString(row[columnMapping["Tanggal lahir"]] || "-"),
           spesies: row[columnMapping["Spesies Induk"]] || "-",
           kategori: row[columnMapping["kategori"]] || "-",
           jumlah: row[columnMapping["Jumlah"]] || "-",
@@ -854,20 +720,14 @@ const Kelahiran = () => {
       try {
         await sendKelahiranBulkData(kelahiranBulk);
       } catch (error) {
-        console.error(
-          "Gagal menyimpan data secara bulk:",
-          error,
-          error.response?.data
-        );
+        console.error("Gagal menyimpan data secara bulk:", error, error.response?.data);
       }
 
       if (errorCount === 0) {
         message.success(`Semua data berhasil disimpan.`);
         getKelahiranData();
       } else {
-        message.error(
-          `${errorCount} data gagal disimpan karena duplikasi data!`
-        );
+        message.error(`${errorCount} data gagal disimpan karena duplikasi data!`);
       }
     } catch (error) {
       console.error("Gagal memproses data:", error);
@@ -1040,41 +900,21 @@ const Kelahiran = () => {
   };
 
   const getColumnSearchProps = (dataIndex, nestedPath) => ({
-    filterDropdown: ({
-      setSelectedKeys,
-      selectedKeys,
-      confirm,
-      clearFilters,
-      close,
-    }) => (
+    filterDropdown: ({ setSelectedKeys, selectedKeys, confirm, clearFilters, close }) => (
       <div style={{ padding: 8 }} onKeyDown={(e) => e.stopPropagation()}>
         <Input
           ref={searchInput}
           placeholder={`Search ${dataIndex}`}
           value={selectedKeys[0]}
-          onChange={(e) =>
-            setSelectedKeys(e.target.value ? [e.target.value] : [])
-          }
-          onPressEnter={() =>
-            handleSearchTable(selectedKeys, confirm, dataIndex)
-          }
+          onChange={(e) => setSelectedKeys(e.target.value ? [e.target.value] : [])}
+          onPressEnter={() => handleSearchTable(selectedKeys, confirm, dataIndex)}
           style={{ marginBottom: 8, display: "block" }}
         />
         <Space>
-          <Button
-            type="primary"
-            onClick={() => handleSearchTable(selectedKeys, confirm, dataIndex)}
-            icon={<SearchOutlined />}
-            size="small"
-            style={{ width: 90 }}
-          >
+          <Button type="primary" onClick={() => handleSearchTable(selectedKeys, confirm, dataIndex)} icon={<SearchOutlined />} size="small" style={{ width: 90 }}>
             Search
           </Button>
-          <Button
-            onClick={() => clearFilters && handleReset(clearFilters)}
-            size="small"
-            style={{ width: 90 }}
-          >
+          <Button onClick={() => clearFilters && handleReset(clearFilters)} size="small" style={{ width: 90 }}>
             Reset
           </Button>
           <Button
@@ -1094,40 +934,20 @@ const Kelahiran = () => {
         </Space>
       </div>
     ),
-    filterIcon: (filtered) => (
-      <SearchOutlined style={{ color: filtered ? "#1677ff" : undefined }} />
-    ),
+    filterIcon: (filtered) => <SearchOutlined style={{ color: filtered ? "#1677ff" : undefined }} />,
     onFilter: (value, record) => {
       if (nestedPath) {
-        const nestedValue = nestedPath
-          .split(".")
-          .reduce((obj, key) => obj?.[key], record);
-        return nestedValue
-          ?.toString()
-          .toLowerCase()
-          .includes(value.toLowerCase());
+        const nestedValue = nestedPath.split(".").reduce((obj, key) => obj?.[key], record);
+        return nestedValue?.toString().toLowerCase().includes(value.toLowerCase());
       }
-      return record[dataIndex]
-        ?.toString()
-        .toLowerCase()
-        .includes(value.toLowerCase());
+      return record[dataIndex]?.toString().toLowerCase().includes(value.toLowerCase());
     },
     filterDropdownProps: {
       onOpenChange(open) {
         if (open) setTimeout(() => searchInput.current?.select(), 100);
       },
     },
-    render: (text) =>
-      searchedColumn === dataIndex ? (
-        <Highlighter
-          highlightStyle={{ backgroundColor: "#ffc069", padding: 0 }}
-          searchWords={[searchText]}
-          autoEscape
-          textToHighlight={text?.toString() || ""}
-        />
-      ) : (
-        text
-      ),
+    render: (text) => (searchedColumn === dataIndex ? <Highlighter highlightStyle={{ backgroundColor: "#ffc069", padding: 0 }} searchWords={[searchText]} autoEscape textToHighlight={text?.toString() || ""} /> : text),
   });
 
   const renderColumns = () => {
@@ -1144,8 +964,7 @@ const Kelahiran = () => {
         dataIndex: "tanggalLaporan",
         key: "tanggalLaporan",
         ...getColumnSearchProps("tanggalLaporan"),
-        sorter: (a, b) =>
-          new Date(a.tanggalLaporan) - new Date(b.tanggalLaporan),
+        sorter: (a, b) => new Date(a.tanggalLaporan) - new Date(b.tanggalLaporan),
       },
       {
         title: "Tanggal Lahir",
@@ -1173,8 +992,7 @@ const Kelahiran = () => {
         dataIndex: "noKartuTernakAnak",
         key: "noKartuTernakAnak",
         ...getColumnSearchProps("noKartuTernakAnak"),
-        sorter: (a, b) =>
-          a.noKartuTernakAnak.localeCompare(b.noKartuTernakAnak),
+        sorter: (a, b) => a.noKartuTernakAnak.localeCompare(b.noKartuTernakAnak),
       },
       {
         title: "Jenis Kelamin Anak",
@@ -1202,69 +1020,56 @@ const Kelahiran = () => {
         dataIndex: ["peternak", "namaPeternak"],
         key: "namaPeternak",
         ...getColumnSearchProps("namaPeternak", "peternak.namaPeternak"),
-        sorter: (a, b) =>
-          a.peternak.namaPeternak.localeCompare(b.peternak.namaPeternak),
+        sorter: (a, b) => a.peternak.namaPeternak.localeCompare(b.peternak.namaPeternak),
       },
       {
         title: "Eartag Induk",
         dataIndex: ["hewan", "kodeEartagNasional"],
         key: "kodeEartagNasional",
-        ...getColumnSearchProps(
-          "kodeEartagNasional",
-          "hewan.kodeEartagNasional"
-        ),
-        sorter: (a, b) =>
-          a.hewan.kodeEartagNasional.localeCompare(b.hewan.kodeEartagNasional),
+        ...getColumnSearchProps("kodeEartagNasional", "hewan.kodeEartagNasional"),
+        sorter: (a, b) => a.hewan.kodeEartagNasional.localeCompare(b.hewan.kodeEartagNasional),
       },
       {
         title: "Kartu Ternak Induk",
         dataIndex: ["hewan", "noKartuTernak"],
         key: "noKartuTernak",
         ...getColumnSearchProps("noKartuTernak", "hewan.noKartuTernak"),
-        sorter: (a, b) =>
-          a.hewan.noKartuTernak.localeCompare(b.hewan.noKartuTernak),
+        sorter: (a, b) => a.hewan.noKartuTernak.localeCompare(b.hewan.noKartuTernak),
       },
       {
         title: "ID Pejantan",
         dataIndex: ["inseminasi", "idPejantan"],
         key: "idPejantan",
         ...getColumnSearchProps("idPejantan", "inseminasi.idPejantan"),
-        sorter: (a, b) =>
-          a.inseminasi.idPejantan.localeCompare(b.inseminasi.idPejantan),
+        sorter: (a, b) => a.inseminasi.idPejantan.localeCompare(b.inseminasi.idPejantan),
       },
       {
         title: "ID Pembuatan",
         dataIndex: ["inseminasi", "idPembuatan"],
         key: "idPembuatan",
         ...getColumnSearchProps("idPembuatan", "inseminasi.idPembuatan"),
-        sorter: (a, b) =>
-          a.inseminasi.idPembuatan.localeCompare(b.inseminasi.idPembuatan),
+        sorter: (a, b) => a.inseminasi.idPembuatan.localeCompare(b.inseminasi.idPembuatan),
       },
       {
         title: "Produsen",
         dataIndex: ["inseminasi", "produsen"],
         key: "produsen",
         ...getColumnSearchProps("produsen", "inseminasi.produsen"),
-        sorter: (a, b) =>
-          a.inseminasi.produsen.localeCompare(b.inseminasi.produsen),
+        sorter: (a, b) => a.inseminasi.produsen.localeCompare(b.inseminasi.produsen),
       },
       {
         title: "Bangsa Pejantan",
         dataIndex: ["inseminasi", "bangsaPejantan"],
         key: "bangsaPejantan",
         ...getColumnSearchProps("bangsaPejantan", "inseminasi.bangsaPejantan"),
-        sorter: (a, b) =>
-          a.inseminasi.bangsaPejantan.localeCompare(
-            b.inseminasi.bangsaPejantan
-          ),
+        sorter: (a, b) => a.inseminasi.bangsaPejantan.localeCompare(b.inseminasi.bangsaPejantan),
       },
       {
         title: "Spesies",
         dataIndex: ["rumpunHewan", "rumpun"],
         key: "rumpun",
         ...getColumnSearchProps("rumpun", "rumpunHewan.rumpun"),
-        sorter: (a, b) =>
-          a.rumpunHewan.rumpun.localeCompare(b.rumpunHewan.rumpun),
+        sorter: (a, b) => a.rumpunHewan.rumpun.localeCompare(b.rumpunHewan.rumpun),
       },
       {
         title: "Kategori",
@@ -1278,16 +1083,14 @@ const Kelahiran = () => {
         dataIndex: ["petugas", "namaPetugas"],
         key: "namaPetugas",
         ...getColumnSearchProps("namaPetugas", "petugas.namaPetugas"),
-        sorter: (a, b) =>
-          a.petugas.namaPetugas.localeCompare(b.petugas.namaPetugas),
+        sorter: (a, b) => a.petugas.namaPetugas.localeCompare(b.petugas.namaPetugas),
       },
       {
         title: "Kandang",
         dataIndex: ["kandang", "namaKandang"],
         key: "namaKandang",
         ...getColumnSearchProps("namaKandang", "kandang.namaKandang"),
-        sorter: (a, b) =>
-          a.kandang.namaKandang.localeCompare(b.kandang.namaKandang),
+        sorter: (a, b) => a.kandang.namaKandang.localeCompare(b.kandang.namaKandang),
       },
     ];
 
@@ -1299,22 +1102,9 @@ const Kelahiran = () => {
         align: "center",
         render: (text, row) => (
           <span>
-            <Button
-              type="primary"
-              shape="circle"
-              icon={<EditOutlined />}
-              title="Edit"
-              onClick={() => handleEditKelahiran(row)}
-            />
+            <Button type="primary" shape="circle" icon={<EditOutlined />} title="Edit" onClick={() => handleEditKelahiran(row)} />
             <Divider type="vertical" />
-            <Button
-              type="primary"
-              danger
-              shape="circle"
-              icon={<DeleteOutlined />}
-              title="Delete"
-              onClick={() => handleDeleteKelahiran(row)}
-            />
+            <Button type="primary" danger shape="circle" icon={<DeleteOutlined />} title="Delete" onClick={() => handleDeleteKelahiran(row)} />
           </span>
         ),
       });
@@ -1325,63 +1115,35 @@ const Kelahiran = () => {
 
   const renderTable = () => {
     if (user && user.role === "ROLE_PETERNAK") {
-      return (
-        <Table
-          dataSource={kelahirans}
-          bordered
-          columns={renderColumns}
-          rowKey="idKelahiran"
-        />
-      );
-    } else if (
-      user &&
-      (user.role === "ROLE_ADMINISTRATOR" || user.role === "ROLE_PETUGAS")
-    ) {
-      return (
-        <Table
-          dataSource={kelahirans}
-          bordered
-          columns={renderColumns()}
-          rowKey="idKelahiran"
-        />
-      );
+      return <Table dataSource={kelahirans} bordered columns={renderColumns} rowKey="idKelahiran" />;
+    } else if (user && (user.role === "ROLE_ADMINISTRATOR" || user.role === "ROLE_PETUGAS")) {
+      return <Table dataSource={kelahirans} bordered columns={renderColumns()} rowKey="idKelahiran" />;
     } else {
       return null;
     }
   };
 
   const renderButtons = () => {
-    if (
-      user &&
-      (user.role === "ROLE_ADMINISTRATOR" || user.role === "ROLE_PETUGAS")
-    ) {
+    if (user && (user.role === "ROLE_ADMINISTRATOR" || user.role === "ROLE_PETUGAS")) {
       return (
         <Row gutter={[16, 16]} justify="start" style={{ paddingLeft: 9 }}>
           <Col>
-            <Button type="primary" onClick={handleAddKelahiran} block>
+            <Button type="primary" onClick={handleAddKelahiran} style={{ width: 200 }}>
               Tambah Kelahiran
             </Button>
           </Col>
           <Col>
-            <Button
-              icon={<UploadOutlined />}
-              onClick={handleImportModalOpen}
-              block
-            >
+            <Button icon={<UploadOutlined />} onClick={handleImportModalOpen} style={{ width: 200 }}>
               Import File
             </Button>
           </Col>
           <Col>
-            <Button
-              icon={<DownloadOutlined />}
-              onClick={handleDownloadCSV}
-              block
-            >
+            <Button icon={<DownloadOutlined />} onClick={handleDownloadCSV} style={{ width: 200 }}>
               Download Format CSV
             </Button>
           </Col>
           <Col>
-            <Button icon={<UploadOutlined />} onClick={handleExportData} block>
+            <Button icon={<UploadOutlined />} onClick={handleExportData} style={{ width: 200 }}>
               Export Data To CSV
             </Button>
           </Col>
@@ -1393,15 +1155,10 @@ const Kelahiran = () => {
   };
 
   const title = (
-    <Row gutter={[16, 16]} justify="start">
+    <Row gutter={[16, 16]} justify="space-between">
       {renderButtons()}
       <Col xs={24} sm={12} md={8} lg={8} xl={8}>
-        <Input
-          placeholder="Cari data"
-          value={searchKeyword}
-          onChange={(e) => handleSearch(e.target.value)}
-          style={{ width: 235, marginLeft: 10 }}
-        />
+        <Input placeholder="Cari data" value={searchKeyword} onChange={(e) => handleSearch(e.target.value)} style={{ width: "100%" }} />
       </Col>
     </Row>
   );
@@ -1412,36 +1169,19 @@ const Kelahiran = () => {
 
   return (
     <div className="app-container">
-      <TypingCard
-        title="Manajemen Kelahiran"
-        source="Di sini, Anda dapat mengelola daftar kelahirans di sistem."
-      />
+      <TypingCard title="Manajemen Kelahiran" source="Di sini, Anda dapat mengelola daftar kelahirans di sistem." />
       <br />
+      <Card>{title}</Card>
       {loading ? (
         <Card>
           <Skeleton active paragraph={{ rows: 10 }} />
         </Card>
       ) : (
-        <Card title={title} style={{ overflowX: "scroll" }}>
-          {renderTable()}
-        </Card>
+        <Card style={{ overflowX: "scroll" }}>{renderTable()}</Card>
       )}
 
-      <EditKelahiranForm
-        currentRowData={currentRowData}
-        wrappedComponentRef={editKelahiranFormRef}
-        visible={editKelahiranModalVisible}
-        confirmLoading={editKelahiranModalLoading}
-        onCancel={handleCancel}
-        onOk={handleEditKelahiranOk}
-      />
-      <AddKelahiranForm
-        wrappedComponentRef={addKelahiranFormRef}
-        visible={addKelahiranModalVisible}
-        confirmLoading={addKelahiranModalLoading}
-        onCancel={handleCancel}
-        onOk={handleAddKelahiranOk}
-      />
+      <EditKelahiranForm currentRowData={currentRowData} wrappedComponentRef={editKelahiranFormRef} visible={editKelahiranModalVisible} confirmLoading={editKelahiranModalLoading} onCancel={handleCancel} onOk={handleEditKelahiranOk} />
+      <AddKelahiranForm wrappedComponentRef={addKelahiranFormRef} visible={addKelahiranModalVisible} confirmLoading={addKelahiranModalLoading} onCancel={handleCancel} onOk={handleAddKelahiranOk} />
       <Modal
         title="Import File"
         open={importModalVisible}
@@ -1450,12 +1190,7 @@ const Kelahiran = () => {
           <Button key="cancel" onClick={handleImportModalClose}>
             Cancel
           </Button>,
-          <Button
-            key="upload"
-            type="primary"
-            loading={uploading}
-            onClick={handleUpload}
-          >
+          <Button key="upload" type="primary" loading={uploading} onClick={handleUpload}>
             Upload
           </Button>,
         ]}

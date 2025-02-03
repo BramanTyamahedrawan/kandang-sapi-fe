@@ -10,12 +10,7 @@ import { getRumpunHewan } from "../../../api/rumpunhewan";
 
 const { Option } = Select;
 
-const AddInseminasiBuatanForm = ({
-  visible,
-  onCancel,
-  onOk,
-  confirmLoading,
-}) => {
+const AddInseminasiBuatanForm = ({ visible, onCancel, onOk, confirmLoading }) => {
   const [form] = Form.useForm();
   const [petugasList, setPetugasList] = useState([]);
   const [peternakList, setPeternakList] = useState([]);
@@ -130,20 +125,17 @@ const AddInseminasiBuatanForm = ({
       <Form form={form} layout="vertical">
         <Row gutter={16}>
           <Col xs={24} sm={24} md={12}>
-            <Form.Item
-              label="Produsen:"
-              name="produsen"
-              initialValue="BBIB Singosari"
-            >
-              <Select>
+            <Form.Item label="Produsen:" name="produsen">
+              <Select placeholder="Pilih BBIB" allowClear>
                 <Option value="BBIB Singosari">BBIB Singosari</Option>
                 <Option value="BIB Lembang">BIB Lembang</Option>
               </Select>
             </Form.Item>
           </Col>
           <Col xs={24} sm={24} md={12}>
-            <Form.Item label="IB:" name="ib" initialValue="1">
+            <Form.Item label="IB:" name="ib">
               <Select
+                placeholder="Pilih IB"
                 onChange={(value) => {
                   const ibMapping = {
                     ib1: value === "1" ? "1" : "-",
@@ -175,40 +167,22 @@ const AddInseminasiBuatanForm = ({
             </Form.Item>
           </Col>
           <Col xs={24} sm={24} md={12}>
-            <Form.Item
-              label="ID Pejantan:"
-              name="idPejantan"
-              rules={[{ required: true, message: "Silahkan isi ID pejantan" }]}
-            >
+            <Form.Item label="ID Pejantan:" name="idPejantan" rules={[{ required: true, message: "Silahkan isi ID pejantan" }]}>
               <Input placeholder="Masukkan ID Pejantan" />
             </Form.Item>
           </Col>
           <Col xs={24} sm={24} md={12}>
-            <Form.Item
-              label="ID Pembuatan:"
-              name="idPembuatan"
-              rules={[{ required: true, message: "Silahkan isi ID pembuatan" }]}
-            >
+            <Form.Item label="ID Pembuatan:" name="idPembuatan" rules={[{ required: true, message: "Silahkan isi ID pembuatan" }]}>
               <Input placeholder="Masukkan ID Pembuatan" />
             </Form.Item>
           </Col>
           <Col xs={24} sm={24} md={12}>
-            <Form.Item
-              label="Tanggal IB:"
-              name="tanggalIB"
-              rules={[{ required: true, message: "Silahkan isi tanggal IB" }]}
-            >
+            <Form.Item label="Tanggal IB:" name="tanggalIB" rules={[{ required: true, message: "Silahkan isi tanggal IB" }]}>
               <Input type="date" placeholder="Masukkan Tanggal IB" />
             </Form.Item>
           </Col>
           <Col xs={24} sm={24} md={12}>
-            <Form.Item
-              label="Inseminator:"
-              name="petugasId"
-              rules={[
-                { required: true, message: "Silahkan pilih inseminator" },
-              ]}
-            >
+            <Form.Item label="Inseminator:" name="petugasId" rules={[{ required: true, message: "Silahkan pilih inseminator" }]}>
               <Select placeholder="Pilih Inseminator">
                 {petugasList.map(({ petugasId, namaPetugas }) => (
                   <Option key={petugasId} value={petugasId}>
@@ -219,13 +193,7 @@ const AddInseminasiBuatanForm = ({
             </Form.Item>
           </Col>
           <Col xs={24} sm={24} md={12}>
-            <Form.Item
-              label="Nama Peternak:"
-              name="idPeternak"
-              rules={[
-                { required: true, message: "Silahkan pilih nama peternak" },
-              ]}
-            >
+            <Form.Item label="Nama Peternak:" name="idPeternak" rules={[{ required: true, message: "Silahkan pilih nama peternak" }]}>
               <Select placeholder="Pilih Nama Peternak">
                 {peternakList.map(({ idPeternak, namaPeternak }) => (
                   <Option key={idPeternak} value={idPeternak}>
@@ -236,13 +204,7 @@ const AddInseminasiBuatanForm = ({
             </Form.Item>
           </Col>
           <Col xs={24} sm={24} md={12}>
-            <Form.Item
-              label="Eartag Hewan:"
-              name="idHewan"
-              rules={[
-                { required: true, message: "Silahkan pilih eartag hewan" },
-              ]}
-            >
+            <Form.Item label="Eartag Hewan:" name="idHewan" rules={[{ required: true, message: "Silahkan pilih eartag hewan" }]}>
               <Select placeholder="Pilih Kode Eartag">
                 {hewanList.map(({ idHewan, kodeEartagNasional }) => (
                   <Option key={idHewan} value={idHewan}>
@@ -253,19 +215,11 @@ const AddInseminasiBuatanForm = ({
             </Form.Item>
           </Col>
           <Col xs={24} sm={24} md={12}>
-            <Form.Item
-              label="Bangsa Pejantan:"
-              name="idRumpunHewan"
-              rules={[
-                { required: true, message: "Silahkan pilih Bangsa Pejantan" },
-              ]}
-            >
+            <Form.Item label="Bangsa Pejantan:" name="idRumpunHewan" rules={[{ required: true, message: "Silahkan pilih Bangsa Pejantan" }]}>
               <Select
                 placeholder="Pilih Bangsa Pejantan"
                 onChange={(value) => {
-                  const selectedRumpun = rumpunHewanList.find(
-                    (rumpunHewan) => rumpunHewan.idRumpunHewan === value
-                  );
+                  const selectedRumpun = rumpunHewanList.find((rumpunHewan) => rumpunHewan.idRumpunHewan === value);
                   if (selectedRumpun) {
                     form.setFieldsValue({
                       bangsaPejantan: selectedRumpun.rumpun,
@@ -274,10 +228,7 @@ const AddInseminasiBuatanForm = ({
                 }}
               >
                 {rumpunHewanList.map((rumpunHewan) => (
-                  <Select.Option
-                    key={rumpunHewan.idRumpunHewan}
-                    value={rumpunHewan.idRumpunHewan}
-                  >
+                  <Select.Option key={rumpunHewan.idRumpunHewan} value={rumpunHewan.idRumpunHewan}>
                     {rumpunHewan.rumpun}
                   </Select.Option>
                 ))}
@@ -298,7 +249,7 @@ const AddInseminasiBuatanForm = ({
               </Select>
             </Form.Item>
           </Col>
-          <Col xs={24} sm={24} md={12}>
+          <Col xs={24} sm={24} md={24}>
             <Form.Item label="Jenis Hewan" name="idJenisHewan">
               <Select placeholder="Pilih Jenis Hewan">
                 {jenisHewanList.map(({ idJenisHewan, jenis }) => (

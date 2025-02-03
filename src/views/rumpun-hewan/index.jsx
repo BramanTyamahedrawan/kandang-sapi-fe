@@ -1,34 +1,10 @@
 /* eslint-disable no-constant-condition */
 /* eslint-disable no-unused-vars */
 import { getPetugas } from "@/api/petugas";
-import {
-  addRumpunHewan,
-  deleteRumpunHewan,
-  editRumpunHewan,
-  getRumpunHewan,
-  addRumpunHewanBulk,
-} from "@/api/rumpunhewan";
+import { addRumpunHewan, deleteRumpunHewan, editRumpunHewan, getRumpunHewan, addRumpunHewanBulk } from "@/api/rumpunhewan";
 import TypingCard from "@/components/TypingCard";
-import {
-  DeleteOutlined,
-  DownloadOutlined,
-  EditOutlined,
-  UploadOutlined,
-  SearchOutlined,
-} from "@ant-design/icons";
-import {
-  Button,
-  Card,
-  Col,
-  Divider,
-  Input,
-  message,
-  Modal,
-  Row,
-  Table,
-  Upload,
-  Space,
-} from "antd";
+import { DeleteOutlined, DownloadOutlined, EditOutlined, UploadOutlined, SearchOutlined } from "@ant-design/icons";
+import { Button, Card, Col, Divider, Input, message, Modal, Row, Table, Upload, Space } from "antd";
 import React, { useEffect, useRef, useState } from "react";
 import { read, utils } from "xlsx";
 import { reqUserInfo } from "../../api/user";
@@ -100,12 +76,7 @@ const RumpunHewan = () => {
           const isRumpunValid = typeof rumpun === "string";
           const isDeskripsiValid = typeof deskripsi === "string";
 
-          return (
-            (isIdRumpunHewanValid &&
-              idRumpunHewan.toLowerCase().includes(keyword)) ||
-            (isRumpunValid && rumpun.toLowerCase().includes(keyword)) ||
-            (isDeskripsiValid && deskripsi.toLowerCase().includes(keyword))
-          );
+          return (isIdRumpunHewanValid && idRumpunHewan.toLowerCase().includes(keyword)) || (isRumpunValid && rumpun.toLowerCase().includes(keyword)) || (isDeskripsiValid && deskripsi.toLowerCase().includes(keyword));
         });
 
         setRumpunHewans(filteredRumpunHewan);
@@ -124,9 +95,7 @@ const RumpunHewan = () => {
       const result = await getRumpunHewan(); // Assuming similar API structure
       const { content, statusCode } = result.data;
       if (statusCode === 200) {
-        const filteredHewans = content.filter(
-          (hewan) => hewan.peternak_id === peternakID
-        );
+        const filteredHewans = content.filter((hewan) => hewan.peternak_id === peternakID);
         setRumpunHewans(filteredHewans);
       }
     } catch (error) {
@@ -271,11 +240,7 @@ const RumpunHewan = () => {
       const utcDays = Math.floor(input - 25569);
       const utcValue = utcDays * 86400;
       const dateInfo = new Date(utcValue * 1000);
-      date = new Date(
-        dateInfo.getFullYear(),
-        dateInfo.getMonth(),
-        dateInfo.getDate()
-      ).toString();
+      date = new Date(dateInfo.getFullYear(), dateInfo.getMonth(), dateInfo.getDate()).toString();
     } else if (typeof input === "string") {
       const [day, month, year] = input.split("/");
       date = new Date(`${year}-${month}-${day}`).toString();
@@ -403,11 +368,7 @@ const RumpunHewan = () => {
     const columnTitlesLocal = ["No", "Rumpun Hewan", "Deskripsi"];
 
     // Baris data dummy (contoh)
-    const exampleRow = [
-      "1",
-      "Contoh Sapi Potong",
-      "Contoh Rumpun Hewan Sapi Potong",
-    ];
+    const exampleRow = ["1", "Contoh Sapi Potong", "Contoh Rumpun Hewan Sapi Potong"];
 
     // Gabungkan header dan contoh data
     const rows = [columnTitlesLocal, exampleRow];
@@ -468,41 +429,21 @@ const RumpunHewan = () => {
   };
 
   const getColumnSearchProps = (dataIndex, nestedPath) => ({
-    filterDropdown: ({
-      setSelectedKeys,
-      selectedKeys,
-      confirm,
-      clearFilters,
-      close,
-    }) => (
+    filterDropdown: ({ setSelectedKeys, selectedKeys, confirm, clearFilters, close }) => (
       <div style={{ padding: 8 }} onKeyDown={(e) => e.stopPropagation()}>
         <Input
           ref={searchInput}
           placeholder={`Search ${dataIndex}`}
           value={selectedKeys[0]}
-          onChange={(e) =>
-            setSelectedKeys(e.target.value ? [e.target.value] : [])
-          }
-          onPressEnter={() =>
-            handleSearchTable(selectedKeys, confirm, dataIndex)
-          }
+          onChange={(e) => setSelectedKeys(e.target.value ? [e.target.value] : [])}
+          onPressEnter={() => handleSearchTable(selectedKeys, confirm, dataIndex)}
           style={{ marginBottom: 8, display: "block" }}
         />
         <Space>
-          <Button
-            type="primary"
-            onClick={() => handleSearchTable(selectedKeys, confirm, dataIndex)}
-            icon={<SearchOutlined />}
-            size="small"
-            style={{ width: 90 }}
-          >
+          <Button type="primary" onClick={() => handleSearchTable(selectedKeys, confirm, dataIndex)} icon={<SearchOutlined />} size="small" style={{ width: 90 }}>
             Search
           </Button>
-          <Button
-            onClick={() => clearFilters && handleReset(clearFilters)}
-            size="small"
-            style={{ width: 90 }}
-          >
+          <Button onClick={() => clearFilters && handleReset(clearFilters)} size="small" style={{ width: 90 }}>
             Reset
           </Button>
           <Button
@@ -522,40 +463,20 @@ const RumpunHewan = () => {
         </Space>
       </div>
     ),
-    filterIcon: (filtered) => (
-      <SearchOutlined style={{ color: filtered ? "#1677ff" : undefined }} />
-    ),
+    filterIcon: (filtered) => <SearchOutlined style={{ color: filtered ? "#1677ff" : undefined }} />,
     onFilter: (value, record) => {
       if (nestedPath) {
-        const nestedValue = nestedPath
-          .split(".")
-          .reduce((obj, key) => obj?.[key], record);
-        return nestedValue
-          ?.toString()
-          .toLowerCase()
-          .includes(value.toLowerCase());
+        const nestedValue = nestedPath.split(".").reduce((obj, key) => obj?.[key], record);
+        return nestedValue?.toString().toLowerCase().includes(value.toLowerCase());
       }
-      return record[dataIndex]
-        ?.toString()
-        .toLowerCase()
-        .includes(value.toLowerCase());
+      return record[dataIndex]?.toString().toLowerCase().includes(value.toLowerCase());
     },
     filterDropdownProps: {
       onOpenChange(open) {
         if (open) setTimeout(() => searchInput.current?.select(), 100);
       },
     },
-    render: (text) =>
-      searchedColumn === dataIndex ? (
-        <Highlighter
-          highlightStyle={{ backgroundColor: "#ffc069", padding: 0 }}
-          searchWords={[searchText]}
-          autoEscape
-          textToHighlight={text?.toString() || ""}
-        />
-      ) : (
-        text
-      ),
+    render: (text) => (searchedColumn === dataIndex ? <Highlighter highlightStyle={{ backgroundColor: "#ffc069", padding: 0 }} searchWords={[searchText]} autoEscape textToHighlight={text?.toString() || ""} /> : text),
   });
 
   // Render Columns with Operations
@@ -583,10 +504,7 @@ const RumpunHewan = () => {
       },
     ];
 
-    if (
-      user &&
-      (user.role === "ROLE_ADMINISTRATOR" || user.role === "ROLE_PETUGAS")
-    ) {
+    if (user && (user.role === "ROLE_ADMINISTRATOR" || user.role === "ROLE_PETUGAS")) {
       baseColumns.push({
         title: "Operasi",
         key: "action",
@@ -594,22 +512,9 @@ const RumpunHewan = () => {
         align: "center",
         render: (text, row) => (
           <span>
-            <Button
-              type="primary"
-              shape="circle"
-              icon={<EditOutlined />}
-              title="Edit"
-              onClick={() => handleEditHewan(row)}
-            />
+            <Button type="primary" shape="circle" icon={<EditOutlined />} title="Edit" onClick={() => handleEditHewan(row)} />
             <Divider type="vertical" />
-            <Button
-              type="primary"
-              danger
-              shape="circle"
-              icon={<DeleteOutlined />}
-              title="Delete"
-              onClick={() => handleDeleteHewan(row)}
-            />
+            <Button type="primary" danger shape="circle" icon={<DeleteOutlined />} title="Delete" onClick={() => handleDeleteHewan(row)} />
           </span>
         ),
       });
@@ -621,26 +526,9 @@ const RumpunHewan = () => {
   // Render Table based on User Role
   const renderTable = () => {
     if (user && user.role === "ROLE_PETERNAK") {
-      return (
-        <Table
-          dataSource={rumpunHewans}
-          bordered
-          columns={renderColumns()}
-          rowKey="idRumpunHewan"
-        />
-      );
-    } else if (
-      user &&
-      (user.role === "ROLE_ADMINISTRATOR" || user.role === "ROLE_PETUGAS")
-    ) {
-      return (
-        <Table
-          dataSource={rumpunHewans}
-          bordered
-          columns={renderColumns()}
-          rowKey="idRumpunHewan"
-        />
-      );
+      return <Table dataSource={rumpunHewans} bordered columns={renderColumns()} rowKey="idRumpunHewan" />;
+    } else if (user && (user.role === "ROLE_ADMINISTRATOR" || user.role === "ROLE_PETUGAS")) {
+      return <Table dataSource={rumpunHewans} bordered columns={renderColumns()} rowKey="idRumpunHewan" />;
     } else {
       return null;
     }
@@ -648,37 +536,26 @@ const RumpunHewan = () => {
 
   // Render Buttons based on User Role
   const renderButtons = () => {
-    if (
-      user &&
-      (user.role === "ROLE_ADMINISTRATOR" || user.role === "ROLE_PETUGAS")
-    ) {
+    if (user && (user.role === "ROLE_ADMINISTRATOR" || user.role === "ROLE_PETUGAS")) {
       return (
-        <Row gutter={[16, 16]} justify="start" style={{ paddingLeft: 9 }}>
+        <Row gutter={[16, 16]} justify="start" style={{ paddingLeft: 9, marginTop: 9 }}>
           <Col>
-            <Button type="primary" onClick={handleAddHewan} block>
+            <Button type="primary" onClick={handleAddHewan} style={{ width: 200 }}>
               Tambah Rumpun
             </Button>
           </Col>
           <Col>
-            <Button
-              icon={<UploadOutlined />}
-              onClick={handleImportModalOpen}
-              block
-            >
+            <Button icon={<UploadOutlined />} onClick={handleImportModalOpen} style={{ width: 200 }}>
               Import File
             </Button>
           </Col>
           <Col>
-            <Button
-              icon={<DownloadOutlined />}
-              onClick={handleDownloadCSV}
-              block
-            >
+            <Button icon={<DownloadOutlined />} onClick={handleDownloadCSV} style={{ width: 200 }}>
               Download Format CSV
             </Button>
           </Col>
           <Col>
-            <Button icon={<UploadOutlined />} onClick={handleExportData} block>
+            <Button icon={<UploadOutlined />} onClick={handleExportData} style={{ width: 200 }}>
               Export Data To CSV
             </Button>
           </Col>
@@ -694,12 +571,7 @@ const RumpunHewan = () => {
     <Row gutter={[16, 16]} justify="space-between">
       {renderButtons()}
       <Col xs={24} sm={12} md={8} lg={8} xl={8}>
-        <Input
-          placeholder="Cari data"
-          value={searchKeyword}
-          onChange={(e) => handleSearch(e.target.value)}
-          style={{ width: "100%" }}
-        />
+        <Input placeholder="Cari data" value={searchKeyword} onChange={(e) => handleSearch(e.target.value)} style={{ width: "100%" }} />
       </Col>
     </Row>
   );
@@ -711,34 +583,20 @@ const RumpunHewan = () => {
       {/* TypingCard component */}
       <TypingCard title="Manajemen Rumpun Hewan" source={cardContent} />
       <br />
+      <Card>{title}</Card>
       {loading ? (
         <Card>
           <Skeleton active paragraph={{ rows: 10 }} />
         </Card>
       ) : (
-        <Card title={title} style={{ overflowX: "scroll" }}>
-          {renderTable()}
-        </Card>
+        <Card style={{ overflowX: "scroll" }}>{renderTable()}</Card>
       )}
 
       {/* Edit Rumpun Hewan Modal */}
-      <EditHewanForm
-        currentRowData={currentRowData}
-        wrappedComponentRef={editHewanFormRef}
-        visible={editHewanModalVisible}
-        confirmLoading={editHewanModalLoading}
-        onCancel={handleCancel}
-        onOk={handleEditHewanOk}
-      />
+      <EditHewanForm currentRowData={currentRowData} wrappedComponentRef={editHewanFormRef} visible={editHewanModalVisible} confirmLoading={editHewanModalLoading} onCancel={handleCancel} onOk={handleEditHewanOk} />
 
       {/* Add Rumpun Hewan Modal */}
-      <AddHewanForm
-        wrappedComponentRef={addHewanFormRef}
-        visible={addHewanModalVisible}
-        confirmLoading={addHewanModalLoading}
-        onCancel={handleCancel}
-        onOk={handleAddHewanOk}
-      />
+      <AddHewanForm wrappedComponentRef={addHewanFormRef} visible={addHewanModalVisible} confirmLoading={addHewanModalLoading} onCancel={handleCancel} onOk={handleAddHewanOk} />
 
       {/* Import Modal */}
       <Modal
@@ -749,12 +607,7 @@ const RumpunHewan = () => {
           <Button key="cancel" onClick={handleImportModalClose}>
             Cancel
           </Button>,
-          <Button
-            key="upload"
-            type="primary"
-            loading={uploading}
-            onClick={handleUpload}
-          >
+          <Button key="upload" type="primary" loading={uploading} onClick={handleUpload}>
             Upload
           </Button>,
         ]}

@@ -3,8 +3,11 @@
   overflow: hidden;
   position: relative;
   // background: #2d3a4b;
-  background-image: url('@/assets/images/bg.jpg');
-  background-size: 100% 100%;
+  background-image: url("@/assets/images/bg.jpg");
+  background-size: cover;
+  background-position: center top;
+  background-repeat: no-repeat;
+  display: block;
   & > .title {
     color: #eee;
     font-size: 26px;
@@ -61,5 +64,13 @@
     .login-form-forgot {
       float: right;
     }
+  }
+}
+
+@media (max-width: 768px) {
+  .login-container {
+    background-image: url(@/assets/images/bg-mobile.jpeg);
+    background-size: cover; /* Memperkecil gambar tetapi tetap menutupi layar */
+    background-position: center top;
   }
 }

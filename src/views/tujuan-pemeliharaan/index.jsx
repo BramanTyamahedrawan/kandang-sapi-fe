@@ -1,32 +1,8 @@
 /* eslint-disable no-unused-vars */
-import {
-  addTujuanPemeliharaan,
-  deleteTujuanPemeliharaan,
-  editTujuanPemeliharaan,
-  getTujuanPemeliharaan,
-  addTujuanPemeliharaanBulk,
-} from "@/api/tujuan-pemeliharaan";
+import { addTujuanPemeliharaan, deleteTujuanPemeliharaan, editTujuanPemeliharaan, getTujuanPemeliharaan, addTujuanPemeliharaanBulk } from "@/api/tujuan-pemeliharaan";
 import TypingCard from "@/components/TypingCard";
-import {
-  DeleteOutlined,
-  DownloadOutlined,
-  EditOutlined,
-  UploadOutlined,
-  SearchOutlined,
-} from "@ant-design/icons";
-import {
-  Button,
-  Card,
-  Col,
-  Divider,
-  Input,
-  message,
-  Modal,
-  Row,
-  Table,
-  Upload,
-  Space,
-} from "antd";
+import { DeleteOutlined, DownloadOutlined, EditOutlined, UploadOutlined, SearchOutlined } from "@ant-design/icons";
+import { Button, Card, Col, Divider, Input, message, Modal, Row, Table, Upload, Space } from "antd";
 import React, { useEffect, useRef, useState } from "react";
 import { reqUserInfo } from "../../api/user";
 import AddTujuanPemeliharaanForm from "./forms/add-tujuanpemeliharaan-form";
@@ -83,21 +59,16 @@ const TujuanPemeliharaan = () => {
 
       if (statusCode === 200) {
         const filteredTujuanPemeliharaan = content.filter((tujuan) => {
-          const { idTujuanPemeliharaan, tujuanPemeliharaan, deskripsi } =
-            tujuan;
+          const { idTujuanPemeliharaan, tujuanPemeliharaan, deskripsi } = tujuan;
           const keyword = searchKeyword.toLowerCase();
 
-          const isIdTujuanPemeliharaanValid =
-            typeof idTujuanPemeliharaan === "string";
-          const isTujuanPemeliharaanValid =
-            typeof tujuanPemeliharaan === "string";
+          const isIdTujuanPemeliharaanValid = typeof idTujuanPemeliharaan === "string";
+          const isTujuanPemeliharaanValid = typeof tujuanPemeliharaan === "string";
           const isDeskripsiValid = typeof deskripsi === "string";
 
           return (
-            (isIdTujuanPemeliharaanValid &&
-              idTujuanPemeliharaan.toLowerCase().includes(keyword)) ||
-            (isTujuanPemeliharaanValid &&
-              tujuanPemeliharaan.toLowerCase().includes(keyword)) ||
+            (isIdTujuanPemeliharaanValid && idTujuanPemeliharaan.toLowerCase().includes(keyword)) ||
+            (isTujuanPemeliharaanValid && tujuanPemeliharaan.toLowerCase().includes(keyword)) ||
             (isDeskripsiValid && deskripsi.toLowerCase().includes(keyword))
           );
         });
@@ -106,9 +77,7 @@ const TujuanPemeliharaan = () => {
       }
     } catch (error) {
       console.error("Failed to fetch tujuan pemeliharaan:", error);
-      message.error(
-        "Gagal mengambil data tujuan pemeliharaan, harap coba lagi!"
-      );
+      message.error("Gagal mengambil data tujuan pemeliharaan, harap coba lagi!");
     } finally {
       setLoading(false);
     }
@@ -271,11 +240,7 @@ const TujuanPemeliharaan = () => {
       const utcDays = Math.floor(input - 25569);
       const utcValue = utcDays * 86400;
       const dateInfo = new Date(utcValue * 1000);
-      date = new Date(
-        dateInfo.getFullYear(),
-        dateInfo.getMonth(),
-        dateInfo.getDate()
-      ).toString();
+      date = new Date(dateInfo.getFullYear(), dateInfo.getMonth(), dateInfo.getDate()).toString();
     } else if (typeof input === "string") {
       const [day, month, year] = input.split("/");
       date = new Date(`${year}-${month}-${day}`).toString();
@@ -291,11 +256,7 @@ const TujuanPemeliharaan = () => {
 
   const convertHeaderToCSV = () => {
     const columnTitlesLocal = ["No", "Tujuan Pemeliharaan", "Deskripsi"];
-    const exampleRow = [
-      "1",
-      "Contoh Pembibitan",
-      "Contoh pembibitan sapi potong",
-    ];
+    const exampleRow = ["1", "Contoh Pembibitan", "Contoh pembibitan sapi potong"];
 
     // Gabungkan header dan contoh data
     const rows = [columnTitlesLocal, exampleRow];
@@ -434,19 +395,11 @@ const TujuanPemeliharaan = () => {
 
   // Convert Data to CSV Format
   const convertToCSV = (data) => {
-    const columnTitles = [
-      "ID Tujuan Pemeliharaan",
-      "Tujuan Pemeliharaan",
-      "Deskripsi",
-    ];
+    const columnTitles = ["ID Tujuan Pemeliharaan", "Tujuan Pemeliharaan", "Deskripsi"];
 
     const rows = [columnTitles];
     data.forEach((item) => {
-      const row = [
-        item.idTujuanPemeliharaan,
-        item.tujuanPemeliharaan,
-        item.deskripsi,
-      ];
+      const row = [item.idTujuanPemeliharaan, item.tujuanPemeliharaan, item.deskripsi];
       rows.push(row);
     });
 
@@ -472,41 +425,21 @@ const TujuanPemeliharaan = () => {
   };
 
   const getColumnSearchProps = (dataIndex, nestedPath) => ({
-    filterDropdown: ({
-      setSelectedKeys,
-      selectedKeys,
-      confirm,
-      clearFilters,
-      close,
-    }) => (
+    filterDropdown: ({ setSelectedKeys, selectedKeys, confirm, clearFilters, close }) => (
       <div style={{ padding: 8 }} onKeyDown={(e) => e.stopPropagation()}>
         <Input
           ref={searchInput}
           placeholder={`Search ${dataIndex}`}
           value={selectedKeys[0]}
-          onChange={(e) =>
-            setSelectedKeys(e.target.value ? [e.target.value] : [])
-          }
-          onPressEnter={() =>
-            handleSearchTable(selectedKeys, confirm, dataIndex)
-          }
+          onChange={(e) => setSelectedKeys(e.target.value ? [e.target.value] : [])}
+          onPressEnter={() => handleSearchTable(selectedKeys, confirm, dataIndex)}
           style={{ marginBottom: 8, display: "block" }}
         />
         <Space>
-          <Button
-            type="primary"
-            onClick={() => handleSearchTable(selectedKeys, confirm, dataIndex)}
-            icon={<SearchOutlined />}
-            size="small"
-            style={{ width: 90 }}
-          >
+          <Button type="primary" onClick={() => handleSearchTable(selectedKeys, confirm, dataIndex)} icon={<SearchOutlined />} size="small" style={{ width: 90 }}>
             Search
           </Button>
-          <Button
-            onClick={() => clearFilters && handleReset(clearFilters)}
-            size="small"
-            style={{ width: 90 }}
-          >
+          <Button onClick={() => clearFilters && handleReset(clearFilters)} size="small" style={{ width: 90 }}>
             Reset
           </Button>
           <Button
@@ -526,40 +459,20 @@ const TujuanPemeliharaan = () => {
         </Space>
       </div>
     ),
-    filterIcon: (filtered) => (
-      <SearchOutlined style={{ color: filtered ? "#1677ff" : undefined }} />
-    ),
+    filterIcon: (filtered) => <SearchOutlined style={{ color: filtered ? "#1677ff" : undefined }} />,
     onFilter: (value, record) => {
       if (nestedPath) {
-        const nestedValue = nestedPath
-          .split(".")
-          .reduce((obj, key) => obj?.[key], record);
-        return nestedValue
-          ?.toString()
-          .toLowerCase()
-          .includes(value.toLowerCase());
+        const nestedValue = nestedPath.split(".").reduce((obj, key) => obj?.[key], record);
+        return nestedValue?.toString().toLowerCase().includes(value.toLowerCase());
       }
-      return record[dataIndex]
-        ?.toString()
-        .toLowerCase()
-        .includes(value.toLowerCase());
+      return record[dataIndex]?.toString().toLowerCase().includes(value.toLowerCase());
     },
     filterDropdownProps: {
       onOpenChange(open) {
         if (open) setTimeout(() => searchInput.current?.select(), 100);
       },
     },
-    render: (text) =>
-      searchedColumn === dataIndex ? (
-        <Highlighter
-          highlightStyle={{ backgroundColor: "#ffc069", padding: 0 }}
-          searchWords={[searchText]}
-          autoEscape
-          textToHighlight={text?.toString() || ""}
-        />
-      ) : (
-        text
-      ),
+    render: (text) => (searchedColumn === dataIndex ? <Highlighter highlightStyle={{ backgroundColor: "#ffc069", padding: 0 }} searchWords={[searchText]} autoEscape textToHighlight={text?.toString() || ""} /> : text),
   });
 
   // Render Columns with Operations
@@ -576,8 +489,7 @@ const TujuanPemeliharaan = () => {
         dataIndex: "tujuanPemeliharaan",
         key: "tujuanPemeliharaan",
         ...getColumnSearchProps("tujuanPemeliharaan"),
-        sorter: (a, b) =>
-          a.tujuanPemeliharaan.localeCompare(b.tujuanPemeliharaan),
+        sorter: (a, b) => a.tujuanPemeliharaan.localeCompare(b.tujuanPemeliharaan),
       },
       {
         title: "Deskripsi",
@@ -588,10 +500,7 @@ const TujuanPemeliharaan = () => {
       },
     ];
 
-    if (
-      user &&
-      (user.role === "ROLE_ADMINISTRATOR" || user.role === "ROLE_PETUGAS")
-    ) {
+    if (user && (user.role === "ROLE_ADMINISTRATOR" || user.role === "ROLE_PETUGAS")) {
       baseColumns.push({
         title: "Operasi",
         key: "action",
@@ -599,22 +508,9 @@ const TujuanPemeliharaan = () => {
         align: "center",
         render: (text, row) => (
           <span>
-            <Button
-              type="primary"
-              shape="circle"
-              icon={<EditOutlined />}
-              title="Edit"
-              onClick={() => handleEditTujuan(row)}
-            />
+            <Button type="primary" shape="circle" icon={<EditOutlined />} title="Edit" onClick={() => handleEditTujuan(row)} />
             <Divider type="vertical" />
-            <Button
-              type="primary"
-              danger
-              shape="circle"
-              icon={<DeleteOutlined />}
-              title="Delete"
-              onClick={() => handleDeleteTujuan(row)}
-            />
+            <Button type="primary" danger shape="circle" icon={<DeleteOutlined />} title="Delete" onClick={() => handleDeleteTujuan(row)} />
           </span>
         ),
       });
@@ -626,26 +522,9 @@ const TujuanPemeliharaan = () => {
   // Render Table based on User Role
   const renderTable = () => {
     if (user && user.role === "ROLE_PETERNAK") {
-      return (
-        <Table
-          dataSource={tujuanPemeliharaans}
-          bordered
-          columns={renderColumns()}
-          rowKey="idTujuanPemeliharaan"
-        />
-      );
-    } else if (
-      user &&
-      (user.role === "ROLE_ADMINISTRATOR" || user.role === "ROLE_PETUGAS")
-    ) {
-      return (
-        <Table
-          dataSource={tujuanPemeliharaans}
-          bordered
-          columns={renderColumns()}
-          rowKey="idTujuanPemeliharaan"
-        />
-      );
+      return <Table dataSource={tujuanPemeliharaans} bordered columns={renderColumns()} rowKey="idTujuanPemeliharaan" />;
+    } else if (user && (user.role === "ROLE_ADMINISTRATOR" || user.role === "ROLE_PETUGAS")) {
+      return <Table dataSource={tujuanPemeliharaans} bordered columns={renderColumns()} rowKey="idTujuanPemeliharaan" />;
     } else {
       return null;
     }
@@ -653,37 +532,26 @@ const TujuanPemeliharaan = () => {
 
   // Render Buttons based on User Role
   const renderButtons = () => {
-    if (
-      user &&
-      (user.role === "ROLE_ADMINISTRATOR" || user.role === "ROLE_PETUGAS")
-    ) {
+    if (user && (user.role === "ROLE_ADMINISTRATOR" || user.role === "ROLE_PETUGAS")) {
       return (
         <Row gutter={[16, 16]} justify="start" style={{ paddingLeft: 9 }}>
           <Col>
-            <Button type="primary" block onClick={handleAddTujuan}>
+            <Button type="primary" block onClick={handleAddTujuan} style={{ width: 200 }}>
               Tambah tujuan pemeliharaan
             </Button>
           </Col>
           <Col>
-            <Button
-              icon={<UploadOutlined />}
-              onClick={handleImportModalOpen}
-              block
-            >
+            <Button icon={<UploadOutlined />} onClick={handleImportModalOpen} style={{ width: 200 }}>
               Import File
             </Button>
           </Col>
           <Col>
-            <Button
-              icon={<DownloadOutlined />}
-              onClick={handleDownloadCSV}
-              block
-            >
+            <Button icon={<DownloadOutlined />} onClick={handleDownloadCSV} style={{ width: 200 }}>
               Download Format CSV
             </Button>
           </Col>
           <Col>
-            <Button icon={<UploadOutlined />} onClick={handleExportData} block>
+            <Button icon={<UploadOutlined />} onClick={handleExportData} style={{ width: 200 }}>
               Export Data To CSV
             </Button>
           </Col>
@@ -716,34 +584,20 @@ const TujuanPemeliharaan = () => {
       {/* TypingCard component */}
       <TypingCard title="Manajemen Tujuan Pemeliharaan" source={cardContent} />
       <br />
+      <Card>{title}</Card>
       {loading ? (
         <Card>
           <Skeleton active paragraph={{ rows: 10 }} />
         </Card>
       ) : (
-        <Card title={title} style={{ overflowX: "scroll" }}>
-          {renderTable()}
-        </Card>
+        <Card style={{ overflowX: "scroll" }}>{renderTable()}</Card>
       )}
 
       {/* Edit Tujuan Pemeliharaan Modal */}
-      <EditTujuanPemeliharaanForm
-        currentRowData={currentRowData}
-        wrappedComponentRef={editTujuanFormRef}
-        visible={editTujuanModalVisible}
-        confirmLoading={editTujuanModalLoading}
-        onCancel={handleCancel}
-        onOk={handleEditTujuanOk}
-      />
+      <EditTujuanPemeliharaanForm currentRowData={currentRowData} wrappedComponentRef={editTujuanFormRef} visible={editTujuanModalVisible} confirmLoading={editTujuanModalLoading} onCancel={handleCancel} onOk={handleEditTujuanOk} />
 
       {/* Add Tujuan Pemeliharraan Modal */}
-      <AddTujuanPemeliharaanForm
-        wrappedComponentRef={addTujuanFormRef}
-        visible={addTujuanModalVisible}
-        confirmLoading={addTujuanModalLoading}
-        onCancel={handleCancel}
-        onOk={handleAddTujuanOk}
-      />
+      <AddTujuanPemeliharaanForm wrappedComponentRef={addTujuanFormRef} visible={addTujuanModalVisible} confirmLoading={addTujuanModalLoading} onCancel={handleCancel} onOk={handleAddTujuanOk} />
 
       {/* Import Modal */}
       <Modal
@@ -754,12 +608,7 @@ const TujuanPemeliharaan = () => {
           <Button key="cancel" onClick={handleImportModalClose}>
             Cancel
           </Button>,
-          <Button
-            key="upload"
-            type="primary"
-            loading={uploading}
-            onClick={handleUpload}
-          >
+          <Button key="upload" type="primary" loading={uploading} onClick={handleUpload}>
             Upload
           </Button>,
         ]}

@@ -169,7 +169,7 @@ const AddKandangForm = ({ visible, onCancel, onOk, confirmLoading }) => {
     >
       <Form form={form} layout="vertical">
         <Row gutter={16}>
-          <Col span={12}>
+          <Col xs={24} sm={24} md={12}>
             <Form.Item label="Nama Peternak" name="idPeternak" rules={[{ required: true, message: "Pilih Nama Peternak!" }]}>
               <Select
                 showSearch
@@ -187,13 +187,13 @@ const AddKandangForm = ({ visible, onCancel, onOk, confirmLoading }) => {
             </Form.Item>
           </Col>
 
-          <Col span={12}>
+          <Col xs={24} sm={24} md={12}>
             <Form.Item label="Nama Kadang:" name="namaKandang" rules={[{ required: true, message: "Silahkan isi Nama Kandang" }]}>
               <Input placeholder="Masukkan Nama Kandang" />
             </Form.Item>
           </Col>
 
-          <Col span={12}>
+          <Col xs={24} sm={24} md={12}>
             <Form.Item label="Jenis Hewan:" name="idJenisHewan" rules={[{ required: true, message: "Pilih Jenis Hewan!" }]}>
               <Select
                 showSearch
@@ -210,25 +210,25 @@ const AddKandangForm = ({ visible, onCancel, onOk, confirmLoading }) => {
             </Form.Item>
           </Col>
 
-          <Col span={12}>
+          <Col xs={24} sm={24} md={12}>
             <Form.Item label="Nilai Bangunan:" name="nilaiBangunan" rules={[{ required: true, message: "Silahkan isi Nilai Bangunan" }]}>
               <Input placeholder="Masukkan Nilai Bangunan" />
             </Form.Item>
           </Col>
 
-          <Col span={12}>
+          <Col xs={24} sm={24} md={12}>
             <Form.Item label="Luas Kandang:" name="luas" rules={[{ required: true, message: "Silahkan isi luas" }]}>
               <Input placeholder="Masukkan luas kandang" />
             </Form.Item>
           </Col>
 
-          <Col span={12}>
+          <Col xs={24} sm={24} md={12}>
             <Form.Item label="Kapasitas Kandang:" name="kapasitas" rules={[{ required: true, message: "Silahkan isi kapasitas" }]}>
               <Input placeholder="Masukkan kapasitas kandang" />
             </Form.Item>
           </Col>
 
-          <Col span={12}>
+          <Col xs={24} sm={24} md={12}>
             <Form.Item label="Jenis Kandang" name="jenisKandang" rules={[{ required: true, message: "Pilih Jenis Kandang!" }]}>
               <Select placeholder="Pilih Jenis Kandang">
                 <Select.Option key="1" value="permanen">
@@ -244,7 +244,7 @@ const AddKandangForm = ({ visible, onCancel, onOk, confirmLoading }) => {
             </Form.Item>
           </Col>
 
-          <Col span={12}>
+          <Col xs={24} sm={24} md={12}>
             <Form.Item label="Provinsi" name="provinsi">
               <Select placeholder="Pilih Provinsi" onChange={handleProvinceChange}>
                 {provinces.map((item) => (
@@ -256,7 +256,7 @@ const AddKandangForm = ({ visible, onCancel, onOk, confirmLoading }) => {
             </Form.Item>
           </Col>
 
-          <Col span={12}>
+          <Col xs={24} sm={24} md={12}>
             <Form.Item label="Kabupaten" name="kabupaten">
               <Select placeholder="Pilih Kabupaten" onChange={handleRegencyChange}>
                 {regencies.map((item) => (
@@ -268,7 +268,7 @@ const AddKandangForm = ({ visible, onCancel, onOk, confirmLoading }) => {
             </Form.Item>
           </Col>
 
-          <Col span={12}>
+          <Col xs={24} sm={24} md={12}>
             <Form.Item label="Kecamatan" name="kecamatan">
               <Select placeholder="Pilih Kecamatan" onChange={handleDistrictChange}>
                 {districts.map((item) => (
@@ -280,7 +280,7 @@ const AddKandangForm = ({ visible, onCancel, onOk, confirmLoading }) => {
             </Form.Item>
           </Col>
 
-          <Col span={12}>
+          <Col xs={24} sm={24} md={12}>
             <Form.Item label="Desa" name="desa">
               <Select placeholder="Pilih Desa">
                 {villages.map((item) => (
@@ -292,13 +292,13 @@ const AddKandangForm = ({ visible, onCancel, onOk, confirmLoading }) => {
             </Form.Item>
           </Col>
 
-          <Col span={12}>
+          <Col xs={24} sm={24} md={12}>
             <Form.Item label="Alamat" name="alamat">
               <Input value={mergedLocation} readOnly placeholder="Alamat akan terisi otomatis" />
             </Form.Item>
           </Col>
 
-          <Col span={12}>
+          <Col xs={24} sm={24} md={12}>
             <Form.Item
               label="Latitude:"
               name="latitude"
@@ -313,7 +313,7 @@ const AddKandangForm = ({ visible, onCancel, onOk, confirmLoading }) => {
               <Input placeholder="Masukkan Latitude" />
             </Form.Item>
           </Col>
-          <Col span={12}>
+          <Col xs={24} sm={24} md={12}>
             <Form.Item
               label="Longitude:"
               name="longitude"

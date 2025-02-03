@@ -157,22 +157,22 @@ const EditHewanForm = ({ visible, onCancel, onOk, confirmLoading, currentRowData
     >
       <Form form={form} layout="vertical">
         <Row gutter={16}>
-          <Col span={12}>
+          <Col xs={24} sm={24} md={12}>
             <Form.Item label="Kode Eartag Nasional" name="kodeEartagNasional" rules={[{ required: true, message: "Masukkan Kode Eartag Nasional!" }]}>
               <Input placeholder="Masukkan kode" />
             </Form.Item>
           </Col>
-          <Col span={12}>
+          <Col xs={24} sm={24} md={12}>
             <Form.Item label="No Kartu Ternak" name="noKartuTernak" rules={[{ required: true, message: "Masukkan No Kartu Ternak!" }]}>
               <Input placeholder="Masukkan No Kartu Ternak" />
             </Form.Item>
           </Col>
-          <Col span={12}>
+          <Col xs={24} sm={24} md={12}>
             <Form.Item label="ID Isikhnas ternak" name="idIsikhnasTernak" rules={[{ required: true, message: "Masukkan ID Isikhnas ternak!" }]}>
               <Input placeholder="Masukkan ID Isikhnas ternak" />
             </Form.Item>
           </Col>
-          <Col span={12}>
+          <Col xs={24} sm={24} md={12}>
             <Form.Item
               label="Jenis Hewan:"
               name="jenisHewanId"
@@ -192,7 +192,7 @@ const EditHewanForm = ({ visible, onCancel, onOk, confirmLoading, currentRowData
               </Select>
             </Form.Item>
           </Col>
-          <Col span={12}>
+          <Col xs={24} sm={24} md={12}>
             <Form.Item
               label="Rumpun Hewan:"
               name="rumpunHewanId"
@@ -212,7 +212,7 @@ const EditHewanForm = ({ visible, onCancel, onOk, confirmLoading, currentRowData
               </Select>
             </Form.Item>
           </Col>
-          <Col span={12}>
+          <Col xs={24} sm={24} md={12}>
             <Form.Item
               label="Jenis Kelamin:"
               name="sex"
@@ -233,7 +233,7 @@ const EditHewanForm = ({ visible, onCancel, onOk, confirmLoading, currentRowData
               </Select>
             </Form.Item>
           </Col>
-          <Col span={12}>
+          <Col xs={24} sm={24} md={12}>
             <Form.Item
               label="Tempat Lahir:"
               name="tempatLahir"
@@ -247,7 +247,7 @@ const EditHewanForm = ({ visible, onCancel, onOk, confirmLoading, currentRowData
               <Input type="text" placeholder="Masukkan Tempat Lahir" />
             </Form.Item>
           </Col>
-          <Col span={12}>
+          <Col xs={24} sm={24} md={12}>
             <Form.Item
               label="Tanggal Lahir:"
               name="tanggalLahir"
@@ -261,7 +261,7 @@ const EditHewanForm = ({ visible, onCancel, onOk, confirmLoading, currentRowData
               <Input type="date" placeholder="Masukkan Tanggal Lahir" />
             </Form.Item>
           </Col>
-          <Col span={12}>
+          <Col xs={24} sm={24} md={12}>
             <Form.Item label="Nama Peternak" name="idPeternak" rules={[{ required: true, message: "Pilih Nama Peternak!" }]}>
               <Select placeholder="Pilih Nama Peternak">
                 {peternakList.map((item) => (
@@ -272,7 +272,7 @@ const EditHewanForm = ({ visible, onCancel, onOk, confirmLoading, currentRowData
               </Select>
             </Form.Item>
           </Col>
-          <Col span={12}>
+          <Col xs={24} sm={24} md={12}>
             <Form.Item label="Kandang" name="idKandang" rules={[{ required: true, message: "Pilih Nama Kandang!" }]}>
               <Select placeholder="Pilih Nama Kandang">
                 {kandangList.map((val) => (
@@ -283,7 +283,7 @@ const EditHewanForm = ({ visible, onCancel, onOk, confirmLoading, currentRowData
               </Select>
             </Form.Item>
           </Col>
-          <Col span={12}>
+          <Col xs={24} sm={24} md={12}>
             <Form.Item
               label="Petugas Pendaftar:"
               name="petugasId"
@@ -303,7 +303,7 @@ const EditHewanForm = ({ visible, onCancel, onOk, confirmLoading, currentRowData
               </Select>
             </Form.Item>
           </Col>
-          <Col span={12}>
+          <Col xs={24} sm={24} md={12}>
             <Form.Item
               label="Tujuan Pemeliharaan:"
               name="idTujuanPemeliharaan"

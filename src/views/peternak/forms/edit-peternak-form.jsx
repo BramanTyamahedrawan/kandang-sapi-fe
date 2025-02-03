@@ -261,7 +261,7 @@ const EditPeternakForm = ({ visible, onCancel, onOk, confirmLoading, currentRowD
         autoComplete="off"
       >
         <Row gutter={16}>
-          <Col span={12}>
+          <Col xs={24} sm={24} md={12}>
             <Form.Item
               label="ID Isikhnas:"
               name="idIsikhnas"
@@ -275,17 +275,17 @@ const EditPeternakForm = ({ visible, onCancel, onOk, confirmLoading, currentRowD
               <Input placeholder="Masukkan ID Isikhnas Peternak" />
             </Form.Item>
           </Col>
-          <Col span={12}>
+          <Col xs={24} sm={24} md={12}>
             <Form.Item label="Nama Peternak:" name="namaPeternak" rules={[{ required: true, message: "Silahkan isi nama peternak" }]}>
               <Input placeholder="Masukkan Nama Peternak" />
             </Form.Item>
           </Col>
-          <Col span={12}>
+          <Col xs={24} sm={24} md={12}>
             <Form.Item label="NIK Peternak:" name="nikPeternak" rules={[{ required: true, message: "Silahkan isi NIK Peternak" }]}>
               <Input placeholder="Masukkan NIK Peternak" />
             </Form.Item>
           </Col>
-          <Col span={12}>
+          <Col xs={24} sm={24} md={12}>
             <Form.Item
               label="No. Telepon:"
               name="noTelepon"
@@ -299,7 +299,7 @@ const EditPeternakForm = ({ visible, onCancel, onOk, confirmLoading, currentRowD
               <Input placeholder="Masukkan No. Telepon Peternak" />
             </Form.Item>
           </Col>
-          <Col span={12}>
+          <Col xs={24} sm={24} md={12}>
             <Form.Item
               label="Email:"
               name="email"
@@ -313,7 +313,7 @@ const EditPeternakForm = ({ visible, onCancel, onOk, confirmLoading, currentRowD
               <Input placeholder="Masukkan Email Peternak" />
             </Form.Item>
           </Col>
-          <Col span={12}>
+          <Col xs={24} sm={24} md={12}>
             <Form.Item
               label="Jenis Kelamin:"
               name="jenisKelamin"
@@ -334,7 +334,7 @@ const EditPeternakForm = ({ visible, onCancel, onOk, confirmLoading, currentRowD
               </Select>
             </Form.Item>
           </Col>
-          <Col span={12}>
+          <Col xs={24} sm={24} md={12}>
             <Form.Item
               label="Tanggal Lahir:"
               name="tanggalLahir"
@@ -348,7 +348,7 @@ const EditPeternakForm = ({ visible, onCancel, onOk, confirmLoading, currentRowD
               <Input type="date" placeholder="Masukkan Tanggal Lahir" />
             </Form.Item>
           </Col>
-          <Col span={12}>
+          <Col xs={24} sm={24} md={12}>
             <Form.Item label="Provinsi:" name="provinsi" rules={[{ required: true, message: "Silahkan pilih provinsi" }]}>
               <Select placeholder="Pilih Provinsi" onChange={handleProvinceChange} allowClear>
                 {provinces.map((province) => (
@@ -359,7 +359,7 @@ const EditPeternakForm = ({ visible, onCancel, onOk, confirmLoading, currentRowD
               </Select>
             </Form.Item>
           </Col>
-          <Col span={12}>
+          <Col xs={24} sm={24} md={12}>
             <Form.Item label="Kabupaten:" name="kabupaten" rules={[{ required: true, message: "Silahkan pilih kabupaten" }]}>
               <Select placeholder="Pilih Kabupaten" onChange={handleRegencyChange} allowClear disabled={!regencies.length}>
                 {regencies.map((regency) => (
@@ -370,7 +370,7 @@ const EditPeternakForm = ({ visible, onCancel, onOk, confirmLoading, currentRowD
               </Select>
             </Form.Item>
           </Col>
-          <Col span={12}>
+          <Col xs={24} sm={24} md={12}>
             <Form.Item label="Kecamatan:" name="kecamatan" rules={[{ required: true, message: "Silahkan pilih kecamatan" }]}>
               <Select placeholder="Pilih Kecamatan" onChange={handleDistrictChange} allowClear disabled={!districts.length}>
                 {districts.map((district) => (
@@ -381,7 +381,7 @@ const EditPeternakForm = ({ visible, onCancel, onOk, confirmLoading, currentRowD
               </Select>
             </Form.Item>
           </Col>
-          <Col span={12}>
+          <Col xs={24} sm={24} md={12}>
             <Form.Item label="Desa:" name="desa" rules={[{ required: true, message: "Silahkan pilih desa" }]}>
               <Select placeholder="Pilih Desa" onChange={handleVillageChange} allowClear disabled={!villages.length}>
                 {villages.map((village) => (
@@ -392,22 +392,22 @@ const EditPeternakForm = ({ visible, onCancel, onOk, confirmLoading, currentRowD
               </Select>
             </Form.Item>
           </Col>
-          <Col span={12}>
+          <Col xs={24} sm={24} md={12}>
             <Form.Item label="Dusun:" name="dusun" rules={[{ required: true, message: "Silahkan isi dusun" }]}>
               <Input placeholder="Masukkan dusun" />
             </Form.Item>
           </Col>
-          <Col span={12}>
+          <Col xs={24} sm={24} md={12}>
             <Form.Item label="Alamat:" name="alamat" rules={[{ required: true, message: "Silahkan isi alamat" }]}>
               <Input placeholder="Alamat akan terisi otomatis" readOnly />
             </Form.Item>
           </Col>
-          <Col span={12}>
+          <Col xs={24} sm={24} md={12}>
             <Form.Item label="Lokasi:" name="lokasi" rules={[{ required: true, message: "Silahkan isi lokasi" }]}>
               <Input placeholder="Masukan Lokasi" />
             </Form.Item>
           </Col>
-          <Col span={12}>
+          <Col xs={24} sm={24} md={12}>
             <Form.Item
               label="Latitude:"
               name="latitude"
@@ -422,7 +422,7 @@ const EditPeternakForm = ({ visible, onCancel, onOk, confirmLoading, currentRowD
               <Input placeholder="Masukkan Latitude" />
             </Form.Item>
           </Col>
-          <Col span={12}>
+          <Col xs={24} sm={24} md={12}>
             <Form.Item
               label="Longitude:"
               name="longitude"
@@ -437,7 +437,7 @@ const EditPeternakForm = ({ visible, onCancel, onOk, confirmLoading, currentRowD
               <Input placeholder="Masukkan Longitude" />
             </Form.Item>
           </Col>
-          <Col span={12}>
+          <Col xs={24} sm={24} md={12}>
             <Form.Item
               label="Petugas Pendaftar:"
               name="petugasId"
@@ -457,7 +457,7 @@ const EditPeternakForm = ({ visible, onCancel, onOk, confirmLoading, currentRowD
               </Select>
             </Form.Item>
           </Col>
-          <Col span={12}>
+          <Col xs={24} sm={24} md={12}>
             <Form.Item
               label="Tanggal Pendaftaran:"
               name="tanggalPendaftaran"

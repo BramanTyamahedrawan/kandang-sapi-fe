@@ -10,7 +10,7 @@ import MapWithChoropleth from "./components/Map/MapWithChoropleth";
 const Dashboard = () => {
   return (
     <div className="app-container">
-      <h2
+      {/* <h2
         style={{
           alignItems: "left",
           padding: "10px",
@@ -19,8 +19,8 @@ const Dashboard = () => {
         }}
       >
         Selamat Datang
-      </h2>
-      <Row gutter={[16, 16]} justify="start" style={{ paddingLeft: 9 }}>
+      </h2> */}
+      <Row gutter={[16, 16]} justify="start">
         <Col>
           <ImportAllData />
         </Col>
@@ -28,6 +28,7 @@ const Dashboard = () => {
           <DownloadFormatCsv />
         </Col>
       </Row>
+      <br />
       <BoxCard />
       {/* <BarChart /> */}
       {/* <MapWithChoropleth /> */}

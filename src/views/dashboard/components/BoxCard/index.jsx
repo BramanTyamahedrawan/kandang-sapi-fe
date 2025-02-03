@@ -1,11 +1,11 @@
-import { Component } from 'react'
-import { Card } from 'antd'
-import { connect } from 'react-redux'
+import { Component } from "react";
+import { Card } from "antd";
+import { connect } from "react-redux";
 
-import BackgroundImage from '@/assets/images/Peternakan-Sapi.jpg'
-import './index.less'
+import BackgroundImage from "@/assets/images/Peternakan-Sapi.jpg";
+import "./index.less";
 class BoxCard extends Component {
-  state = {}
+  state = {};
   render() {
     return (
       <div className="box-card-component">
@@ -15,17 +15,17 @@ class BoxCard extends Component {
               alt="Contoh Gambar"
               src={BackgroundImage}
               style={{
-                width: '100%',
-                height: '200px',
-                objectFit: 'cover',
-                display: 'block', // Menghilangkan spasi bawah default pada img
+                width: "100%",
+                height: "450px",
+                objectFit: "cover",
+                display: "block", // Menghilangkan spasi bawah default pada img
               }}
             />
           }
         ></Card>
       </div>
-    )
+    );
   }
 }
 
-export default connect((state) => state.user)(BoxCard)
+export default connect((state) => state.user)(BoxCard);
